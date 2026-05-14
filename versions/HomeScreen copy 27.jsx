@@ -1,0 +1,311 @@
+import React, { useState, useEffect } from "react";
+import {
+  SafeAreaView, View, Text, ScrollView, TouchableOpacity,
+  ImageBackground, Image, StyleSheet, Dimensions, Modal,
+} from "react-native";
+import { colors, spacing, radius, shadows } from "../theme";
+import { useFocusEffect } from '@react-navigation/native';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import OnboardingCarousel from "../components/OnboardingCarousel";
+
+const SERIF     = "SourceSerif4-Regular";
+const { width: SW, height: SH } = Dimensions.get("window");
+const PLAN_STARTED_KEY  = "safar_plan_started_v1";
+const ONBOARDED_KEY     = "safar_onboarded_v1";
+const HERO_H = Math.round(SH * 0.36) + 50;
+const TILE_W = (SW - 20 * 2 - 10) / 2;
+
+const CONTENT_TILES = [
+  { id:"duas",   label:"Duas",           sub:"Browse, save and practise", screen:"Duas",         image:require("../assets/journey3.png") },
+  { id:"expect", label:"What to Expect", sub:"Worship, health & travel tips", screen:"WhatToExpect", image:require("../assets/what_to_expect.jpg") },
+];
+
+// ── About modal ───────────────────────────────────────────────────────────────
+function AboutModal({ visible, onClose }) {
+  return (
+    <Modal visible={visible} transparent animationType="fade">
+      <TouchableOpacity style={ab.overlay} activeOpacity={1} onPress={onClose}>
+        <View style={ab.card} onStartShouldSetResponder={() => true}>
+          <View style={ab.iconRow}>
+            <Text style={ab.icon}>{"\uD83D\uDD4B"}</Text>
+          </View>
+          <Text style={ab.title}>What is Safar?</Text>
+          <Text style={ab.body}>
+            Safar is here to help you plan, organise and prepare for your sacred Umrah or Hajj journey.{"\n\n"}
+            Create a custom step-by-step plan so you don{"\u2019"}t miss a thing, pin contacts for your hotel, guide and travel group, take personal notes, and track your progress through every ibadah.{"\n\n"}
+            Join groups with fellow pilgrims to share milestones, learn and practise the most important du{"\u02bf\u0101\u02be"}s, and carry the guidance of scholars in your pocket every step of the way.{"\n\n"}
+            May Allah accept your journey. {"\uD83C\uDF3F"}
+          </Text>
+          <TouchableOpacity style={ab.btn} onPress={onClose} activeOpacity={0.85}>
+            <Text style={ab.btnTxt}>Got it</Text>
+          </TouchableOpacity>
+        </View>
+      </TouchableOpacity>
+    </Modal>
+  );
+}
+
+const ab = StyleSheet.create({
+  overlay: { flex:1, backgroundColor:"rgba(0,0,0,0.55)", alignItems:"center", justifyContent:"center", paddingHorizontal:24 },
+  card:    { backgroundColor:"#F5EDE0", borderRadius:20, padding:24, width:"100%", maxWidth:360 },
+  iconRow: { alignItems:"center", marginBottom:12 },
+  icon:    { fontSize:32 },
+  title:   { fontFamily:SERIF, fontSize:22, color:"#100E0A", textAlign:"center", marginBottom:12 },
+  body:    { fontSize:16, color:"#5A5650", lineHeight:24, fontWeight:"400", textAlign:"left" },
+  btn:     { marginTop:20, backgroundColor:"#1E3D30", borderRadius:10, paddingVertical:12, alignItems:"center" },
+  btnTxt:  { fontFamily:SERIF, fontSize:16, color:"#fff", fontWeight:"500" },
+});
+
+// ── Main screen ───────────────────────────────────────────────────────────────
+
+// ── Daily du'a — rotates based on day of year ─────────────────────────────────
+const DAILY_DUAS = [
+  { arabic:"اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ", transliteration:"Allahumma inni as'alukal-'afwa wal-'afiyah", translation:"O Allah, I ask You for pardon and well-being.", ref:"Ibn Majah" },
+  { arabic:"رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً", transliteration:"Rabbana atina fid-dunya hasanah", translation:"Our Lord, give us good in this world and good in the Hereafter.", ref:"Al-Baqarah 2:201" },
+  { arabic:"اللَّهُمَّ أَعِنِّي عَلَى ذِكْرِكَ وَشُكْرِكَ وَحُسْنِ عِبَادَتِكَ", transliteration:"Allahumma a'inni 'ala dhikrika wa shukrika", translation:"O Allah, help me to remember You, to be grateful to You and to worship You well.", ref:"Abu Dawud" },
+  { arabic:"سُبْحَانَ اللَّهِ وَبِحَمْدِهِ سُبْحَانَ اللَّهِ الْعَظِيمِ", transliteration:"Subhanallahi wa bihamdihi, Subhanallahil-'Azim", translation:"Glory be to Allah and His is the praise; Glory be to Allah the Mighty.", ref:"Al-Bukhari" },
+  { arabic:"اللَّهُمَّ اغْفِرْ لِي وَلِوَالِدَيَّ وَلِلْمُؤْمِنِينَ", transliteration:"Allahummaghfir li wa liwalidayya", translation:"O Allah, forgive me, my parents and the believers.", ref:"Nuh 71:28" },
+  { arabic:"رَبِّ اشْرَحْ لِي صَدْرِي وَيَسِّرْ لِي أَمْرِي", transliteration:"Rabbi ishrah li sadri wa yassir li amri", translation:"My Lord, expand for me my breast and ease for me my task.", ref:"Ta-Ha 20:25-26" },
+  { arabic:"حَسْبِيَ اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ عَلَيْهِ تَوَكَّلْتُ", transliteration:"Hasbiyallahu la ilaha illa hu, 'alayhi tawakkaltu", translation:"Allah is sufficient for me; there is no god but He, in Him I put my trust.", ref:"At-Tawbah 9:129" },
+];
+const todayDua = () => {
+  const day = Math.floor(Date.now() / 86400000);
+  return DAILY_DUAS[day % DAILY_DUAS.length];
+};
+export default function HomeScreen({ navigation }) {
+  const [planStarted,    setPlanStarted]    = useState(null);
+  const scrollRef = React.useRef(null);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      scrollRef.current?.scrollTo?.({ y: 0, animated: false });
+    }, [])
+  );
+  const [showAbout,      setShowAbout]      = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  useEffect(() => {
+    AsyncStorage.getItem(PLAN_STARTED_KEY)
+      .then(v => setPlanStarted(v === "true"))
+      .catch(() => setPlanStarted(false));
+    AsyncStorage.getItem(ONBOARDED_KEY)
+      .then(v => { if (v !== "true") setShowOnboarding(true); })
+      .catch(() => setShowOnboarding(true));
+  }, []);
+
+  const handlePlanPress = async () => {
+    if (!planStarted) {
+      await AsyncStorage.setItem(PLAN_STARTED_KEY, "true");
+      setPlanStarted(true);
+    }
+    navigation?.navigate?.("Journey");
+  };
+
+  const handleOnboardingComplete = async () => {
+    await AsyncStorage.setItem(ONBOARDED_KEY, "true").catch(() => {});
+    setShowOnboarding(false);
+  };
+
+  const planBtnLabel = planStarted === null ? "Loading..."
+    : planStarted ? "View My Plan" : "Create Your Plan";
+
+  return (
+    <SafeAreaView style={s.safe}>
+      <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false} bounces>
+
+        {/* Hero */}
+        <ImageBackground
+          source={require("../assets/homescreen_hero2.jpg")}
+          style={s.hero}
+          resizeMode="cover">
+
+          {/* Top row: Safar title + About button */}
+          <View style={s.heroTopRow}>
+            <View>
+              <Text style={s.appName}>Safar</Text>
+              <Text style={s.appTagline}>Your companion for Umrah and Hajj.</Text>
+            </View>
+            <TouchableOpacity style={s.aboutBtn} onPress={() => setShowAbout(true)} activeOpacity={0.85}>
+              <Text style={s.aboutBtnTop}>What is</Text>
+              <Text style={s.aboutBtnMark}>?</Text>
+              <Text style={s.aboutBtnBottom}>Safar</Text>
+            </TouchableOpacity>
+          </View>
+
+        </ImageBackground>
+
+        {/* My Plan card */}
+        <View style={s.planCard}>
+          <View style={s.planTopRow}>
+            <View style={s.planTitleBlock}>
+              <Text style={s.planTitle}>My Plan</Text>
+              <Text style={s.planSub}>
+                {planStarted ? "My journey, step by step" : "My journey, step by step"}
+              </Text>
+            </View>
+            <TouchableOpacity
+              style={!planStarted ? [s.planBtn, s.planBtnCreate] : s.planBtn}
+              onPress={handlePlanPress}
+              activeOpacity={0.85}>
+              <Text style={s.planBtnText}>{planBtnLabel}</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={s.planDivider} />
+          <View style={s.planStepsRow}>
+            <Text style={s.planStepsLabel}>Steps completed</Text>
+            <Text style={s.planStepsCount}>4 of 12</Text>
+          </View>
+          <View style={s.progTrack}>
+            {Array.from({length:12}, (_,i) => (
+              <View key={i} style={i < 4 ? [s.progSeg, s.progSegFill] : s.progSeg} />
+            ))}
+          </View>
+        </View>
+
+        {/* Today's du'a */}
+        {(() => { const dua = todayDua(); return (
+          <TouchableOpacity style={s.dailyDuaCard}
+            onPress={() => navigation?.navigate?.("Duas")}
+            activeOpacity={0.88}>
+            <View style={s.dailyDuaHeader}>
+              <Text style={s.dailyDuaEyebrow}>{"TODAY'S DUʿĀ"}</Text>
+              <Text style={{ fontSize:11, color:"#8A7D70" }}>{"Tap to explore →"}</Text>
+            </View>
+            <Text style={s.dailyDuaArabic}>{dua.arabic}</Text>
+            <Text style={s.dailyDuaTranslit}>{dua.transliteration}</Text>
+            <Text style={s.dailyDuaTranslation}>{dua.translation}</Text>
+            <Text style={s.dailyDuaRef}>{dua.ref}</Text>
+          </TouchableOpacity>
+        ); })()}
+
+        {/* Body */}
+        <View style={s.body}>
+
+          {/* Two tiles */}
+          <View style={s.tilesRow}>
+            {CONTENT_TILES.map(tile => (
+              <TouchableOpacity key={tile.id} style={s.tile} activeOpacity={0.88}
+                onPress={() => navigation?.navigate?.(tile.screen)}>
+                <Image source={tile.image} style={s.tileImg} resizeMode="cover" />
+                <View style={s.tileBody}>
+                  <Text style={s.tileLabel}>{tile.label}</Text>
+                  <Text style={s.tileSub}>{tile.sub}</Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          {/* Connect & Focus */}
+          <View style={s.connectSection}>
+            <Text style={s.connectLabel}>Connect & Focus</Text>
+            <View style={s.actionRow}>
+              <TouchableOpacity style={s.actionCard} activeOpacity={0.88}
+                onPress={() => navigation?.navigate?.("Groups")}>
+                <View style={s.actionIconWrap}>
+                  <Text style={{ fontSize:20 }}>{"\uD83D\uDC65"}</Text>
+                </View>
+                <View style={s.actionText}>
+                  <Text style={s.actionTitle}>Groups</Text>
+                  <Text style={s.actionSub}>Share milestones and updates</Text>
+                </View>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={s.actionCard} activeOpacity={0.88}
+                onPress={() => navigation?.navigate?.("Focus")}>
+                <View style={s.actionIconWrap}>
+                  <Text style={{ fontSize:20 }}>{"\uD83C\uDF19"}</Text>
+                </View>
+                <View style={s.actionText}>
+                  <Text style={s.actionTitle}>Focus Mode</Text>
+                  <Text style={s.actionSub}>Count rounds · stay present</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <View style={{ height:32 }} />
+        </View>
+      </ScrollView>
+
+      <AboutModal visible={showAbout} onClose={() => setShowAbout(false)} />
+      <OnboardingCarousel
+        visible={showOnboarding}
+        onComplete={handleOnboardingComplete}
+      />
+    </SafeAreaView>
+  );
+}
+
+const s = StyleSheet.create({
+  safe:   { flex:1, backgroundColor:"#E8DDD0" },
+
+  // Hero
+  hero:        { width:"100%", height:HERO_H, justifyContent:"flex-start" },
+  heroTopRow:  {
+    flexDirection:"row", alignItems:"flex-start", justifyContent:"space-between",
+    paddingHorizontal:20, paddingTop:12,
+  },
+  appName:    { fontFamily:SERIF, fontSize:28, fontWeight:"400", color:"#100E0A", lineHeight:34 },
+  appTagline: { fontSize:14, color:"#1E3D30", fontWeight:"400", marginTop:1 },
+  aboutBtn:   {
+    borderRadius:10, backgroundColor:"rgba(255,255,255,0.88)",
+    borderWidth:1, borderColor:"rgba(47,93,80,0.25)",
+    alignItems:"center", justifyContent:"center",
+    paddingHorizontal:10, paddingVertical:6,
+    marginTop:4,
+  },
+  aboutBtnTop:    { fontSize:10, color:"#1E3D30", fontWeight:"600", letterSpacing:0.3, lineHeight:13 },
+  aboutBtnMark:   { fontSize:18, color:"#1E3D30", fontWeight:"700", lineHeight:22 },
+  aboutBtnBottom: { fontSize:10, color:"#1E3D30", fontWeight:"600", letterSpacing:0.3, lineHeight:13 },
+
+  // Plan card
+  dailyDuaCard:       { backgroundColor:"#FDFAF4", borderRadius:16, borderWidth:1, borderColor:"#C8BFB2", padding:18, marginBottom:14, shadowColor:"#4A2E10", shadowOffset:{width:0,height:4}, shadowOpacity:0.16, shadowRadius:10, elevation:5 },
+  dailyDuaHeader:     { flexDirection:"row", alignItems:"center", justifyContent:"space-between", marginBottom:12 },
+  dailyDuaEyebrow:    { fontSize:9, fontWeight:"800", letterSpacing:2.5, color:"#3B6B58" },
+  dailyDuaArabic:     { fontFamily:"SourceSerif4-Regular", fontSize:20, color:"#100E0A", textAlign:"right", lineHeight:34, marginBottom:10 },
+  dailyDuaTranslit:   { fontSize:13, color:"#5C534A", fontStyle:"italic", marginBottom:6, lineHeight:20 },
+  dailyDuaTranslation:{ fontFamily:"SourceSerif4-Regular", fontSize:15, color:"#100E0A", lineHeight:22, marginBottom:8 },
+  dailyDuaRef:        { fontSize:11, color:"#8A7D70", fontWeight:"500" },
+  planCard: {
+    backgroundColor:"#F5EDE0", borderRadius:16,
+    marginHorizontal:20, marginTop:-16,
+    shadowColor:"#4A2E10", shadowOffset:{width:0,height:3},
+    shadowOpacity:0.20, shadowRadius:10, elevation:5,
+    paddingHorizontal:18, paddingVertical:14,
+  },
+  planTopRow:    { flexDirection:"row", alignItems:"center", justifyContent:"space-between", marginBottom:10 },
+  planTitleBlock:{ flex:1, paddingRight:8 },
+  planTitle:     { fontFamily:SERIF, fontSize:18, fontWeight:"500", color:"#100E0A", marginBottom:2 },
+  planSub:       { fontSize:14, color:"#6A5E50", fontWeight:"400" },
+  planBtn:       { backgroundColor:"#1E3D30", borderRadius:999, paddingHorizontal:14, paddingVertical:7, flexShrink:0 },
+  planBtnCreate: { backgroundColor:"#1A3828" },
+  planBtnText:   { fontSize:14, color:"#fff", fontWeight:"500" },
+  planDivider:   { height:1, backgroundColor:"#C8BFB2", marginBottom:10 },
+  planStepsRow:  { flexDirection:"row", justifyContent:"space-between", alignItems:"center", marginBottom:8 },
+  planStepsLabel:{ fontFamily:SERIF, fontSize:16, color:"#4A3E30" },
+  planStepsCount:{ fontFamily:SERIF, fontSize:16, color:"#1E3D30", fontWeight:"500" },
+  progTrack:     { flexDirection:"row", gap:3 },
+  progSeg:       { flex:1, height:6, borderRadius:3, backgroundColor:"#C8BFB2" },
+  progSegFill:   { backgroundColor:"#1E3D30" },
+
+  // Body
+  body: { backgroundColor:"#E8DDD0", paddingHorizontal:20, paddingTop:10, marginTop:0 },
+
+  // Tiles
+  tilesRow: { flexDirection:"row", gap:10, marginBottom:16 },
+  tile:     { width:TILE_W, borderRadius:10, overflow:"hidden", backgroundColor:"#F5EDE0", borderWidth:1, borderColor:"#C8BFB2", shadowColor:"#4A2E10", shadowOffset:{width:0,height:3}, shadowOpacity:0.20, shadowRadius:10, elevation:5 },
+  tileImg:  { width:"100%", height:78 },
+  tileBody: { padding:10, alignItems:"center" },
+  tileLabel:{ fontFamily:SERIF, fontSize:18, fontWeight:"500", color:"#100E0A", lineHeight:23, marginBottom:3, textAlign:"center" },
+  tileSub:  { fontSize:16, color:"#6A5E50", fontWeight:"400", lineHeight:20, textAlign:"center" },
+
+  // Connect section
+  connectSection: { marginBottom:12 },
+  connectLabel:   { fontSize:11, fontWeight:"700", letterSpacing:1.5, color:"#6A5E50", textTransform:"uppercase", textAlign:"center", marginBottom:10 },
+  actionRow:  { flexDirection:"row", gap:10 },
+  actionCard: { flex:1, flexDirection:"row", alignItems:"center", gap:10, backgroundColor:"#F5EDE0", borderRadius:12, borderWidth:1, borderColor:"#C8BFB2", padding:12, shadowColor:"#4A2E10", shadowOffset:{width:0,height:3}, shadowOpacity:0.20, shadowRadius:10, elevation:5 },
+  actionIconWrap: { width:40, height:40, borderRadius:10, backgroundColor:"rgba(47,93,80,0.08)", alignItems:"center", justifyContent:"center", flexShrink:0 },
+  actionText: { flex:1 },
+  actionTitle:{ fontFamily:SERIF, fontSize:14, color:"#100E0A", marginBottom:2 },
+  actionSub:  { fontSize:10, color:"#6A5E50", fontWeight:"400", lineHeight:13 },
+});

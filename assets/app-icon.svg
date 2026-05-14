@@ -1,0 +1,15 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="c">
+      <rect width="1024" height="1024" rx="220"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#c)">
+    <rect width="1024" height="1024" fill="#2F5D50"/>
+    <!-- Kaaba body -->
+    <rect x="222" y="202" width="580" height="620" rx="0"
+          fill="none" stroke="#C8A96A" stroke-width="14" stroke-linejoin="round"/>
+    <!-- Kiswa band — solid gold rectangle -->
+    <rect x="222" y="370" width="580" height="58" fill="#C8A96A"/>
+  </g>
+</svg>
