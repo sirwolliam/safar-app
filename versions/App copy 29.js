@@ -100,7 +100,7 @@ const ph = StyleSheet.create({
 const TAB_CONFIG = {
   Home:    { Icon: House,      label:"Home"    },
   Guides:  { Icon: BookBookmark, label:"Guidance" },
-  Focus:   { Icon: Moon,       label:"Focus Mode", center:true },
+  Focus:   { Icon: Moon,       label:"Focus",  center:true },
   Duas:    { Icon: BookOpen,   label:"Duas"    },
   Prepare: { Icon: ListChecks, label:"Prepare" },
 };

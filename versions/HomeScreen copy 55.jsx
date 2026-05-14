@@ -12,11 +12,6 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {
-  MapTrifold, BookOpenText, HandsPraying, CompassRose,
-  UsersThree, ShoppingBag, CheckSquare, Sparkle,
-  ArrowRight,
-} from "phosphor-react-native";
 
 const SERIF = "SourceSerif4-Regular";
 const { width: SW, height: SH } = Dimensions.get("window");
@@ -50,7 +45,7 @@ const HERO_SLIDES = [
     sub: "Every ibadah, in order, with the right du\u02bfa\u02be",
     cta: "View guides",
     ctaIsAbout: false,
-    ctaScreen: "Guides",
+    ctaScreen: "Journey",
     showGreeting: false,
   },
   {
@@ -311,7 +306,7 @@ export default function HomeScreen({ navigation }) {
   const ctxLabel  = planStarted
     ? "Continue: Umrah Guide, Step 2 \u2192"
     : "Add your booking info \u2192";
-  const ctxScreen = planStarted ? "Guides" : "SafarAssist";
+  const ctxScreen = planStarted ? "Journey" : "ImportTrip";
 
   // Prayer + date data (computed once per render — fine for a home screen)
   const { current: currentPrayer, next: nextPrayer } = getPrayerInfo();
@@ -482,76 +477,175 @@ export default function HomeScreen({ navigation }) {
         )}
 
         {/* ══════════════════════════════════════════════════════════════════
-            QUICK ACCESS ICON GRID — 2×4
+            MY JOURNEY — 2×2 image tiles, varied scrims & text treatments
         ══════════════════════════════════════════════════════════════════ */}
-        <View style={s.gridWrap}>
-          {[
-            { label:"Itinerary",  Icon:CheckSquare,  screen:"MyBoard",      tab:false },
-            { label:"Maps",       Icon:MapTrifold,   screen:"Map",          tab:false },
-            { label:"Du'ās",      Icon:HandsPraying, screen:"Duas",         tab:true  },
-            { label:"Guidance",   Icon:BookOpenText, screen:"Guides",       tab:true  },
-            { label:"Community",  Icon:UsersThree,   screen:"Groups",       tab:false },
-            { label:"Shop",       Icon:ShoppingBag,  screen:"Prepare",      tab:true  },
-            { label:"Checklist",  Icon:CheckSquare,  screen:"WhatToExpect", tab:false },
-            { label:"Safar Assist",Icon:Sparkle,     screen:"SafarAssist",  tab:false },
-          ].map(({ label, Icon, screen, tab }) => (
-            <TouchableOpacity
-              key={label}
-              style={s.gridCell}
-              onPress={() => navigation?.navigate?.(screen)}
-              activeOpacity={0.78}
+        <View style={s.sectionDivider}>
+          <View style={s.sectionBar} />
+          <Text style={s.sectionLabel}>MY JOURNEY</Text>
+          <View style={s.sectionLine} />
+        </View>
+
+        <View style={s.gridRow}>
+          {/* Umrah Guide */}
+          <TouchableOpacity
+            style={[s.gridTile, { marginRight: 6 }]}
+            activeOpacity={0.88}
+            onPress={() => navigation?.navigate?.("UmrahGuide")}
+          >
+            <ImageBackground
+              source={require("../assets/kaaba_mixed.png")}
+              style={{ flex: 1 }}
+              imageStyle={{ borderRadius: 14 }}
+              resizeMode="cover"
             >
-              <View style={s.gridIconWrap}>
-                <Icon size={24} color="#4A5C48" weight="regular" />
+              <View style={[s.gridScrim, { backgroundColor: "rgba(10,28,18,0.38)" }]} />
+              <View style={s.gridInner}>
+                <Text style={s.gridEyebrowLight}>STEP BY STEP</Text>
+                <Text style={s.gridTitleLight}>{"Umrah\nGuide"}</Text>
               </View>
-              <Text style={s.gridLabel}>{label}</Text>
-            </TouchableOpacity>
-          ))}
+            </ImageBackground>
+          </TouchableOpacity>
+
+          {/* Sacred Places */}
+          <TouchableOpacity
+            style={[s.gridTile, { marginLeft: 6 }]}
+            activeOpacity={0.88}
+            onPress={() => navigation?.navigate?.("Map")}
+          >
+            <ImageBackground
+              source={require("../assets/kaaba_map.png")}
+              style={{ flex: 1 }}
+              imageStyle={{ borderRadius: 14 }}
+              resizeMode="cover"
+            >
+              <View style={[s.gridScrim, { backgroundColor: "rgba(8,14,24,0.32)" }]} />
+              <View style={s.gridInner}>
+                <Text style={s.gridEyebrowGold}>EXPLORE</Text>
+                <Text style={s.gridTitleLight}>{"Sacred\nPlaces"}</Text>
+              </View>
+            </ImageBackground>
+          </TouchableOpacity>
+        </View>
+
+        <View style={[s.gridRow, { marginTop: 8 }]}>
+          {/* What to Expect */}
+          <TouchableOpacity
+            style={[s.gridTile, s.gridTileShort, { marginRight: 6 }]}
+            activeOpacity={0.88}
+            onPress={() => navigation?.navigate?.("WhatToExpect")}
+          >
+            <ImageBackground
+              source={require("../assets/what_to_expect.jpg")}
+              style={{ flex: 1 }}
+              imageStyle={{ borderRadius: 14 }}
+              resizeMode="cover"
+            >
+              <View style={[s.gridScrim, { backgroundColor: "rgba(18,10,4,0.34)" }]} />
+              <View style={s.gridInner}>
+                <Text style={s.gridEyebrowLight}>LOGISTICS</Text>
+                <Text style={s.gridTitleLight}>{"What to\nExpect"}</Text>
+              </View>
+            </ImageBackground>
+          </TouchableOpacity>
+
+          {/* Hajj Guide — lightest scrim, inverted parchment chip */}
+          <TouchableOpacity
+            style={[s.gridTile, s.gridTileShort, { marginLeft: 6 }]}
+            activeOpacity={0.88}
+            onPress={() => navigation?.navigate?.("HajjGuide")}
+          >
+            <ImageBackground
+              source={require("../assets/checklist_kaaba.jpg")}
+              style={{ flex: 1 }}
+              imageStyle={{ borderRadius: 14 }}
+              resizeMode="cover"
+            >
+              <View style={[s.gridScrim, { backgroundColor: "rgba(10,20,14,0.28)" }]} />
+              <View style={s.gridInner}>
+                <View style={s.gridChip}>
+                  <Text style={s.gridChipText}>STEP BY STEP</Text>
+                </View>
+                <Text style={s.gridTitleLight}>{"Hajj\nGuide"}</Text>
+              </View>
+            </ImageBackground>
+          </TouchableOpacity>
         </View>
 
         {/* ══════════════════════════════════════════════════════════════════
-            MY JOURNEY CARD
+            MY PEOPLE — solid colour cards for contrast against image grid
         ══════════════════════════════════════════════════════════════════ */}
-        <View style={s.journeyCard}>
-          <View style={s.journeyCardTop}>
-            <View>
-              <Text style={s.journeyCardEyebrow}>MY JOURNEY</Text>
-              <Text style={s.journeyCardTitle}>
-                {daysAway !== null
-                  ? `${daysAway} days until departure`
-                  : "Plan your pilgrimage"}
-              </Text>
-            </View>
-            <TouchableOpacity
-              style={s.journeyCardBtn}
-              onPress={() => navigation?.navigate?.("Guides")}
-              activeOpacity={0.85}
-            >
-              <ArrowRight size={18} color="#fff" weight="regular" />
-            </TouchableOpacity>
-          </View>
-
-          {/* Quick links row */}
-          <View style={s.journeyLinks}>
-            {[
-              { label:"Board",     screen:"MyBoard"     },
-              { label:"Checklist", screen:"WhatToExpect"},
-              { label:"Contacts",  screen:"MyContacts"  },
-              { label:"Groups",    screen:"Groups"      },
-            ].map((item, i, arr) => (
-              <React.Fragment key={item.label}>
-                <TouchableOpacity
-                  style={s.journeyLink}
-                  onPress={() => navigation?.navigate?.(item.screen)}
-                  activeOpacity={0.75}
-                >
-                  <Text style={s.journeyLinkTxt}>{item.label}</Text>
-                </TouchableOpacity>
-                {i < arr.length - 1 && <View style={s.journeyLinkDiv} />}
-              </React.Fragment>
-            ))}
-          </View>
+        <View style={s.sectionDivider}>
+          <View style={s.sectionBar} />
+          <Text style={s.sectionLabel}>MY PEOPLE</Text>
+          <View style={s.sectionLine} />
         </View>
+
+        <View style={s.gridRow}>
+          {/* My Groups — dark green solid */}
+          <TouchableOpacity
+            style={[s.gridTile, s.gridTileShort, s.solidCardGreen, { marginRight: 6 }]}
+            activeOpacity={0.88}
+            onPress={() => navigation?.navigate?.("Groups")}
+          >
+            <Text style={s.solidCardEyebrow}>COMMUNITY</Text>
+            <Text style={s.solidCardTitle}>{"My\nGroups"}</Text>
+          </TouchableOpacity>
+
+          {/* My Contacts — light parchment solid */}
+          <TouchableOpacity
+            style={[s.gridTile, s.gridTileShort, s.solidCardParch, { marginLeft: 6 }]}
+            activeOpacity={0.88}
+            onPress={() => navigation?.navigate?.("MyContacts")}
+          >
+            <Text style={s.solidCardEyebrowDark}>TRAVEL</Text>
+            <Text style={s.solidCardTitleDark}>{"My\nContacts"}</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* ══════════════════════════════════════════════════════════════════
+            QUICK TOOLS — square image tiles (not circles)
+        ══════════════════════════════════════════════════════════════════ */}
+        <View style={s.sectionDivider}>
+          <View style={s.sectionBar} />
+          <Text style={s.sectionLabel}>QUICK TOOLS</Text>
+          <View style={s.sectionLine} />
+        </View>
+
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={s.toolsScroll}
+        >
+          {[
+            { label: "Currency",     image: require("../assets/tab_dua_library.jpg"),  scrim: "rgba(12,8,2,0.42)",   screen: "Currency" },
+            { label: "Prayer Times", image: require("../assets/medina.png"),            scrim: "rgba(4,12,22,0.40)",  screen: "PrayerTimes" },
+            { label: "Qibla",        image: require("../assets/kaaba_map.png"),         scrim: "rgba(6,16,10,0.38)",  screen: "Qibla" },
+            { label: "Notes",        image: require("../assets/tab_shared_duas.jpg"),   scrim: "rgba(10,8,4,0.40)",   screen: "Notes" },
+            { label: "Bookmarks",    image: require("../assets/checklist_kaaba.jpg"),   scrim: "rgba(8,18,10,0.38)",  screen: "Bookmarks" },
+          ].map((tool) => (
+            <TouchableOpacity
+              key={tool.label}
+              style={s.toolTile}
+              activeOpacity={0.84}
+              onPress={() => navigation?.navigate?.(tool.screen)}
+            >
+              <ImageBackground
+                source={tool.image}
+                style={StyleSheet.absoluteFill}
+                imageStyle={{ borderRadius: 12 }}
+                resizeMode="cover"
+              >
+                <View
+                  style={[
+                    StyleSheet.absoluteFill,
+                    { backgroundColor: tool.scrim, borderRadius: 12 },
+                  ]}
+                />
+              </ImageBackground>
+              <Text style={s.toolLabel}>{tool.label}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
 
         {/* ══════════════════════════════════════════════════════════════════
             TODAY'S DU'Ā
@@ -902,115 +996,6 @@ const s = StyleSheet.create({
   },
 
   // ── Section dividers ──────────────────────────────────────────────────────
-  // ── Icon grid ────────────────────────────────────────────────────────────────
-  gridWrap: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    paddingHorizontal: 14,
-    paddingTop: 20,
-    paddingBottom: 8,
-    gap: 10,
-  },
-  gridCell: {
-    width: "22%",
-    flexGrow: 1,
-    alignItems: "center",
-    gap: 8,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    paddingVertical: 16,
-    paddingHorizontal: 6,
-    borderWidth: 0,
-    // Strong warm shadow — lifts cards clearly off the parchment
-    shadowColor: "#6B4C2A",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.18,
-    shadowRadius: 10,
-    elevation: 5,
-  },
-  gridIconWrap: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    // Warm sage mid-tone — clearly distinct from white card background
-    backgroundColor: "#C8D4C4",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  gridLabel: {
-    // 13pt minimum — meets accessibility guidelines for small UI labels
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#2A2218",
-    textAlign: "center",
-    lineHeight: 17,
-  },
-
-  // ── My Journey card ───────────────────────────────────────────────────────
-  journeyCard: {
-    marginHorizontal: 14,
-    marginTop: 12,
-    marginBottom: 4,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 18,
-    overflow: "hidden",
-    // Match the grid shadow style for visual consistency
-    shadowColor: "#6B4C2A",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.16,
-    shadowRadius: 12,
-    elevation: 5,
-  },
-  journeyCardTop: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 18,
-    paddingTop: 16,
-    paddingBottom: 14,
-  },
-  journeyCardEyebrow: {
-    fontSize: 10,
-    fontWeight: "700",
-    color: "#4A5C48",
-    letterSpacing: 1.2,
-    marginBottom: 3,
-  },
-  journeyCardTitle: {
-    fontFamily: SERIF,
-    fontSize: 18,
-    color: "#1C1A14",
-    fontWeight: "400",
-  },
-  journeyCardBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: "#4A5C48",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  journeyLinks: {
-    flexDirection: "row",
-    borderTopWidth: 1,
-    borderTopColor: "#EAE4DC",
-  },
-  journeyLink: {
-    flex: 1,
-    paddingVertical: 12,
-    alignItems: "center",
-  },
-  journeyLinkTxt: {
-    fontSize: 13,
-    color: "#4A5C48",
-    fontWeight: "500",
-  },
-  journeyLinkDiv: {
-    width: 1,
-    backgroundColor: "#EAE4DC",
-    marginVertical: 8,
-  },
-
   sectionDivider: {
     flexDirection: "row",
     alignItems: "center",

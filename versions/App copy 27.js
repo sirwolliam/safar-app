@@ -8,7 +8,8 @@ import { NavigationContainer }        from "@react-navigation/native";
 import { createBottomTabNavigator }   from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useFonts }                   from "expo-font";
-import { House, BookBookmark, Moon, BookOpen, ListChecks } from "phosphor-react-native";
+import { House, Moon, BookOpen, ListChecks } from "phosphor-react-native";
+import { Text as RNText } from "react-native";
 
 // ── Tab screens ───────────────────────────────────────────────────────────────
 import HomeScreen    from "./screens/HomeScreen";
@@ -99,8 +100,8 @@ const ph = StyleSheet.create({
 // ── Tab config ────────────────────────────────────────────────────────────────
 const TAB_CONFIG = {
   Home:    { Icon: House,      label:"Home"    },
-  Guides:  { Icon: BookBookmark, label:"Guidance" },
-  Focus:   { Icon: Moon,       label:"Focus Mode", center:true },
+  Guides:  { Icon: null, materialIcon:"menu_book", label:"Guides"  },
+  Focus:   { Icon: Moon,       label:"Focus",  center:true },
   Duas:    { Icon: BookOpen,   label:"Duas"    },
   Prepare: { Icon: ListChecks, label:"Prepare" },
 };
@@ -110,10 +111,26 @@ function SafarTabBar({ state, descriptors, navigation }) {
     <View style={tb.bar}>
       {state.routes.map((route, index) => {
         const focused = state.index === index;
-        const { Icon, label, center } = TAB_CONFIG[route.name] ?? { Icon:House, label:route.name };
+        const { Icon, materialIcon, label, center } = TAB_CONFIG[route.name] ?? { Icon:House, label:route.name };
         const onPress = () => {
           const event = navigation.emit({ type:"tabPress", target:route.key, canPreventDefault:true });
           if (!focused && !event.defaultPrevented) navigation.navigate(route.name);
+        };
+
+        // Render the icon — either Phosphor or Material Symbol
+        const renderIcon = () => {
+          if (materialIcon) {
+            return (
+              <RNText style={{
+                fontFamily: "MaterialSymbolsOutlined",
+                fontSize: 22,
+                color: focused ? colors.primary : ICON_INACTIVE,
+              }}>
+                {materialIcon}
+              </RNText>
+            );
+          }
+          return <Icon size={22} color={focused ? colors.primary : ICON_INACTIVE} weight={focused ? "fill" : "regular"} />;
         };
 
         if (center) {
@@ -128,7 +145,7 @@ function SafarTabBar({ state, descriptors, navigation }) {
         }
         return (
           <TouchableOpacity key={route.key} style={tb.tab} onPress={onPress} activeOpacity={0.7}>
-            <Icon size={22} color={focused ? colors.primary : ICON_INACTIVE} weight={focused ? "fill" : "regular"} />
+            {renderIcon()}
             <Text style={[tb.label, focused && tb.labelActive]}>{label}</Text>
           </TouchableOpacity>
         );
@@ -224,6 +241,7 @@ function MainTabs() {
 export default function App() {
   const [fontsLoaded] = useFonts({
     "SourceSerif4-Regular":     require("./assets/fonts/SourceSerif4-Regular.ttf"),
+    "MaterialSymbolsOutlined":  require("./assets/fonts/MaterialSymbolsOutlined.ttf"),
   });
   if (!fontsLoaded) return null;
 

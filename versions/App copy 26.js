@@ -1,6 +1,6 @@
 /**
  * App.js — Safar
- * Tabs: Home · Guides · Focus · Duas · Prepare
+ * Tabs: Home · Journey · Focus · Duas · Prepare
  */
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from "react-native";
@@ -8,11 +8,11 @@ import { NavigationContainer }        from "@react-navigation/native";
 import { createBottomTabNavigator }   from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useFonts }                   from "expo-font";
-import { House, BookBookmark, Moon, BookOpen, ListChecks } from "phosphor-react-native";
+import { House, Compass, Moon, BookOpen, ListChecks } from "phosphor-react-native";
 
 // ── Tab screens ───────────────────────────────────────────────────────────────
 import HomeScreen    from "./screens/HomeScreen";
-import GuidesScreen  from "./screens/GuidesScreen";
+import JourneyScreen from "./screens/JourneyScreen";
 import MapScreen     from "./screens/MapScreen";
 import MyDuasScreen  from "./screens/MyDuasScreen";
 import ProfileScreen from "./screens/ProfileScreen";
@@ -51,7 +51,7 @@ const Tab      = createBottomTabNavigator();
 const Stack    = createNativeStackNavigator();
 const DuasStack    = createNativeStackNavigator();
 const HomeStack    = createNativeStackNavigator();
-const GuidesStack  = createNativeStackNavigator();
+const JourneyStack = createNativeStackNavigator();
 const PrepareStack = createNativeStackNavigator();
 
 // ── Placeholder screens with back nav ────────────────────────────────────────
@@ -99,8 +99,8 @@ const ph = StyleSheet.create({
 // ── Tab config ────────────────────────────────────────────────────────────────
 const TAB_CONFIG = {
   Home:    { Icon: House,      label:"Home"    },
-  Guides:  { Icon: BookBookmark, label:"Guidance" },
-  Focus:   { Icon: Moon,       label:"Focus Mode", center:true },
+  Journey: { Icon: Compass,    label:"Journey" },
+  Focus:   { Icon: Moon,       label:"Focus",  center:true },
   Duas:    { Icon: BookOpen,   label:"Duas"    },
   Prepare: { Icon: ListChecks, label:"Prepare" },
 };
@@ -115,7 +115,6 @@ function SafarTabBar({ state, descriptors, navigation }) {
           const event = navigation.emit({ type:"tabPress", target:route.key, canPreventDefault:true });
           if (!focused && !event.defaultPrevented) navigation.navigate(route.name);
         };
-
         if (center) {
           return (
             <TouchableOpacity key={route.key} style={tb.centerTab} onPress={onPress} activeOpacity={0.85}>
@@ -165,24 +164,20 @@ function HomeNavigator() {
   );
 }
 
-function GuidesNavigator() {
+function JourneyNavigator() {
   return (
-    <GuidesStack.Navigator screenOptions={{ headerShown:false }}>
-      <GuidesStack.Screen name="GuidesMain"      component={GuidesScreen}          />
-      <GuidesStack.Screen name="Map"             component={MapScreen}             />
-      <GuidesStack.Screen name="SiteDuas"        component={SiteDuasScreen}        />
-      <GuidesStack.Screen name="WhatToExpect"    component={WhatToExpectScreen}    />
-      <GuidesStack.Screen name="Groups"          component={GroupsScreen}          />
-      <GuidesStack.Screen name="GroupDetail"     component={GroupDetailScreen}     />
-      <GuidesStack.Screen name="Connections"     component={ConnectionsScreen}     />
-      <GuidesStack.Screen name="MyBoard"         component={MyBoardScreen}         />
-      <GuidesStack.Screen name="SafarAssist"     component={SafarAssistScreen}     />
-      <GuidesStack.Screen name="MyContacts"      component={MyContactsScreen}      />
-      <GuidesStack.Screen name="PilgrimageDuas"  component={PilgrimageDuasScreen}  />
-      <GuidesStack.Screen name="HajjUmrahPicker" component={HajjUmrahPickerScreen} />
-      <GuidesStack.Screen name="UmrahGuide"      component={UmrahGuideScreen}      />
-      <GuidesStack.Screen name="HajjGuide"       component={HajjGuideScreen}       />
-    </GuidesStack.Navigator>
+    <JourneyStack.Navigator screenOptions={{ headerShown:false }}>
+      <JourneyStack.Screen name="JourneyMain" component={JourneyScreen}      />
+      <JourneyStack.Screen name="Map"         component={MapScreen}          />
+      <JourneyStack.Screen name="SiteDuas"    component={SiteDuasScreen}     />
+      <JourneyStack.Screen name="WhatToExpect" component={WhatToExpectScreen}/>
+      <JourneyStack.Screen name="Groups"      component={GroupsScreen}       />
+      <JourneyStack.Screen name="GroupDetail" component={GroupDetailScreen}  />
+      <JourneyStack.Screen name="Connections" component={ConnectionsScreen}  />
+      <JourneyStack.Screen name="MyBoard"     component={MyBoardScreen}      />
+      <JourneyStack.Screen name="SafarAssist" component={SafarAssistScreen}  />
+      <JourneyStack.Screen name="MyContacts"  component={MyContactsScreen}   />
+    </JourneyStack.Navigator>
   );
 }
 
@@ -213,7 +208,7 @@ function MainTabs() {
   return (
     <Tab.Navigator tabBar={props => <SafarTabBar {...props} />} screenOptions={{ headerShown:false }}>
       <Tab.Screen name="Home"    component={HomeNavigator}    />
-      <Tab.Screen name="Guides"  component={GuidesNavigator}  />
+      <Tab.Screen name="Journey" component={JourneyNavigator} />
       <Tab.Screen name="Focus"   component={FocusScreen}   />
       <Tab.Screen name="Duas"    component={DuasNavigator}  />
       <Tab.Screen name="Prepare" component={PrepareNavigator} />
@@ -223,7 +218,7 @@ function MainTabs() {
 
 export default function App() {
   const [fontsLoaded] = useFonts({
-    "SourceSerif4-Regular":     require("./assets/fonts/SourceSerif4-Regular.ttf"),
+    "SourceSerif4-Regular": require("./assets/fonts/SourceSerif4-Regular.ttf"),
   });
   if (!fontsLoaded) return null;
 
