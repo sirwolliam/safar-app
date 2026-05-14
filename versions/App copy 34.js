@@ -42,6 +42,7 @@ import HajjUmrahPickerScreen from "./screens/HajjUmrahPickerScreen";
 import SafarAssistScreen     from "./screens/SafarAssistScreen";
 import DhikrScreen           from "./screens/DhikrScreen";
 import TawafScreen           from "./screens/TawafScreen";
+import TawafScreen           from "./screens/TawafScreen";
 
 // ── Context ───────────────────────────────────────────────────────────────────
 import { AccessibilityProvider } from "./AccessibilityContext";
@@ -174,6 +175,7 @@ function FocusNavigator() {
     <FocusStack.Navigator screenOptions={{ headerShown: false }}>
       <FocusStack.Screen name="FocusMain" component={FocusScreen} />
       <FocusStack.Screen name="Dhikr"     component={DhikrScreen} />
+      <FocusStack.Screen name="Tawaf"     component={TawafScreen} />
       <FocusStack.Screen name="Tawaf"     component={TawafScreen} />
     </FocusStack.Navigator>
   );

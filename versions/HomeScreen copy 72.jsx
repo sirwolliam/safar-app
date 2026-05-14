@@ -578,7 +578,7 @@ export default function HomeScreen({ navigation }) {
             {/* Full-width image — anchored right so subject shows on right side */}
             <Image
               source={require("../assets/continue.jpg")}
-              style={{ position:"absolute", right:0, top:0, bottom:0, width:350, height:130 }}
+              style={[StyleSheet.absoluteFill, { left: "auto", right: 0 }]}
               resizeMode="cover"
             />
             {/* Gradient — left side solid dark, fades right */}
@@ -1129,7 +1129,7 @@ const s = StyleSheet.create({
     marginHorizontal: 14,
     marginTop: 12,
     marginBottom: 0,
-    height: 130,
+    minHeight: 100,
     borderRadius: 16,
     overflow: "hidden",
     flexDirection: "row",

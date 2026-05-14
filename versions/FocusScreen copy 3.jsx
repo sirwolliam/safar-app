@@ -2,11 +2,12 @@
  * FocusScreen.jsx — Safar
  * Tawaf / Saʿi mode selector pop-up → counter screen
  */
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   SafeAreaView, View, Text, TouchableOpacity,
   StyleSheet, Dimensions, Modal,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { colors, spacing, radius, shadows, typography } from "../theme";
 import { useAccessibility } from "../AccessibilityContext";
 
@@ -29,18 +30,59 @@ const QUICK_DUAS = {
   ],
 };
 
+
+// ── Scholarly footnote ────────────────────────────────────────────────────────
+function ScholarlyFootnote({ style }) {
+  return (
+    <View style={[fn.wrap, style]}>
+      <Text style={fn.text}>
+        <Text style={fn.bold}>Sources</Text>{" — "}
+        {"Duʿāʾs are drawn from Ṣaḥīḥ al-Bukhārī, Ṣaḥīḥ Muslim, Sunan Abī Dāwūd, Sunan al-Tirmidhī, and established scholarly works. Each duʿāʾ is attributed to its primary source. Practice and wording may differ across the four madhabs (Ḥanafī, Mālikī, Shāfiʿī, Ḥanbalī). Consult a qualified scholar for rulings specific to your school of thought."}
+      </Text>
+    </View>
+  );
+}
+
+const fn = StyleSheet.create({
+  wrap: {
+    marginHorizontal: 20,
+    marginTop: 16,
+    marginBottom: 8,
+    backgroundColor: "#EEE4CB",
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#DDD0A8",
+    padding: 16,
+  },
+  text: { fontSize: 12, color: "#6B5020", lineHeight: 17 },
+  bold: { fontWeight: "600" },
+});
+
+const FOCUS_HISTORY_KEY = "safar_focus_history_v1";
+
 export default function FocusScreen({ navigation }) {
   const { colors } = useAccessibility();
   const s = useMemo(() => createStyles(colors), [colors]);
   const [mode,        setMode]        = useState(null);
   const [showPicker,  setShowPicker]  = useState(true);
   const [current,     setCurrent]     = useState(1);
+  const [totalTaps,  setTotalTaps]  = useState(0);
+
+  useEffect(() => {
+    AsyncStorage.getItem(FOCUS_HISTORY_KEY).then(v => { if (v) setTotalTaps(parseInt(v) || 0); }).catch(() => {});
+  }, []);
 
   const config = mode ? MODES[mode] : null;
 
   const handleComplete = () => {
     if (!config) return;
-    if (current < config.total) setCurrent(current + 1);
+    if (current < config.total) {
+      setCurrent(current + 1);
+      const newTotal = totalTaps + 1;
+      setTotalTaps(newTotal);
+      AsyncStorage.setItem(FOCUS_HISTORY_KEY, String(newTotal)).catch(() => {});
+      try { Haptics?.impactAsync?.(Haptics?.ImpactFeedbackStyle?.Light); } catch (_) {}
+    }
   };
 
   // ── Mode picker modal ──
@@ -54,7 +96,7 @@ export default function FocusScreen({ navigation }) {
             <TouchableOpacity
               key={key}
               style={s.pickerOpt}
-              onPress={() => { if (key === 'Tawaf') { navigation?.navigate?.('Tawaf'); } else { setMode(key); setCurrent(1); setShowPicker(false); } }}
+              onPress={() => { setMode(key); setCurrent(1); setShowPicker(false); }}
               activeOpacity={0.88}
             >
               <View style={s.pickerOptLeft}>
@@ -66,20 +108,6 @@ export default function FocusScreen({ navigation }) {
               </View>
             </TouchableOpacity>
           ))}
-          {/* Dhikr Counter */}
-          <TouchableOpacity
-            style={s.pickerOpt}
-            onPress={() => navigation?.navigate?.('Dhikr')}
-            activeOpacity={0.88}
-          >
-            <View style={s.pickerOptLeft}>
-              <Text style={s.pickerOptTitle}>Dhikr Counter</Text>
-              <Text style={s.pickerOptHint}>Remember Allah with any dhikr</Text>
-            </View>
-            <View style={s.pickerBadge}>
-              <Text style={s.pickerBadgeText}>22 dhikrs</Text>
-            </View>
-          </TouchableOpacity>
         </View>
       </SafeAreaView>
     );
@@ -96,7 +124,7 @@ export default function FocusScreen({ navigation }) {
           <Text style={s.headerBtnLabel}>Audio</Text>
         </TouchableOpacity>
         <View style={s.headerCenter}>
-          <Text style={s.headerTitle}>★  {config.label}  ★</Text>
+          <Text style={s.headerTitle}>{config.label}</Text>
           <Text style={s.headerSub}>Count your rounds and recite with full presence</Text>
         </View>
         <TouchableOpacity style={s.headerBtn} onPress={() => { setMode(null); setShowPicker(true); setCurrent(1); }}>
@@ -139,6 +167,9 @@ export default function FocusScreen({ navigation }) {
       </View>
 
       {/* CTA button */}
+      {totalTaps > 0 && (
+        <Text style={s.totalCount}>{"Total recitations: " + totalTaps.toLocaleString()}</Text>
+      )}
       <TouchableOpacity style={s.completeBtn} onPress={handleComplete} activeOpacity={0.88}>
         <View style={s.completeBtnLeft}>
           <View style={s.checkCircle}>
@@ -172,7 +203,8 @@ export default function FocusScreen({ navigation }) {
       </View>
 
       {/* Footer */}
-      <View style={s.footer}>
+      <ScholarlyFootnote />
+        <View style={s.footer}>
         <Text style={s.footerText}>♡  Take your time. Every step is a sacred practice.</Text>
       </View>
 
@@ -181,88 +213,89 @@ export default function FocusScreen({ navigation }) {
 }
 
 const createStyles = (colors) => StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.background },
+  safe: { flex: 1, backgroundColor: "#E8DDD0" },
 
   // Picker
   pickerWrap: {
-    flex: 1, justifyContent: "center", paddingHorizontal: spacing(2.5), gap: spacing(1.5),
+    flex: 1, justifyContent: "center", paddingHorizontal: 20, gap: 12,
   },
-  pickerTitle: { fontFamily: SERIF, fontSize: 28, color: colors.text, textAlign: "center" },
-  pickerSub: { fontSize: 14, color: colors.subtext, textAlign: "center", marginBottom: spacing(1) },
+  pickerTitle: { fontFamily: SERIF, fontSize: 28, color: "#100E0A", textAlign: "center" },
+  pickerSub: { fontSize: 14, color: "#3A3530", textAlign: "center", marginBottom: 8 },
   pickerOpt: {
-    backgroundColor: colors.card, borderRadius: radius.lg, borderWidth: 1.5,
-    borderColor: colors.border, padding: spacing(2.5), flexDirection: "row",
-    alignItems: "center", justifyContent: "space-between", ...shadows.card,
+    backgroundColor: "#F5EDE0", borderRadius: 16, borderWidth: 1.5,
+    borderColor: "#C8BFB2", padding: 20, flexDirection: "row",
+    alignItems: "center", justifyContent: "space-between", shadowColor:"#4A2E10", shadowOffset:{width:0,height:3}, shadowOpacity:0.20, shadowRadius:10, elevation:5,
   },
   pickerOptLeft: { gap: 4 },
-  pickerOptTitle: { fontFamily: SERIF, fontSize: 22, color: colors.text },
-  pickerOptHint: { fontSize: 14, color: colors.subtext },
+  pickerOptTitle: { fontFamily: SERIF, fontSize: 22, color: "#100E0A" },
+  pickerOptHint: { fontSize: 14, color: "#3A3530" },
   pickerBadge: {
-    backgroundColor: "#EBF2EE", borderRadius: radius.pill,
-    paddingHorizontal: spacing(1.5), paddingVertical: spacing(0.5),
-    borderWidth: 1, borderColor: colors.border,
+    backgroundColor: "#E2EDE6", borderRadius: 999,
+    paddingHorizontal: 12, paddingVertical: 4,
+    borderWidth: 1, borderColor: "#C8BFB2",
   },
-  pickerBadgeText: { fontSize: 12, color: colors.primary, fontWeight: "500" },
+  pickerBadgeText: { fontSize: 12, color: "#1E3D30", fontWeight: "500" },
 
   // Header
   header: {
     flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between",
-    paddingHorizontal: spacing(2), paddingTop: spacing(1), paddingBottom: spacing(0.5),
+    paddingHorizontal: 16, paddingTop: 8, paddingBottom: 4,
   },
   headerBtn: { alignItems: "center", gap: 3, minWidth: 60 },
-  headerBtnIcon: { fontSize: 18, color: colors.text },
-  headerBtnLabel: { fontSize: 12, color: colors.subtext },
+  headerBtnIcon: { fontSize: 18, color: "#100E0A" },
+  headerBtnLabel: { fontSize: 12, color: "#3A3530" },
   headerCenter: { alignItems: "center", flex: 1 },
-  headerTitle: { fontSize: 14, fontWeight: "600", color: colors.text, letterSpacing: 1.5 },
-  headerSub: { fontSize: 12, color: colors.subtext, marginTop: 2 },
+  headerTitle: { fontSize: 14, fontWeight: "600", color: "#100E0A", letterSpacing: 1.5 },
+  headerSub: { fontSize: 12, color: "#3A3530", marginTop: 2 },
 
-  changePractice: { alignItems: "center", marginBottom: spacing(1) },
-  changePracticeText: { fontSize: 12, color: colors.primary },
+  changePractice: { alignItems: "center", marginBottom: 8 },
+  changePracticeText: { fontSize: 12, color: "#1E3D30" },
 
   // Circle
-  circleWrap: { alignItems: "center", marginVertical: spacing(1.5) },
+  circleWrap: { alignItems: "center", marginVertical: 12 },
   circle: {
     width: SW * 0.58, height: SW * 0.58, borderRadius: SW * 0.29,
-    borderWidth: 8, borderColor: colors.border,
-    borderTopColor: colors.primary, borderRightColor: colors.primary,
+    borderWidth: 8, borderColor: "#C8BFB2",
+    borderTopColor: "#1E3D30", borderRightColor: "#1E3D30",
     transform: [{ rotate: "-45deg" }], alignItems: "center", justifyContent: "center",
     overflow: "hidden",
   },
   circleNum: {
-    fontFamily: SERIF, fontSize: 72, color: colors.primary,
+    fontFamily: SERIF, fontSize: 72, color: "#1E3D30",
     transform: [{ rotate: "45deg" }], lineHeight: 80,
     textAlign: "center",
   },
   circleOf: {
-    fontSize: 12, fontWeight: "600", color: colors.subtext,
+    fontSize: 12, fontWeight: "600", color: "#3A3530",
     letterSpacing: 2, transform: [{ rotate: "45deg" }],
     textAlign: "center",
   },
   circlePill: {
-    backgroundColor: colors.background, borderWidth: 1, borderColor: colors.border,
-    borderRadius: radius.pill, paddingHorizontal: spacing(1.5), paddingVertical: 4,
-    marginTop: spacing(0.75), transform: [{ rotate: "45deg" }],
+    backgroundColor: "#E8DDD0", borderWidth: 1, borderColor: "#C8BFB2",
+    borderRadius: 999, paddingHorizontal: 12, paddingVertical: 4,
+    marginTop: 6, transform: [{ rotate: "45deg" }],
     alignItems: "center",
   },
-  circlePillText: { fontSize: 14, color: colors.text, textAlign: "center" },
+  circlePillText: { fontSize: 14, color: "#100E0A", textAlign: "center" },
 
   // Dots
-  dots: { flexDirection: "row", justifyContent: "center", gap: spacing(1), marginBottom: spacing(1.5) },
+  dots: { flexDirection: "row", justifyContent: "center", gap: 8, marginBottom: 12 },
   dot: {
     width: 34, height: 34, borderRadius: 17, borderWidth: 1,
-    borderColor: colors.border, backgroundColor: colors.card, alignItems: "center", justifyContent: "center",
+    borderColor: "#C8BFB2", backgroundColor: "#F5EDE0", alignItems: "center", justifyContent: "center",
   },
-  dotActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  dotLabel: { fontSize: 14, color: colors.subtext },
+  dotActive: { backgroundColor: "#1E3D30", borderColor: "#1E3D30" },
+  dotLabel: { fontSize: 14, color: "#3A3530" },
   dotLabelActive: { color: "#fff", fontWeight: "600" },
 
   // Complete button
+  totalCount: { fontSize:13, color:"#5C534A", fontWeight:"500", textAlign:"center", marginBottom:12 },
   completeBtn: {
-    marginHorizontal: spacing(2.5), backgroundColor: colors.primary, borderRadius: radius.lg,
-    padding: spacing(2), flexDirection: "row", alignItems: "center",
-    justifyContent: "space-between", marginBottom: spacing(2), ...shadows.button,
+    marginHorizontal: 20, backgroundColor: "#1E3D30", borderRadius: 16,
+    padding: 16, flexDirection: "row", alignItems: "center",
+    justifyContent: "space-between", marginBottom: 16, shadowColor:"#4A2E10", shadowOffset:{width:0,height:3}, shadowOpacity:0.20, shadowRadius:10, elevation:5,
   },
-  completeBtnLeft: { flexDirection: "row", alignItems: "center", gap: spacing(1.5) },
+  completeBtnLeft: { flexDirection: "row", alignItems: "center", gap: 12 },
   checkCircle: {
     width: 34, height: 34, borderRadius: 17, borderWidth: 1.5,
     borderColor: "rgba(255,255,255,0.5)", alignItems: "center", justifyContent: "center",
@@ -274,22 +307,22 @@ const createStyles = (colors) => StyleSheet.create({
 
   // Quick duas
   quickLabel: {
-    fontSize: 12, fontWeight: "600", color: colors.subtext,
-    letterSpacing: 1.5, textAlign: "center", marginBottom: spacing(1.25),
+    fontSize: 12, fontWeight: "600", color: "#3A3530",
+    letterSpacing: 1.5, textAlign: "center", marginBottom: 10,
   },
-  quickRow: { flexDirection: "row", paddingHorizontal: spacing(2.5), gap: spacing(1.5), marginBottom: spacing(1.5) },
+  quickRow: { flexDirection: "row", paddingHorizontal: 20, gap: 12, marginBottom: 12 },
   quickCard: {
-    flex: 1, backgroundColor: colors.card, borderRadius: radius.md, borderWidth: 1,
-    borderColor: colors.border, padding: spacing(1.75), gap: 4, ...shadows.card,
+    flex: 1, backgroundColor: "#F5EDE0", borderRadius: 10, borderWidth: 1,
+    borderColor: "#C8BFB2", padding: 14, gap: 4, shadowColor:"#4A2E10", shadowOffset:{width:0,height:3}, shadowOpacity:0.20, shadowRadius:10, elevation:5,
   },
   quickIconWrap: {
-    width: 36, height: 36, borderRadius: radius.sm, backgroundColor: "#EBF2EE",
+    width: 36, height: 36, borderRadius: 6, backgroundColor: "#E2EDE6",
     alignItems: "center", justifyContent: "center", marginBottom: 4,
   },
-  quickTitle: { fontFamily: SERIF, fontSize: 14, color: colors.text, lineHeight: 16 },
-  quickSub: { fontSize: 12, color: colors.subtext },
-  quickArrow: { fontSize: 14, color: colors.subtext, marginTop: 2 },
+  quickTitle: { fontFamily: SERIF, fontSize: 14, color: "#100E0A", lineHeight: 16 },
+  quickSub: { fontSize: 12, color: "#3A3530" },
+  quickArrow: { fontSize: 14, color: "#3A3530", marginTop: 2 },
 
-  footer: { alignItems: "center", paddingHorizontal: spacing(2.5) },
-  footerText: { fontSize: 14, color: colors.subtext, textAlign: "center" },
+  footer: { alignItems: "center", paddingHorizontal: 20 },
+  footerText: { fontSize: 14, color: "#3A3530", textAlign: "center" },
 });

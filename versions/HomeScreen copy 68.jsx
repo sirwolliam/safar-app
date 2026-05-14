@@ -575,35 +575,35 @@ export default function HomeScreen({ navigation }) {
             })}
             activeOpacity={0.85}
           >
-            {/* Full-width image — anchored right so subject shows on right side */}
-            <Image
-              source={require("../assets/continue.jpg")}
-              style={{ position:"absolute", right:0, top:0, bottom:0, width:350, height:130 }}
-              resizeMode="cover"
-            />
-            {/* Gradient — left side solid dark, fades right */}
-            <LinearGradient
-              colors={["#2A3828", "#2A3828", "rgba(42,56,40,0.6)", "transparent"]}
-              locations={[0, 0.45, 0.72, 1]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={StyleSheet.absoluteFill}
-            />
-            {/* Text overlaid on left */}
+            {/* Text side — dark green, arrow below text */}
             <View style={s.continuationLeft}>
-              {/* Top row: eyebrow + arrow */}
-              <View style={s.continuationTopRow}>
-                <Text style={s.continuationEyebrow} numberOfLines={1}>CONTINUE READING</Text>
-                <View style={s.continuationBtn}>
-                  <ArrowRight size={16} color="#F5F0E8" weight="regular" />
-                </View>
-              </View>
+              <Text style={s.continuationEyebrow}>CONTINUE READING</Text>
               <Text style={s.continuationTitle} numberOfLines={2}>
                 {lastDua.dua?.title ?? "Your last du\u02bf\u0101\u02be"}
               </Text>
               {lastDua.dua?.stage ? (
                 <Text style={s.continuationStage}>{lastDua.dua.stage}</Text>
               ) : null}
+              {/* Arrow under text */}
+              <View style={s.continuationBtn}>
+                <ArrowRight size={14} color="#F5F0E8" weight="regular" />
+              </View>
+            </View>
+
+            {/* Image side — gradient starts at 33% from left edge of image */}
+            <View style={s.continuationRight}>
+              <Image
+                source={require("../assets/cat_guidance2.jpg")}
+                style={s.continuationImg}
+                resizeMode="cover"
+              />
+              <LinearGradient
+                colors={["#2A3828", "#2A3828", "transparent"]}
+                locations={[0, 0.33, 1]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={{ position:"absolute", top:0, left:0, bottom:0, width:"100%" }}
+              />
             </View>
           </TouchableOpacity>
         ) : null}
@@ -1129,7 +1129,7 @@ const s = StyleSheet.create({
     marginHorizontal: 14,
     marginTop: 12,
     marginBottom: 0,
-    height: 130,
+    minHeight: 100,
     borderRadius: 16,
     overflow: "hidden",
     flexDirection: "row",
@@ -1145,43 +1145,40 @@ const s = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 14,
     paddingBottom: 14,
-    justifyContent: "space-between",
-  },
-  continuationTopRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 8,
+    justifyContent: "center",
   },
   continuationEyebrow: {
     fontSize: 10,
     fontWeight: "700",
     color: "rgba(200,169,106,0.90)",
     letterSpacing: 1.4,
+    marginBottom: 4,
   },
   continuationTitle: {
     fontFamily: SERIF,
-    fontSize: 22,
+    fontSize: 16,
     color: "#FDFAF4",
     fontWeight: "400",
-    marginBottom: 4,
+    marginBottom: 3,
   },
   continuationStage: {
-    fontSize: 13,
-    color: "rgba(245,240,232,0.60)",
+    fontSize: 12,
+    color: "rgba(245,240,232,0.55)",
+    marginBottom: 10,
   },
   continuationBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: "rgba(245,240,232,0.18)",
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: "rgba(245,240,232,0.15)",
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: "rgba(245,240,232,0.30)",
+    borderColor: "rgba(245,240,232,0.25)",
+    alignSelf: "flex-start",
   },
   continuationRight: {
-    width: 350,
+    width: 160,
     alignSelf: "stretch",
   },
   continuationImg: {

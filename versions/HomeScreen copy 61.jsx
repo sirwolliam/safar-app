@@ -5,7 +5,6 @@ import {
   ScrollView,
   TouchableOpacity,
   ImageBackground,
-  Image,
   FlatList,
   StyleSheet,
   Dimensions,
@@ -13,7 +12,6 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { LinearGradient } from "expo-linear-gradient";
 import {
   MapTrifold, BookOpenText, HandsPraying, CompassRose,
   UsersThree, ShoppingBag, CheckSquare, Sparkle,
@@ -251,7 +249,6 @@ export default function HomeScreen({ navigation }) {
   const [daysAway, setDaysAway]             = useState(null);
   const [planStarted, setPlanStarted]       = useState(false);
   const [introDismissed, setIntroDismissed] = useState(false);
-  const [lastDua, setLastDua]               = useState(null); // { title, stage, id, allDuas, currentIndex }
   const heroRef   = useRef(null);
   const heroTimer = useRef(null);
 
@@ -288,12 +285,6 @@ export default function HomeScreen({ navigation }) {
 
         const dismissed = await AsyncStorage.getItem(INTRO_DISMISSED_KEY);
         if (dismissed === "true") setIntroDismissed(true);
-
-        // Last viewed du'ā — for continuation card
-        const lastDuaRaw = await AsyncStorage.getItem("SAFAR_LAST_DUA");
-        if (lastDuaRaw) {
-          try { setLastDua(JSON.parse(lastDuaRaw)); } catch (_) {}
-        }
       } catch (_) {}
     })();
   }, []);
@@ -496,7 +487,7 @@ export default function HomeScreen({ navigation }) {
         <View style={s.gridWrap}>
           {[
             { label:"Itinerary",  Icon:CheckSquare,  screen:"MyBoard",      tab:false },
-            { label:"Sacred Places", Icon:MapTrifold,   screen:"SiteDuas",     tab:false },
+            { label:"Maps",       Icon:MapTrifold,   screen:"Map",          tab:false },
             { label:"Du'ās",      Icon:HandsPraying, screen:"Duas",         tab:true  },
             { label:"Guidance",   Icon:BookOpenText, screen:"Guides",       tab:true  },
             { label:"Community",  Icon:UsersThree,   screen:"Groups",       tab:false },
@@ -563,114 +554,8 @@ export default function HomeScreen({ navigation }) {
         </View>
 
         {/* ══════════════════════════════════════════════════════════════════
-            CONTINUATION CARD — only shown when there's a last-viewed du'ā
+            TODAY'S DU'Ā
         ══════════════════════════════════════════════════════════════════ */}
-        {lastDua ? (
-          <TouchableOpacity
-            style={s.continuationCard}
-            onPress={() => navigation?.navigate?.("DuaDetail", {
-              dua: lastDua.dua,
-              allDuas: lastDua.allDuas ?? [],
-              currentIndex: lastDua.currentIndex ?? 0,
-            })}
-            activeOpacity={0.85}
-          >
-            {/* Full-width image — anchored right so subject shows on right side */}
-            <Image
-              source={require("../assets/continue.jpg")}
-              style={{ position:"absolute", right:0, top:0, bottom:0, width:350, height:130 }}
-              resizeMode="cover"
-            />
-            {/* Gradient — left side solid dark, fades right */}
-            <LinearGradient
-              colors={["#2A3828", "#2A3828", "rgba(42,56,40,0.6)", "transparent"]}
-              locations={[0, 0.45, 0.72, 1]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={StyleSheet.absoluteFill}
-            />
-            {/* Text overlaid on left */}
-            <View style={s.continuationLeft}>
-              {/* Top row: eyebrow + arrow */}
-              <View style={s.continuationTopRow}>
-                <Text style={s.continuationEyebrow} numberOfLines={1}>CONTINUE READING</Text>
-                <View style={s.continuationBtn}>
-                  <ArrowRight size={16} color="#F5F0E8" weight="regular" />
-                </View>
-              </View>
-              <Text style={s.continuationTitle} numberOfLines={2}>
-                {lastDua.dua?.title ?? "Your last du\u02bf\u0101\u02be"}
-              </Text>
-              {lastDua.dua?.stage ? (
-                <Text style={s.continuationStage}>{lastDua.dua.stage}</Text>
-              ) : null}
-            </View>
-          </TouchableOpacity>
-        ) : null}
-
-        {/* ══════════════════════════════════════════════════════════════════
-            FOCUS MODE CARD
-        ══════════════════════════════════════════════════════════════════ */}
-        <TouchableOpacity
-          style={s.focusCard}
-          onPress={() => navigation?.navigate?.("Focus")}
-          activeOpacity={0.88}
-        >
-          <ImageBackground
-            source={require("../assets/focus_mode.jpg")}
-            style={s.focusCardBg}
-            imageStyle={{ borderRadius: 18 }}
-            resizeMode="cover"
-          >
-            <View style={s.focusCardScrim} />
-            <View style={s.focusCardContent}>
-
-              {/* Eyebrow */}
-              <Text style={s.focusCardEyebrow}>FOCUS MODE</Text>
-
-              {/* Title */}
-              <Text style={s.focusCardTitle}>
-                {"Stay present.\nEvery count matters."}
-              </Text>
-
-              {/* Feature pills */}
-              <View style={s.focusPills}>
-                {["Ṭawāf rounds", "Sa'y lengths", "Dhikr counter"].map(label => (
-                  <View key={label} style={s.focusPill}>
-                    <Text style={s.focusPillTxt}>{label}</Text>
-                  </View>
-                ))}
-              </View>
-
-            </View>
-          </ImageBackground>
-        </TouchableOpacity>
-
-        {/* ══════════════════════════════════════════════════════════════════
-            SACRED PLACES MAP CARD
-        ══════════════════════════════════════════════════════════════════ */}
-        <TouchableOpacity
-          style={s.sacredCard}
-          onPress={() => navigation?.navigate?.("SiteDuas")}
-          activeOpacity={0.88}
-        >
-          <ImageBackground
-            source={require("../assets/sacred_places.png")}
-            style={s.sacredCardBg}
-            imageStyle={{ borderRadius: 18 }}
-            resizeMode="cover"
-          >
-            <View style={s.sacredCardScrim} />
-            <View style={s.sacredCardContent}>
-              <Text style={s.sacredCardEyebrow}>SACRED PLACES</Text>
-              <Text style={s.sacredCardTitle}>Explore the Holy Sites</Text>
-              <Text style={s.sacredCardSub}>
-                {"Du\u02bf\u0101s, history and guidance for every sacred location"}
-              </Text>
-            </View>
-          </ImageBackground>
-        </TouchableOpacity>
-
         <View style={s.sectionDivider}>
           <View style={s.sectionBar} />
           <Text style={s.sectionLabel}>{"TODAY\u2019S DU\u02bfĀ"}</Text>
@@ -1062,16 +947,14 @@ const s = StyleSheet.create({
     marginHorizontal: 14,
     marginTop: 12,
     marginBottom: 4,
-    backgroundColor: "#FDFAF4",
+    backgroundColor: "#D4A853",
     borderRadius: 18,
     overflow: "hidden",
-    borderWidth: 1.5,
-    borderColor: "rgba(184,146,42,0.40)",
-    shadowColor: "#1C2E1C",
+    shadowColor: "#7A4E10",
     shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.12,
+    shadowOpacity: 0.22,
     shadowRadius: 5,
-    elevation: 4,
+    elevation: 5,
   },
   journeyCardTop: {
     flexDirection: "row",
@@ -1084,28 +967,28 @@ const s = StyleSheet.create({
   journeyCardEyebrow: {
     fontSize: 10,
     fontWeight: "700",
-    color: "#B8922A",
+    color: "rgba(255,255,255,0.75)",
     letterSpacing: 1.2,
     marginBottom: 3,
   },
   journeyCardTitle: {
     fontFamily: SERIF,
     fontSize: 18,
-    color: "#1C1A14",
+    color: "#FFFFFF",
     fontWeight: "400",
   },
   journeyCardBtn: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: "#4A5C48",
+    backgroundColor: "rgba(255,255,255,0.22)",
     alignItems: "center",
     justifyContent: "center",
   },
   journeyLinks: {
     flexDirection: "row",
     borderTopWidth: 1,
-    borderTopColor: "rgba(184,146,42,0.22)",
+    borderTopColor: "rgba(255,255,255,0.25)",
   },
   journeyLink: {
     flex: 1,
@@ -1114,184 +997,13 @@ const s = StyleSheet.create({
   },
   journeyLinkTxt: {
     fontSize: 13,
-    color: "#4A5C48",
+    color: "#FFFFFF",
     fontWeight: "600",
   },
   journeyLinkDiv: {
     width: 1,
-    backgroundColor: "rgba(184,146,42,0.22)",
+    backgroundColor: "rgba(255,255,255,0.25)",
     marginVertical: 8,
-  },
-
-  // ── Focus Mode card ───────────────────────────────────────────────────────
-  // ── Continuation card ─────────────────────────────────────────────────────
-  continuationCard: {
-    marginHorizontal: 14,
-    marginTop: 12,
-    marginBottom: 0,
-    height: 130,
-    borderRadius: 16,
-    overflow: "hidden",
-    flexDirection: "row",
-    backgroundColor: "#2A3828",
-    shadowColor: "#1C1408",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.18,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  continuationLeft: {
-    flex: 1,
-    paddingHorizontal: 16,
-    paddingTop: 14,
-    paddingBottom: 14,
-    justifyContent: "space-between",
-  },
-  continuationTopRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 8,
-  },
-  continuationEyebrow: {
-    fontSize: 10,
-    fontWeight: "700",
-    color: "rgba(200,169,106,0.90)",
-    letterSpacing: 1.4,
-  },
-  continuationTitle: {
-    fontFamily: SERIF,
-    fontSize: 22,
-    color: "#FDFAF4",
-    fontWeight: "400",
-    marginBottom: 4,
-  },
-  continuationStage: {
-    fontSize: 13,
-    color: "rgba(245,240,232,0.60)",
-  },
-  continuationBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: "rgba(245,240,232,0.18)",
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "rgba(245,240,232,0.30)",
-  },
-  continuationRight: {
-    width: 350,
-    alignSelf: "stretch",
-  },
-  continuationImg: {
-    width: "100%",
-    height: "100%",
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-
-  // ── Sacred Places card ────────────────────────────────────────────────────
-  sacredCard: {
-    marginHorizontal: 14,
-    marginTop: 12,
-    marginBottom: 4,
-    height: 150,
-    borderRadius: 18,
-    overflow: "hidden",
-    shadowColor: "#2A1A08",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.22,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  sacredCardBg:     { flex: 1, justifyContent: "flex-end" },
-  sacredCardScrim:  {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(8,10,6,0.48)",
-    borderRadius: 18,
-  },
-  sacredCardContent:{ padding: 18 },
-  sacredCardEyebrow:{
-    fontSize: 10,
-    fontWeight: "700",
-    color: "rgba(245,240,232,0.70)",
-    letterSpacing: 1.5,
-    marginBottom: 5,
-  },
-  sacredCardTitle: {
-    fontFamily: SERIF,
-    fontSize: 20,
-    color: "#FFFFFF",
-    fontWeight: "400",
-    marginBottom: 4,
-  },
-  sacredCardSub: {
-    fontSize: 13,
-    color: "rgba(245,240,232,0.75)",
-    lineHeight: 19,
-  },
-
-  focusCard: {
-    marginHorizontal: 14,
-    marginTop: 12,
-    marginBottom: 4,
-    height: 180,
-    borderRadius: 18,
-    overflow: "hidden",
-    shadowColor: "#2A1A08",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.22,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  focusCardBg: {
-    flex: 1,
-    justifyContent: "flex-end",
-  },
-  focusCardScrim: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(10,18,8,0.52)",
-    borderRadius: 18,
-  },
-  focusCardContent: {
-    padding: 18,
-  },
-  focusCardEyebrow: {
-    fontSize: 10,
-    fontWeight: "700",
-    color: "rgba(245,240,232,0.70)",
-    letterSpacing: 1.5,
-    marginBottom: 6,
-  },
-  focusCardTitle: {
-    fontFamily: SERIF,
-    fontSize: 22,
-    color: "#FFFFFF",
-    fontWeight: "400",
-    lineHeight: 30,
-    marginBottom: 14,
-  },
-  focusPills: {
-    flexDirection: "row",
-    gap: 8,
-    flexWrap: "wrap",
-  },
-  focusPill: {
-    borderRadius: 50,
-    borderWidth: 1,
-    borderColor: "rgba(245,240,232,0.50)",
-    backgroundColor: "rgba(245,240,232,0.12)",
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-  },
-  focusPillTxt: {
-    fontSize: 12,
-    color: "rgba(245,240,232,0.90)",
-    fontWeight: "500",
   },
 
   sectionDivider: {

@@ -40,8 +40,6 @@ import HajjGuideScreen     from "./screens/HajjGuideScreen";
 import PilgrimageDuasScreen  from "./screens/PilgrimageDuasScreen";
 import HajjUmrahPickerScreen from "./screens/HajjUmrahPickerScreen";
 import SafarAssistScreen     from "./screens/SafarAssistScreen";
-import DhikrScreen           from "./screens/DhikrScreen";
-import TawafScreen           from "./screens/TawafScreen";
 
 // ── Context ───────────────────────────────────────────────────────────────────
 import { AccessibilityProvider } from "./AccessibilityContext";
@@ -168,17 +166,6 @@ function HomeNavigator() {
   );
 }
 
-const FocusStack = createNativeStackNavigator();
-function FocusNavigator() {
-  return (
-    <FocusStack.Navigator screenOptions={{ headerShown: false }}>
-      <FocusStack.Screen name="FocusMain" component={FocusScreen} />
-      <FocusStack.Screen name="Dhikr"     component={DhikrScreen} />
-      <FocusStack.Screen name="Tawaf"     component={TawafScreen} />
-    </FocusStack.Navigator>
-  );
-}
-
 function GuidesNavigator() {
   return (
     <GuidesStack.Navigator screenOptions={{ headerShown:false }}>
@@ -228,7 +215,7 @@ function MainTabs() {
     <Tab.Navigator tabBar={props => <SafarTabBar {...props} />} screenOptions={{ headerShown:false }}>
       <Tab.Screen name="Home"    component={HomeNavigator}    />
       <Tab.Screen name="Guides"  component={GuidesNavigator}  />
-      <Tab.Screen name="Focus"   component={FocusNavigator} />
+      <Tab.Screen name="Focus"   component={FocusScreen}   />
       <Tab.Screen name="Duas"    component={DuasNavigator}  />
       <Tab.Screen name="Prepare" component={PrepareNavigator} />
     </Tab.Navigator>

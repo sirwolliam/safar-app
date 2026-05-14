@@ -19,8 +19,6 @@ import { spacing, radius } from "../theme";
 import AskModal from "../components/AskModal";
 import { PATTERN_PATH } from "./headerPatternPath";
 
-import AsyncStorage from "@react-native-async-storage/async-storage";
-
 // ── Design tokens ─────────────────────────────────────────────────────────────
 const SERIF      = "SourceSerif4-Regular";
 const BG         = "#F5F0E8";   // warm off-white
@@ -300,17 +298,6 @@ export default function DuaDetailScreen({ route, navigation }) {
 
   const activeDua = allDuas.length > 0 ? (allDuas[idx] ?? dua) : dua;
   if (!activeDua) return null;
-
-  // Persist last viewed du'ā for HomeScreen continuation card
-  useEffect(() => {
-    if (!activeDua) return;
-    const payload = {
-      dua: activeDua,
-      allDuas,
-      currentIndex: idx,
-    };
-    AsyncStorage.setItem("SAFAR_LAST_DUA", JSON.stringify(payload)).catch(() => {});
-  }, [idx, activeDua]);
 
   const hasPrev = idx > 0;
   const hasNext = idx < allDuas.length - 1;

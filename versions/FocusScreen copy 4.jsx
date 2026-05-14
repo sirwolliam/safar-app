@@ -15,17 +15,17 @@ const { width: SW } = Dimensions.get("window");
 
 const MODES = {
   Tawaf: { total: 7, unit: "Round", label: "TAWAF", hint: "7 circuits around the Kaaba" },
-  Saʿi:  { total: 7, unit: "Pass",  label: "SAʿI",  hint: "7 passes between Ṣafā & Marwah" },
+  "Sa\u02bfi":  { total: 7, unit: "Pass",  label: "SA\u02bfI",  hint: "7 passes between \u1e62af\u0101 & Marwah" },
 };
 
 const QUICK_DUAS = {
   Tawaf: [
-    { id: "bs",  label: "At the Black Stone",    sub: "Duʿā & Remembrance" },
-    { id: "int", label: "Intention & Beginning", sub: "Duʿā & Remembrance" },
+    { id: "bs",  label: "At the Black Stone",    sub: "Du\u02bf\u0101 & Remembrance" },
+    { id: "int", label: "Intention & Beginning", sub: "Du\u02bf\u0101 & Remembrance" },
   ],
-  Saʿi: [
-    { id: "sf",  label: "Upon Ascending Ṣafā",  sub: "Duʿā & Remembrance" },
-    { id: "mw",  label: "At Marwah",             sub: "Duʿā & Remembrance" },
+  "Sa\u02bfi": [
+    { id: "sf",  label: "Upon Ascending \u1e62af\u0101",  sub: "Du\u02bf\u0101 & Remembrance" },
+    { id: "mw",  label: "At Marwah",             sub: "Du\u02bf\u0101 & Remembrance" },
   ],
 };
 
@@ -43,18 +43,20 @@ export default function FocusScreen({ navigation }) {
     if (current < config.total) setCurrent(current + 1);
   };
 
-  // ── Mode picker modal ──
+  // ── Mode picker ──
   if (showPicker || !mode) {
     return (
       <SafeAreaView style={s.safe}>
         <View style={s.pickerWrap}>
           <Text style={s.pickerTitle}>Select your practice</Text>
           <Text style={s.pickerSub}>Focus Mode will update based on your selection.</Text>
+
+          {/* Tawaf + Sa'i */}
           {Object.entries(MODES).map(([key, cfg]) => (
             <TouchableOpacity
               key={key}
               style={s.pickerOpt}
-              onPress={() => { if (key === 'Tawaf') { navigation?.navigate?.('Tawaf'); } else { setMode(key); setCurrent(1); setShowPicker(false); } }}
+              onPress={() => { setMode(key); setCurrent(1); setShowPicker(false); }}
               activeOpacity={0.88}
             >
               <View style={s.pickerOptLeft}>
@@ -66,20 +68,22 @@ export default function FocusScreen({ navigation }) {
               </View>
             </TouchableOpacity>
           ))}
+
           {/* Dhikr Counter */}
           <TouchableOpacity
             style={s.pickerOpt}
-            onPress={() => navigation?.navigate?.('Dhikr')}
+            onPress={() => navigation?.navigate?.("Dhikr")}
             activeOpacity={0.88}
           >
             <View style={s.pickerOptLeft}>
               <Text style={s.pickerOptTitle}>Dhikr Counter</Text>
-              <Text style={s.pickerOptHint}>Remember Allah with any dhikr</Text>
+              <Text style={s.pickerOptHint}>{"Remember Allah with any dhikr"}</Text>
             </View>
             <View style={s.pickerBadge}>
-              <Text style={s.pickerBadgeText}>22 dhikrs</Text>
+              <Text style={s.pickerBadgeText}>8 dhikrs</Text>
             </View>
           </TouchableOpacity>
+
         </View>
       </SafeAreaView>
     );
