@@ -8,7 +8,9 @@ import {
   SafeAreaView, View, Text, ScrollView, TouchableOpacity,
   StyleSheet, Dimensions, Linking, TextInput, ImageBackground, Modal,
 } from "react-native";
-import Svg, { Rect, Path, Ellipse, Circle, G, Line } from "react-native-svg";
+import { Wrench, ShoppingBag, BookOpen, PlayCircle, Buildings,
+         MapTrifold, Headphones, Mosque, Compass, CurrencyCircleDollar,
+         BookmarkSimple, NotePencil, Question, Gear, Info } from "phosphor-react-native";
 import { colors, spacing, radius, shadows, typography } from "../theme";
 import { getAffiliateUrl } from "../utils/affiliateLinks";
 import { useAccessibility } from "../AccessibilityContext";
@@ -39,22 +41,22 @@ const fn = StyleSheet.create({
 const { width: SW } = Dimensions.get("window");
 
 const CATEGORIES = [
-  { key:"tools",    label:"Tools",     icon:"🛠",  desc:"Apps & utilities"         },
-  { key:"shop",     label:"Shop",      icon:"🛍",  desc:"Essentials for the journey" },
-  { key:"islamic",  label:"Scholars",  icon:"📖",  desc:"Trusted Islamic sources"   },
-  { key:"media",    label:"Media",     icon:"🎬",  desc:"Videos & podcasts"         },
-  { key:"official", label:"Official",  icon:"🕌",  desc:"Saudi & gov resources"     },
-  { key:"settings", label:"Settings",  icon:"⚙️",  desc:"Account & preferences"     },
+  { key:"tools",    label:"Tools",     Icon:Wrench,       desc:"Apps & utilities"         },
+  { key:"shop",     label:"Shop",      Icon:ShoppingBag,  desc:"Essentials for the journey" },
+  { key:"islamic",  label:"Scholars",  Icon:BookOpen,     desc:"Trusted Islamic sources"   },
+  { key:"media",    label:"Media",     Icon:PlayCircle,   desc:"Videos & podcasts"         },
+  { key:"official", label:"Official",  Icon:Buildings,    desc:"Saudi & gov resources"     },
+  { key:"settings", label:"Settings",  Icon:Gear,          desc:"Account & preferences"     },
 ];
 
 const TOOLS = [
-  { id: "wtexpect",  icon: "🗺️", title: "What to Expect",       sub: "Health, logistics & travel tips",  screen: "WhatToExpect"       },
-  { id: "practice",  icon: "🎧", title: "Practice & Learn",    sub: "Audio, repeat, and recite",      screen: "PracticeLearn"      },
-  { id: "prayer",   icon: "🕌", title: "Prayer Times",         sub: "Daily salah times for your city", screen: "PrayerTimes"        },
-  { id: "qibla",    icon: "🧭", title: "Qibla Finder",         sub: "Direction of the Ka'bah",         screen: "Qibla"              },
-  { id: "currency", icon: "💱", title: "Currency Converter",   sub: "SAR to your home currency",       screen: "CurrencyConverter"  },
-  { id: "bookmark", icon: "🔖", title: "Bookmarks",           sub: "Your saved duas",                screen: "Bookmarks"         },
-  { id: "notes",    icon: "📝", title: "Notes",               sub: "Personal reflections",           screen: "Notes"             },
+  { id: "wtexpect",  Icon: MapTrifold,           title: "What to Expect",       sub: "Health, logistics & travel tips",  screen: "WhatToExpect"       },
+  { id: "practice",  Icon: Headphones,           title: "Practice & Learn",    sub: "Audio, repeat, and recite",      screen: "PracticeLearn"      },
+  { id: "prayer",    Icon: Mosque,               title: "Prayer Times",         sub: "Daily salah times for your city", screen: "PrayerTimes"        },
+  { id: "qibla",     Icon: Compass,              title: "Qibla Finder",         sub: "Direction of the Ka'bah",         screen: "Qibla"              },
+  { id: "currency",  Icon: CurrencyCircleDollar, title: "Currency Converter",   sub: "SAR to your home currency",       screen: "CurrencyConverter"  },
+  { id: "bookmark",  Icon: BookmarkSimple,        title: "Bookmarks",           sub: "Your saved duas",                screen: "Bookmarks"         },
+  { id: "notes",     Icon: NotePencil,           title: "Notes",               sub: "Personal reflections",           screen: "Notes"             },
 ];
 
 const AFFILIATE_ITEMS = [
@@ -105,23 +107,26 @@ function SectionHeader({ title, sub, styles }) {
 function MenuCard({ items, navigation, styles }) {
   return (
     <View style={styles.menuCard}>
-      {items.map((item, i) => (
-        <TouchableOpacity
-          key={item.id}
-          style={i < items.length - 1 ? [styles.menuRow, styles.menuRowBorder] : styles.menuRow}
-          onPress={() => navigation?.navigate?.(item.screen)}
-          activeOpacity={0.85}
-        >
-          <View style={styles.menuIconWrap}>
-            <Text style={{ fontSize: 20 }}>{item.icon}</Text>
-          </View>
-          <View style={styles.menuInfo}>
-            <Text style={styles.menuTitle}>{item.title}</Text>
-            <Text style={styles.menuSub}>{item.sub}</Text>
-          </View>
-          <Text style={styles.menuArrow}>›</Text>
-        </TouchableOpacity>
-      ))}
+      {items.map((item, i) => {
+        const ItemIcon = item.Icon;
+        return (
+          <TouchableOpacity
+            key={item.id}
+            style={i < items.length - 1 ? [styles.menuRow, styles.menuRowBorder] : styles.menuRow}
+            onPress={() => navigation?.navigate?.(item.screen)}
+            activeOpacity={0.85}
+          >
+            <View style={styles.menuIconWrap}>
+              <ItemIcon size={24} color="#2A4A38" weight="thin" />
+            </View>
+            <View style={styles.menuInfo}>
+              <Text style={styles.menuTitle}>{item.title}</Text>
+              <Text style={styles.menuSub}>{item.sub}</Text>
+            </View>
+            <Text style={styles.menuArrow}>›</Text>
+          </TouchableOpacity>
+        );
+      })}
     </View>
   );
 }
@@ -226,33 +231,24 @@ export default function ProfileScreen({ navigation }) {
   return (
     <SafeAreaView style={s.safe}>
 
-      {/* Header */}
+      {/* Header — fixed height matches all other tabs */}
       <View style={s.header}>
-        <Text style={s.arabicBg} allowFontScaling={false}>{"سَفَر"}</Text>
-        <Text style={s.headerEyebrow}>MY SAFAR</Text>
-        <View style={s.headerTitleRow}>
-          <Text style={s.headerTitle}>Prepare</Text>
-          <View style={s.headerIcons}>
-            <TouchableOpacity style={s.headerIconBtn}
-              onPress={() => navigation?.navigate?.("Support")} activeOpacity={0.8}>
-              {/* Question mark — line style */}
-              <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-                <Circle cx="12" cy="12" r="10" stroke="#4A5C48" strokeWidth="1.8"/>
-                <Path d="M9.5 9.5C9.5 8.12 10.62 7 12 7s2.5 1.12 2.5 2.5c0 1.5-2.5 2-2.5 3.5" stroke="#4A5C48" strokeWidth="1.8" strokeLinecap="round"/>
-                <Circle cx="12" cy="17" r="0.8" fill="#4A5C48"/>
-              </Svg>
-            </TouchableOpacity>
-            <TouchableOpacity style={s.headerIconBtn}
-              onPress={() => navigation?.navigate?.("Settings")} activeOpacity={0.8}>
-              {/* Gear — line style */}
-              <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-                <Path d="M12 15a3 3 0 100-6 3 3 0 000 6z" stroke="#4A5C48" strokeWidth="1.8"/>
-                <Path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" stroke="#4A5C48" strokeWidth="1.8"/>
-              </Svg>
-            </TouchableOpacity>
+        <View style={s.headerLeft}>
+          <View style={s.headerTitleRow}>
+            <Text style={s.headerTitle}>Prepare</Text>
+            <View style={s.headerIcons}>
+              <TouchableOpacity style={s.headerIconBtn}
+                onPress={() => navigation?.navigate?.("Support")} activeOpacity={0.8}>
+                <Question size={22} color="#2A4A38" weight="thin" />
+              </TouchableOpacity>
+              <TouchableOpacity style={s.headerIconBtn}
+                onPress={() => navigation?.navigate?.("Settings")} activeOpacity={0.8}>
+                <Gear size={22} color="#2A4A38" weight="thin" />
+              </TouchableOpacity>
+            </View>
           </View>
+          <Text style={s.headerSub}>Everything you need before and during your journey</Text>
         </View>
-        <Text style={s.headerSub}>Everything you need before and during your journey</Text>
       </View>
 
       {/* Hero image — same height as Duas page hero */}
@@ -274,6 +270,7 @@ export default function ProfileScreen({ navigation }) {
           >
             {CATEGORIES.map(cat => {
               const active = activeKey === cat.key;
+              const CatIcon = cat.Icon;
               return (
                 <TouchableOpacity
                   key={cat.key}
@@ -281,7 +278,13 @@ export default function ProfileScreen({ navigation }) {
                   onPress={() => scrollTo(cat.key)}
                   activeOpacity={0.75}
                 >
-                  <Text style={s.tabIcon}>{cat.icon}</Text>
+                  <View style={{ marginBottom:4 }}>
+                    <CatIcon
+                      size={24}
+                      color={active ? colors.primary : "#3A3530"}
+                      weight="thin"
+                    />
+                  </View>
                   <Text style={active ? [s.tabLabel, s.tabLabelActive] : s.tabLabel}>
                     {cat.label}
                   </Text>
@@ -407,10 +410,7 @@ export default function ProfileScreen({ navigation }) {
               onPress={() => navigation?.navigate?.("Settings")}
               activeOpacity={0.85}>
               <View style={s.menuIconWrap}>
-                <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
-                  <Path d="M12 15a3 3 0 100-6 3 3 0 000 6z" stroke="#4A5C48" strokeWidth="1.6"/>
-                  <Path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" stroke="#4A5C48" strokeWidth="1.6"/>
-                </Svg>
+                <Gear size={26} color="#2A4A38" weight="thin" />
               </View>
               <View style={s.menuInfo}>
                 <Text style={s.menuTitle}>Settings</Text>
@@ -423,11 +423,7 @@ export default function ProfileScreen({ navigation }) {
               onPress={() => navigation?.navigate?.("Support")}
               activeOpacity={0.85}>
               <View style={s.menuIconWrap}>
-                <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
-                  <Circle cx="12" cy="12" r="10" stroke="#4A5C48" strokeWidth="1.6"/>
-                  <Path d="M9.5 9.5C9.5 8.12 10.62 7 12 7s2.5 1.12 2.5 2.5c0 1.5-2.5 2-2.5 3.5" stroke="#4A5C48" strokeWidth="1.6" strokeLinecap="round"/>
-                  <Circle cx="12" cy="17" r="0.8" fill="#4A5C48"/>
-                </Svg>
+                <Question size={26} color="#2A4A38" weight="thin" />
               </View>
               <View style={s.menuInfo}>
                 <Text style={s.menuTitle}>Help & Support</Text>
@@ -440,10 +436,7 @@ export default function ProfileScreen({ navigation }) {
               onPress={() => setShowAbout(true)}
               activeOpacity={0.85}>
               <View style={s.menuIconWrap}>
-                <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
-                  <Path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" stroke="#4A5C48" strokeWidth="1.6"/>
-                  <Path d="M12 11v6M12 8v.5" stroke="#4A5C48" strokeWidth="1.8" strokeLinecap="round"/>
-                </Svg>
+                <Info size={26} color="#2A4A38" weight="thin" />
               </View>
               <View style={s.menuInfo}>
                 <Text style={s.menuTitle}>About Safar</Text>
@@ -466,21 +459,19 @@ export default function ProfileScreen({ navigation }) {
 }
 
 const createStyles = (colors) => StyleSheet.create({
-  safe:   { flex:1, backgroundColor:"#E8DDD0" },
+  safe:   { flex:1, backgroundColor:colors.background },
   heroImg:      { height:96, marginBottom:12 },
   heroImgStyle: { resizeMode:"cover" },
   heroScrim:    { ...StyleSheet.absoluteFillObject, backgroundColor:"rgba(30,61,48,0.15)" },
 
-  // Header
-  header:         { paddingHorizontal:20, paddingTop:16, paddingBottom:10, backgroundColor:"#E8DDD0", position:"relative", overflow:"hidden" },
-  arabicBg:       { position:"absolute", right:-8, top:-4, fontSize:108, color:"#4A5C48", opacity:0.06, lineHeight:128 },
-  headerEyebrow:  { fontSize:9, fontWeight:"800", letterSpacing:3, color:"#3B6B58", marginBottom:6 },
-  headerTitleRow: { flexDirection:"row", alignItems:"center", justifyContent:"space-between" },
+  // Header — consistent padding matches all other tabs
+  header:         { paddingHorizontal:spacing(2.5), paddingTop:14, paddingBottom:12, backgroundColor:colors.background },
+  headerLeft:     { flex:1 },
+  headerTitleRow: { flexDirection:"row", alignItems:"center", justifyContent:"space-between", marginBottom:3 },
   headerIcons:    { flexDirection:"row", gap:8 },
-  headerIconBtn:  { width:36, height:36, borderRadius:18, backgroundColor:"#F5EDE0", borderWidth:1, borderColor:"#C8BFB2", alignItems:"center", justifyContent:"center", shadowColor:"#4A2E10", shadowOffset:{width:0,height:2}, shadowOpacity:0.12, shadowRadius:4, elevation:2 },
-  headerIconTxt:  { fontSize:17, color:"#4A5C48" },
-  headerTitle: { fontFamily:SERIF, fontSize:28, fontWeight:"600", color:colors.text, marginBottom:3 },
-  headerSub:   { fontSize:14, color:"#3A3530", fontWeight:"500" },
+  headerIconBtn:  { width:32, height:32, borderRadius:16, backgroundColor:colors.card, borderWidth:1, borderColor:colors.border, alignItems:"center", justifyContent:"center" },
+  headerTitle:    { fontFamily:SERIF, fontSize:26, fontWeight:"400", color:colors.text },
+  headerSub:      { fontSize:14, color:colors.subtext, fontWeight:"400" },
 
   // Search bar
   searchWrap:        { paddingHorizontal:20, paddingBottom:12, paddingTop:16 },
@@ -494,7 +485,6 @@ const createStyles = (colors) => StyleSheet.create({
   tabsWrap:      { marginBottom:0, backgroundColor:"#E8DDD0" },
   tabsRow:       { paddingHorizontal:16, paddingBottom:0, gap:0 },
   tab:           { alignItems:"center", paddingHorizontal:14, paddingVertical:10, position:"relative", minWidth:72 },
-  tabIcon:       { fontSize:20, marginBottom:4 },
   tabLabel:      { fontSize:13, color:"#3A3530", fontWeight:"600", textAlign:"center" },
   tabLabelActive:{ color:colors.primary, fontWeight:"600" },
   tabUnderline:  { position:"absolute", bottom:0, left:10, right:10, height:2.5, backgroundColor:colors.primary, borderRadius:2 },

@@ -5,20 +5,21 @@
 import React, { useState, useMemo } from "react";
 import {
   SafeAreaView, View, Text, ScrollView, TouchableOpacity,
-  StyleSheet, Switch,
+  StyleSheet, Switch, Alert,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { colors, spacing, radius, shadows, typography } from "../theme";
 import { useAccessibility } from "../AccessibilityContext";
 
 const SERIF = "SourceSerif4-Regular";
 
-function SettingRow({ label, sub, value, onToggle, isLast, navigation, screen }) {
+function SettingRow({ label, sub, value, onToggle, isLast, navigation, screen, onPress }) {
   if (onToggle !== undefined) {
     return (
       <View style={!isLast ? [sr.row, sr.rowBorder] : sr.row}>
         <View style={sr.info}>
           <Text style={sr.label}>{label}</Text>
-          {sub && <Text style={sr.sub}>{sub}</Text>}
+          {sub ? <Text style={sr.sub}>{sub}</Text> : null}
         </View>
         <Switch
           value={value}
@@ -32,12 +33,12 @@ function SettingRow({ label, sub, value, onToggle, isLast, navigation, screen })
   return (
     <TouchableOpacity
       style={!isLast ? [sr.row, sr.rowBorder] : sr.row}
-      onPress={() => screen && navigation?.navigate?.(screen)}
+      onPress={() => (onPress ? onPress() : screen && navigation?.navigate?.(screen))}
       activeOpacity={0.85}
     >
       <View style={sr.info}>
         <Text style={sr.label}>{label}</Text>
-        {sub && <Text style={sr.sub}>{sub}</Text>}
+        {sub ? <Text style={sr.sub}>{sub}</Text> : null}
       </View>
       <Text style={sr.arrow}>{"\u203a"}</Text>
     </TouchableOpacity>
@@ -58,6 +59,26 @@ export default function SettingsScreen({ navigation }) {
   const s = useMemo(() => createStyles(colors), [colors]);
 
   const [notif, setNotif] = useState(true);
+
+  const resetOnboarding = () => {
+    Alert.alert(
+      "Restart setup?",
+      "This will take you back through the welcome and journey setup. Your saved data is not deleted.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Restart",
+          style: "destructive",
+          onPress: async () => {
+            try { await AsyncStorage.removeItem("safar_onboarded_v1"); } catch (e) {}
+            // navigate() bubbles up through parent navigators until it finds
+            // "Onboarding" in the root stack — works from any nesting depth.
+            navigation?.navigate?.("Onboarding");
+          },
+        },
+      ]
+    );
+  };
 
   return (
     <SafeAreaView style={s.safe}>
@@ -119,6 +140,17 @@ export default function SettingsScreen({ navigation }) {
         <Text style={s.sectionLabel}>SUPPORT</Text>
         <View style={s.card}>
           <SettingRow label="Help & Support" navigation={navigation} screen="Support" isLast />
+        </View>
+
+        {/* Setup */}
+        <Text style={s.sectionLabel}>SETUP</Text>
+        <View style={s.card}>
+          <SettingRow
+            label="Restart Setup"
+            sub="Go through the welcome and journey setup again"
+            onPress={resetOnboarding}
+            isLast
+          />
         </View>
 
         {/* Version */}

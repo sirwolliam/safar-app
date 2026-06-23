@@ -66,7 +66,7 @@ export default function HajjGuideScreen({ navigation }) {
         {/* ── 1. Hero — opens GuideCarousel (only link to carousel) ── */}
         <TouchableOpacity style={s.heroCard} onPress={() => setShowCarousel(true)} activeOpacity={0.9}>
           <ImageBackground
-            source={require("../assets/02_ihram_gradient.jpg")}
+            source={require("../assets/tawaf2.jpg")}
             style={s.heroCardBg}
             resizeMode="cover"
           >
@@ -103,7 +103,49 @@ export default function HajjGuideScreen({ navigation }) {
           </ImageBackground>
         </TouchableOpacity>
 
-        {/* ── 3 & 4. Half-width: Sacred Places + Pilgrimage Route Map ── */}
+        {/* ── 3. Watch & Listen ── */}
+        <TouchableOpacity
+          style={s.fullCard}
+          activeOpacity={0.88}
+          onPress={() => navigation?.navigate?.("Media", { filter:"hajj" })}
+        >
+          <ImageBackground
+            source={require("../assets/focus_mode.jpg")}
+            style={{ flex:1 }}
+            imageStyle={{ borderRadius:14 }}
+            resizeMode="cover"
+          >
+            <View style={[s.fullCardScrim, { backgroundColor:"rgba(10,16,24,0.48)" }]} />
+            <View style={s.fullCardInner}>
+              <Text style={s.fullCardEyebrow}>VIDEOS & PODCASTS</Text>
+              <Text style={s.fullCardTitle}>Watch & Listen</Text>
+              <Text style={s.fullCardSub}>Curated videos, podcasts and articles for Hajj</Text>
+            </View>
+          </ImageBackground>
+        </TouchableOpacity>
+
+        {/* ── 4. Shop Essentials ── */}
+        <TouchableOpacity
+          style={s.fullCard}
+          activeOpacity={0.88}
+          onPress={() => navigation?.navigate?.("Shop", { category:"all" })}
+        >
+          <ImageBackground
+            source={require("../assets/what_to_expect.jpg")}
+            style={{ flex:1 }}
+            imageStyle={{ borderRadius:14 }}
+            resizeMode="cover"
+          >
+            <View style={[s.fullCardScrim, { backgroundColor:"rgba(10,20,14,0.50)" }]} />
+            <View style={s.fullCardInner}>
+              <Text style={s.fullCardEyebrow}>ESSENTIALS</Text>
+              <Text style={s.fullCardTitle}>Shop Hajj Essentials</Text>
+              <Text style={s.fullCardSub}>Ihram, sandals, health kit and more</Text>
+            </View>
+          </ImageBackground>
+        </TouchableOpacity>
+
+        {/* ── 5 & 6. Half-width cards ── */}
         <View style={s.halfRow}>
           <TouchableOpacity
             style={[s.halfCard, { marginRight:6 }]}

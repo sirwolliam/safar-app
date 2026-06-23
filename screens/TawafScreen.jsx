@@ -8,8 +8,8 @@ import {
   TouchableWithoutFeedback, Image,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Svg, { Circle, G } from "react-native-svg";
-import { ArrowLeft, Check, X } from "phosphor-react-native";
+import Svg, { Circle, G, Path } from "react-native-svg";
+import { ArrowLeft, Check, X, Play, Stop } from "phosphor-react-native";
 import { spacing } from "../theme";
 
 const { width: SW } = Dimensions.get("window");
@@ -34,7 +34,7 @@ const CIRC       = 2 * Math.PI * RADIUS;
 const TAWAF_DUAS = [
   {
     id: "tawaf-start",
-    name: "Upon Beginning \u1e62aw\u0101f",
+    name: "Upon Beginning Tawaf",
     when: "Said at the Black Stone to begin each round",
     arabic: "\u0628\u0650\u0633\u0652\u0645\u0650 \u0627\u0644\u0644\u0647\u0650 \u0648\u064e\u0627\u0644\u0644\u0647\u064f \u0623\u064e\u0643\u0652\u0628\u064e\u0631\u064f",
     translit: "Bismi-ll\u0101hi wa-ll\u0101hu akbar",
@@ -51,6 +51,80 @@ const TAWAF_DUAS = [
     source: "Al-Baqarah 2:201",
   },
 ];
+
+// ── Dua audio player (placeholder — wire to expo-av when dev build ready) ────
+function DuaAudioPlayer({ duaName }) {
+  const [playing,  setPlaying]  = useState(false);
+  const [showHint, setShowHint] = useState(false);
+  const progress = useRef(new Animated.Value(0)).current;
+  const hintOpac = useRef(new Animated.Value(0)).current;
+  const playAnim = useRef(null);
+
+  const showComingSoon = () => {
+    setShowHint(true);
+    hintOpac.setValue(0);
+    Animated.sequence([
+      Animated.timing(hintOpac, { toValue:1, duration:200, useNativeDriver:true }),
+      Animated.delay(1800),
+      Animated.timing(hintOpac, { toValue:0, duration:300, useNativeDriver:true }),
+    ]).start(() => setShowHint(false));
+  };
+
+  const handlePlay = () => {
+    if (playing) {
+      playAnim.current?.stop();
+      progress.setValue(0);
+      setPlaying(false);
+    } else {
+      // TODO: replace with expo-av Audio.Sound.createAsync(source) when dev build ready
+      showComingSoon();
+      setPlaying(true);
+      playAnim.current = Animated.timing(progress, {
+        toValue: 1, duration: 8000, useNativeDriver: false,
+      });
+      playAnim.current.start(({ finished }) => {
+        if (finished) { setPlaying(false); progress.setValue(0); }
+      });
+    }
+  };
+
+  return (
+    <View style={ap.wrap}>
+      <View style={ap.row}>
+        <TouchableOpacity style={ap.btn} onPress={handlePlay} activeOpacity={0.85}>
+          {playing
+            ? <Stop size={20} color="#0A1A10" weight="fill" />
+            : <Play size={20} color="#0A1A10" weight="fill" />
+          }
+        </TouchableOpacity>
+        <View style={ap.trackWrap}>
+          <View style={ap.track}>
+            <Animated.View style={[ap.fill, {
+              width: progress.interpolate({ inputRange:[0,1], outputRange:["0%","100%"] }),
+            }]} />
+          </View>
+          <Text style={ap.label}>{playing ? "Playing…" : "Listen to this du\u02bf\u0101"}</Text>
+        </View>
+      </View>
+      {showHint && (
+        <Animated.Text style={[ap.hint, { opacity:hintOpac }]}>
+          {"Audio coming soon — available in the full app release"}
+        </Animated.Text>
+      )}
+    </View>
+  );
+}
+const ap = StyleSheet.create({
+  wrap:     { marginTop:16, borderTopWidth:1, borderTopColor:"rgba(200,185,160,0.15)", paddingTop:16 },
+  row:      { flexDirection:"row", alignItems:"center", gap:14 },
+  btn:      { width:44, height:44, borderRadius:22, backgroundColor:GOLD, alignItems:"center", justifyContent:"center",
+               shadowColor:GOLD, shadowOffset:{width:0,height:3}, shadowOpacity:0.40, shadowRadius:8, elevation:5 },
+  trackWrap:{ flex:1, gap:5 },
+  track:    { height:3, backgroundColor:"rgba(200,185,160,0.18)", borderRadius:2, overflow:"hidden" },
+  fill:     { height:"100%", backgroundColor:GOLD, borderRadius:2 },
+  label:    { fontSize:12, color:MUTED },
+  hint:     { fontSize:11, color:GOLD, textAlign:"center", marginTop:10, fontStyle:"italic" },
+});
 
 function DuaOverlay({ dua, onClose }) {
   const scaleAnim = useRef(new Animated.Value(0.92)).current;
@@ -80,6 +154,7 @@ function DuaOverlay({ dua, onClose }) {
           <View style={dl.divider} />
           <Text style={dl.translation}>{dua.translation}</Text>
           <Text style={dl.source}>{dua.source}</Text>
+          <DuaAudioPlayer duaName={dua.name} />
           <TouchableOpacity style={dl.closeBtn} onPress={close} activeOpacity={0.8} hitSlop={{top:16,bottom:16,left:16,right:16}}>
             <X size={18} color={MUTED} weight="regular" />
           </TouchableOpacity>
@@ -95,8 +170,8 @@ const dl = StyleSheet.create({
   name:       { fontFamily:SERIF, fontSize:20, color:WHITE, marginBottom:4, textAlign:"center" },
   when:       { fontSize:13, color:GOLD, fontStyle:"italic", marginBottom:14, textAlign:"center" },
   divider:    { height:1, backgroundColor:"rgba(200,185,160,0.15)", marginBottom:14 },
-  arabic:     { fontFamily:SERIF, fontSize:26, color:WHITE, textAlign:"center", writingDirection:"rtl", lineHeight:42, marginBottom:10 },
-  translit:   { fontSize:14, color:GOLD, textAlign:"center", fontStyle:"italic", marginBottom:14 },
+  arabic:     { fontFamily:SERIF, fontSize:30, color:WHITE, textAlign:"center", writingDirection:"rtl", lineHeight:46, marginBottom:18 },
+  translit:   { fontSize:17, color:GOLD, textAlign:"center", fontStyle:"italic", marginBottom:14 },
   translation:{ fontFamily:SERIF, fontSize:17, color:WHITE, textAlign:"center", lineHeight:26, marginBottom:10 },
   source:     { fontSize:12, color:MUTED, textAlign:"center" },
 });
@@ -106,7 +181,7 @@ function TawafRing({ current }) {
   const progress  = completed / TOTAL;
   const strokeDash = CIRC * progress;
   const markers = Array.from({ length:TOTAL }, (_, i) => {
-    const angle = (i / TOTAL) * 2 * Math.PI - Math.PI / 2;
+    const angle = -(i / TOTAL) * 2 * Math.PI - Math.PI / 2;
     return {
       x: CX + RADIUS * Math.cos(angle),
       y: CY + RADIUS * Math.sin(angle),
@@ -124,7 +199,8 @@ function TawafRing({ current }) {
             stroke={GREEN} strokeWidth={STROKE} fill="none"
             strokeDasharray={`${strokeDash} ${CIRC}`}
             strokeLinecap="round"
-            rotation={-90} origin={`${CX}, ${CY}`}
+            rotation={90} origin={`${CX}, ${CY}`}
+            transform={`scale(-1,1) translate(-${RING_SIZE},0)`}
           />
         )}
         {markers.map((m, i) => (
@@ -136,6 +212,20 @@ function TawafRing({ current }) {
             />
           </G>
         ))}
+      </Svg>
+      {/* Ghosted Ka'bah icon behind counter */}
+      <Svg
+        width={RING_SIZE * 0.38}
+        height={RING_SIZE * 0.38}
+        viewBox="0 0 100 100"
+        style={{ position:"absolute", opacity:0.08 }}
+      >
+        {/* Ka'bah cube: front face, top face, side face */}
+        <Path d="M20 75 L20 35 L50 25 L80 35 L80 75 Z" fill={WHITE} />
+        <Path d="M20 35 L50 20 L80 35 L50 45 Z" fill="rgba(255,255,255,0.6)" />
+        <Path d="M80 35 L80 75 L50 85 L50 45 Z" fill="rgba(255,255,255,0.3)" />
+        {/* Kiswa band */}
+        <Path d="M20 50 L80 50 L80 58 L20 58 Z" fill={GOLD} opacity="0.6" />
       </Svg>
       <View style={rg.inner}>
         <Text style={rg.roundLabel}>Round</Text>
@@ -176,7 +266,7 @@ export default function TawafScreen({ navigation }) {
           </TouchableOpacity>
           <View style={s.headerCenter}>
             <Text style={s.title}>Tawaf Counter</Text>
-            <Text style={s.subtitle}>{"Track your rounds of \u1e62aw\u0101f."}</Text>
+            <Text style={s.subtitle}>{"Track your rounds of Tawaf."}</Text>
           </View>
           <View style={{ width:40 }} />
         </View>
@@ -185,17 +275,20 @@ export default function TawafScreen({ navigation }) {
           <TawafRing current={current} />
         </View>
 
-        {!done ? (
-          <TouchableOpacity style={s.completeBtn} onPress={handleComplete} activeOpacity={0.85}>
-            <Text style={s.completeBtnPlus}>{"+"}</Text>
-            <Text style={s.completeBtnTxt}>{"Completed\na round"}</Text>
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity style={s.doneBtn} onPress={reset} activeOpacity={0.85}>
-            <Check size={48} color={WHITE} weight="regular" />
-            <Text style={s.completeBtnTxt}>{"Alhamdulillah!\nTap to restart"}</Text>
-          </TouchableOpacity>
-        )}
+        {/* Fixed-height wrapper — prevents layout jump when button swaps */}
+        <View style={s.btnWrap}>
+          {!done ? (
+            <TouchableOpacity style={s.completeBtn} onPress={handleComplete} activeOpacity={0.85}>
+              <Text style={s.completeBtnPlus}>{"+"}</Text>
+              <Text style={s.completeBtnTxt}>{"Completed\na round"}</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity style={s.doneBtn} onPress={reset} activeOpacity={0.85}>
+              <Check size={48} color={WHITE} weight="regular" />
+              <Text style={s.completeBtnTxt}>{"Alhamdulillah!\nTap to restart"}</Text>
+            </TouchableOpacity>
+          )}
+        </View>
 
         <View style={s.dotsCard}>
           <View style={s.dots}>
@@ -221,11 +314,17 @@ export default function TawafScreen({ navigation }) {
         <View style={s.duasRow}>
           {TAWAF_DUAS.map(dua => (
             <TouchableOpacity key={dua.id} style={s.duaCard} onPress={() => setActiveDua(dua)} activeOpacity={0.82}>
+              {/* View du'ā — prominent at top */}
+              <View style={s.duaCardHeader}>
+                <Text style={s.duaCardView}>{"View du\u02bf\u0101"}</Text>
+                <Text style={s.duaCardArrow}>{"›"}</Text>
+              </View>
+              <View style={s.duaCardDivider}/>
+              {/* Name and when below */}
               <Text style={s.duaCardName}>{dua.name}</Text>
               <Text style={s.duaCardWhen}>{dua.when}</Text>
-              <View style={s.duaCardFooter}>
-                <Text style={s.duaCardView}>{"View du\u02bf\u0101  \u203a"}</Text>
-              </View>
+              {/* Arabic preview */}
+              <Text style={s.duaCardArabic} numberOfLines={1}>{dua.arabic}</Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -233,7 +332,7 @@ export default function TawafScreen({ navigation }) {
         <View style={s.footer}>
           <Text style={s.footerTxt}>
             {"May Allah accept your "}
-            <Text style={{ color:GOLD }}>{"\u1e62aw\u0101f"}</Text>
+            <Text style={{ color:GOLD }}>{"Tawaf"}</Text>
             {"."}
           </Text>
         </View>
@@ -253,17 +352,23 @@ const s = StyleSheet.create({
   title:        { fontFamily:SERIF, fontSize:28, color:WHITE, fontWeight:"400" },
   subtitle:     { fontSize:14, color:GOLD, fontStyle:"italic", marginTop:3 },
   ringWrap:     { alignItems:"center", marginTop:spacing(1), marginBottom:spacing(1) },
+  btnWrap: {
+    height: 82,
+    marginBottom: spacing(2),
+    alignItems: "center",
+    justifyContent: "center",
+  },
   completeBtn: {
     alignSelf:"center", width:RING_SIZE, backgroundColor:GREEN_DARK, borderRadius:14,
     borderWidth:1, borderColor:"rgba(90,140,74,0.40)", paddingVertical:9,
     flexDirection:"row", alignItems:"center", justifyContent:"center", gap:16,
-    marginBottom:spacing(2), shadowColor:GREEN, shadowOffset:{width:0,height:4},
+    shadowColor:GREEN, shadowOffset:{width:0,height:4},
     shadowOpacity:0.30, shadowRadius:12, elevation:6,
   },
   doneBtn: {
     alignSelf:"center", width:RING_SIZE, backgroundColor:"#2A5C30", borderRadius:14,
     borderWidth:1, borderColor:"rgba(122,184,96,0.50)", paddingVertical:9,
-    flexDirection:"row", alignItems:"center", justifyContent:"center", gap:16, marginBottom:spacing(2),
+    flexDirection:"row", alignItems:"center", justifyContent:"center", gap:16,
   },
   completeBtnPlus: { fontSize:56, color:WHITE, fontWeight:"200", lineHeight:64 },
   completeBtnTxt:  { fontFamily:SERIF, fontSize:20, color:WHITE, lineHeight:28 },
@@ -288,12 +393,15 @@ const s = StyleSheet.create({
   },
   instructTxt: { fontSize:16, color:"rgba(245,240,232,0.75)", textAlign:"center", lineHeight:26 },
   duasSectionLabel: { fontSize:13, fontWeight:"600", color:MUTED, letterSpacing:1, textTransform:"uppercase", textAlign:"center", marginBottom:spacing(1.25) },
-  duasRow:    { flexDirection:"row", marginHorizontal:spacing(2.5), gap:spacing(1.25), marginBottom:spacing(2), marginTop:spacing(1) },
-  duaCard:    { flex:1, backgroundColor:CARD, borderRadius:14, borderWidth:1, borderColor:"rgba(90,140,74,0.25)", padding:16 },
-  duaCardName:{ fontFamily:SERIF, fontSize:16, color:WHITE, marginBottom:6, lineHeight:22 },
-  duaCardWhen:{ fontSize:12, color:MUTED, lineHeight:18, marginBottom:12 },
-  duaCardFooter:{ borderTopWidth:1, borderTopColor:"rgba(200,185,160,0.12)", paddingTop:10 },
-  duaCardView:{ fontSize:13, color:GOLD, fontWeight:"500" },
+  duasRow:       { flexDirection:"row", marginHorizontal:spacing(2.5), gap:spacing(1.25), marginBottom:spacing(2), marginTop:spacing(1) },
+  duaCard:       { flex:1, backgroundColor:CARD, borderRadius:14, borderWidth:1, borderColor:"rgba(90,140,74,0.30)", padding:16, gap:0 },
+  duaCardHeader: { flexDirection:"row", alignItems:"center", justifyContent:"space-between", marginBottom:12 },
+  duaCardView:   { fontFamily:SERIF, fontSize:20, color:GOLD, fontWeight:"600" },
+  duaCardArrow:  { fontSize:26, color:GOLD, fontWeight:"300", lineHeight:28 },
+  duaCardDivider:{ height:1, backgroundColor:"rgba(200,185,160,0.15)", marginBottom:12 },
+  duaCardName:   { fontFamily:SERIF, fontSize:15, color:WHITE, marginBottom:6, lineHeight:21 },
+  duaCardWhen:   { fontSize:12, color:MUTED, lineHeight:17, marginBottom:12 },
+  duaCardArabic: { fontFamily:SERIF, fontSize:18, color:"rgba(200,169,106,0.55)", textAlign:"right", writingDirection:"rtl" },
   footer:     { alignItems:"center", paddingTop:spacing(1) },
   footerTxt:  { fontSize:16, color:MUTED, textAlign:"center" },
 });

@@ -10,14 +10,18 @@ import {
   StyleSheet,
   Dimensions,
   Modal,
+  StatusBar,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import Svg, { Path, Defs, LinearGradient as SvgGrad, Stop, Mask, Rect } from "react-native-svg";
+import { PATTERN_PATH } from "./headerPatternPath";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
 import {
   MapTrifold, BookOpenText, HandsPraying, CompassRose,
   UsersThree, ShoppingBag, CheckSquare, Sparkle,
-  ArrowRight,
+  ArrowRight, BookOpen, Moon, ListChecks, Users,
+  Clock, PlayCircle, Wrench, Note, Gear, Info,
 } from "phosphor-react-native";
 
 const SERIF = "SourceSerif4-Regular";
@@ -48,11 +52,11 @@ const HERO_SLIDES = [
     image: require("../assets/hero_guide.jpg"),
     scrim: "rgba(8,16,8,0.26)",
     tag: "MY JOURNEY",
-    headline: "Your Step-by-Step\nGuide",
+    headline: "Your Step-by-Step Guide",
     sub: "Every ibadah, in order, with the right du\u02bfa\u02be",
     cta: "View guides",
     ctaIsAbout: false,
-    ctaScreen: "Guides",
+    ctaScreen: "Guidance",
     showGreeting: false,
   },
   {
@@ -60,8 +64,8 @@ const HERO_SLIDES = [
     image: require("../assets/what_to_expect.jpg"),
     scrim: "rgba(12,8,4,0.26)",
     tag: "AI-POWERED SETUP",
-    headline: "Everything in One\nPlace, Instantly",
-    sub: "Add your itinerary, key dates,\nand contacts in seconds",
+    headline: "Everything you need. Fast.",
+    sub: "Add your itinerary, key dates and contacts",
     cta: "Get started",
     ctaIsAbout: false,
     ctaScreen: "SafarAssist",
@@ -72,8 +76,8 @@ const HERO_SLIDES = [
     image: require("../assets/hero_duas.jpg"),
     scrim: "rgba(8,16,12,0.26)",
     tag: "DU\u02bfĀS & WORSHIP",
-    headline: "Every Du\u02bfa\u02be,\nEvery Moment",
-    sub: "Authenticated, practised and always with you",
+    headline: "Every Du\u02bfa\u02be, Every Moment",
+    sub: "Authenticated, practiced and always with you",
     cta: "View du\u02bfa\u02bes",
     ctaIsAbout: false,
     ctaScreen: "Duas",
@@ -84,8 +88,8 @@ const HERO_SLIDES = [
     image: require("../assets/hero_groups.jpg"),
     scrim: "rgba(4,12,20,0.26)",
     tag: "MY PEOPLE",
-    headline: "Travel Together,\nStay Connected",
-    sub: "Share milestones with your group\nand loved ones",
+    headline: "Travel Together, Stay Connected",
+    sub: "Share milestones with your group and loved ones",
     cta: "View groups",
     ctaIsAbout: false,
     ctaScreen: "Groups",
@@ -183,7 +187,7 @@ function AboutModal({ visible, onClose }) {
           <Text style={ab.title}>What is Safar?</Text>
           <Text style={ab.body}>
             {"Safar is your companion for every step of your sacred Hajj or Umrah journey.\n\n"}
-            {"Build a personalised step-by-step plan, pin your hotel, guide and travel group, practise the most important du\u02bf\u0101\u02bes, and carry the guidance of scholars in your pocket.\n\n"}
+            {"Build a personalised step-by-step plan, pin your hotel, guide and travel group, practice the most important du\u02bf\u0101\u02bes, and carry the guidance of scholars in your pocket.\n\n"}
             {"Share milestones with fellow pilgrims, track your progress through every ibadah, and arrive prepared, calm and confident.\n\n"}
             {"May Allah accept your journey. \u0622\u0645\u064a\u0646"}
           </Text>
@@ -247,6 +251,7 @@ const ab = StyleSheet.create({
 export default function HomeScreen({ navigation }) {
   const [heroSlide, setHeroSlide]           = useState(0);
   const [showAbout, setShowAbout]           = useState(false);
+  const [showSources, setShowSources]       = useState(false);
   const [userName, setUserName]             = useState("");
   const [daysAway, setDaysAway]             = useState(null);
   const [planStarted, setPlanStarted]       = useState(false);
@@ -254,6 +259,7 @@ export default function HomeScreen({ navigation }) {
   const [lastDua, setLastDua]               = useState(null); // { title, stage, id, allDuas, currentIndex }
   const heroRef   = useRef(null);
   const heroTimer = useRef(null);
+  const insets    = useSafeAreaInsets();
 
   const HERO_H    = Math.round(SH * 0.60) + 35;
   const displayName = userName || "Pilgrim";
@@ -328,76 +334,97 @@ export default function HomeScreen({ navigation }) {
   const gregorian = getGregorianLabel();
 
   // ── Hero slide renderer ───────────────────────────────────────────────────
-  const renderSlide = ({ item: slide }) => (
-    <ImageBackground
-      source={slide.image}
-      style={{ width: SW, height: HERO_H }}
-      resizeMode="cover"
-    >
-      {/* Per-image lightweight scrim */}
-      <View style={[StyleSheet.absoluteFill, { backgroundColor: slide.scrim }]} />
+  const renderSlide = ({ item: slide }) => {
+    const isKaaba = slide.id === "welcome";
+    return (
+      <View style={{ width: SW, height: HERO_H, overflow: "hidden" }}>
 
-      {/* Top left — salam 14pt + user name (white text on every slide) */}
-      <View style={s.heroTopLeft}>
-        <Text style={s.heroSalam}>{"As-sal\u0101mu \u02bfalaykum"}</Text>
-        <Text style={s.heroUserName}>{displayName}</Text>
-      </View>
-
-      {/* Top right — days to go: always visible, fallback when no date set */}
-      <View style={s.daysBadge}>
-        <Text style={s.daysNum}>{daysAway !== null ? daysAway : "--"}</Text>
-        <View style={s.daysLabelWrap}>
-          <Text style={s.daysLabel}>days</Text>
-          <Text style={s.daysLabel}>to go</Text>
-        </View>
-      </View>
-
-      {/* Bottom content */}
-      <View style={s.slideContent}>
-        {/* Tag — plain white uppercase text */}
-        <Text style={s.tagText}>{slide.tag}</Text>
-
-        {/* Slide 1: large user name, tappable → About */}
-        {slide.showGreeting ? (
-          <TouchableOpacity activeOpacity={0.85} onPress={() => setShowAbout(true)}>
-            <Text style={s.heroGreeting}>{displayName}</Text>
-          </TouchableOpacity>
-        ) : null}
-
-        {/* Slides 2–5: headline — all white */}
-        {slide.headline ? (
-          <Text style={s.heroHeadline}>{slide.headline}</Text>
-        ) : null}
-
-        {/* Sub — all white, reduced opacity for hierarchy */}
-        <Text style={s.heroSub}>{slide.sub}</Text>
-
-        {/* CTA — slim white rectangle, dark text inside */}
-        <TouchableOpacity
-          style={s.heroCta}
-          activeOpacity={0.82}
-          onPress={() => handleHeroCta(slide)}
-        >
-          <Text style={s.heroCtaText}>{slide.cta}{" \u2192"}</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Dot indicators */}
-      <View style={s.heroDots}>
-        {HERO_SLIDES.map((_, i) => (
-          <TouchableOpacity
-            key={i}
-            onPress={() => {
-              heroRef.current?.scrollToIndex({ index: i, animated: true });
-              setHeroSlide(i);
+        {/* Ka'bah slide: custom Image so we can scale + shift it */}
+        {isKaaba ? (
+          <Image
+            source={slide.image}
+            style={{
+              position:  "absolute",
+              width:     SW * 1.15,
+              height:    HERO_H * 1.20,
+              top:       -HERO_H * 0.12 - 30,
+              left:      -(SW * 0.075),
+              resizeMode:"cover",
             }}
+          />
+        ) : (
+          <Image
+            source={slide.image}
+            style={{ position:"absolute", width:SW, height:HERO_H, resizeMode:"cover" }}
+          />
+        )}
+
+        {/* Very light scrim — keeps photo bright */}
+        <View style={[StyleSheet.absoluteFill, { backgroundColor:"rgba(0,0,0,0.08)" }]} />
+
+        {/* Top left — salam + user name */}
+        <View style={[s.heroTopLeft, { top: insets.top + 12 }]}>
+          <Text style={s.heroSalam}>{"As-sal\u0101mu \u02bfalaykum"}</Text>
+          <Text style={s.heroUserName}>{displayName}</Text>
+        </View>
+
+        {/* Top right — days badge */}
+        <View style={[s.daysBadge, { top: insets.top + 12 }]}>
+          <Text style={s.daysNum}>{daysAway !== null ? daysAway : "--"}</Text>
+          <View style={s.daysLabelWrap}>
+            <Text style={s.daysLabel}>days</Text>
+            <Text style={s.daysLabel}>to go</Text>
+          </View>
+        </View>
+
+        {/* Floating panel */}
+        <View style={s.heroPanel}>
+          <Text style={s.heroTag}>{slide.tag}</Text>
+
+          {slide.showGreeting ? (
+            <TouchableOpacity activeOpacity={0.85} onPress={() => setShowAbout(true)}>
+              <Text style={s.heroPanelGreeting} numberOfLines={1} adjustsFontSizeToFit>
+                {displayName}
+              </Text>
+            </TouchableOpacity>
+          ) : null}
+
+          {slide.headline ? (
+            <Text style={s.heroPanelHeadline} numberOfLines={2}>
+              {slide.headline}
+            </Text>
+          ) : null}
+
+          <Text style={s.heroPanelSub} numberOfLines={2}>
+            {slide.sub}
+          </Text>
+
+          <TouchableOpacity
+            style={s.heroPanelCta}
+            activeOpacity={0.85}
+            onPress={() => handleHeroCta(slide)}
           >
-            <View style={[s.dot, i === heroSlide ? s.dotActive : null]} />
+            <Text style={s.heroPanelCtaTxt}>{slide.cta}{"  \u2192"}</Text>
           </TouchableOpacity>
-        ))}
+
+          <View style={s.heroDots}>
+            {HERO_SLIDES.map((_, i) => (
+              <TouchableOpacity
+                key={i}
+                onPress={() => {
+                  heroRef.current?.scrollToIndex({ index: i, animated: true });
+                  setHeroSlide(i);
+                }}
+              >
+                <View style={[s.dot, i === heroSlide ? s.dotActive : null]} />
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
       </View>
-    </ImageBackground>
-  );
+    );
+  };
 
   // ── Prayer + calendar card (shown after intro is dismissed) ───────────────
   const PrayerCard = () => (
@@ -431,7 +458,8 @@ export default function HomeScreen({ navigation }) {
   );
 
   return (
-    <SafeAreaView style={s.safe}>
+    <SafeAreaView style={s.safe} edges={["bottom", "left", "right"]}>
+      <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 52 }}
@@ -457,6 +485,94 @@ export default function HomeScreen({ navigation }) {
             index,
           })}
         />
+
+        {/* ══════════════════════════════════════════════════════════════════
+            FOUR PILLARS — wayfinding hub cards
+            Each opens a dedicated hub screen (stubs navigate to closest
+            existing screen; replace targets when hub screens are built)
+        ══════════════════════════════════════════════════════════════════ */}
+        <View style={s.pillarsHeader}>
+          <Text style={s.pillarsHeaderText}>Explore</Text>
+        </View>
+        <View style={s.pillarsGrid}>
+
+          {/* Learn */}
+          <TouchableOpacity
+            style={[s.pillarCard, s.pillarCardLearn]}
+            activeOpacity={0.88}
+            onPress={() => navigation?.navigate?.("Hub", { hub: "learn" })}
+          >
+            <View style={[s.pillarCircle, s.pillarCircleLearnA]} />
+            <View style={[s.pillarCircleSmall, s.pillarCircleLearnB]} />
+            <View style={s.pillarInner}>
+              <View>
+                <Text style={s.pillarLabel}>Learn</Text>
+                <Text style={s.pillarDesc}>{"Guides, sacred places\n& what to expect"}</Text>
+              </View>
+            </View>
+            <View style={s.pillarArrowBtn}>
+              <ArrowRight size={14} color="#C8A96A" weight="regular" />
+            </View>
+          </TouchableOpacity>
+
+          {/* Practise */}
+          <TouchableOpacity
+            style={[s.pillarCard, s.pillarCardPractise]}
+            activeOpacity={0.88}
+            onPress={() => navigation?.navigate?.("Hub", { hub: "practise" })}
+          >
+            <View style={[s.pillarCircle, s.pillarCirclePractiseA]} />
+            <View style={[s.pillarCircleSmall, s.pillarCirclePractiseB]} />
+            <View style={s.pillarInner}>
+              <View>
+                <Text style={s.pillarLabel}>Practice</Text>
+                <Text style={s.pillarDesc}>{"Du\u02bf\u0101s, Focus mode\n& step-by-step"}</Text>
+              </View>
+            </View>
+            <View style={s.pillarArrowBtn}>
+              <ArrowRight size={14} color="#C8A96A" weight="regular" />
+            </View>
+          </TouchableOpacity>
+
+          {/* Plan */}
+          <TouchableOpacity
+            style={[s.pillarCard, s.pillarCardPlan]}
+            activeOpacity={0.88}
+            onPress={() => navigation?.navigate?.("Hub", { hub: "plan" })}
+          >
+            <View style={[s.pillarCircle, s.pillarCirclePlanA]} />
+            <View style={[s.pillarCircleSmall, s.pillarCirclePlanB]} />
+            <View style={s.pillarInner}>
+              <View>
+                <Text style={s.pillarLabel}>Plan</Text>
+                <Text style={s.pillarDesc}>{"Dates, checklist,\nnotes & contacts"}</Text>
+              </View>
+            </View>
+            <View style={s.pillarArrowBtn}>
+              <ArrowRight size={14} color="#C8A96A" weight="regular" />
+            </View>
+          </TouchableOpacity>
+
+          {/* Connect */}
+          <TouchableOpacity
+            style={[s.pillarCard, s.pillarCardConnect]}
+            activeOpacity={0.88}
+            onPress={() => navigation?.navigate?.("Hub", { hub: "connect" })}
+          >
+            <View style={[s.pillarCircle, s.pillarCircleConnectA]} />
+            <View style={[s.pillarCircleSmall, s.pillarCircleConnectB]} />
+            <View style={s.pillarInner}>
+              <View>
+                <Text style={s.pillarLabel}>Connect</Text>
+                <Text style={s.pillarDesc}>{"Groups, milestones\n& companions"}</Text>
+              </View>
+            </View>
+            <View style={s.pillarArrowBtn}>
+              <ArrowRight size={14} color="#C8A96A" weight="regular" />
+            </View>
+          </TouchableOpacity>
+
+        </View>
 
         {/* ══════════════════════════════════════════════════════════════════
             OPTION C CARD
@@ -491,34 +607,6 @@ export default function HomeScreen({ navigation }) {
         )}
 
         {/* ══════════════════════════════════════════════════════════════════
-            QUICK ACCESS ICON GRID — 2×4
-        ══════════════════════════════════════════════════════════════════ */}
-        <View style={s.gridWrap}>
-          {[
-            { label:"Itinerary",  Icon:CheckSquare,  screen:"MyBoard",      tab:false },
-            { label:"Sacred Places", Icon:MapTrifold,   screen:"SiteDuas",     tab:false },
-            { label:"Du'ās",      Icon:HandsPraying, screen:"Duas",         tab:true  },
-            { label:"Guidance",   Icon:BookOpenText, screen:"Guides",       tab:true  },
-            { label:"Community",  Icon:UsersThree,   screen:"Groups",       tab:false },
-            { label:"Shop",       Icon:ShoppingBag,  screen:"Prepare",      tab:true  },
-            { label:"Checklist",  Icon:CheckSquare,  screen:"WhatToExpect", tab:false },
-            { label:"Safar Assist",Icon:Sparkle,     screen:"SafarAssist",  tab:false },
-          ].map(({ label, Icon, screen, tab }) => (
-            <TouchableOpacity
-              key={label}
-              style={s.gridCell}
-              onPress={() => navigation?.navigate?.(screen)}
-              activeOpacity={0.78}
-            >
-              <View style={s.gridIconWrap}>
-                <Icon size={24} color="#F5F0E8" weight="regular" />
-              </View>
-              <Text style={s.gridLabel}>{label}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        {/* ══════════════════════════════════════════════════════════════════
             MY JOURNEY CARD
         ══════════════════════════════════════════════════════════════════ */}
         <View style={s.journeyCard}>
@@ -533,7 +621,7 @@ export default function HomeScreen({ navigation }) {
             </View>
             <TouchableOpacity
               style={s.journeyCardBtn}
-              onPress={() => navigation?.navigate?.("Guides")}
+              onPress={() => navigation?.navigate?.("Hub", { hub: "plan" })}
               activeOpacity={0.85}
             >
               <ArrowRight size={18} color="#FFFFFF" weight="regular" />
@@ -556,10 +644,44 @@ export default function HomeScreen({ navigation }) {
                 >
                   <Text style={s.journeyLinkTxt}>{item.label}</Text>
                 </TouchableOpacity>
-                {i < arr.length - 1 && <View style={s.journeyLinkDiv} />}
+                {i < arr.length - 1 ? <View style={s.journeyLinkDiv} /> : null}
               </React.Fragment>
             ))}
           </View>
+        </View>
+
+        {/* ══════════════════════════════════════════════════════════════════
+            MY SHORTCUTS ICON GRID — 2×4
+        ══════════════════════════════════════════════════════════════════ */}
+        <View style={s.shortcutsHeader}>
+          <Text style={s.shortcutsHeaderText}>My Shortcuts</Text>
+          <TouchableOpacity activeOpacity={0.7}>
+            <Text style={s.shortcutsHeaderEdit}>Edit</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={s.gridWrap}>
+          {[
+            { label:"Groups",       Icon:UsersThree,   screen:"Groups"      },
+            { label:"Guides",        Icon:BookOpenText, screen:"Guides"      },
+            { label:"Shop",          Icon:ShoppingBag,  screen:"Shop"        },
+            { label:"Prayer Times",  Icon:Clock,        screen:"PrayerTimes" },
+            { label:"Media",         Icon:PlayCircle,   screen:"Media"       },
+            { label:"Tools",         Icon:Wrench,       screen:"Tools"       },
+            { label:"Notes",         Icon:Note,         screen:"Notes"       },
+            { label:"Settings",      Icon:Gear,         screen:"Settings"    },
+          ].map(({ label, Icon, screen }) => (
+            <TouchableOpacity
+              key={label}
+              style={s.gridCell}
+              onPress={() => navigation?.navigate?.(screen)}
+              activeOpacity={0.78}
+            >
+              <View style={s.gridIconWrap}>
+                <Icon size={24} color="#9A7A3A" weight="regular" />
+              </View>
+              <Text style={s.gridLabel}>{label}</Text>
+            </TouchableOpacity>
+          ))}
         </View>
 
         {/* ══════════════════════════════════════════════════════════════════
@@ -578,7 +700,7 @@ export default function HomeScreen({ navigation }) {
             {/* Full-width image — anchored right so subject shows on right side */}
             <Image
               source={require("../assets/continue.jpg")}
-              style={{ position:"absolute", right:0, top:0, bottom:0, width:350, height:130 }}
+              style={{ position:"absolute", right:0, top:0, bottom:0, width:350, height:104 }}
               resizeMode="cover"
             />
             {/* Gradient — left side solid dark, fades right */}
@@ -608,107 +730,76 @@ export default function HomeScreen({ navigation }) {
           </TouchableOpacity>
         ) : null}
 
-        {/* ══════════════════════════════════════════════════════════════════
-            FOCUS MODE CARD
-        ══════════════════════════════════════════════════════════════════ */}
-        <TouchableOpacity
-          style={s.focusCard}
-          onPress={() => navigation?.navigate?.("Focus")}
-          activeOpacity={0.88}
-        >
-          <ImageBackground
-            source={require("../assets/focus_mode.jpg")}
-            style={s.focusCardBg}
-            imageStyle={{ borderRadius: 18 }}
-            resizeMode="cover"
-          >
-            <View style={s.focusCardScrim} />
-            <View style={s.focusCardContent}>
+        {/* Focus Mode + Sacred Places cards moved to parked-components.jsx
+            for reuse on a future screen. */}
 
-              {/* Eyebrow */}
-              <Text style={s.focusCardEyebrow}>FOCUS MODE</Text>
-
-              {/* Title */}
-              <Text style={s.focusCardTitle}>
-                {"Stay present.\nEvery count matters."}
-              </Text>
-
-              {/* Feature pills */}
-              <View style={s.focusPills}>
-                {["Ṭawāf rounds", "Sa'y lengths", "Dhikr counter"].map(label => (
-                  <View key={label} style={s.focusPill}>
-                    <Text style={s.focusPillTxt}>{label}</Text>
-                  </View>
-                ))}
-              </View>
-
-            </View>
-          </ImageBackground>
-        </TouchableOpacity>
-
-        {/* ══════════════════════════════════════════════════════════════════
-            SACRED PLACES MAP CARD
-        ══════════════════════════════════════════════════════════════════ */}
-        <TouchableOpacity
-          style={s.sacredCard}
-          onPress={() => navigation?.navigate?.("SiteDuas")}
-          activeOpacity={0.88}
-        >
-          <ImageBackground
-            source={require("../assets/sacred_places.png")}
-            style={s.sacredCardBg}
-            imageStyle={{ borderRadius: 18 }}
-            resizeMode="cover"
-          >
-            <View style={s.sacredCardScrim} />
-            <View style={s.sacredCardContent}>
-              <Text style={s.sacredCardEyebrow}>SACRED PLACES</Text>
-              <Text style={s.sacredCardTitle}>Explore the Holy Sites</Text>
-              <Text style={s.sacredCardSub}>
-                {"Du\u02bf\u0101s, history and guidance for every sacred location"}
-              </Text>
-            </View>
-          </ImageBackground>
-        </TouchableOpacity>
-
-        <View style={s.sectionDivider}>
-          <View style={s.sectionBar} />
-          <Text style={s.sectionLabel}>{"TODAY\u2019S DU\u02bfĀ"}</Text>
-          <View style={s.sectionLine} />
+        <View style={s.pillarsHeader}>
+          <Text style={s.pillarsHeaderText}>{"Today\u2019s Du\u02bf\u0101"}</Text>
         </View>
 
         <View style={s.duaCard}>
-          <Text style={s.duaArabic}>{DAILY_DUA.arabic}</Text>
-          <View style={s.duaDivider} />
-          <Text style={s.duaTranslit}>{DAILY_DUA.transliteration}</Text>
-          <Text style={s.duaTranslation}>{DAILY_DUA.translation}</Text>
-          <View style={s.duaFooter}>
-            <Text style={s.duaSource}>{DAILY_DUA.source}</Text>
-            <View style={s.duaActions}>
-              <TouchableOpacity
-                style={s.duaBtn}
-                onPress={() => navigation?.navigate?.("PracticeLearn")}
-              >
-                <Text style={s.duaBtnText}>Practise</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[s.duaBtn, s.duaBtnOutline]}>
-                <Text style={s.duaBtnOutlineText}>Save</Text>
-              </TouchableOpacity>
-            </View>
+          {/* Geometric pattern header (matches Dua Detail screen) */}
+          <View style={s.duaPatternWrap} pointerEvents="none">
+            <Svg width={SW - 40} height={90} viewBox="0 0 375 133.62" preserveAspectRatio="xMidYMin slice">
+              <Defs>
+                <SvgGrad id="duaGrad" x1="0" y1="0" x2="0" y2="1">
+                  <Stop offset="0"   stopColor="#fff" stopOpacity="1" />
+                  <Stop offset="0.7" stopColor="#fff" stopOpacity="0.35" />
+                  <Stop offset="1"   stopColor="#fff" stopOpacity="0" />
+                </SvgGrad>
+                <Mask id="duaMask"><Rect width="375" height="133.62" fill="url(#duaGrad)" /></Mask>
+              </Defs>
+              <Path d={PATTERN_PATH} fill="#bf9f60" opacity="0.55" mask="url(#duaMask)" />
+            </Svg>
+          </View>
+
+          <Text style={s.duaArabicLg}>{DAILY_DUA.arabic}</Text>
+          <Text style={s.duaTranslitLg}>{DAILY_DUA.transliteration}</Text>
+          <Text style={s.duaTranslationLg}>{"\u201c" + DAILY_DUA.translation + "\u201d"}</Text>
+          <Text style={s.duaSourceLg}>{DAILY_DUA.source}</Text>
+
+          <View style={s.duaActions}>
+            <TouchableOpacity
+              style={s.duaBtn}
+              onPress={() => navigation?.navigate?.("PracticeLearn")}
+              activeOpacity={0.85}
+            >
+              <Text style={s.duaBtnText}>Practice</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[s.duaBtn, s.duaBtnOutline]} activeOpacity={0.85}>
+              <Text style={s.duaBtnOutlineText}>Save</Text>
+            </TouchableOpacity>
           </View>
         </View>
 
-        {/* ── SCHOLARLY FOOTNOTE ── */}
-        <View style={s.footnoteWrap}>
-          <Text style={s.footnoteText}>
-            <Text style={s.footnoteBold}>Sources</Text>
-            {" \u2014 Du\u02bf\u0101\u02bes are drawn from \u1e62a\u1e25\u012b\u1e25 al-Bukh\u0101r\u012b, \u1e62a\u1e25\u012b\u1e25 Muslim, Sunan Ab\u012b D\u0101w\u016bd, Sunan al-Tirmidh\u012b, and established scholarly works. Practice and wording may differ across the four madhhabs (\u1e24anaf\u012b, M\u0101lik\u012b, Sh\u0101fi\u02bf\u012b, \u1e24anbal\u012b). Consult a qualified scholar for rulings specific to your school of thought."}
-          </Text>
-        </View>
+        {/* ── Compact source line + info popup ── */}
+        <TouchableOpacity
+          style={s.sourceLine}
+          onPress={() => setShowSources(true)}
+          activeOpacity={0.7}
+        >
+          <Info size={15} color="#8A7D6A" weight="regular" />
+          <Text style={s.sourceLineTxt}>Du'ā sources</Text>
+        </TouchableOpacity>
 
       </ScrollView>
 
       <AboutModal visible={showAbout} onClose={() => setShowAbout(false)} />
+
+      {/* Sources popup */}
+      <Modal visible={showSources} transparent animationType="fade">
+        <TouchableOpacity style={s.sourcesOverlay} activeOpacity={1} onPress={() => setShowSources(false)}>
+          <View style={s.sourcesSheet}>
+            <Text style={s.sourcesTitle}>Du'ā Sources</Text>
+            <Text style={s.sourcesBody}>
+              {"Du\u02bf\u0101\u02bes are drawn from \u1e62a\u1e25\u012b\u1e25 al-Bukh\u0101r\u012b, \u1e62a\u1e25\u012b\u1e25 Muslim, Sunan Ab\u012b D\u0101w\u016bd, Sunan al-Tirmidh\u012b, and established scholarly works. Practice and wording may differ across the four madhhabs (\u1e24anaf\u012b, M\u0101lik\u012b, Sh\u0101fi\u02bf\u012b, \u1e24anbal\u012b). Consult a qualified scholar for rulings specific to your school of thought."}
+            </Text>
+            <TouchableOpacity style={s.sourcesClose} onPress={() => setShowSources(false)} activeOpacity={0.85}>
+              <Text style={s.sourcesCloseTxt}>Got it</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -776,93 +867,89 @@ const s = StyleSheet.create({
     lineHeight: 12,
   },
 
-  // ── Hero: bottom slide content — bottom offset increased with taller hero ──
-  slideContent: {
-    position: "absolute",
-    bottom: 14,
-    left: 22,
-    right: 22,
+  // ── Hero: bottom floating glass panel ────────────────────────────────────
+  heroPanel: {
+    position:          "absolute",
+    bottom:            20,
+    left:              18,
+    right:             18,
+    backgroundColor:   "rgba(8,20,12,0.57)",
+    borderRadius:      16,
+    paddingTop:        16,
+    paddingBottom:     14,
+    paddingHorizontal: 18,
   },
-  // Tag — plain white uppercase, text shadow lifts it off any image background
-  tagText: {
-    fontSize: 10,
-    color: "rgba(255,255,255,0.92)",
-    fontWeight: "700",
+  heroTag: {
+    fontSize:      10,
+    color:         "rgba(200,169,106,0.90)",
+    fontWeight:    "700",
+    letterSpacing: 1.5,
     textTransform: "uppercase",
-    marginBottom: 8,
-    textShadowColor: "rgba(0,0,0,0.60)",
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 4,
+    marginBottom:  6,
   },
-  // Slide 1: large greeting, pure white
-  heroGreeting: {
-    fontFamily: SERIF,
-    fontSize: 45,
-    color: "#FFFFFF",
-    fontWeight: "400",
-    lineHeight: 50,
-    marginBottom: 6,
-    textShadowColor: "rgba(0,0,0,0.45)",
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 6,
+  heroPanelGreeting: {
+    fontFamily:   SERIF,
+    fontSize:     22,
+    color:        "#FFFFFF",
+    fontWeight:   "400",
+    lineHeight:   28,
+    marginBottom: 4,
   },
-  // Slides 2–5: headline, pure white
-  heroHeadline: {
-    fontFamily: SERIF,
-    fontSize: 32,
-    color: "#FFFFFF",
-    fontWeight: "600",
-    lineHeight: 40,
-    marginBottom: 8,
-    textShadowColor: "rgba(0,0,0,0.45)",
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 6,
+  heroPanelHeadline: {
+    fontFamily:   SERIF,
+    fontSize:     22,
+    color:        "#FFFFFF",
+    fontWeight:   "400",
+    lineHeight:   28,
+    marginBottom: 4,
   },
-  // Sub — white, softer opacity for hierarchy
-  heroSub: {
-    fontSize: 17,
-    color: "rgba(255,255,255,0.88)",
-    lineHeight: 25,
-    fontWeight: "400",
-    marginBottom: 16,
-    textShadowColor: "rgba(0,0,0,0.40)",
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 4,
+  heroPanelSub: {
+    fontSize:     13,
+    color:        "rgba(235,228,210,0.92)",
+    lineHeight:   19,
+    fontWeight:   "400",
+    marginBottom: 12,
   },
-  // CTA — slim white rectangle, dark gold/green text inside
-  heroCta: {
-    alignSelf: "flex-start",
-    backgroundColor: "rgba(255,255,255,0.75)",
-    borderRadius: 4,
-    paddingHorizontal: 12,
-    paddingVertical: 5,
+  heroPanelCta: {
+    backgroundColor: "#4A5C48",
+    borderRadius:    9,
+    paddingVertical: 11,
+    alignItems:      "center",
+    marginBottom:    10,
   },
-  heroCtaText: {
-    fontSize: 12,
-    color: "#4A5C48",
-    fontWeight: "700",
+  heroPanelCtaTxt: {
+    fontFamily:    SERIF,
+    fontSize:      15,
+    color:         "#FFFFFF",
+    fontWeight:    "600",
+    letterSpacing: 0.3,
   },
 
-  // ── Hero: dot indicators ──────────────────────────────────────────────────
+  // ── Hero: dot indicators inside panel ─────────────────────────────────────
   heroDots: {
-    position: "absolute",
-    bottom: 14,
-    left: 0,
-    right: 0,
-    flexDirection: "row",
+    flexDirection:  "row",
     justifyContent: "center",
-    gap: 6,
+    gap:            6,
   },
   dot: {
-    width: 5,
-    height: 5,
-    borderRadius: 3,
+    width:           5,
+    height:          5,
+    borderRadius:    3,
     backgroundColor: "rgba(255,255,255,0.30)",
   },
   dotActive: {
-    backgroundColor: "#FFFFFF",
-    width: 18,
+    backgroundColor: "#C8A96A",
+    width:           18,
   },
+
+  // ── Old hero styles kept for reference — no longer used ──────────────────
+  slideContent:   { position:"absolute", bottom:14, left:22, right:22 },
+  tagText:        { fontSize:10, color:"rgba(255,255,255,0.92)", fontWeight:"700", textTransform:"uppercase", marginBottom:8 },
+  heroGreeting:   { fontFamily:SERIF, fontSize:45, color:"#FFFFFF", fontWeight:"400", lineHeight:50, marginBottom:6 },
+  heroHeadline:   { fontFamily:SERIF, fontSize:32, color:"#FFFFFF", fontWeight:"600", lineHeight:40, marginBottom:8 },
+  heroSub:        { fontSize:17, color:"rgba(255,255,255,0.88)", lineHeight:25, fontWeight:"400", marginBottom:16 },
+  heroCta:        { alignSelf:"flex-start", backgroundColor:"rgba(255,255,255,0.75)", borderRadius:4, paddingHorizontal:12, paddingVertical:5 },
+  heroCtaText:    { fontSize:12, color:"#4A5C48", fontWeight:"700" },
 
   // ── Intro card (before dismiss) ───────────────────────────────────────────
   introCard: {
@@ -1016,6 +1103,128 @@ const s = StyleSheet.create({
     fontVariant: ["tabular-nums"],
   },
 
+  // ── Four Pillars ─────────────────────────────────────────────────────────
+  pillarsHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginHorizontal: 20,
+    marginTop: 22,
+    marginBottom: 12,
+  },
+  pillarsHeaderText: {
+    fontFamily: SERIF,
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#4A5C48",
+  },
+  pillarsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    paddingHorizontal: 14,
+    gap: 10,
+    marginBottom: 4,
+  },
+  pillarCard: {
+    width: "47%",
+    flexGrow: 1,
+    height: 120,
+    borderRadius: 18,
+    overflow: "hidden",
+    padding: 16,
+    justifyContent: "space-between",
+    shadowColor: "#1C2E1C",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.30,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  pillarCardLearn:    { backgroundColor: "#1C2B1E" },
+  pillarCardPractise: { backgroundColor: "#2A1F0E" },
+  pillarCardPlan:     { backgroundColor: "#1A202E" },
+  pillarCardConnect:  { backgroundColor: "#221820" },
+
+  // Decorative background circles per pillar
+  pillarCircle: {
+    position: "absolute",
+    width: 110,
+    height: 110,
+    borderRadius: 55,
+    top: -30,
+    right: -25,
+    opacity: 0.45,
+  },
+  pillarCircleSmall: {
+    position: "absolute",
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    bottom: -18,
+    left: -12,
+    opacity: 0.35,
+  },
+  pillarCircleLearnA:    { backgroundColor: "#2F5D50" },
+  pillarCircleLearnB:    { backgroundColor: "#1E3D34" },
+  pillarCirclePractiseA: { backgroundColor: "#5D4A20" },
+  pillarCirclePractiseB: { backgroundColor: "#3D3010" },
+  pillarCirclePlanA:     { backgroundColor: "#203050" },
+  pillarCirclePlanB:     { backgroundColor: "#101828" },
+  pillarCircleConnectA:  { backgroundColor: "#3D2040" },
+  pillarCircleConnectB:  { backgroundColor: "#22182A" },
+
+  pillarInner: {
+    flex: 1,
+    justifyContent: "flex-end",
+    gap: 8,
+  },
+  pillarLabel: {
+    fontFamily: SERIF,
+    fontSize: 20,
+    color: "#FDFAF4",
+    fontWeight: "400",
+    lineHeight: 25,
+  },
+  pillarDesc: {
+    fontSize: 13,
+    color: "rgba(235,228,210,0.92)",
+    fontWeight: "400",
+    lineHeight: 19,
+  },
+  pillarArrowBtn: {
+    position: "absolute",
+    top: 14,
+    right: 14,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "rgba(200,169,106,0.40)",
+    backgroundColor: "rgba(200,169,106,0.10)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  // ── My Shortcuts header ───────────────────────────────────────────────────
+  shortcutsHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginHorizontal: 20,
+    marginTop: 18,
+    marginBottom: 0,
+  },
+  shortcutsHeaderText: {
+    fontFamily: SERIF,
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#4A5C48",
+  },
+  shortcutsHeaderEdit: {
+    fontSize: 13,
+    color: "#8A7D70",
+    fontWeight: "500",
+  },
+
   // ── Section dividers ──────────────────────────────────────────────────────
   // ── Icon grid ────────────────────────────────────────────────────────────────
   gridWrap: {
@@ -1031,28 +1240,30 @@ const s = StyleSheet.create({
     flexGrow: 1,
     alignItems: "center",
     gap: 8,
-    backgroundColor: "#4A5C48",
+    backgroundColor: "#F3E9D2",
     borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "rgba(184,146,42,0.30)",
     paddingVertical: 16,
     paddingHorizontal: 6,
-    shadowColor: "#1C2E1C",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.35,
-    shadowRadius: 4,
-    elevation: 6,
+    shadowColor: "#6A4A28",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.10,
+    shadowRadius: 5,
+    elevation: 2,
   },
   gridIconWrap: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "rgba(20,40,20,0.35)",
+    backgroundColor: "rgba(184,146,42,0.16)",
     alignItems: "center",
     justifyContent: "center",
   },
   gridLabel: {
     fontSize: 13,
     fontWeight: "600",
-    color: "#F5F0E8",
+    color: "#6A5A38",
     textAlign: "center",
     lineHeight: 17,
   },
@@ -1129,29 +1340,30 @@ const s = StyleSheet.create({
     marginHorizontal: 14,
     marginTop: 12,
     marginBottom: 0,
-    height: 130,
+    height: 104,
     borderRadius: 16,
     overflow: "hidden",
     flexDirection: "row",
     backgroundColor: "#2A3828",
     shadowColor: "#1C1408",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.18,
-    shadowRadius: 8,
-    elevation: 5,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 5,
+    elevation: 2,
   },
   continuationLeft: {
     flex: 1,
     paddingHorizontal: 16,
     paddingTop: 14,
     paddingBottom: 14,
-    justifyContent: "space-between",
+    justifyContent: "center",
+    gap: 3,
   },
   continuationTopRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 8,
+    marginBottom: 2,
   },
   continuationEyebrow: {
     fontSize: 10,
@@ -1164,7 +1376,6 @@ const s = StyleSheet.create({
     fontSize: 22,
     color: "#FDFAF4",
     fontWeight: "400",
-    marginBottom: 4,
   },
   continuationStage: {
     fontSize: 13,
@@ -1458,12 +1669,105 @@ const s = StyleSheet.create({
     backgroundColor: "#FDFAF4",
     marginHorizontal: 20,
     borderRadius: 18,
-    padding: 22,
+    paddingHorizontal: 22,
+    paddingTop: 28,
+    paddingBottom: 22,
+    overflow: "hidden",
     shadowColor: "#4A2E10",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.14,
     shadowRadius: 12,
     elevation: 4,
+  },
+  duaPatternWrap: {
+    position: "absolute",
+    top: 0, left: 0, right: 0,
+    alignItems: "center",
+  },
+  duaArabicLg: {
+    fontFamily: SERIF,
+    fontSize: 30,
+    color: "#1A1712",
+    textAlign: "center",
+    lineHeight: 52,
+    marginTop: 8,
+    marginBottom: 18,
+  },
+  duaTranslitLg: {
+    fontSize: 15,
+    color: "#8A7D6A",
+    fontStyle: "italic",
+    textAlign: "center",
+    lineHeight: 24,
+    marginBottom: 14,
+  },
+  duaTranslationLg: {
+    fontFamily: SERIF,
+    fontSize: 19,
+    color: "#2A2620",
+    textAlign: "center",
+    lineHeight: 30,
+    marginBottom: 14,
+  },
+  duaSourceLg: {
+    fontSize: 12,
+    color: "#9A7A3A",
+    fontWeight: "600",
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  sourceLine: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    marginTop: 16,
+    marginBottom: 8,
+    paddingVertical: 6,
+  },
+  sourceLineTxt: {
+    fontSize: 13,
+    color: "#8A7D6A",
+    fontWeight: "500",
+  },
+  sourcesOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(20,16,10,0.45)",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 28,
+  },
+  sourcesSheet: {
+    backgroundColor: "#FDFAF4",
+    borderRadius: 18,
+    padding: 24,
+    width: "100%",
+    maxWidth: 380,
+  },
+  sourcesTitle: {
+    fontFamily: SERIF,
+    fontSize: 20,
+    color: "#1A1712",
+    fontWeight: "600",
+    marginBottom: 12,
+  },
+  sourcesBody: {
+    fontSize: 14,
+    color: "#5A5650",
+    lineHeight: 22,
+    marginBottom: 20,
+  },
+  sourcesClose: {
+    backgroundColor: "#2F5D50",
+    borderRadius: 12,
+    paddingVertical: 14,
+    alignItems: "center",
+  },
+  sourcesCloseTxt: {
+    fontFamily: SERIF,
+    fontSize: 16,
+    color: "#fff",
+    fontWeight: "600",
   },
   duaArabic: {
     fontFamily: SERIF,

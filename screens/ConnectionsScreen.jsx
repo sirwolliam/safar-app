@@ -67,19 +67,19 @@ function ConnectionRow({ conn, onPress, actionLabel, actionStyle }) {
   );
 }
 
-const cr = (colors) => StyleSheet.create({
+const cr = StyleSheet.create({
   row: {
     flexDirection: "row", alignItems: "center", gap: spacing(1.5),
-    paddingVertical: spacing(1.5), borderBottomWidth: 1, borderBottomColor: colors.border,
+    paddingVertical: spacing(1.5), borderBottomWidth: 1, borderBottomColor: "#D4D0CA",
   },
   info: { flex: 1 },
-  name: { fontFamily: SERIF, fontSize: typography.body, color: colors.text },
-  email: { fontSize: typography.tiny, color: colors.subtext, marginTop: 2 },
+  name: { fontFamily: SERIF, fontSize: 16, color: "#1A1712" },
+  email: { fontSize: 12, color: "#5A5650", marginTop: 2 },
   actionBtn: {
     paddingHorizontal: spacing(1.5), paddingVertical: spacing(0.75),
-    borderRadius: radius.pill, backgroundColor: colors.primary,
+    borderRadius: 999, backgroundColor: "#4A5C48",
   },
-  actionText: { fontSize: typography.tiny, color: "#fff", fontWeight: "600" },
+  actionText: { fontSize: 12, color: "#fff", fontWeight: "600" },
 });
 
 // ── Main screen ───────────────────────────────────────────────────────────────

@@ -169,7 +169,10 @@ const sh = StyleSheet.create({
 // ── Screen ────────────────────────────────────────────────────────────────────
 export default function DuaListScreen({ route, navigation }) {
   const list = route?.params?.list ?? { id:"hajj", name:"Hajj & Umrah Du\u02bf\u0101\u02bes" };
-  const duas = DUA_CONTENT[list.id] ?? DUA_CONTENT["hajj"];
+
+  // No fallback — if the ID doesn't exist show an empty state
+  // rather than silently showing the wrong duas
+  const duas = DUA_CONTENT[list.id] ?? [];
 
   const stages = [];
   const grouped = {};
@@ -194,8 +197,17 @@ export default function DuaListScreen({ route, navigation }) {
 
       {duas.length === 0 ? (
         <View style={s.empty}>
-          <Text style={s.emptyTitle}>{"No du\u02bf\u0101\u02bes yet"}</Text>
-          <Text style={s.emptyBody}>This list is empty.</Text>
+          <Text style={s.emptyTitle}>{"Coming soon"}</Text>
+          <Text style={s.emptyBody}>
+            {"Du\u02bf\u0101\u02bes for \u201c" + list.name + "\u201d are being added.\nCheck back soon, or explore the Hajj & Umrah du\u02bf\u0101\u02bes in the meantime."}
+          </Text>
+          <TouchableOpacity
+            style={s.emptyBtn}
+            onPress={() => navigation.replace("DuaList", { list:{ id:"hajj", name:"Hajj & Umrah Du\u02bf\u0101\u02bes" } })}
+            activeOpacity={0.8}
+          >
+            <Text style={s.emptyBtnTxt}>{"Browse Hajj & Umrah du\u02bf\u0101\u02bes"}</Text>
+          </TouchableOpacity>
         </View>
       ) : (
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom:spacing(5) }}>
@@ -253,7 +265,9 @@ const s = StyleSheet.create({
   card:         { marginHorizontal:spacing(2.5), backgroundColor:colors.card, borderRadius:radius.lg, borderWidth:1, borderColor:colors.border, overflow:"hidden", ...shadows.card },
   empty:        { flex:1, alignItems:"center", justifyContent:"center", padding:spacing(3) },
   emptyTitle:   { fontFamily:SERIF, fontSize:20, color:colors.text, marginBottom:spacing(1) },
-  emptyBody:    { fontSize:14, color:colors.subtext, textAlign:"center", lineHeight:22 },
+  emptyBody:    { fontSize:14, color:colors.subtext, textAlign:"center", lineHeight:22, marginBottom:spacing(2.5) },
+  emptyBtn:     { backgroundColor:colors.primary ?? "#1E3D30", borderRadius:12, paddingHorizontal:20, paddingVertical:12 },
+  emptyBtnTxt:  { fontSize:14, color:"#fff", fontWeight:"600" },
   footnote:     { marginHorizontal:spacing(2.5), marginTop:spacing(2), marginBottom:spacing(1), backgroundColor:"#F5EDD8", borderRadius:12, borderWidth:1, borderColor:"#E8D9B8", padding:14 },
   footnoteText: { fontSize:12, color:"#7A6030", lineHeight:18 },
   footnoteBold: { fontWeight:"600" },

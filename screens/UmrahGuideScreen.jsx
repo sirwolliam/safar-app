@@ -64,7 +64,7 @@ export default function UmrahGuideScreen({ navigation }) {
         {/* ── 1. Hero — opens GuideCarousel ── */}
         <TouchableOpacity style={s.heroCard} onPress={() => setShowCarousel(true)} activeOpacity={0.9}>
           <ImageBackground
-            source={require("../assets/Umrah_03_tawaf_gradient.jpg")}
+            source={require("../assets/ihram.jpg")}
             style={s.heroCardBg}
             resizeMode="cover"
           >
@@ -87,7 +87,7 @@ export default function UmrahGuideScreen({ navigation }) {
           onPress={() => navigation?.navigate?.("PilgrimageDuas", { mode:"umrah" })}
         >
           <ImageBackground
-            source={require("../assets/Umrah_03_tawaf_gradient.jpg")}
+            source={require("../assets/journey3.png")}
             style={{ flex:1 }}
             imageStyle={{ borderRadius:14 }}
             resizeMode="cover"
@@ -101,7 +101,49 @@ export default function UmrahGuideScreen({ navigation }) {
           </ImageBackground>
         </TouchableOpacity>
 
-        {/* ── 3 & 4. Half-width cards: Pilgrimage Map + Sacred Places ── */}
+        {/* ── 3. Watch & Listen ── */}
+        <TouchableOpacity
+          style={s.fullCard}
+          activeOpacity={0.88}
+          onPress={() => navigation?.navigate?.("Media", { filter:"umrah" })}
+        >
+          <ImageBackground
+            source={require("../assets/focus_mode.jpg")}
+            style={{ flex:1 }}
+            imageStyle={{ borderRadius:14 }}
+            resizeMode="cover"
+          >
+            <View style={[s.fullCardScrim, { backgroundColor:"rgba(10,16,24,0.48)" }]} />
+            <View style={s.fullCardInner}>
+              <Text style={s.fullCardEyebrow}>VIDEOS & PODCASTS</Text>
+              <Text style={s.fullCardTitle}>Watch & Listen</Text>
+              <Text style={s.fullCardSub}>Curated videos, podcasts and articles for Umrah</Text>
+            </View>
+          </ImageBackground>
+        </TouchableOpacity>
+
+        {/* ── 4. Shop Essentials ── */}
+        <TouchableOpacity
+          style={s.fullCard}
+          activeOpacity={0.88}
+          onPress={() => navigation?.navigate?.("Shop", { category:"all" })}
+        >
+          <ImageBackground
+            source={require("../assets/what_to_expect.jpg")}
+            style={{ flex:1 }}
+            imageStyle={{ borderRadius:14 }}
+            resizeMode="cover"
+          >
+            <View style={[s.fullCardScrim, { backgroundColor:"rgba(10,20,14,0.50)" }]} />
+            <View style={s.fullCardInner}>
+              <Text style={s.fullCardEyebrow}>ESSENTIALS</Text>
+              <Text style={s.fullCardTitle}>Shop Umrah Essentials</Text>
+              <Text style={s.fullCardSub}>Ihram, sandals, duas books and more</Text>
+            </View>
+          </ImageBackground>
+        </TouchableOpacity>
+
+        {/* ── 5 & 6. Half-width cards ── */}
         <View style={s.halfRow}>
           <TouchableOpacity
             style={[s.halfCard, { marginRight:6 }]}

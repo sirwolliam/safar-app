@@ -8,17 +8,23 @@ import {
   SafeAreaView, View, Text, ScrollView, FlatList,
   TouchableOpacity, TextInput, StyleSheet, Modal,
   ActivityIndicator, KeyboardAvoidingView, Platform,
-  Alert, Animated, PanResponder, Linking,
+  Alert, Animated, PanResponder, Linking, Share, Image,
+  Clipboard,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   createGroup, subscribeToUserGroups, subscribeToGroupMilestones,
-  postMilestone, getCurrentUser,
+  postMilestone, postMilestoneWithPhoto, getCurrentUser,
+  generateInviteCode, joinGroupByCode,
 } from "../firebase";
 import { UserAvatar } from "./ConnectionsScreen";
 import Svg, { Path, Circle } from "react-native-svg";
 import { colors as TC, spacing, radius, typography } from "../theme";
 import { useAccessibility } from "../AccessibilityContext";
+import {
+  Copy, ShareNetwork, QrCode, ImageSquare, X,
+  LinkSimple, Camera,
+} from "phosphor-react-native";
 
 const SERIF = "SourceSerif4-Regular";
 const MAX_CHARS = 280;
@@ -123,6 +129,9 @@ function MilestoneRow({ item, myUid, onAmeen, onDelete, s }) {
           </View>
         </View>
         <Text style={s.msText}>{item.text}</Text>
+        {item.photoUri ? (
+          <Image source={{ uri:item.photoUri }} style={s.msPhoto} resizeMode="cover"/>
+        ) : null}
         {item.link ? (
           <TouchableOpacity style={s.msLink} onPress={() => Linking.openURL(item.link)} activeOpacity={0.85}>
             <Text style={{ fontSize:13 }}>{"\uD83D\uDD17"}</Text>
@@ -257,6 +266,26 @@ export default function GroupsScreen({ navigation }) {
     removeTxt:   { fontSize:16, color:"#E05252", fontWeight:"500" },
     cancelRow:   { paddingVertical:12, alignItems:"center" },
     cancelRowTxt:{ fontSize:16, color:"#5C534A" },
+
+    // Invite button in members header
+    inviteBtn:    { flexDirection:"row", alignItems:"center", gap:5, paddingHorizontal:10, paddingVertical:5, borderRadius:50, borderWidth:1 },
+    inviteBtnTxt: { fontSize:12, fontWeight:"600" },
+
+    // Invite code display
+    codeBox:      { backgroundColor:"#F5EDE0", borderRadius:14, borderWidth:1.5, borderColor:"#C8BFB2", paddingVertical:20, paddingHorizontal:24, alignItems:"center", marginBottom:16 },
+    codeText:     { fontFamily:SERIF, fontSize:36, color:"#1E3D30", letterSpacing:6, fontWeight:"400" },
+
+    // Join code input
+    codeInput:    { fontFamily:SERIF, fontSize:24, textAlign:"center", letterSpacing:6, color:"#1E3D30" },
+    joinError:    { fontSize:13, color:"#D94F4F", textAlign:"center", marginBottom:10, marginTop:-4 },
+
+    // Photo in post modal
+    photoPreviewWrap:{ marginBottom:10, borderRadius:10, overflow:"hidden", position:"relative" },
+    photoPreview:    { width:"100%", height:160, borderRadius:10 },
+    photoRemove:     { position:"absolute", top:8, right:8, width:28, height:28, borderRadius:14, backgroundColor:"rgba(0,0,0,0.55)", alignItems:"center", justifyContent:"center" },
+
+    // Photo in milestone card
+    msPhoto:      { width:"100%", height:180, borderRadius:8, marginBottom:10 },
   }), [C]);
 
   const currentUser = getCurrentUser();
@@ -279,9 +308,17 @@ export default function GroupsScreen({ navigation }) {
   const [showPost,       setShowPost]       = useState(false);
   const [showNew,        setShowNew]        = useState(false);
   const [showEdit,       setShowEdit]       = useState(false);
+  const [showInvite,     setShowInvite]     = useState(false);
+  const [showJoin,       setShowJoin]       = useState(false);
+  const [inviteCode,     setInviteCode]     = useState("");
+  const [joinCode,       setJoinCode]       = useState("");
+  const [joinLoading,    setJoinLoading]    = useState(false);
+  const [joinError,      setJoinError]      = useState("");
+  const [codeCopied,     setCodeCopied]     = useState(false);
   const [postText,       setPostText]       = useState("");
   const [postLink,       setPostLink]       = useState("");
   const [postLinkTitle,  setPostLinkTitle]  = useState("");
+  const [postPhoto,      setPostPhoto]      = useState(null);
   const [showLink,       setShowLink]       = useState(false);
   const [newName,        setNewName]        = useState("");
   const [newColor,       setNewColor]       = useState("green");
@@ -323,11 +360,17 @@ export default function GroupsScreen({ navigation }) {
     const lnk  = postLink.trim() ? (postLink.startsWith("http") ? postLink.trim() : "https://"+postLink.trim()) : null;
     const ltxt = postLinkTitle.trim() || lnk;
     if (isEx) {
-      setExMilestones(p => ({ ...p, [activeId]:[{ id:`m${Date.now()}`,author:"You",uid:myUid,text:postText.trim(),time:"just now",ameen:[],count:0,link:lnk,linkTitle:ltxt }, ...(p[activeId]??[])] }));
+      setExMilestones(p => ({ ...p, [activeId]:[{
+        id:`m${Date.now()}`, author:"You", uid:myUid,
+        text:postText.trim(), time:"just now",
+        ameen:[], count:0, link:lnk, linkTitle:ltxt,
+        photoUri:postPhoto ?? null,
+      }, ...(p[activeId]??[])] }));
     } else {
-      await postMilestone(currentUser.uid, currentUser.displayName, activeId, postText.trim()).catch(()=>{});
+      await postMilestoneWithPhoto(currentUser.uid, currentUser.displayName, activeId, postText.trim(), postPhoto).catch(()=>{});
     }
-    setPostText(""); setPostLink(""); setPostLinkTitle(""); setShowLink(false); setShowPost(false); setPosting(false);
+    setPostText(""); setPostLink(""); setPostLinkTitle(""); setShowLink(false);
+    setPostPhoto(null); setShowPost(false); setPosting(false);
   };
 
   const doCreate = async () => {
@@ -355,16 +398,95 @@ export default function GroupsScreen({ navigation }) {
     }},
   ]);
 
+  // ── Invite code ──────────────────────────────────────────────────────────────
+  const doGenerateCode = async () => {
+    try {
+      const code = await generateInviteCode(activeId);
+      // Store code on the group object locally
+      setExGroups(p => p.map(g => g.id===activeId ? {...g, inviteCode:code} : g));
+      setInviteCode(code);
+      setShowInvite(true);
+    } catch(e) {
+      Alert.alert("Error", "Could not generate invite code. Please try again.");
+    }
+  };
+
+  const doShowInvite = () => {
+    const existing = activeG?.inviteCode;
+    if (existing) { setInviteCode(existing); setShowInvite(true); }
+    else doGenerateCode();
+  };
+
+  const doCopyCode = () => {
+    Clipboard.setString(inviteCode);
+    setCodeCopied(true);
+    setTimeout(() => setCodeCopied(false), 2000);
+  };
+
+  const doShareCode = async () => {
+    try {
+      await Share.share({
+        message: `Join my Safar pilgrimage group!\n\nGroup: ${activeG?.name}\nInvite code: ${inviteCode}\n\nDownload Safar and enter this code to join.`,
+        title: `Join ${activeG?.name} on Safar`,
+      });
+    } catch(_) {}
+  };
+
+  // ── Join group ───────────────────────────────────────────────────────────────
+  const doJoinGroup = async () => {
+    if (!joinCode.trim() || joinLoading) return;
+    setJoinLoading(true);
+    setJoinError("");
+    try {
+      const result = await joinGroupByCode(joinCode, currentUser?.uid, currentUser?.displayName);
+      setJoinCode("");
+      setShowJoin(false);
+      Alert.alert("Joined!", `You've joined "${result.name}". Welcome to the group.`);
+    } catch(e) {
+      setJoinError(e.message ?? "Code not found. Check and try again.");
+    } finally {
+      setJoinLoading(false);
+    }
+  };
+
+  // ── Photo picker ─────────────────────────────────────────────────────────────
+  const doPickPhoto = async () => {
+    // expo-image-picker — requires dev build
+    try {
+      const ImagePicker = require("expo-image-picker");
+      const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!perm.granted) {
+        Alert.alert("Permission needed", "Allow photo access to share images with your group.");
+        return;
+      }
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true, aspect:[4,3], quality:0.8,
+      });
+      if (!result.canceled && result.assets?.[0]) {
+        setPostPhoto(result.assets[0].uri);
+      }
+    } catch(_) {
+      // expo-image-picker not available in Expo Go
+      Alert.alert("Coming soon", "Photo sharing will be available in the full app release.");
+    }
+  };
+
   return (
     <SafeAreaView style={s.safe}>
       <View style={s.header}>
-        <TouchableOpacity onLongPress={() => shareMilestone(item.text, item.author)} onPress={() => navigation?.goBack?.()} hitSlop={{top:12,bottom:12,left:12,right:24}}>
+        <TouchableOpacity onPress={() => navigation?.goBack?.()} hitSlop={{top:12,bottom:12,left:12,right:24}}>
           <Text style={s.back}>{"\u2190"}</Text>
         </TouchableOpacity>
         <Text style={s.title}>Groups</Text>
-        <TouchableOpacity style={s.newBtn} onPress={() => setShowNew(true)}>
-          <Text style={s.newBtnTxt}>+ New</Text>
-        </TouchableOpacity>
+        <View style={{ flexDirection:"row", gap:8 }}>
+          <TouchableOpacity style={[s.newBtn, { backgroundColor:"transparent", borderWidth:1, borderColor:"#1E3D30" }]} onPress={() => setShowJoin(true)}>
+            <Text style={[s.newBtnTxt, { color:"#1E3D30" }]}>Join</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={s.newBtn} onPress={() => setShowNew(true)}>
+            <Text style={s.newBtnTxt}>+ New</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <View style={s.tabsWrap}>
@@ -405,9 +527,17 @@ export default function GroupsScreen({ navigation }) {
         <View style={[s.membersBox,{borderColor:accent+"40"}]}>
           <View style={s.membersHead}>
             <Text style={[s.membersTtl,{color:accent}]}>Members</Text>
-            <TouchableOpacity onLongPress={() => shareMilestone(item.text, item.author)} onPress={() => { setEditName(activeG?.name??""); setEditColor(activeG?.colorKey??"green"); setShowEdit(true); }} activeOpacity={0.8}>
-              <Text style={[s.editGrpBtn,{color:accent}]}>{"\u22EF"} Edit group</Text>
-            </TouchableOpacity>
+            <View style={{ flexDirection:"row", gap:10 }}>
+              <TouchableOpacity
+                style={[s.inviteBtn, { borderColor:accent }]}
+                onPress={doShowInvite} activeOpacity={0.8}>
+                <ShareNetwork size={13} color={accent} weight="regular"/>
+                <Text style={[s.inviteBtnTxt, { color:accent }]}>Invite</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => { setEditName(activeG?.name??""); setEditColor(activeG?.colorKey??"green"); setShowEdit(true); }} activeOpacity={0.8}>
+                <Text style={[s.editGrpBtn,{color:accent}]}>{"\u22EF"} Edit</Text>
+              </TouchableOpacity>
+            </View>
           </View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.memberRow}>
             {members.map(m => (
@@ -452,10 +582,26 @@ export default function GroupsScreen({ navigation }) {
                 placeholderTextColor={"#5C534A"} value={postText}
                 onChangeText={t=>setPostText(t.slice(0,MAX_CHARS))} multiline maxLength={MAX_CHARS} autoFocus/>
               <Text style={s.mCharCount}>{postText.length} / {MAX_CHARS}</Text>
+
+              {/* Photo preview */}
+              {postPhoto ? (
+                <View style={s.photoPreviewWrap}>
+                  <Image source={{ uri:postPhoto }} style={s.photoPreview} resizeMode="cover"/>
+                  <TouchableOpacity style={s.photoRemove} onPress={() => setPostPhoto(null)} hitSlop={{top:8,bottom:8,left:8,right:8}}>
+                    <X size={14} color="#fff" weight="bold"/>
+                  </TouchableOpacity>
+                </View>
+              ) : null}
+
               <View style={s.attachRow}>
-                <Text style={s.attachLbl}>Add a link:</Text>
+                <Text style={s.attachLbl}>Add:</Text>
+                <TouchableOpacity style={s.attachBtn} onPress={doPickPhoto} activeOpacity={0.8}>
+                  <ImageSquare size={14} color={postPhoto ? "#1E3D30" : "#5C534A"} weight={postPhoto?"fill":"regular"}/>
+                  <Text style={postPhoto ? s.attachTxtOn : s.attachTxt}>Photo</Text>
+                </TouchableOpacity>
                 <TouchableOpacity style={s.attachBtn} onPress={() => setShowLink(v=>!v)} activeOpacity={0.8}>
-                  <Text style={showLink ? s.attachTxtOn : s.attachTxt}>{"\uD83D\uDD17"} Link</Text>
+                  <LinkSimple size={14} color={showLink ? "#1E3D30" : "#5C534A"} weight={showLink?"fill":"regular"}/>
+                  <Text style={showLink ? s.attachTxtOn : s.attachTxt}>Link</Text>
                 </TouchableOpacity>
               </View>
               {showLink ? (
@@ -582,6 +728,89 @@ export default function GroupsScreen({ navigation }) {
           </View>
         </TouchableOpacity>
       </Modal>
+      {/* ── Invite Code modal ── */}
+      <Modal visible={showInvite} transparent animationType="slide">
+        <TouchableOpacity style={s.overlay} activeOpacity={1} onPress={() => setShowInvite(false)}>
+          <View style={s.sheet} onStartShouldSetResponder={() => true}>
+            <View style={s.handle}/>
+            <Text style={s.mTitle}>Invite to {activeG?.name}</Text>
+            <Text style={s.mSub}>Share this code with anyone you want to invite. It stays active until you delete the group.</Text>
+
+            {/* Code display */}
+            <View style={s.codeBox}>
+              <Text style={s.codeText}>{inviteCode}</Text>
+            </View>
+
+            {/* Action buttons */}
+            <View style={s.btnRow}>
+              <TouchableOpacity style={[s.cancelBtn, { flex:1 }]} onPress={doCopyCode} activeOpacity={0.85}>
+                <View style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
+                  <Copy size={16} color={codeCopied ? "#1E3D30" : "#5C534A"} weight="regular"/>
+                  <Text style={[s.cancelTxt, codeCopied && { color:"#1E3D30", fontWeight:"600" }]}>
+                    {codeCopied ? "Copied!" : "Copy code"}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity style={[s.submitBtn, { flex:1 }]} onPress={doShareCode} activeOpacity={0.85}>
+                <View style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
+                  <ShareNetwork size={16} color="#fff" weight="regular"/>
+                  <Text style={s.submitTxt}>Share</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity style={{ marginTop:16, alignItems:"center", paddingVertical:10 }} onPress={() => setShowInvite(false)}>
+              <Text style={s.cancelRowTxt}>Done</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* ── Join Group modal ── */}
+      <Modal visible={showJoin} transparent animationType="slide">
+        <KeyboardAvoidingView style={{flex:1}} behavior={Platform.OS==="ios"?"padding":"height"}>
+          <TouchableOpacity style={s.overlay} activeOpacity={1} onPress={() => { setShowJoin(false); setJoinCode(""); setJoinError(""); }}>
+            <View style={s.sheet} onStartShouldSetResponder={() => true}>
+              <View style={s.handle}/>
+              <Text style={s.mTitle}>Join a group</Text>
+              <Text style={s.mSub}>Enter the 6-character invite code shared with you.</Text>
+
+              <TextInput
+                style={[s.mInputSm, s.codeInput, joinError ? { borderColor:"#D94F4F" } : null]}
+                placeholder="e.g. A4BK7R"
+                placeholderTextColor="#5C534A"
+                value={joinCode}
+                onChangeText={t => { setJoinCode(t.toUpperCase().slice(0,6)); setJoinError(""); }}
+                autoCapitalize="characters"
+                autoCorrect={false}
+                maxLength={6}
+                autoFocus
+                returnKeyType="join"
+                onSubmitEditing={doJoinGroup}
+              />
+
+              {joinError ? <Text style={s.joinError}>{joinError}</Text> : null}
+
+              <View style={s.btnRow}>
+                <TouchableOpacity style={s.cancelBtn} onPress={() => { setShowJoin(false); setJoinCode(""); setJoinError(""); }}>
+                  <Text style={s.cancelTxt}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={(!joinCode.trim()||joinLoading) ? [s.submitBtn,s.submitDim] : s.submitBtn}
+                  onPress={doJoinGroup}
+                  disabled={!joinCode.trim()||joinLoading}
+                >
+                  {joinLoading
+                    ? <ActivityIndicator color="#fff" size="small"/>
+                    : <Text style={s.submitTxt}>Join group</Text>
+                  }
+                </TouchableOpacity>
+              </View>
+            </View>
+          </TouchableOpacity>
+        </KeyboardAvoidingView>
+      </Modal>
+
     </SafeAreaView>
   );
 }

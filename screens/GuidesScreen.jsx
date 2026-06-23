@@ -729,7 +729,7 @@ export default function GuidesScreen({ navigation }) {
         <View style={jn.halfRow}>
 
           <TouchableOpacity style={jn.halfCard}
-            onPress={() => navigation?.navigate?.("Map")}
+            onPress={() => navigation?.navigate?.("SacredPlaces")}
             activeOpacity={0.88}>
             <ImageBackground
               source={require("../assets/kaaba_map.png")}
@@ -837,15 +837,15 @@ const jn = StyleSheet.create({
   },
 
 
-  // Header
-  header:          { flexDirection:"row", alignItems:"center", justifyContent:"space-between", paddingHorizontal:spacing(2.5), paddingVertical:spacing(1.75), backgroundColor:colors.background },
+  // Header — fixed 72px matches all other tabs
+  header:          { flexDirection:"row", alignItems:"center", justifyContent:"space-between", paddingHorizontal:spacing(2.5), paddingTop:14, paddingBottom:12, backgroundColor:colors.background },
   headerLeft:      { flex:1 },
   headerTitle:     { fontFamily:SERIF, fontSize:26, fontWeight:"400", color:colors.text },
-  headerSub:       { fontSize:14, color:colors.subtext, fontWeight:"400", marginTop:2 },
-  // Departure counter — top right
-  departureBadge:  { alignItems:"center", paddingHorizontal:spacing(1.5), paddingVertical:spacing(0.75), borderWidth:1, borderColor:"#C4A882", borderRadius:radius.md },
-  departureDays:   { fontFamily:SERIF, fontSize:22, color:colors.text, fontWeight:"400", lineHeight:26 },
-  departureLbl:    { fontSize:10, color:colors.subtext, textAlign:"center", lineHeight:13, letterSpacing:0.3 },
+  headerSub:       { fontSize:14, color:colors.subtext, fontWeight:"400", marginTop:3 },
+  // Departure badge — small, never stretches header
+  departureBadge:  { alignItems:"center", paddingHorizontal:spacing(1.25), paddingVertical:4, borderWidth:1, borderColor:"#C4A882", borderRadius:radius.md, minWidth:52 },
+  departureDays:   { fontFamily:SERIF, fontSize:18, color:colors.text, fontWeight:"400", lineHeight:22 },
+  departureLbl:    { fontSize:9, color:colors.subtext, textAlign:"center", lineHeight:12, letterSpacing:0.3 },
 
   // ── 1. Mode toggle — compact single bar ──────────────────────────────────────
   modeWrap:        { marginBottom:spacing(1.5) },

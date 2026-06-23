@@ -1,18 +1,19 @@
 /**
  * App.js — Safar
- * Tabs: Home · Guides · Focus · Duas · Prepare
+ * Tabs: Home · Journey · Focus · Duas · Prepare
  */
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Platform } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Platform, ActivityIndicator } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NavigationContainer }        from "@react-navigation/native";
 import { createBottomTabNavigator }   from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useFonts }                   from "expo-font";
-import { House, BookBookmark, Moon, BookOpen, ListChecks } from "phosphor-react-native";
+import { House, Compass, Moon, BookOpen, ListChecks } from "phosphor-react-native";
 
 // ── Tab screens ───────────────────────────────────────────────────────────────
 import HomeScreen    from "./screens/HomeScreen";
-import GuidesScreen  from "./screens/GuidesScreen";
+import JourneyScreen from "./screens/JourneyScreen";
 import MapScreen     from "./screens/MapScreen";
 import MyDuasScreen  from "./screens/MyDuasScreen";
 import ProfileScreen from "./screens/ProfileScreen";
@@ -28,6 +29,12 @@ import DuaDetailScreen     from "./screens/DuaDetailScreen";
 import CurrencyScreen      from "./screens/CurrencyScreen";
 import PrintOfflineScreen  from "./screens/PrintOfflineScreen";
 import GroupsScreen        from "./screens/GroupsScreen";
+import HubScreen           from "./screens/HubScreen";
+import TawafScreen         from "./screens/TawafScreen";
+import SaiyScreen          from "./screens/SaiyScreen";
+import DhikrScreen         from "./screens/DhikrScreen";
+import UmrahGuideScreen    from "./screens/UmrahGuideScreen";
+import HajjGuideScreen     from "./screens/HajjGuideScreen";
 import GroupDetailScreen   from "./screens/GroupDetailScreen";
 import ConnectionsScreen   from "./screens/ConnectionsScreen";
 import WhatToExpectScreen  from "./screens/WhatToExpectScreen";
@@ -35,13 +42,16 @@ import MyBoardScreen       from "./screens/MyBoardScreen";
 import DuaListScreen       from "./screens/DuaListScreen";
 import MyContactsScreen    from "./screens/MyContactsScreen";
 import ProgressScreen      from "./screens/ProgressScreen";
-import UmrahGuideScreen    from "./screens/UmrahGuideScreen";
-import HajjGuideScreen     from "./screens/HajjGuideScreen";
-import PilgrimageDuasScreen  from "./screens/PilgrimageDuasScreen";
-import HajjUmrahPickerScreen from "./screens/HajjUmrahPickerScreen";
-import SafarAssistScreen     from "./screens/SafarAssistScreen";
-import DhikrScreen           from "./screens/DhikrScreen";
-import TawafScreen           from "./screens/TawafScreen";
+import OnboardingFlow      from "./screens/OnboardingFlow";
+import ToolsScreen         from "./screens/ToolsScreen";
+import GuidesHubScreen     from "./screens/GuidesHubScreen";
+import ShopScreen          from "./screens/ShopScreen";
+import MediaScreen         from "./screens/MediaScreen";
+import PrayerTimesScreen   from "./screens/PrayerTimesScreen";
+import QiblaScreen         from "./screens/QiblaScreen";
+import PilgrimageDuasScreen from "./screens/PilgrimageDuasScreen";
+import SafarAssistScreen   from "./screens/SafarAssistScreen";
+import SacredPlacesScreen  from "./screens/SacredPlacesScreen";
 
 // ── Context ───────────────────────────────────────────────────────────────────
 import { AccessibilityProvider } from "./AccessibilityContext";
@@ -53,8 +63,9 @@ const Tab      = createBottomTabNavigator();
 const Stack    = createNativeStackNavigator();
 const DuasStack    = createNativeStackNavigator();
 const HomeStack    = createNativeStackNavigator();
-const GuidesStack  = createNativeStackNavigator();
+const JourneyStack = createNativeStackNavigator();
 const PrepareStack = createNativeStackNavigator();
+const FocusStack   = createNativeStackNavigator();
 
 // ── Placeholder screens with back nav ────────────────────────────────────────
 function BackScreen({ title, sub, navigation }) {
@@ -101,8 +112,8 @@ const ph = StyleSheet.create({
 // ── Tab config ────────────────────────────────────────────────────────────────
 const TAB_CONFIG = {
   Home:    { Icon: House,      label:"Home"    },
-  Guides:  { Icon: BookBookmark, label:"Guidance" },
-  Focus:   { Icon: Moon,       label:"Focus Mode", center:true },
+  Journey: { Icon: Compass,    label:"Journey" },
+  Focus:   { Icon: Moon,       label:"Focus",  center:true },
   Duas:    { Icon: BookOpen,   label:"Duas"    },
   Prepare: { Icon: ListChecks, label:"Prepare" },
 };
@@ -117,21 +128,20 @@ function SafarTabBar({ state, descriptors, navigation }) {
           const event = navigation.emit({ type:"tabPress", target:route.key, canPreventDefault:true });
           if (!focused && !event.defaultPrevented) navigation.navigate(route.name);
         };
-
         if (center) {
           return (
             <TouchableOpacity key={route.key} style={tb.centerTab} onPress={onPress} activeOpacity={0.85}>
-              <View style={[tb.centerBtn, focused && tb.centerBtnActive]}>
+              <View style={focused ? [tb.centerBtn, tb.centerBtnActive] : tb.centerBtn}>
                 <Icon size={26} color={colors.card} weight="fill" />
               </View>
-              <Text style={[tb.label, focused && tb.labelActive]}>{label}</Text>
+              <Text style={focused ? [tb.label, tb.labelActive] : tb.label}>{label}</Text>
             </TouchableOpacity>
           );
         }
         return (
           <TouchableOpacity key={route.key} style={tb.tab} onPress={onPress} activeOpacity={0.7}>
             <Icon size={22} color={focused ? colors.primary : ICON_INACTIVE} weight={focused ? "fill" : "regular"} />
-            <Text style={[tb.label, focused && tb.labelActive]}>{label}</Text>
+            <Text style={focused ? [tb.label, tb.labelActive] : tb.label}>{label}</Text>
           </TouchableOpacity>
         );
       })}
@@ -153,50 +163,37 @@ function HomeNavigator() {
   return (
     <HomeStack.Navigator screenOptions={{ headerShown:false }}>
       <HomeStack.Screen name="HomeMain"      component={HomeScreen}         />
-      <HomeStack.Screen name="WhatToExpect"  component={WhatToExpectScreen} />
-      <HomeStack.Screen name="Groups"        component={GroupsScreen}       />
-      <HomeStack.Screen name="Map"           component={MapScreen}          />
-      <HomeStack.Screen name="SiteDuas"      component={SiteDuasScreen}     />
+      <HomeStack.Screen name="Hub"           component={HubScreen}          />
       <HomeStack.Screen name="UmrahGuide"    component={UmrahGuideScreen}   />
       <HomeStack.Screen name="HajjGuide"     component={HajjGuideScreen}    />
-      <HomeStack.Screen name="MyContacts"    component={MyContactsScreen}   />
-      <HomeStack.Screen name="SafarAssist"   component={SafarAssistScreen}  />
-      <HomeStack.Screen name="PracticeLearn" component={PracticeLearnScreen}/>
-      <HomeStack.Screen name="PilgrimageDuas"    component={PilgrimageDuasScreen}    />
-      <HomeStack.Screen name="HajjUmrahPicker"   component={HajjUmrahPickerScreen}   />
+      <HomeStack.Screen name="WhatToExpect"  component={WhatToExpectScreen} />
+      <HomeStack.Screen name="Groups"       component={GroupsScreen}       />
+      <HomeStack.Screen name="Guides"        component={GuidesHubScreen}    />
+      <HomeStack.Screen name="Tools"         component={ToolsScreen}        />
+      <HomeStack.Screen name="PrayerTimes"   component={PrayerTimesScreen}  />
+      <HomeStack.Screen name="Qibla"         component={QiblaScreen}        />
+      <HomeStack.Screen name="Shop"          component={ShopScreen}         />
+      <HomeStack.Screen name="Media"         component={MediaScreen}        />
+      <HomeStack.Screen name="Notes"         component={NotesScreen}        />
+      <HomeStack.Screen name="Settings"      component={SettingsScreen}     />
+      <HomeStack.Screen name="CurrencyConverter" component={CurrencyScreen} />
     </HomeStack.Navigator>
   );
 }
 
-const FocusStack = createNativeStackNavigator();
-function FocusNavigator() {
+function JourneyNavigator() {
   return (
-    <FocusStack.Navigator screenOptions={{ headerShown: false }}>
-      <FocusStack.Screen name="FocusMain" component={FocusScreen} />
-      <FocusStack.Screen name="Dhikr"     component={DhikrScreen} />
-      <FocusStack.Screen name="Tawaf"     component={TawafScreen} />
-    </FocusStack.Navigator>
-  );
-}
-
-function GuidesNavigator() {
-  return (
-    <GuidesStack.Navigator screenOptions={{ headerShown:false }}>
-      <GuidesStack.Screen name="GuidesMain"      component={GuidesScreen}          />
-      <GuidesStack.Screen name="Map"             component={MapScreen}             />
-      <GuidesStack.Screen name="SiteDuas"        component={SiteDuasScreen}        />
-      <GuidesStack.Screen name="WhatToExpect"    component={WhatToExpectScreen}    />
-      <GuidesStack.Screen name="Groups"          component={GroupsScreen}          />
-      <GuidesStack.Screen name="GroupDetail"     component={GroupDetailScreen}     />
-      <GuidesStack.Screen name="Connections"     component={ConnectionsScreen}     />
-      <GuidesStack.Screen name="MyBoard"         component={MyBoardScreen}         />
-      <GuidesStack.Screen name="SafarAssist"     component={SafarAssistScreen}     />
-      <GuidesStack.Screen name="MyContacts"      component={MyContactsScreen}      />
-      <GuidesStack.Screen name="PilgrimageDuas"  component={PilgrimageDuasScreen}  />
-      <GuidesStack.Screen name="HajjUmrahPicker" component={HajjUmrahPickerScreen} />
-      <GuidesStack.Screen name="UmrahGuide"      component={UmrahGuideScreen}      />
-      <GuidesStack.Screen name="HajjGuide"       component={HajjGuideScreen}       />
-    </GuidesStack.Navigator>
+    <JourneyStack.Navigator screenOptions={{ headerShown:false }}>
+      <JourneyStack.Screen name="JourneyMain" component={JourneyScreen}      />
+      <JourneyStack.Screen name="Map"         component={MapScreen}          />
+      <JourneyStack.Screen name="SiteDuas"    component={SiteDuasScreen}     />
+      <JourneyStack.Screen name="WhatToExpect" component={WhatToExpectScreen}/>
+      <JourneyStack.Screen name="Groups"      component={GroupsScreen}       />
+      <JourneyStack.Screen name="GroupDetail" component={GroupDetailScreen}  />
+      <JourneyStack.Screen name="Connections" component={ConnectionsScreen}  />
+      <JourneyStack.Screen name="MyBoard"     component={MyBoardScreen}      />
+      <JourneyStack.Screen name="MyContacts"  component={MyContactsScreen}   />
+    </JourneyStack.Navigator>
   );
 }
 
@@ -209,7 +206,6 @@ function PrepareNavigator() {
       <PrepareStack.Screen name="CurrencyConverter" component={CurrencyScreen}      />
       <PrepareStack.Screen name="Support"           component={SupportScreen}       />
       <PrepareStack.Screen name="Settings"          component={SettingsScreen}      />
-      <PrepareStack.Screen name="Map"               component={MapScreen}           />
     </PrepareStack.Navigator>
   );
 }
@@ -223,12 +219,23 @@ function DuasNavigator() {
   );
 }
 
+function FocusNavigator() {
+  return (
+    <FocusStack.Navigator screenOptions={{ headerShown:false }}>
+      <FocusStack.Screen name="FocusMain" component={FocusScreen} />
+      <FocusStack.Screen name="Tawaf"     component={TawafScreen} />
+      <FocusStack.Screen name="Saiy"      component={SaiyScreen}  />
+      <FocusStack.Screen name="Dhikr"     component={DhikrScreen} />
+    </FocusStack.Navigator>
+  );
+}
+
 function MainTabs() {
   return (
     <Tab.Navigator tabBar={props => <SafarTabBar {...props} />} screenOptions={{ headerShown:false }}>
       <Tab.Screen name="Home"    component={HomeNavigator}    />
-      <Tab.Screen name="Guides"  component={GuidesNavigator}  />
-      <Tab.Screen name="Focus"   component={FocusNavigator} />
+      <Tab.Screen name="Journey" component={JourneyNavigator} />
+      <Tab.Screen name="Focus"   component={FocusNavigator}   />
       <Tab.Screen name="Duas"    component={DuasNavigator}  />
       <Tab.Screen name="Prepare" component={PrepareNavigator} />
     </Tab.Navigator>
@@ -237,14 +244,37 @@ function MainTabs() {
 
 export default function App() {
   const [fontsLoaded] = useFonts({
-    "SourceSerif4-Regular":     require("./assets/fonts/SourceSerif4-Regular.ttf"),
+    "SourceSerif4-Regular": require("./assets/fonts/SourceSerif4-Regular.ttf"),
   });
-  if (!fontsLoaded) return null;
+
+  // ── Onboarding gate ──
+  // Read the persisted flag once on launch to decide the first screen.
+  // null = still checking, "yes" = onboarded, "no" = needs onboarding.
+  const [onboarded, setOnboarded] = React.useState(null);
+  React.useEffect(() => {
+    AsyncStorage.getItem("safar_onboarded_v1")
+      .then((val) => setOnboarded(val === "true" ? "yes" : "no"))
+      .catch(() => setOnboarded("no"));
+  }, []);
+
+  // Wait for both fonts and the flag before rendering, so we never flash
+  // the wrong screen.
+  if (!fontsLoaded || onboarded === null) {
+    return (
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#F5F0E8" }}>
+        <ActivityIndicator size="large" color="#2F5D50" />
+      </View>
+    );
+  }
 
   return (
     <AccessibilityProvider>
       <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown:false }}>
+        <Stack.Navigator
+          screenOptions={{ headerShown:false }}
+          initialRouteName={onboarded === "yes" ? "MainTabs" : "Onboarding"}
+        >
+          <Stack.Screen name="Onboarding"     component={OnboardingFlow}      />
           <Stack.Screen name="MainTabs"      component={MainTabs}            />
           {/* ── Full-screen focused task screens — no tab bar ── */}
           {/* Users are mid-task: reciting, counting, learning, printing */}
@@ -252,10 +282,10 @@ export default function App() {
           <Stack.Screen name="StepGuide"          component={ProgressScreen}       />
           <Stack.Screen name="PracticeLearn"      component={PracticeLearnScreen}  />
           <Stack.Screen name="PrintOffline"       component={PrintOfflineScreen}   />
-          <Stack.Screen name="UmrahGuide"         component={UmrahGuideScreen}     />
-          <Stack.Screen name="HajjGuide"          component={HajjGuideScreen}      />
+          {/* ── Shared destinations reachable from multiple stacks ── */}
           <Stack.Screen name="PilgrimageDuas"     component={PilgrimageDuasScreen} />
-          <Stack.Screen name="HajjUmrahPicker"    component={HajjUmrahPickerScreen}/>
+          <Stack.Screen name="SafarAssist"        component={SafarAssistScreen}    />
+          <Stack.Screen name="SacredPlaces"       component={SacredPlacesScreen}   />
         </Stack.Navigator>
       </NavigationContainer>
     </AccessibilityProvider>

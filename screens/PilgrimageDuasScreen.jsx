@@ -59,7 +59,7 @@ const STAGE_META = {
     description: "Circling the Ka\u02bfbah seven times is an act of worship performed by millions simultaneously. Begin at the Black Stone and keep the Ka\u02bfbah to your left throughout.",
   },
   "Sa\u02bfy": {
-    image:       require("../assets/Umrah_04_sai_gradient.jpg"),
+    image:       require("../assets/sayi.jpg"),
     emoji:       "\uD83D\uDEB6",
     displayName: "Sa\u02bfy between \u1e62af\u0101 and Marwah",
     description: "Walking seven lengths between \u1e62af\u0101 and Marwah commemorates H\u0101jar\u2019s search for water. Begin at \u1e62af\u0101, ascend, face the Ka\u02bfbah, and make du\u02bf\u0101 before walking to Marwah.",
