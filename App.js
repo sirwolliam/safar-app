@@ -51,11 +51,10 @@ import QiblaScreen         from "./screens/QiblaScreen";
 import PilgrimageDuasScreen from "./screens/PilgrimageDuasScreen";
 import SafarAssistScreen   from "./screens/SafarAssistScreen";
 import SacredPlacesScreen  from "./screens/SacredPlacesScreen";
-import HubsScreen          from "./screens/HubsScreen";
 import NotificationsScreen from "./screens/NotificationsScreen";
 import PlanHubScreen     from "./screens/PlanHubScreen";
 import LearnHubScreen    from "./screens/LearnHubScreen";
-import PractiseHubScreen from "./screens/PracticeHubScreen";
+import PracticeHubScreen from "./screens/PracticeHubScreen";
 import ConnectHubScreen  from "./screens/ConnectHubScreen";
 
 // ── Context ───────────────────────────────────────────────────────────────────
@@ -166,13 +165,12 @@ const tb = StyleSheet.create({
 
 function HomeNavigator() {
   return (
-    <HomeStack.Navigator screenOptions={{ headerShown:false }}>
+    <HomeStack.Navigator screenOptions={{ headerShown: false, animation: "none" }}>
       <HomeStack.Screen name="HomeMain"      component={HomeScreen}         />
       <HomeStack.Screen name="Hub"           component={HubScreen}          />
-      <HomeStack.Screen name="Hubs"          component={HubsScreen}         />
       <HomeStack.Screen name="PlanHub"       component={PlanHubScreen}      />
       <HomeStack.Screen name="LearnHub"      component={LearnHubScreen}     />
-      <HomeStack.Screen name="PractiseHub"   component={PractiseHubScreen}  />
+      <HomeStack.Screen name="PracticeHub"   component={PracticeHubScreen}  />
       <HomeStack.Screen name="ConnectHub"    component={ConnectHubScreen}   />
       <HomeStack.Screen name="UmrahGuide"    component={UmrahGuideScreen}   />
       <HomeStack.Screen name="HajjGuide"     component={HajjGuideScreen}    />

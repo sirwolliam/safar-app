@@ -6,9 +6,9 @@
  * Coding rules: StyleSheet.create at module level, literal values only.
  * No && in style arrays — ternaries only. Phosphor icons verified.
  */
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
-  View, Text, Image, ScrollView, TouchableOpacity, StyleSheet,
+  View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Animated,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -19,15 +19,17 @@ import {
   PlayCircle, Link, BookmarkSimple, NotePencil, CurrencyDollar,
 } from "phosphor-react-native";
 
+const HEADER_IMAGE = require("../assets/hub-headers/plan-header.png");
+
 // ── AsyncStorage keys ─────────────────────────────────────────────────────────
 const DEPARTURE_KEY = "safar_departure_date_v1";
 const BOARD_KEY     = "safar_journey_board_v1";
 
 // ── Pills config ──────────────────────────────────────────────────────────────
 const PILLS = [
-  { label: "Learn",    route: "LearnHub"    },
-  { label: "Practice", route: "PractiseHub" },
   { label: "Plan",     route: "PlanHub"     },
+  { label: "Learn",    route: "LearnHub"    },
+  { label: "Practice", route: "PracticeHub" },
   { label: "Connect",  route: "ConnectHub"  },
 ];
 
@@ -86,15 +88,52 @@ export default function PlanHubScreen({ navigation }) {
 
   const days = depDate ? daysUntil(depDate) : null;
 
+  const cardSlide   = useRef(new Animated.Value(30)).current;
+  const cardOpacity = useRef(new Animated.Value(0)).current;
+  const rowOpacity  = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(cardSlide, {
+        toValue: 0,
+        duration: 380,
+        delay: 120,
+        useNativeDriver: true,
+      }),
+      Animated.timing(cardOpacity, {
+        toValue: 1,
+        duration: 320,
+        delay: 120,
+        useNativeDriver: true,
+      }),
+      Animated.timing(rowOpacity, {
+        toValue: 1,
+        duration: 280,
+        delay: 220,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
+
   return (
     <View style={styles.root}>
 
       {/* ── Header ───────────────────────────────────────────────────────── */}
       <View style={styles.header}>
         <Image
-          source={require("../assets/hub-headers/plan-header.png")}
-          style={StyleSheet.absoluteFillObject}
+          source={HEADER_IMAGE}
+          defaultSource={HEADER_IMAGE}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: "100%",
+            height: "100%",
+          }}
           resizeMode="cover"
+          fadeDuration={0}
         />
         <LinearGradient
           colors={[
@@ -137,7 +176,7 @@ export default function PlanHubScreen({ navigation }) {
               key={p.route}
               style={active ? styles.pillActive : styles.pill}
               activeOpacity={active ? 1 : 0.7}
-              onPress={() => active ? null : navigation.navigate(p.route)}
+              onPress={() => active ? null : navigation.replace(p.route)}
             >
               <Text style={active ? styles.pillTextActive : styles.pillText}>
                 {p.label}
@@ -154,88 +193,92 @@ export default function PlanHubScreen({ navigation }) {
         showsVerticalScrollIndicator={false}
       >
         {/* Hero card — Plan only */}
-        {tripState !== null ? (
-          <TouchableOpacity
-            style={styles.heroCard}
-            activeOpacity={0.88}
-            onPress={() => navigation.navigate("SafarAssist")}
-          >
-            <LinearGradient
-              colors={["#1A202E", "#101828"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.heroGradient}
+        <Animated.View style={{ opacity: cardOpacity, transform: [{ translateY: cardSlide }] }}>
+          {tripState !== null ? (
+            <TouchableOpacity
+              style={styles.heroCard}
+              activeOpacity={0.88}
+              onPress={() => navigation.navigate("SafarAssist")}
             >
-              {tripState === "has_date" ? (
-                <View style={styles.heroPad}>
-                  <View style={styles.heroLeft}>
-                    <Text style={styles.heroEyebrow}>YOUR JOURNEY BEGINS SOON</Text>
-                    <Text style={styles.heroCta}>Review details →</Text>
+              <LinearGradient
+                colors={["#1A202E", "#101828"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.heroGradient}
+              >
+                {tripState === "has_date" ? (
+                  <View style={styles.heroPad}>
+                    <View style={styles.heroLeft}>
+                      <Text style={styles.heroEyebrow}>YOUR JOURNEY BEGINS SOON</Text>
+                      <Text style={styles.heroCta}>Review details →</Text>
+                    </View>
+                    <View style={styles.heroRight}>
+                      <Text style={styles.heroBigNum}>
+                        {days !== null ? String(days) : "—"}
+                      </Text>
+                      <Text style={styles.heroDaysSmall}>days</Text>
+                    </View>
                   </View>
-                  <View style={styles.heroRight}>
-                    <Text style={styles.heroBigNum}>
-                      {days !== null ? String(days) : "—"}
-                    </Text>
-                    <Text style={styles.heroDaysSmall}>days</Text>
+                ) : tripState === "no_date" ? (
+                  <View style={styles.heroPad}>
+                    <View style={styles.heroLeft}>
+                      <Text style={styles.heroEyebrow}>TRIP COUNTDOWN</Text>
+                      <Text style={styles.heroCardTitle}>
+                        Trip details saved — add your dates
+                      </Text>
+                      <Text style={styles.heroCta}>Review details →</Text>
+                    </View>
+                    <View style={styles.heroRight} />
                   </View>
-                </View>
-              ) : tripState === "no_date" ? (
-                <View style={styles.heroPad}>
-                  <View style={styles.heroLeft}>
-                    <Text style={styles.heroEyebrow}>TRIP COUNTDOWN</Text>
-                    <Text style={styles.heroCardTitle}>
-                      Trip details saved — add your dates
-                    </Text>
-                    <Text style={styles.heroCta}>Review details →</Text>
+                ) : (
+                  <View style={styles.heroPad}>
+                    <View style={styles.heroLeft}>
+                      <Text style={styles.heroEyebrow}>SAFAR ASSIST</Text>
+                      <Text style={styles.heroCardTitle}>
+                        Set up your trip in seconds
+                      </Text>
+                      <Text style={styles.heroCardSub}>
+                        Import your travel details — we do the rest.
+                      </Text>
+                      <Text style={styles.heroCta}>Import details  →</Text>
+                    </View>
+                    <View style={styles.heroRight} />
                   </View>
-                  <View style={styles.heroRight} />
-                </View>
-              ) : (
-                <View style={styles.heroPad}>
-                  <View style={styles.heroLeft}>
-                    <Text style={styles.heroEyebrow}>SAFAR ASSIST</Text>
-                    <Text style={styles.heroCardTitle}>
-                      Set up your trip in seconds
-                    </Text>
-                    <Text style={styles.heroCardSub}>
-                      Import your travel details — we do the rest.
-                    </Text>
-                    <Text style={styles.heroCta}>Import details  →</Text>
-                  </View>
-                  <View style={styles.heroRight} />
-                </View>
-              )}
-            </LinearGradient>
-          </TouchableOpacity>
-        ) : null}
+                )}
+              </LinearGradient>
+            </TouchableOpacity>
+          ) : null}
+        </Animated.View>
 
         {/* List card */}
-        <View style={styles.card}>
-          {ROWS.map((item, idx) => (
-            <TouchableOpacity
-              key={item.key}
-              style={idx < ROWS.length - 1 ? [styles.row, styles.rowBorder] : styles.row}
-              activeOpacity={item.soon ? 1 : 0.75}
-              disabled={item.soon}
-              onPress={() => goRow(item, navigation)}
-            >
-              <View style={item.soon ? [styles.rowIcon, styles.rowIconDim] : styles.rowIcon}>
-                <item.Icon size={24} color="#C8A96A" weight="regular" />
-              </View>
-              <View style={styles.rowInfo}>
-                <Text style={styles.rowLabel}>{item.label}</Text>
-                <Text style={styles.rowSub}>{item.sub}</Text>
-              </View>
-              {item.soon ? (
-                <View style={styles.soonBadge}>
-                  <Text style={styles.soonText}>SOON</Text>
+        <Animated.View style={[styles.card, { opacity: cardOpacity, transform: [{ translateY: cardSlide }] }]}>
+          <Animated.View style={{ opacity: rowOpacity }}>
+            {ROWS.map((item, idx) => (
+              <TouchableOpacity
+                key={item.key}
+                style={idx < ROWS.length - 1 ? [styles.row, styles.rowBorder] : styles.row}
+                activeOpacity={item.soon ? 1 : 0.75}
+                disabled={item.soon}
+                onPress={() => goRow(item, navigation)}
+              >
+                <View style={item.soon ? [styles.rowIcon, styles.rowIconDim] : styles.rowIcon}>
+                  <item.Icon size={24} color="#C8A96A" weight="regular" />
                 </View>
-              ) : (
-                <CaretRight size={18} color="#C8BFB2" weight="bold" />
-              )}
-            </TouchableOpacity>
-          ))}
-        </View>
+                <View style={styles.rowInfo}>
+                  <Text style={styles.rowLabel}>{item.label}</Text>
+                  <Text style={styles.rowSub}>{item.sub}</Text>
+                </View>
+                {item.soon ? (
+                  <View style={styles.soonBadge}>
+                    <Text style={styles.soonText}>SOON</Text>
+                  </View>
+                ) : (
+                  <CaretRight size={18} color="#C8BFB2" weight="bold" />
+                )}
+              </TouchableOpacity>
+            ))}
+          </Animated.View>
+        </Animated.View>
         <View style={styles.bottomSpacer} />
       </ScrollView>
     </View>
@@ -246,7 +289,7 @@ export default function PlanHubScreen({ navigation }) {
 const styles = StyleSheet.create({
   root:          { flex: 1, backgroundColor: "#EDE6D8" },
   // Header
-  header:        { height: 260, overflow: "hidden" },
+  header:        { height: 260, overflow: "hidden", position: "relative", backgroundColor: "#1A202E" },
   backBtn:       { position: "absolute", left: 18, width: 36, height: 36, borderRadius: 18, backgroundColor: "rgba(0,0,0,0.35)", alignItems: "center", justifyContent: "center" },
   headerContent: { position: "absolute", bottom: 22, left: 20, right: 20 },
   titleRow:      { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 10 },

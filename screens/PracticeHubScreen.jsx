@@ -1,13 +1,13 @@
 /**
- * PractiseHubScreen.jsx — Safar
+ * PracticeHubScreen.jsx — Safar
  * Practice pillar hub. Photo header + gradient overlay + sub-nav pills + list rows.
  *
  * Coding rules: StyleSheet.create at module level, literal values only.
  * No && in style arrays — ternaries only. Phosphor icons verified.
  */
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import {
-  View, Text, Image, ScrollView, TouchableOpacity, StyleSheet,
+  View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Animated,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -16,21 +16,23 @@ import {
   PersonSimpleRun, HandsPraying, Sparkle, PlayCircle, Books,
 } from "phosphor-react-native";
 
+const HEADER_IMAGE = require("../assets/hub-headers/practice-header.png");
+
 // ── Pills config ──────────────────────────────────────────────────────────────
 const PILLS = [
-  { label: "Learn",    route: "LearnHub"    },
-  { label: "Practice", route: "PractiseHub" },
   { label: "Plan",     route: "PlanHub"     },
+  { label: "Learn",    route: "LearnHub"    },
+  { label: "Practice", route: "PracticeHub" },
   { label: "Connect",  route: "ConnectHub"  },
 ];
 
 // ── List rows ─────────────────────────────────────────────────────────────────
 const ROWS = [
-  { key: "umrahduas",  Icon: HandsPraying, label: "Umrah Duʿās",  sub: "Supplications for every step of ʿUmrah", nav: "stack", target: "PilgrimageDuas", params: { mode: "umrah" } },
-  { key: "hajjduas",   Icon: Sparkle,      label: "Ḥajj Duʿās",   sub: "Supplications for every step of Ḥajj",  nav: "stack", target: "PilgrimageDuas", params: { mode: "hajj"  } },
-  { key: "audio",      Icon: PlayCircle,   label: "Audio Practice",          sub: "Listen and rehearse before you go",              nav: "stack", target: "PracticeLearn" },
-  { key: "dualibrary", Icon: Books,        label: "Duʿā Library",  sub: "Supplications for every moment",                 nav: "tab",   tab: "Duas", screen: "MyDuas" },
-  { key: "media",      Icon: PlayCircle,   label: "Media",          sub: "Videos and podcasts for your preparation",       nav: "stack", target: "Media" },
+  { key: "umrahduas",  Icon: HandsPraying, label: "Umrah Duʿās",   sub: "Supplications for every step of ʿUmrah",     nav: "stack", target: "PilgrimageDuas", params: { mode: "umrah" } },
+  { key: "hajjduas",   Icon: Sparkle,      label: "Ḥajj Duʿās",    sub: "Supplications for every step of Ḥajj",       nav: "stack", target: "PilgrimageDuas", params: { mode: "hajj"  } },
+  { key: "audio",      Icon: PlayCircle,   label: "Audio Practice", sub: "Listen and rehearse before you go",          nav: "stack", target: "PracticeLearn" },
+  { key: "dualibrary", Icon: Books,        label: "Duʿā Library",   sub: "Supplications for every moment",             nav: "tab",   tab: "Duas", screen: "MyDuas" },
+  { key: "media",      Icon: PlayCircle,   label: "Media",          sub: "Videos and podcasts for your preparation",   nav: "stack", target: "Media" },
 ];
 
 // ── Helper ────────────────────────────────────────────────────────────────────
@@ -43,8 +45,35 @@ function goRow(item, navigation) {
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
-export default function PractiseHubScreen({ navigation }) {
+export default function PracticeHubScreen({ navigation }) {
   const insets = useSafeAreaInsets();
+
+  const cardSlide   = useRef(new Animated.Value(30)).current;
+  const cardOpacity = useRef(new Animated.Value(0)).current;
+  const rowOpacity  = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(cardSlide, {
+        toValue: 0,
+        duration: 380,
+        delay: 120,
+        useNativeDriver: true,
+      }),
+      Animated.timing(cardOpacity, {
+        toValue: 1,
+        duration: 320,
+        delay: 120,
+        useNativeDriver: true,
+      }),
+      Animated.timing(rowOpacity, {
+        toValue: 1,
+        duration: 280,
+        delay: 220,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
 
   return (
     <View style={styles.root}>
@@ -52,9 +81,19 @@ export default function PractiseHubScreen({ navigation }) {
       {/* ── Header ───────────────────────────────────────────────────────── */}
       <View style={styles.header}>
         <Image
-          source={require("../assets/hub-headers/practice-header.png")}
-          style={StyleSheet.absoluteFillObject}
+          source={HEADER_IMAGE}
+          defaultSource={HEADER_IMAGE}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: "100%",
+            height: "100%",
+          }}
           resizeMode="cover"
+          fadeDuration={0}
         />
         <LinearGradient
           colors={[
@@ -91,13 +130,13 @@ export default function PractiseHubScreen({ navigation }) {
       {/* ── Sub-nav pills ────────────────────────────────────────────────── */}
       <View style={styles.pillsBar}>
         {PILLS.map((p) => {
-          const active = p.route === "PractiseHub";
+          const active = p.route === "PracticeHub";
           return (
             <TouchableOpacity
               key={p.route}
               style={active ? styles.pillActive : styles.pill}
               activeOpacity={active ? 1 : 0.7}
-              onPress={() => active ? null : navigation.navigate(p.route)}
+              onPress={() => active ? null : navigation.replace(p.route)}
             >
               <Text style={active ? styles.pillTextActive : styles.pillText}>
                 {p.label}
@@ -113,25 +152,27 @@ export default function PractiseHubScreen({ navigation }) {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.card}>
-          {ROWS.map((item, idx) => (
-            <TouchableOpacity
-              key={item.key}
-              style={idx < ROWS.length - 1 ? [styles.row, styles.rowBorder] : styles.row}
-              activeOpacity={0.75}
-              onPress={() => goRow(item, navigation)}
-            >
-              <View style={styles.rowIcon}>
-                <item.Icon size={24} color="#C8A96A" weight="regular" />
-              </View>
-              <View style={styles.rowInfo}>
-                <Text style={styles.rowLabel}>{item.label}</Text>
-                <Text style={styles.rowSub}>{item.sub}</Text>
-              </View>
-              <CaretRight size={18} color="#C8BFB2" weight="bold" />
-            </TouchableOpacity>
-          ))}
-        </View>
+        <Animated.View style={[styles.card, { opacity: cardOpacity, transform: [{ translateY: cardSlide }] }]}>
+          <Animated.View style={{ opacity: rowOpacity }}>
+            {ROWS.map((item, idx) => (
+              <TouchableOpacity
+                key={item.key}
+                style={idx < ROWS.length - 1 ? [styles.row, styles.rowBorder] : styles.row}
+                activeOpacity={0.75}
+                onPress={() => goRow(item, navigation)}
+              >
+                <View style={styles.rowIcon}>
+                  <item.Icon size={24} color="#C8A96A" weight="regular" />
+                </View>
+                <View style={styles.rowInfo}>
+                  <Text style={styles.rowLabel}>{item.label}</Text>
+                  <Text style={styles.rowSub}>{item.sub}</Text>
+                </View>
+                <CaretRight size={18} color="#C8BFB2" weight="bold" />
+              </TouchableOpacity>
+            ))}
+          </Animated.View>
+        </Animated.View>
         <View style={styles.bottomSpacer} />
       </ScrollView>
     </View>
@@ -142,7 +183,7 @@ export default function PractiseHubScreen({ navigation }) {
 const styles = StyleSheet.create({
   root:          { flex: 1, backgroundColor: "#EDE6D8" },
   // Header
-  header:        { height: 260, overflow: "hidden" },
+  header:        { height: 260, overflow: "hidden", position: "relative", backgroundColor: "#2A1F0E" },
   backBtn:       { position: "absolute", left: 18, width: 36, height: 36, borderRadius: 18, backgroundColor: "rgba(0,0,0,0.35)", alignItems: "center", justifyContent: "center" },
   headerContent: { position: "absolute", bottom: 22, left: 20, right: 20 },
   titleRow:      { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 10 },

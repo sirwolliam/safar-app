@@ -5,9 +5,9 @@
  * Coding rules: StyleSheet.create at module level, literal values only.
  * No && in style arrays — ternaries only. Phosphor icons verified.
  */
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import {
-  View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Share,
+  View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Share, Animated,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -16,21 +16,23 @@ import {
   UsersThree, ShareNetwork, AddressBook, Bell, ShareFat, ArrowSquareOut,
 } from "phosphor-react-native";
 
+const HEADER_IMAGE = require("../assets/hub-headers/connect-header.png");
+
 // ── Pills config ──────────────────────────────────────────────────────────────
 const PILLS = [
-  { label: "Learn",    route: "LearnHub"    },
-  { label: "Practice", route: "PractiseHub" },
   { label: "Plan",     route: "PlanHub"     },
+  { label: "Learn",    route: "LearnHub"    },
+  { label: "Practice", route: "PracticeHub" },
   { label: "Connect",  route: "ConnectHub"  },
 ];
 
 // ── List rows ─────────────────────────────────────────────────────────────────
 const ROWS = [
-  { key: "groups",        Icon: UsersThree,   label: "Groups",        sub: "Coordinate with your travel group",         nav: "parent", tab: "Journey", screen: "Groups"       },
-  { key: "connections",   Icon: ShareNetwork, label: "Connections",   sub: "People on the journey with you",            nav: "parent", tab: "Journey", screen: "Connections"  },
-  { key: "contacts",      Icon: AddressBook,  label: "My Contacts",   sub: "Hotel, guide, agent and key numbers",       nav: "parent", tab: "Journey", screen: "MyContacts"   },
-  { key: "notifications", Icon: Bell,         label: "Notifications", sub: "Group invites and connection requests",     nav: "stack",  target: "Notifications"                },
-  { key: "share",         Icon: ShareFat,     label: "Share Safar",   sub: "Invite friends and family to join you",     nav: "share"                                          },
+  { key: "groups",        Icon: UsersThree,   label: "Groups",        sub: "Coordinate with your travel group",     nav: "parent", tab: "Journey", screen: "Groups"      },
+  { key: "connections",   Icon: ShareNetwork, label: "Connections",   sub: "People on the journey with you",        nav: "parent", tab: "Journey", screen: "Connections" },
+  { key: "contacts",      Icon: AddressBook,  label: "My Contacts",   sub: "Hotel, guide, agent and key numbers",  nav: "parent", tab: "Journey", screen: "MyContacts"  },
+  { key: "notifications", Icon: Bell,         label: "Notifications", sub: "Group invites and connection requests", nav: "stack",  target: "Notifications"              },
+  { key: "share",         Icon: ShareFat,     label: "Share Safar",   sub: "Invite friends and family to join you", nav: "share"                                        },
 ];
 
 // ── Helper ────────────────────────────────────────────────────────────────────
@@ -53,15 +55,52 @@ async function goRow(item, navigation) {
 export default function ConnectHubScreen({ navigation }) {
   const insets = useSafeAreaInsets();
 
+  const cardSlide   = useRef(new Animated.Value(30)).current;
+  const cardOpacity = useRef(new Animated.Value(0)).current;
+  const rowOpacity  = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(cardSlide, {
+        toValue: 0,
+        duration: 380,
+        delay: 120,
+        useNativeDriver: true,
+      }),
+      Animated.timing(cardOpacity, {
+        toValue: 1,
+        duration: 320,
+        delay: 120,
+        useNativeDriver: true,
+      }),
+      Animated.timing(rowOpacity, {
+        toValue: 1,
+        duration: 280,
+        delay: 220,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
+
   return (
     <View style={styles.root}>
 
       {/* ── Header ───────────────────────────────────────────────────────── */}
       <View style={styles.header}>
         <Image
-          source={require("../assets/hub-headers/connect-header.png")}
-          style={StyleSheet.absoluteFillObject}
+          source={HEADER_IMAGE}
+          defaultSource={HEADER_IMAGE}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: "100%",
+            height: "100%",
+          }}
           resizeMode="cover"
+          fadeDuration={0}
         />
         <LinearGradient
           colors={[
@@ -104,7 +143,7 @@ export default function ConnectHubScreen({ navigation }) {
               key={p.route}
               style={active ? styles.pillActive : styles.pill}
               activeOpacity={active ? 1 : 0.7}
-              onPress={() => active ? null : navigation.navigate(p.route)}
+              onPress={() => active ? null : navigation.replace(p.route)}
             >
               <Text style={active ? styles.pillTextActive : styles.pillText}>
                 {p.label}
@@ -120,25 +159,27 @@ export default function ConnectHubScreen({ navigation }) {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.card}>
-          {ROWS.map((item, idx) => (
-            <TouchableOpacity
-              key={item.key}
-              style={idx < ROWS.length - 1 ? [styles.row, styles.rowBorder] : styles.row}
-              activeOpacity={0.75}
-              onPress={() => goRow(item, navigation)}
-            >
-              <View style={styles.rowIcon}>
-                <item.Icon size={24} color="#C8A96A" weight="regular" />
-              </View>
-              <View style={styles.rowInfo}>
-                <Text style={styles.rowLabel}>{item.label}</Text>
-                <Text style={styles.rowSub}>{item.sub}</Text>
-              </View>
-              {item.nav === "share" ? <ArrowSquareOut size={18} color="#C8BFB2" weight="regular" /> : <CaretRight size={18} color="#C8BFB2" weight="bold" />}
-            </TouchableOpacity>
-          ))}
-        </View>
+        <Animated.View style={[styles.card, { opacity: cardOpacity, transform: [{ translateY: cardSlide }] }]}>
+          <Animated.View style={{ opacity: rowOpacity }}>
+            {ROWS.map((item, idx) => (
+              <TouchableOpacity
+                key={item.key}
+                style={idx < ROWS.length - 1 ? [styles.row, styles.rowBorder] : styles.row}
+                activeOpacity={0.75}
+                onPress={() => goRow(item, navigation)}
+              >
+                <View style={styles.rowIcon}>
+                  <item.Icon size={24} color="#C8A96A" weight="regular" />
+                </View>
+                <View style={styles.rowInfo}>
+                  <Text style={styles.rowLabel}>{item.label}</Text>
+                  <Text style={styles.rowSub}>{item.sub}</Text>
+                </View>
+                {item.nav === "share" ? <ArrowSquareOut size={18} color="#C8BFB2" weight="regular" /> : <CaretRight size={18} color="#C8BFB2" weight="bold" />}
+              </TouchableOpacity>
+            ))}
+          </Animated.View>
+        </Animated.View>
         <View style={styles.bottomSpacer} />
       </ScrollView>
     </View>
@@ -149,7 +190,7 @@ export default function ConnectHubScreen({ navigation }) {
 const styles = StyleSheet.create({
   root:          { flex: 1, backgroundColor: "#EDE6D8" },
   // Header
-  header:        { height: 260, overflow: "hidden" },
+  header:        { height: 260, overflow: "hidden", position: "relative", backgroundColor: "#221820" },
   backBtn:       { position: "absolute", left: 18, width: 36, height: 36, borderRadius: 18, backgroundColor: "rgba(0,0,0,0.35)", alignItems: "center", justifyContent: "center" },
   headerContent: { position: "absolute", bottom: 22, left: 20, right: 20 },
   titleRow:      { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 10 },
