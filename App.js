@@ -52,10 +52,11 @@ import PilgrimageDuasScreen from "./screens/PilgrimageDuasScreen";
 import SafarAssistScreen   from "./screens/SafarAssistScreen";
 import SacredPlacesScreen  from "./screens/SacredPlacesScreen";
 import NotificationsScreen from "./screens/NotificationsScreen";
-import PlanHubScreen     from "./screens/PlanHubScreen";
-import LearnHubScreen    from "./screens/LearnHubScreen";
-import PracticeHubScreen from "./screens/PracticeHubScreen";
-import ConnectHubScreen  from "./screens/ConnectHubScreen";
+import PlanHubScreen       from "./screens/PlanHubScreen";
+import LearnHubScreen      from "./screens/LearnHubScreen";
+import PracticeHubScreen   from "./screens/PracticeHubScreen";
+import ConnectHubScreen    from "./screens/ConnectHubScreen";
+import HubContainerScreen  from "./screens/HubContainerScreen";
 
 // ── Context ───────────────────────────────────────────────────────────────────
 import { AccessibilityProvider } from "./AccessibilityContext";
@@ -172,6 +173,7 @@ function HomeNavigator() {
       <HomeStack.Screen name="LearnHub"      component={LearnHubScreen}     />
       <HomeStack.Screen name="PracticeHub"   component={PracticeHubScreen}  />
       <HomeStack.Screen name="ConnectHub"    component={ConnectHubScreen}   />
+      <HomeStack.Screen name="HubContainer" component={HubContainerScreen}  />
       <HomeStack.Screen name="UmrahGuide"    component={UmrahGuideScreen}   />
       <HomeStack.Screen name="HajjGuide"     component={HajjGuideScreen}    />
       <HomeStack.Screen name="WhatToExpect"  component={WhatToExpectScreen} />

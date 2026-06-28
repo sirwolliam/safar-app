@@ -522,7 +522,7 @@ export default function HomeScreen({ navigation }) {
           <TouchableOpacity
             style={[s.pillarCard, s.pillarCardPlan]}
             activeOpacity={0.88}
-            onPress={() => navigation?.navigate?.("PlanHub")}
+            onPress={() => navigation?.navigate?.("HubContainer", { pillar: "plan" })}
           >
             <View style={s.pillarInner}>
               <View>
@@ -536,7 +536,7 @@ export default function HomeScreen({ navigation }) {
           <TouchableOpacity
             style={[s.pillarCard, s.pillarCardLearn]}
             activeOpacity={0.88}
-            onPress={() => navigation?.navigate?.("LearnHub")}
+            onPress={() => navigation?.navigate?.("HubContainer", { pillar: "learn" })}
           >
             <View style={s.pillarInner}>
               <View>
@@ -550,7 +550,7 @@ export default function HomeScreen({ navigation }) {
           <TouchableOpacity
             style={[s.pillarCard, s.pillarCardPractice]}
             activeOpacity={0.88}
-            onPress={() => navigation?.navigate?.("PractiseHub")}
+            onPress={() => navigation?.navigate?.("HubContainer", { pillar: "practice" })}
           >
             <View style={s.pillarInner}>
               <View>
@@ -564,7 +564,7 @@ export default function HomeScreen({ navigation }) {
           <TouchableOpacity
             style={[s.pillarCard, s.pillarCardConnect]}
             activeOpacity={0.88}
-            onPress={() => navigation?.navigate?.("ConnectHub")}
+            onPress={() => navigation?.navigate?.("HubContainer", { pillar: "connect" })}
           >
             <View style={s.pillarInner}>
               <View>
