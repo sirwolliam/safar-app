@@ -1,0 +1,170 @@
+/**
+ * LearnHubScreen.jsx — Safar
+ * Learn pillar hub. Photo header + gradient overlay + sub-nav pills + list rows.
+ *
+ * Coding rules: StyleSheet.create at module level, literal values only.
+ * No && in style arrays — ternaries only. Phosphor icons verified.
+ */
+import React from "react";
+import {
+  View, Text, Image, ScrollView, TouchableOpacity, StyleSheet,
+} from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  CaretLeft, CaretRight,
+  BookOpen, Compass, MapPin, Books, Cube,
+} from "phosphor-react-native";
+
+// ── Pills config ──────────────────────────────────────────────────────────────
+const PILLS = [
+  { label: "Learn",    route: "LearnHub"    },
+  { label: "Practice", route: "PractiseHub" },
+  { label: "Plan",     route: "PlanHub"     },
+  { label: "Connect",  route: "ConnectHub"  },
+];
+
+// ── List rows ─────────────────────────────────────────────────────────────────
+const ROWS = [
+  { key: "umrah",  Icon: Compass,  label: "Umrah Guide",    sub: "Every step of ʿUmrah, in order",         nav: "stack", target: "UmrahGuide" },
+  { key: "hajj",   Icon: Cube,     label: "Hajj Guide",     sub: "The full pilgrimage, day by day",             nav: "stack", target: "HajjGuide" },
+  { key: "expect", Icon: BookOpen, label: "What to Expect", sub: "Crowds, climate, what it really feels like", nav: "stack", target: "WhatToExpect" },
+  { key: "sacred", Icon: MapPin,   label: "Sacred Places",  sub: "Map of the holy sites",                      nav: "stack", target: "SacredPlaces" },
+  { key: "duas",   Icon: Books,    label: "Duʿā Library", sub: "Supplications for every moment",     nav: "tab",   tab: "Duas",    screen: "MyDuas" },
+];
+
+// ── Helper ────────────────────────────────────────────────────────────────────
+function goRow(item, navigation) {
+  if (item.nav === "tab") {
+    navigation?.getParent?.()?.navigate?.(item.tab, { screen: item.screen });
+  } else {
+    navigation.navigate(item.target);
+  }
+}
+
+// ── Component ─────────────────────────────────────────────────────────────────
+export default function LearnHubScreen({ navigation }) {
+  const insets = useSafeAreaInsets();
+
+  return (
+    <View style={styles.root}>
+
+      {/* ── Header ───────────────────────────────────────────────────────── */}
+      <View style={styles.header}>
+        <Image
+          source={require("../assets/hub-headers/learn-header.png")}
+          style={StyleSheet.absoluteFillObject}
+          resizeMode="cover"
+        />
+        <LinearGradient
+          colors={[
+            "transparent",
+            "transparent",
+            "rgba(28,43,30,0.65)",
+            "rgba(28,43,30,0.96)",
+          ]}
+          locations={[0, 0.44, 0.72, 1]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          style={StyleSheet.absoluteFillObject}
+        />
+        <TouchableOpacity
+          style={[styles.backBtn, { top: insets.top + 14 }]}
+          onPress={() => navigation.goBack()}
+          activeOpacity={0.8}
+        >
+          <CaretLeft size={18} color="#FFFFFF" weight="bold" />
+        </TouchableOpacity>
+        <View style={styles.headerContent}>
+          <View style={styles.titleRow}>
+            <View style={styles.iconBadge}>
+              <BookOpen size={22} color="#C8A96A" weight="regular" />
+            </View>
+            <Text style={styles.headerTitle}>Learn</Text>
+          </View>
+          <Text style={styles.headerSub}>
+            Understand the rites before you go — step by step, at your pace.
+          </Text>
+        </View>
+      </View>
+
+      {/* ── Sub-nav pills ────────────────────────────────────────────────── */}
+      <View style={styles.pillsBar}>
+        {PILLS.map((p) => {
+          const active = p.route === "LearnHub";
+          return (
+            <TouchableOpacity
+              key={p.route}
+              style={active ? styles.pillActive : styles.pill}
+              activeOpacity={active ? 1 : 0.7}
+              onPress={() => active ? null : navigation.navigate(p.route)}
+            >
+              <Text style={active ? styles.pillTextActive : styles.pillText}>
+                {p.label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+
+      {/* ── ScrollView ───────────────────────────────────────────────────── */}
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.card}>
+          {ROWS.map((item, idx) => (
+            <TouchableOpacity
+              key={item.key}
+              style={idx < ROWS.length - 1 ? [styles.row, styles.rowBorder] : styles.row}
+              activeOpacity={0.75}
+              onPress={() => goRow(item, navigation)}
+            >
+              <View style={styles.rowIcon}>
+                <item.Icon size={24} color="#C8A96A" weight="regular" />
+              </View>
+              <View style={styles.rowInfo}>
+                <Text style={styles.rowLabel}>{item.label}</Text>
+                <Text style={styles.rowSub}>{item.sub}</Text>
+              </View>
+              <CaretRight size={18} color="#C8BFB2" weight="bold" />
+            </TouchableOpacity>
+          ))}
+        </View>
+        <View style={styles.bottomSpacer} />
+      </ScrollView>
+    </View>
+  );
+}
+
+// ── Styles ────────────────────────────────────────────────────────────────────
+const styles = StyleSheet.create({
+  root:          { flex: 1, backgroundColor: "#EDE6D8" },
+  // Header
+  header:        { height: 260, overflow: "hidden" },
+  backBtn:       { position: "absolute", left: 18, width: 36, height: 36, borderRadius: 18, backgroundColor: "rgba(0,0,0,0.35)", alignItems: "center", justifyContent: "center" },
+  headerContent: { position: "absolute", bottom: 22, left: 20, right: 20 },
+  titleRow:      { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 10 },
+  iconBadge:     { width: 44, height: 44, borderRadius: 22, borderWidth: 1.5, borderColor: "#C8A96A", alignItems: "center", justifyContent: "center" },
+  headerTitle:   { fontFamily: "SourceSerif4-Regular", fontSize: 38, color: "#FFFFFF", fontWeight: "600" },
+  headerSub:     { fontSize: 15, color: "rgba(255,255,255,0.82)", lineHeight: 22, maxWidth: "88%" },
+  // Pills
+  pillsBar:      { backgroundColor: "#FDFAF4", paddingHorizontal: 12, paddingVertical: 8, flexDirection: "row", borderBottomWidth: 1, borderBottomColor: "#DDD5C8", gap: 4 },
+  pill:          { flex: 1, alignItems: "center", paddingVertical: 10 },
+  pillActive:    { flex: 1, alignItems: "center", backgroundColor: "#2D4F32", borderRadius: 22, paddingVertical: 10 },
+  pillText:      { fontSize: 15, fontWeight: "400", color: "#8A7A6A" },
+  pillTextActive:{ fontSize: 15, fontWeight: "600", color: "#FFFFFF" },
+  // Scroll
+  scroll:        { flex: 1 },
+  scrollContent: { paddingTop: 10, paddingHorizontal: 0 },
+  // List card
+  card:          { backgroundColor: "#FDFAF4", borderRadius: 20, overflow: "hidden", paddingBottom: 8, marginHorizontal: 16, shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 8, elevation: 3 },
+  row:           { flexDirection: "row", alignItems: "center", paddingHorizontal: 18, paddingVertical: 16, backgroundColor: "#FDFAF4" },
+  rowBorder:     { borderBottomWidth: 1, borderBottomColor: "#EDE4D4" },
+  rowIcon:       { width: 52, height: 52, borderRadius: 14, backgroundColor: "#2D4F32", alignItems: "center", justifyContent: "center", marginRight: 16 },
+  rowInfo:       { flex: 1 },
+  rowLabel:      { fontFamily: "SourceSerif4-Regular", fontSize: 19, color: "#1C1A14", marginBottom: 3 },
+  rowSub:        { fontSize: 13, color: "#5C534A", lineHeight: 18 },
+  bottomSpacer:  { height: 40 },
+});

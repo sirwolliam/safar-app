@@ -1,6 +1,6 @@
 /**
  * HubScreen.jsx — Safar
- * Reusable Four-Pillars hub. One component, four configs (Learn/Practise/Plan/Connect).
+ * Reusable Four-Pillars hub. One component, four configs (Learn/Practice/Plan/Connect).
  * A hub is a feature-discovery directory: one-line purpose + a list of the features
  * inside that pillar, each tapping through to a REAL registered screen.
  *
@@ -41,15 +41,15 @@ export const HUBS = {
       { Icon: Books,    label: "Du\u02bf\u0101 Library", sub: "Supplications for every moment",       nav:"tab", tab:"Duas", screen:"MyDuas" },
     ],
   },
-  practise: {
-    title: "Practise",
+  practice: {
+    title: "Practice",
     blurb: "Rehearse the rites and keep your remembrance \u2014 calm, guided, hands-free.",
     bg: "#2A1F0E", circleA: "#5D4A20", circleB: "#3D3010",
     items: [
-      { Icon: Moon,             label: "Focus Mode", sub: "A quiet space for worship",          nav:"tab", tab:"Focus" },
-      { Icon: ArrowsClockwise,  label: "\u1e6caw\u0101f Counter", sub: "Track your seven circuits", nav:"tab", tab:"Focus", screen:"Tawaf" },
-      { Icon: PersonSimpleWalk, label: "Sa\u02bfy Counter", sub: "\u1e62af\u0101 to Marwah, seven times", nav:"tab", tab:"Focus", screen:"Saiy" },
-      { Icon: Heartbeat,        label: "Dhikr Counter", sub: "Count your remembrance",            nav:"tab", tab:"Focus", screen:"Dhikr" },
+      { Icon: Moon,             label: "Focus Mode",            sub: "A quiet space for worship",            soon: true },
+      { Icon: ArrowsClockwise,  label: "\u1e6caw\u0101f Counter", sub: "Track your seven circuits",  nav:"tab", tab:"Journey", screen:"Tawaf" },
+      { Icon: PersonSimpleWalk, label: "Sa\u02bfy Counter",       sub: "\u1e62af\u0101 to Marwah, seven times", nav:"tab", tab:"Journey", screen:"Saiy"  },
+      { Icon: Heartbeat,        label: "Dhikr Counter",           sub: "Count your remembrance",               nav:"tab", tab:"Duas",    screen:"Dhikr" },
     ],
   },
   plan: {

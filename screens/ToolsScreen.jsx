@@ -1,76 +1,112 @@
 /**
  * ToolsScreen.jsx — Safar
- * Small utility landing: Prayer Times, Qibla, Currency.
- * Icon-row layout (matches the app's list pattern) — no heavy imagery,
- * since these are quick-access tools, not showcase content.
+ * Hub-style landing for tools and counters.
  */
 import React from "react";
 import {
-  SafeAreaView, View, Text, ScrollView, TouchableOpacity, StyleSheet,
+  View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, StatusBar,
 } from "react-native";
-import { Clock, Compass, CurrencyDollar, CaretRight, CaretLeft } from "phosphor-react-native";
-import { colors, spacing, radius, shadows } from "../theme";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { LinearGradient } from "expo-linear-gradient";
+import {
+  Wrench, Heartbeat, Clock, Compass, CurrencyDollar,
+  ArrowsClockwise, PersonSimpleWalk, PlayCircle,
+  NotePencil, BookmarkSimple, CaretRight,
+} from "phosphor-react-native";
 
 const SERIF = "SourceSerif4-Regular";
 
 const TOOLS = [
-  { id: "prayer",   label: "Prayer Times", sub: "Today\u2019s schedule and the next prayer", Icon: Clock,          screen: "PrayerTimes" },
-  { id: "qibla",    label: "Qibla",        sub: "Find the direction of the Ka\u02bfbah",       Icon: Compass,        screen: "Qibla" },
-  { id: "currency", label: "Currency",     sub: "Live exchange rates for your trip",          Icon: CurrencyDollar, screen: "CurrencyConverter" },
+  { id: "dhikr",     label: "Dhikr Counter",           sub: "Count your remembrance",                      Icon: Heartbeat,        screen: "Dhikr"            },
+  { id: "prayer",    label: "Prayer Times",             sub: "Today’s schedule and the next prayer",   Icon: Clock,            screen: "PrayerTimes"      },
+  { id: "qibla",     label: "Qibla",                   sub: "Find the direction of the Kaʿbah",        Icon: Compass,          screen: "Qibla"            },
+  { id: "currency",  label: "Currency",                 sub: "Live exchange rates for your trip",           Icon: CurrencyDollar,   screen: "CurrencyConverter"},
+  { id: "tawaf",     label: "Ṭawāf Counter",  sub: "Track your seven circuits",                   Icon: ArrowsClockwise,  screen: "Tawaf"            },
+  { id: "saiy",      label: "Saʿy Tracker",        sub: "Ṣafā to Marwah, seven times",       Icon: PersonSimpleWalk, screen: "Saiy"             },
+  { id: "practice",  label: "Audio Practice",           sub: "Listen and rehearse before you go",           Icon: PlayCircle,       screen: "PracticeLearn"    },
+  { id: "notes",     label: "Notes",                   sub: "Reflections and intentions",                  Icon: NotePencil,       screen: "Notes"            },
+  { id: "bookmarks", label: "Bookmarks",               sub: "Your saved content",                          Icon: BookmarkSimple,   screen: "Bookmarks"        },
 ];
 
 export default function ToolsScreen({ navigation }) {
+  const insets = useSafeAreaInsets();
+
   return (
-    <SafeAreaView style={s.safe}>
+    <View style={s.root}>
+      <StatusBar barStyle="light-content" />
+
       <View style={s.header}>
-        <TouchableOpacity style={s.backBtn} onPress={() => navigation?.goBack?.()} activeOpacity={0.8}>
-          <CaretLeft size={20} color={colors.text} weight="bold" />
-        </TouchableOpacity>
-        <View style={s.headerCenter}>
-          <Text style={s.headerTitle}>Tools</Text>
-          <Text style={s.headerSub}>Quick utilities for your journey</Text>
+        <Image
+          source={require("../assets/hub-headers/tools-header.png")}
+          style={s.headerImg}
+          resizeMode="cover"
+        />
+        <LinearGradient
+          colors={["transparent", "rgba(0,0,0,0.10)", "rgba(30,28,20,0.72)", "rgba(30,28,20,0.96)"]}
+          locations={[0, 0.35, 0.75, 1]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          style={s.gradient}
+        />
+        <View style={[s.headerContent, { paddingTop: insets.top + 16 }]}>
+          <View style={s.titleRow}>
+            <View style={s.iconCircle}>
+              <Wrench size={22} color="#C8A96A" weight="regular" />
+            </View>
+            <Text style={s.title}>Tools</Text>
+          </View>
+          <Text style={s.subtitle}>Everything you need, always at hand.</Text>
         </View>
-        <View style={{ width: 36 }} />
       </View>
 
-      <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={s.scroll}
+        contentContainerStyle={s.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={s.card}>
-          {TOOLS.map((t, idx) => (
+          {TOOLS.map((tool, idx) => (
             <TouchableOpacity
-              key={t.id}
+              key={tool.id}
               style={idx < TOOLS.length - 1 ? [s.row, s.rowBorder] : s.row}
               activeOpacity={0.75}
-              onPress={() => navigation?.navigate?.(t.screen)}
+              onPress={() => navigation.navigate(tool.screen)}
             >
-              <View style={s.rowIcon}>
-                <t.Icon size={22} color={colors.primary} weight="regular" />
+              <View style={s.rowIconBox}>
+                <tool.Icon size={24} color="#E8D4A0" weight="regular" />
               </View>
               <View style={s.rowInfo}>
-                <Text style={s.rowLabel}>{t.label}</Text>
-                <Text style={s.rowSub}>{t.sub}</Text>
+                <Text style={s.rowLabel}>{tool.label}</Text>
+                <Text style={s.rowSub}>{tool.sub}</Text>
               </View>
-              <CaretRight size={18} color={colors.border} weight="bold" />
+              <CaretRight size={18} color="#C8BFB2" weight="bold" />
             </TouchableOpacity>
           ))}
         </View>
+        <View style={s.bottomPad} />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const s = StyleSheet.create({
-  safe:        { flex: 1, backgroundColor: colors.background },
-  header:      { flexDirection: "row", alignItems: "center", paddingHorizontal: spacing(2.5), paddingTop: spacing(2), paddingBottom: spacing(1.5), borderBottomWidth: 1, borderBottomColor: colors.border, backgroundColor: colors.background },
-  backBtn:     { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, alignItems: "center", justifyContent: "center" },
-  headerCenter:{ flex: 1, alignItems: "center" },
-  headerTitle: { fontFamily: SERIF, fontSize: 22, color: colors.text, fontWeight: "400" },
-  headerSub:   { fontSize: 12, color: colors.subtext, marginTop: 2 },
-  scroll:      { padding: spacing(2.5) },
-  card:        { backgroundColor: colors.card, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, overflow: "hidden", ...shadows.card },
-  row:         { flexDirection: "row", alignItems: "center", paddingHorizontal: spacing(2), paddingVertical: spacing(1.75) },
-  rowBorder:   { borderBottomWidth: 1, borderBottomColor: colors.border },
-  rowIcon:     { width: 44, height: 44, borderRadius: 12, backgroundColor: "rgba(47,93,80,0.10)", alignItems: "center", justifyContent: "center", marginRight: spacing(1.5) },
-  rowInfo:     { flex: 1 },
-  rowLabel:    { fontFamily: SERIF, fontSize: 17, color: colors.text, fontWeight: "400", marginBottom: 2 },
-  rowSub:      { fontSize: 13, color: colors.subtext, lineHeight: 17 },
+  root:         { flex: 1, backgroundColor: "#EDE6D8" },
+  header:       { height: 260, overflow: "hidden" },
+  headerImg:    { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, width: "100%", height: "100%" },
+  gradient:     { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
+  headerContent:{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, justifyContent: "flex-end", paddingHorizontal: 20, paddingBottom: 22 },
+  titleRow:     { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 8 },
+  iconCircle:   { width: 44, height: 44, borderRadius: 22, borderWidth: 1.5, borderColor: "#C8A96A", alignItems: "center", justifyContent: "center" },
+  title:        { fontFamily: SERIF, fontSize: 38, color: "#FFFFFF", fontWeight: "600" },
+  subtitle:     { fontSize: 15, color: "rgba(255,255,255,0.82)", lineHeight: 22, maxWidth: "88%" },
+  scroll:       { flex: 1 },
+  scrollContent:{ paddingTop: 0 },
+  card:         { backgroundColor: "#FDFAF4", borderRadius: 20, marginHorizontal: 16, marginTop: 12, paddingBottom: 8, shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 8, elevation: 3 },
+  row:          { flexDirection: "row", alignItems: "center", paddingHorizontal: 18, paddingVertical: 16 },
+  rowBorder:    { borderBottomWidth: 1, borderBottomColor: "#EDE4D4" },
+  rowIconBox:   { width: 52, height: 52, borderRadius: 14, backgroundColor: "#3A2F1E", alignItems: "center", justifyContent: "center", marginRight: 16 },
+  rowInfo:      { flex: 1 },
+  rowLabel:     { fontFamily: SERIF, fontSize: 19, color: "#1C1A14", marginBottom: 3 },
+  rowSub:       { fontSize: 13, color: "#5C534A", lineHeight: 18 },
+  bottomPad:    { height: 40 },
 });

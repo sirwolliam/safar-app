@@ -22,6 +22,7 @@ import {
   UsersThree, ShoppingBag, CheckSquare, Sparkle,
   ArrowRight, BookOpen, Moon, ListChecks, Users,
   Clock, PlayCircle, Wrench, Note, Gear, Info,
+  SunHorizon,
 } from "phosphor-react-native";
 
 const SERIF = "SourceSerif4-Regular";
@@ -429,29 +430,50 @@ export default function HomeScreen({ navigation }) {
   // ── Prayer + calendar card (shown after intro is dismissed) ───────────────
   const PrayerCard = () => (
     <View style={s.prayerCard}>
-      {/* Left: dates */}
-      <View style={s.prayerDateCol}>
-        <Text style={s.prayerGregorian}>{gregorian}</Text>
-        <Text style={s.prayerHijri}>
-          {hijri.day}{" "}{hijri.month}{" "}{hijri.year}{" AH"}
-        </Text>
+      {/* Prayer + date row */}
+      <View style={s.prayerContentRow}>
+        {/* Left: dates */}
+        <View style={s.prayerDateCol}>
+          <Text style={s.prayerGregorian}>{gregorian}</Text>
+          <Text style={s.prayerHijri}>
+            {hijri.day}{" "}{hijri.month}{" "}{hijri.year}{" AH"}
+          </Text>
+        </View>
+
+        {/* Divider */}
+        <View style={s.prayerDividerV} />
+
+        {/* Right: current + next prayer */}
+        <View style={s.prayerTimesCol}>
+          <View style={s.prayerRow}>
+            <View style={s.prayerActiveDot} />
+            <Text style={s.prayerCurrentName}>{currentPrayer.name}</Text>
+            <Text style={s.prayerCurrentTime}>{currentPrayer.time}</Text>
+          </View>
+          <View style={s.prayerDividerH} />
+          <View style={s.prayerRow}>
+            <View style={s.prayerNextDot} />
+            <Text style={s.prayerNextName}>Next · {nextPrayer.name}</Text>
+            <Text style={s.prayerNextTime}>{nextPrayer.time}</Text>
+          </View>
+        </View>
       </View>
 
-      {/* Divider */}
-      <View style={s.prayerDividerV} />
-
-      {/* Right: current + next prayer */}
-      <View style={s.prayerTimesCol}>
-        <View style={s.prayerRow}>
-          <View style={s.prayerActiveDot} />
-          <Text style={s.prayerCurrentName}>{currentPrayer.name}</Text>
-          <Text style={s.prayerCurrentTime}>{currentPrayer.time}</Text>
+      {/* Weather strip */}
+      <View style={s.prayerWeatherLine} />
+      {/* MOCK — replace with OpenWeatherMap API call for
+          Makkah (lat: 21.3891, lon: 39.8579) */}
+      <View style={s.prayerWeatherStrip}>
+        <View style={s.prayerWeatherCity}>
+          <SunHorizon size={18} color="#C8A96A" weight="regular" />
+          <Text style={s.prayerWeatherLabel}>Makkah</Text>
+          <Text style={s.prayerWeatherTemp}>38°C</Text>
         </View>
-        <View style={s.prayerDividerH} />
-        <View style={s.prayerRow}>
-          <View style={s.prayerNextDot} />
-          <Text style={s.prayerNextName}>Next · {nextPrayer.name}</Text>
-          <Text style={s.prayerNextTime}>{nextPrayer.time}</Text>
+        <View style={s.prayerWeatherVertDiv} />
+        <View style={s.prayerWeatherCity}>
+          <SunHorizon size={18} color="#C8A96A" weight="regular" />
+          <Text style={s.prayerWeatherLabel}>Madinah</Text>
+          <Text style={s.prayerWeatherTemp}>34°C</Text>
         </View>
       </View>
     </View>
@@ -491,65 +513,50 @@ export default function HomeScreen({ navigation }) {
             Each opens a dedicated hub screen (stubs navigate to closest
             existing screen; replace targets when hub screens are built)
         ══════════════════════════════════════════════════════════════════ */}
-        <View style={s.pillarsHeader}>
-          <Text style={s.pillarsHeaderText}>Explore</Text>
+        <View style={[s.pillarsHeader, { marginTop: 19 }]}>
+          <Text style={[s.pillarsHeaderText, { fontSize: 20, fontWeight: "600", color: "#1A1712" }]}>Prepare for every step</Text>
         </View>
         <View style={s.pillarsGrid}>
-
-          {/* Learn */}
-          <TouchableOpacity
-            style={[s.pillarCard, s.pillarCardLearn]}
-            activeOpacity={0.88}
-            onPress={() => navigation?.navigate?.("Hub", { hub: "learn" })}
-          >
-            <View style={[s.pillarCircle, s.pillarCircleLearnA]} />
-            <View style={[s.pillarCircleSmall, s.pillarCircleLearnB]} />
-            <View style={s.pillarInner}>
-              <View>
-                <Text style={s.pillarLabel}>Learn</Text>
-                <Text style={s.pillarDesc}>{"Guides, sacred places\n& what to expect"}</Text>
-              </View>
-            </View>
-            <View style={s.pillarArrowBtn}>
-              <ArrowRight size={14} color="#C8A96A" weight="regular" />
-            </View>
-          </TouchableOpacity>
-
-          {/* Practise */}
-          <TouchableOpacity
-            style={[s.pillarCard, s.pillarCardPractise]}
-            activeOpacity={0.88}
-            onPress={() => navigation?.navigate?.("Hub", { hub: "practise" })}
-          >
-            <View style={[s.pillarCircle, s.pillarCirclePractiseA]} />
-            <View style={[s.pillarCircleSmall, s.pillarCirclePractiseB]} />
-            <View style={s.pillarInner}>
-              <View>
-                <Text style={s.pillarLabel}>Practice</Text>
-                <Text style={s.pillarDesc}>{"Du\u02bf\u0101s, Focus mode\n& step-by-step"}</Text>
-              </View>
-            </View>
-            <View style={s.pillarArrowBtn}>
-              <ArrowRight size={14} color="#C8A96A" weight="regular" />
-            </View>
-          </TouchableOpacity>
 
           {/* Plan */}
           <TouchableOpacity
             style={[s.pillarCard, s.pillarCardPlan]}
             activeOpacity={0.88}
-            onPress={() => navigation?.navigate?.("Hub", { hub: "plan" })}
+            onPress={() => navigation?.navigate?.("PlanHub")}
           >
-            <View style={[s.pillarCircle, s.pillarCirclePlanA]} />
-            <View style={[s.pillarCircleSmall, s.pillarCirclePlanB]} />
             <View style={s.pillarInner}>
               <View>
                 <Text style={s.pillarLabel}>Plan</Text>
                 <Text style={s.pillarDesc}>{"Dates, checklist,\nnotes & contacts"}</Text>
               </View>
             </View>
-            <View style={s.pillarArrowBtn}>
-              <ArrowRight size={14} color="#C8A96A" weight="regular" />
+          </TouchableOpacity>
+
+          {/* Learn */}
+          <TouchableOpacity
+            style={[s.pillarCard, s.pillarCardLearn]}
+            activeOpacity={0.88}
+            onPress={() => navigation?.navigate?.("LearnHub")}
+          >
+            <View style={s.pillarInner}>
+              <View>
+                <Text style={s.pillarLabel}>Learn</Text>
+                <Text style={s.pillarDesc}>{"Guides, sacred places\n& what to expect"}</Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+
+          {/* Practice */}
+          <TouchableOpacity
+            style={[s.pillarCard, s.pillarCardPractice]}
+            activeOpacity={0.88}
+            onPress={() => navigation?.navigate?.("PractiseHub")}
+          >
+            <View style={s.pillarInner}>
+              <View>
+                <Text style={s.pillarLabel}>Practice</Text>
+                <Text style={s.pillarDesc}>{"Du\u02bf\u0101s, Focus mode\n& step-by-step"}</Text>
+              </View>
             </View>
           </TouchableOpacity>
 
@@ -557,18 +564,13 @@ export default function HomeScreen({ navigation }) {
           <TouchableOpacity
             style={[s.pillarCard, s.pillarCardConnect]}
             activeOpacity={0.88}
-            onPress={() => navigation?.navigate?.("Hub", { hub: "connect" })}
+            onPress={() => navigation?.navigate?.("ConnectHub")}
           >
-            <View style={[s.pillarCircle, s.pillarCircleConnectA]} />
-            <View style={[s.pillarCircleSmall, s.pillarCircleConnectB]} />
             <View style={s.pillarInner}>
               <View>
                 <Text style={s.pillarLabel}>Connect</Text>
                 <Text style={s.pillarDesc}>{"Groups, milestones\n& companions"}</Text>
               </View>
-            </View>
-            <View style={s.pillarArrowBtn}>
-              <ArrowRight size={14} color="#C8A96A" weight="regular" />
             </View>
           </TouchableOpacity>
 
@@ -621,7 +623,7 @@ export default function HomeScreen({ navigation }) {
             </View>
             <TouchableOpacity
               style={s.journeyCardBtn}
-              onPress={() => navigation?.navigate?.("Hub", { hub: "plan" })}
+              onPress={() => navigation?.navigate?.("Hubs", { tab: "plan" })}
               activeOpacity={0.85}
             >
               <ArrowRight size={18} color="#FFFFFF" weight="regular" />
@@ -1004,19 +1006,21 @@ const s = StyleSheet.create({
 
   // ── Prayer / calendar card (after dismiss — same outer footprint) ─────────
   prayerCard: {
-    marginHorizontal: 20,
+    marginHorizontal: 13,
     marginTop: 18,
     borderWidth: 1,
     borderColor: "#C8BFB2",
     borderRadius: 16,
     backgroundColor: "#FDFAF4",
-    flexDirection: "row",
     overflow: "hidden",
     shadowColor: "#4A2E10",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 6,
     elevation: 2,
+  },
+  prayerContentRow: {
+    flexDirection: "row",
   },
 
   // Left column: Gregorian + Hijri dates
@@ -1102,6 +1106,39 @@ const s = StyleSheet.create({
     fontWeight: "500",
     fontVariant: ["tabular-nums"],
   },
+  prayerWeatherLine: {
+    height: 1,
+    backgroundColor: "#E0D8CC",
+  },
+  prayerWeatherStrip: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    backgroundColor: "#F0EBE1",
+  },
+  prayerWeatherCity: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  prayerWeatherLabel: {
+    flex: 1,
+    fontSize: 12,
+    color: "#8A7D70",
+  },
+  prayerWeatherTemp: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#3A3530",
+  },
+  prayerWeatherVertDiv: {
+    width: 1,
+    height: 16,
+    backgroundColor: "#E0D8CC",
+    marginHorizontal: 8,
+  },
 
   // ── Four Pillars ─────────────────────────────────────────────────────────
   pillarsHeader: {
@@ -1133,6 +1170,7 @@ const s = StyleSheet.create({
     overflow: "hidden",
     padding: 16,
     justifyContent: "space-between",
+    opacity: 0.75,
     shadowColor: "#1C2E1C",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.30,
@@ -1140,7 +1178,7 @@ const s = StyleSheet.create({
     elevation: 6,
   },
   pillarCardLearn:    { backgroundColor: "#1C2B1E" },
-  pillarCardPractise: { backgroundColor: "#2A1F0E" },
+  pillarCardPractice: { backgroundColor: "#2A1F0E" },
   pillarCardPlan:     { backgroundColor: "#1A202E" },
   pillarCardConnect:  { backgroundColor: "#221820" },
 
@@ -1165,8 +1203,8 @@ const s = StyleSheet.create({
   },
   pillarCircleLearnA:    { backgroundColor: "#2F5D50" },
   pillarCircleLearnB:    { backgroundColor: "#1E3D34" },
-  pillarCirclePractiseA: { backgroundColor: "#5D4A20" },
-  pillarCirclePractiseB: { backgroundColor: "#3D3010" },
+  pillarCirclePracticeA: { backgroundColor: "#5D4A20" },
+  pillarCirclePracticeB: { backgroundColor: "#3D3010" },
   pillarCirclePlanA:     { backgroundColor: "#203050" },
   pillarCirclePlanB:     { backgroundColor: "#101828" },
   pillarCircleConnectA:  { backgroundColor: "#3D2040" },
@@ -1192,14 +1230,14 @@ const s = StyleSheet.create({
   },
   pillarArrowBtn: {
     position: "absolute",
-    top: 14,
-    right: 14,
+    top: 12,
+    right: 12,
     width: 28,
     height: 28,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: "rgba(200,169,106,0.40)",
-    backgroundColor: "rgba(200,169,106,0.10)",
+    borderColor: "rgba(200,169,106,0.5)",
+    backgroundColor: "transparent",
     alignItems: "center",
     justifyContent: "center",
   },

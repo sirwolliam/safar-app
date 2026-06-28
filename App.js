@@ -1,6 +1,6 @@
 /**
  * App.js — Safar
- * Tabs: Home · Journey · Focus · Duas · Prepare
+ * Tabs: Home · Journey · Duas · Tools · Prepare
  */
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Platform, ActivityIndicator } from "react-native";
@@ -9,7 +9,7 @@ import { NavigationContainer }        from "@react-navigation/native";
 import { createBottomTabNavigator }   from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useFonts }                   from "expo-font";
-import { House, Compass, Moon, BookOpen, ListChecks } from "phosphor-react-native";
+import { House, Compass, Moon, Wrench, ListChecks } from "phosphor-react-native";
 
 // ── Tab screens ───────────────────────────────────────────────────────────────
 import HomeScreen    from "./screens/HomeScreen";
@@ -17,7 +17,6 @@ import JourneyScreen from "./screens/JourneyScreen";
 import MapScreen     from "./screens/MapScreen";
 import MyDuasScreen  from "./screens/MyDuasScreen";
 import ProfileScreen from "./screens/ProfileScreen";
-import FocusScreen   from "./screens/FocusScreen";
 
 // ── Stack screens (pushed on top) ─────────────────────────────────────────────
 import SupportScreen       from "./screens/SupportScreen";
@@ -52,6 +51,12 @@ import QiblaScreen         from "./screens/QiblaScreen";
 import PilgrimageDuasScreen from "./screens/PilgrimageDuasScreen";
 import SafarAssistScreen   from "./screens/SafarAssistScreen";
 import SacredPlacesScreen  from "./screens/SacredPlacesScreen";
+import HubsScreen          from "./screens/HubsScreen";
+import NotificationsScreen from "./screens/NotificationsScreen";
+import PlanHubScreen     from "./screens/PlanHubScreen";
+import LearnHubScreen    from "./screens/LearnHubScreen";
+import PractiseHubScreen from "./screens/PracticeHubScreen";
+import ConnectHubScreen  from "./screens/ConnectHubScreen";
 
 // ── Context ───────────────────────────────────────────────────────────────────
 import { AccessibilityProvider } from "./AccessibilityContext";
@@ -65,7 +70,7 @@ const DuasStack    = createNativeStackNavigator();
 const HomeStack    = createNativeStackNavigator();
 const JourneyStack = createNativeStackNavigator();
 const PrepareStack = createNativeStackNavigator();
-const FocusStack   = createNativeStackNavigator();
+const ToolsStack   = createNativeStackNavigator();
 
 // ── Placeholder screens with back nav ────────────────────────────────────────
 function BackScreen({ title, sub, navigation }) {
@@ -111,11 +116,11 @@ const ph = StyleSheet.create({
 
 // ── Tab config ────────────────────────────────────────────────────────────────
 const TAB_CONFIG = {
-  Home:    { Icon: House,      label:"Home"    },
-  Journey: { Icon: Compass,    label:"Journey" },
-  Focus:   { Icon: Moon,       label:"Focus",  center:true },
-  Duas:    { Icon: BookOpen,   label:"Duas"    },
-  Prepare: { Icon: ListChecks, label:"Prepare" },
+  Home:    { Icon: House,      label: "Home"    },
+  Journey: { Icon: Compass,    label: "Journey" },
+  Duas:    { Icon: Moon,       label: "Du'ās",  center: true },
+  Tools:   { Icon: Wrench,     label: "Tools"   },
+  Prepare: { Icon: ListChecks, label: "Prepare" },
 };
 
 function SafarTabBar({ state, descriptors, navigation }) {
@@ -164,19 +169,21 @@ function HomeNavigator() {
     <HomeStack.Navigator screenOptions={{ headerShown:false }}>
       <HomeStack.Screen name="HomeMain"      component={HomeScreen}         />
       <HomeStack.Screen name="Hub"           component={HubScreen}          />
+      <HomeStack.Screen name="Hubs"          component={HubsScreen}         />
+      <HomeStack.Screen name="PlanHub"       component={PlanHubScreen}      />
+      <HomeStack.Screen name="LearnHub"      component={LearnHubScreen}     />
+      <HomeStack.Screen name="PractiseHub"   component={PractiseHubScreen}  />
+      <HomeStack.Screen name="ConnectHub"    component={ConnectHubScreen}   />
       <HomeStack.Screen name="UmrahGuide"    component={UmrahGuideScreen}   />
       <HomeStack.Screen name="HajjGuide"     component={HajjGuideScreen}    />
       <HomeStack.Screen name="WhatToExpect"  component={WhatToExpectScreen} />
       <HomeStack.Screen name="Groups"       component={GroupsScreen}       />
       <HomeStack.Screen name="Guides"        component={GuidesHubScreen}    />
-      <HomeStack.Screen name="Tools"         component={ToolsScreen}        />
-      <HomeStack.Screen name="PrayerTimes"   component={PrayerTimesScreen}  />
-      <HomeStack.Screen name="Qibla"         component={QiblaScreen}        />
       <HomeStack.Screen name="Shop"          component={ShopScreen}         />
       <HomeStack.Screen name="Media"         component={MediaScreen}        />
       <HomeStack.Screen name="Notes"         component={NotesScreen}        />
       <HomeStack.Screen name="Settings"      component={SettingsScreen}     />
-      <HomeStack.Screen name="CurrencyConverter" component={CurrencyScreen} />
+      <HomeStack.Screen name="Notifications" component={NotificationsScreen} />
     </HomeStack.Navigator>
   );
 }
@@ -193,6 +200,8 @@ function JourneyNavigator() {
       <JourneyStack.Screen name="Connections" component={ConnectionsScreen}  />
       <JourneyStack.Screen name="MyBoard"     component={MyBoardScreen}      />
       <JourneyStack.Screen name="MyContacts"  component={MyContactsScreen}   />
+      <JourneyStack.Screen name="Tawaf"       component={TawafScreen}        />
+      <JourneyStack.Screen name="Saiy"        component={SaiyScreen}         />
     </JourneyStack.Navigator>
   );
 }
@@ -215,18 +224,25 @@ function DuasNavigator() {
     <DuasStack.Navigator screenOptions={{ headerShown:false }}>
       <DuasStack.Screen name="MyDuas"  component={MyDuasScreen}  />
       <DuasStack.Screen name="DuaList" component={DuaListScreen} />
+      <DuasStack.Screen name="Dhikr"   component={DhikrScreen}   />
     </DuasStack.Navigator>
   );
 }
 
-function FocusNavigator() {
+function ToolsNavigator() {
   return (
-    <FocusStack.Navigator screenOptions={{ headerShown:false }}>
-      <FocusStack.Screen name="FocusMain" component={FocusScreen} />
-      <FocusStack.Screen name="Tawaf"     component={TawafScreen} />
-      <FocusStack.Screen name="Saiy"      component={SaiyScreen}  />
-      <FocusStack.Screen name="Dhikr"     component={DhikrScreen} />
-    </FocusStack.Navigator>
+    <ToolsStack.Navigator screenOptions={{ headerShown:false }}>
+      <ToolsStack.Screen name="ToolsMain"         component={ToolsScreen}        />
+      <ToolsStack.Screen name="PrayerTimes"       component={PrayerTimesScreen}  />
+      <ToolsStack.Screen name="Qibla"             component={QiblaScreen}        />
+      <ToolsStack.Screen name="CurrencyConverter" component={CurrencyScreen}     />
+      <ToolsStack.Screen name="Tawaf"             component={TawafScreen}        />
+      <ToolsStack.Screen name="Saiy"              component={SaiyScreen}         />
+      <ToolsStack.Screen name="Dhikr"             component={DhikrScreen}        />
+      <ToolsStack.Screen name="PracticeLearn"     component={PracticeLearnScreen}/>
+      <ToolsStack.Screen name="Notes"             component={NotesScreen}        />
+      <ToolsStack.Screen name="Bookmarks"         component={BookmarksScreen}    />
+    </ToolsStack.Navigator>
   );
 }
 
@@ -235,8 +251,8 @@ function MainTabs() {
     <Tab.Navigator tabBar={props => <SafarTabBar {...props} />} screenOptions={{ headerShown:false }}>
       <Tab.Screen name="Home"    component={HomeNavigator}    />
       <Tab.Screen name="Journey" component={JourneyNavigator} />
-      <Tab.Screen name="Focus"   component={FocusNavigator}   />
-      <Tab.Screen name="Duas"    component={DuasNavigator}  />
+      <Tab.Screen name="Duas"    component={DuasNavigator}    />
+      <Tab.Screen name="Tools"   component={ToolsNavigator}   />
       <Tab.Screen name="Prepare" component={PrepareNavigator} />
     </Tab.Navigator>
   );

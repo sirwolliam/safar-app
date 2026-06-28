@@ -1,333 +1,228 @@
 # Safar — Technical Design Document
-React Native + Expo SDK 54 · Hajj & Umrah Companion App · v1.0 pre-release · May 2026
+*Hajj & Umrah pilgrimage companion app. React Native (Expo).*
+*Last verified: 2026-06-25. This TDD is derived from the actual code, not aspiration — keep it that way.*
 
 ---
 
-## HOW TO USE THIS DOCUMENT
-Paste the full contents of this file at the start of a new Claude conversation and say:
-"I'm continuing development on the Safar app. Here is the technical design document from our last session."
+## 0. How to use this document (read first)
+
+- **This TDD describes what IS, not what's planned.** When code and this doc disagree, the code wins — then fix this doc.
+- The previous TDD became unreliable because it claimed features existed that weren't wired. To prevent that: **before building anything, grep the code for the specific thing you're about to build** to confirm it doesn't already exist and to see its real state.
+- **File drift is the recurring hazard.** Delivered files in `/outputs` are not automatically merged back into the project. At the start of any work session, confirm the true state of the file you're editing rather than assuming a prior change landed.
+- Working directory for source is the project root; screens live in `screens/`.
 
 ---
 
-## 1. Core Architecture
+## 1. Product summary
 
-**Stack:** React Native + Expo SDK 54, Expo Go on iOS. Apple Developer account pending approval.
-**Key packages:** React Navigation (bottom tabs + native stack), AsyncStorage, react-native-svg, SourceSerif4-Regular font, expo-av (NOT installed — audio is UI mock).
-**Firebase:** Scaffolded, not connected. Groups/Connections use example data. getCurrentUser() → uid "u4".
-**Currency API key:** f426059070cfc830eb7109a1
+Safar is a companion app for Muslims preparing for and undertaking Hajj or Umrah.
 
----
+**Core purpose — consolidation, not crisis management.** Today everything a pilgrim needs is scattered: flight and hotel details in email, coordination in WhatsApp groups, ritual explainers on YouTube, du'ās on random websites, packing and prep advice in podcasts, money in a currency app. Safar's job is to bring all of that into one calm place, so that during the journey — focused, moved, surrounded by an intense, stimulating environment — the pilgrim is not context-switching across six apps to find the thing they need. The emotional job is **protect focus and presence**, not soothe panic.
 
-## 2. Navigation Structure (CURRENT)
+**Two modes of use, both first-class:**
+- **Before departure — a preparation hub.** Where most engagement happens. AI trip planner pulls logistics in from booking emails; guides and the du'ā library let the pilgrim learn and bookmark; media and shop pages let them prepare without falling into a YouTube/marketplace rabbit hole; checklist and countdown give a felt sense of readiness. The pilgrim builds the app up beforehand so they barely have to think during the journey.
+- **During the journey — a focused companion.** Quick, **offline**, instant reference for the steps and du'ās of each ritual; a place to journal and take notes while the experience is fresh; and the ability to share milestones and photos with travel-group members and loved ones without leaving their headspace.
 
-```
-Root Stack
-└── MainTabs (tab bar always visible)
-    ├── HomeStack     → Home, WhatToExpect, PracticeLearn, Groups
-    ├── JourneyStack  → Journey, Map, SiteDuas, WhatToExpect, Groups,
-    │                   GroupDetail, Connections, MyBoard, MyContacts
-    ├── Focus         → FocusScreen
-    ├── DuasStack     → MyDuas, DuaList
-    └── PrepareStack  → Prepare, Bookmarks, Notes, Currency, Support, Settings
+**Audience.** First-time pilgrims across a wide age range — **teens through 50s, all ages**, not skewed older. Mixed tech-comfort. They may be *concerned* about getting rituals right, but the framing is not terror — it's a meaningful, emotionally heightened journey they want to be present for. Because the age range is broad, the design target is **neutral, not aimed at any one generation**: clean, calm, content-forward, unfussy. Avoid both extremes — oversized type / heavy iconography reads "old," while bright accents / playful motion / trendy layouts read "young." Neutral here still means **warm and calm, not sterile** — keep Safar's parchment/gold/serif warmth and reverence; just don't push any stylistic lever to an extreme. Design priorities that follow: **calm, legible, low cognitive load, simple navigation, and instant offline access** to anything in the "during" set (the Haram is a connectivity dead zone — network dependence for ritual reference is a functional failure).
 
-Full-screen (no tab bar — root stack):
-    DuaDetail, StepGuide, PracticeLearn, PrintOffline
-```
+**Design north star.** Every feature earns its place by answering: *does this stop the pilgrim from leaving Safar to go do this elsewhere?* Consolidation is the thing to protect. No feature should pull the pilgrim into a distracting, endless-scroll experience — curation over feed, everywhere.
+
+**Milestone sharing is central, not social.** Marking a moment ("completed Ṭawāf, alḥamdulillāh"), sharing a photo, letting loved ones feel part of the journey. This is an emotional core feature, delivered via WhatsApp/Linking — NOT a built-in social network or chat.
+
+The app is organized around **Four Pillars**: Learn, Practice, Plan, Connect — surfaced as cards on the Home screen, each opening a Hub. (Note: "Practice" is the chosen spelling app-wide, Americanized from British "Practice".) *Open question for the structure redesign: whether these four pillars match how a pilgrim actually thinks (closer to "before I go / the rituals / while I'm there / my people") and whether Home should adapt to journey stage rather than presenting the same menu throughout.*
 
 ---
 
-## 3. Critical Rules
+## 2. Tech & conventions
 
-### RULE 1: StyleSheet.create() inside useMemo
-```js
-// CORRECT
-const s = useMemo(() => StyleSheet.create({ ... colors.primary ... }), [colors]);
-```
+- **Framework:** React Native via Expo.
+- **Navigation:** `@react-navigation` — bottom tabs + native stacks.
+- **Storage:** `@react-native-async-storage/async-storage`.
+- **Icons:** `phosphor-react-native`. ALWAYS verify an icon name exists before use (e.g. `Kaaba` and `Dove` do NOT exist; use `Mosque`, `HandHeart`, `StarAndCrescent`). No emoji in UI.
+- **SVG:** `react-native-svg`.
+- **Font:** `SourceSerif4-Regular` (constant `SERIF`).
+- **Other deps in use:** `expo-haptics`, `react-native-safe-area-context`, `expo-linear-gradient`.
 
-### RULE 2: No && in style arrays
-```js
-// CORRECT
-style={condition ? [s.base, s.extra] : s.base}
-```
+### Folder structure (VERIFIED 2026-06-23 — do not reorganize)
+- **Entry point:** `App.js` lives in the **root** (the `screens/App.js` copy is a stale stray — slated for archival).
+- **Screens** (navigation destinations: HomeScreen, ProfileScreen, etc.) live in **`screens/`**.
+- **Shared modules** (`theme.js`, `AccessibilityContext.js`, `dua-content.js`, `duaLibrary.js`, `firebase.js`, `duas-data.js`) live in the **root**, imported from screens as `../` (e.g. `from "../theme"` — 43 such imports; from "../AccessibilityContext" — 15; "../dua-content" — 8; "../firebase" — 5).
+- **Why it's written down:** these locations are dictated by the import paths. Moving a shared module (e.g. `theme.js` → `screens/`) would break dozens of `../` imports for zero benefit. Leave them. The structure (screens together, shared modules one level up) is conventional and correct for this app's size — don't "tidy" it.
+- A lone `./theme` import (vs the 43 `../theme`) is a tell of a stale duplicate screen, not a reason to move theme.js.
+- **Attic:** `versions/` and assorted root/`screens/` `.jsx` duplicates are old hand-saved backups (the project was manually version-controlled before git). To be archived OUT of the project so the folder is unambiguous for tools/agents. Git is now the version history; manual `copy N` files are redundant.
 
-### RULE 3: No expo-image-picker or expo-av imports (not installed)
-
-### RULE 4: No unicode escapes as bare JSX text
-```jsx
-// CORRECT — wrap in expression
-<Text>{"du\u02bf\u0101\u02be"}</Text>
-```
-
-### RULE 5: Sticky header pattern
-SafeAreaView → hero Image → header View → ScrollView (siblings, never nested)
-
-### RULE 6: No "ritual" in user-facing copy
-- "sacred practice" — instructional/UI (Focus screen)
-- "ibadah" — elevated spiritual (About modal, onboarding)
-- "worship" — heading/label contexts
-- "practice" — general instructional
+### Coding rules (hard-won)
+1. `StyleSheet.create` at module level.
+2. **No `&&` in style arrays** — use ternaries. `style={cond ? [a, b] : a}`, never `style={[a, cond && b]}`. (Documented crash pattern.) Same caution for `&&` rendering JSX children when the left side could be `0` or `""`.
+3. Phosphor icons only, verified to exist. No emoji.
+4. After edits: `npx expo start --clear` (Metro caches aggressively; `--clear` is required to see changes).
+5. Verify JSX parses before delivering (e.g. `@babel/parser` with plugins `["jsx","flow"]`).
+6. Propose design in plain language and get sign-off before coding (esp. for anything structural/visual).
+7. Read the existing file — and grep for the SPECIFIC feature — before writing, to avoid duplicating an existing section.
+8. Don't reproduce fabricated Islamic content. Arabic, translations, hadith citations must come from real sources; unverified entries flagged `verified:false` pending qualified human review.
 
 ---
 
-## 4. Design System (theme.js — CURRENT)
+## 3. Theme tokens (`theme.js`)
 
-### Colour tokens
-```
-colors.primary       = #2F5D50  (forest500)
-colors.background    = #EDE6D8  (parchment200 — DEEPENED for card contrast)
-colors.card          = #FDFAF4  (parchment50)
-colors.border        = #D4D0CA  (ink200 — DEEPENED for crisp edges)
-colors.text          = #1A1712  (ink900)
-colors.textSecondary = #3C3830  (ink700)
-colors.subtext       = #5A5650  (ink600)
-colors.placeholder   = #7A7670  (ink500)
-colors.accent        = #C8A96A  (gold400)
-Sheet green          = #D4E4DC  (all slide-up modals)
-```
-
-### Typography scale (UPDATED — all bumped 1-2pt)
-```
-typography.tiny    = 12  (was 11)
-typography.small   = 14  (was 13)
-typography.body    = 16  (was 15)
-typography.bodyLg  = 17  (was 16)
-typography.heading = 18  (was 17)
-typography.title   = 22
-typography.arabic  = 28  (was 26)
-typography.heading weight = "600" (new token — authority/urgency)
-```
-
-### Shadows (UPDATED — warmer + deeper)
-```
-shadows.card = {
-  shadowColor: "#6A4A28",
-  shadowOffset: { width:0, height:3 },
-  shadowOpacity: 0.14,
-  shadowRadius: 8,
-  elevation: 4,
-}
-```
-
-### Key design principles
-- Background (#EDE6D8) vs card (#FDFAF4) contrast ratio ~1.8:1 — cards lift off page
-- Border (#D4D0CA) visible against both background and card
-- Serif font (SourceSerif4-Regular): titles, card names, dua text, modal titles, CTAs
-- Min font size: 10pt (navigation labels only)
-- fontWeight "300" eliminated — "400" minimum everywhere
+- `background` #EDE6D8 (parchment, deepened for card contrast)
+- `card` #FDFAF4 (cream-white)
+- `primary` #2F5D50 (forest green)
+- `gold` #C8A96A (and darker golds #BF9F60, #9A7A3A for text/icons)
+- `text` #1A1712
+- `subtext` #5A5650 (darkened for legibility)
+- `border` #D4D0CA
 
 ---
 
-## 5. Screen Inventory
+## 4. Navigation structure (VERIFIED CURRENT)
 
-### Tab Screens
-- **HomeScreen.jsx** ✅
-  - Hero: homescreen_hero2.jpg (white fade built in, 40% SH)
-  - 2 tiles: Duas (journey3.png) + What to Expect (what_to_expect.jpg)
-  - Tile text: 18pt label, 16pt sub
-  - "What is / ? / Safar" stacked about button
-  - Connect & Focus section below tiles
-  - OnboardingCarousel (safar_onboarded_v1)
+**5 bottom tabs (current code):** Home · Journey · Duas · Tools · Prepare (custom `SafarTabBar`, Duas is the centered button). Focus tab retired — it overpromised a do-not-disturb worship mode; the counters (Ṭawāf/Saʿy/Dhikr) are accessible via Tools and Duas tabs instead.
 
-- **JourneyScreen.jsx** ✅ — FULLY REDESIGNED
-  - No hero image
-  - Compact UMRAH/HAJJ toggle bar (solid green fill when active)
-  - Days to departure counter top-right (light brown badge, no fill)
-  - Step-by-step Guide: dominant hero card (260px, kaaba_mixed.png, white inverted badge, progress in coloured bg wrap)
-  - My Journey Board: myboard.jpg (180px, YOUR BOARD eyebrow, text left-stacked, stat divider)
-  - Sacred Places: half-width (kaaba_map.png, 14 / LOCATIONS label top-right)
-  - What to Expect: half-width (what_to_expect.jpg, 8 / LOGISTICS label top-right)
-  - My Groups + My Contacts: text-only cards, 149px tall, justifyContent flex-end
+**App boots through an onboarding gate:** reads AsyncStorage flag `safar_onboarded_v1`; if unset → `Onboarding` (OnboardingFlow), else → `MainTabs`. Onboarding writes the flag and `replace("MainTabs")` on completion. No forced signup — onboarding-only by design; signup deferred to where it's contextually needed later. "Restart Setup" lives in Settings.
 
-- **FocusScreen.jsx** ✅ — Tawaf/Saʿy counter
+### Stacks and screens
+- **HomeStack:** HomeMain, Hub, **PlanHub** (PlanHubScreen), UmrahGuide, HajjGuide, WhatToExpect, Groups, Guides (GuidesHubScreen), Tools, Shop, Media, Notes, Settings, Notifications
+- **JourneyStack:** JourneyMain, Map, SiteDuas*, WhatToExpect, Groups, GroupDetail, Connections, MyBoard, MyContacts, Tawaf, Saiy
+- **DuasStack:** MyDuas, DuaList, Dhikr
+- **ToolsStack:** ToolsMain, PrayerTimes, Qibla, CurrencyConverter, Tawaf, Saiy, Dhikr
+- **PrepareStack:** PrepareMain (ProfileScreen), Bookmarks, Notes, CurrencyConverter, Support, Settings
+- **Root Stack (full-screen, no tab bar):** Onboarding, MainTabs, DuaDetail, StepGuide (ProgressScreen), PracticeLearn, PrintOffline, PilgrimageDuas, SafarAssist, SacredPlaces
 
-- **MyDuasScreen.jsx** ✅ — FULLY REDESIGNED
-  - Header: "Duas" / "Your duas, organised for every moment"
-  - Nav tray (sage #EBF2EE container) with 3 image-based tab buttons:
-    - My Dua Lists: tab_dua_library.jpg — "Your duas, saved for you to recite or practice."
-    - Dua Library: tab_my_lists.jpg — "Explore duas for every moment of your journey"
-    - Shared Duas: tab_shared_duas.jpg — "Duas shared by friends and group members"
-  - Active tab: green border (#8AB8A0), scrim, green text
-  - List cards: full-bleed 80px portrait images, 88px height, 3px row gap
-  - Add a List: inline pill button → modal with image picker (11 images) + live preview
-  - Add a Dua: inline pill button on My Lists + Shared tabs
-  - Library: 16 category cards with nature photos, search + filter
+\*SiteDuas is currently a thin inline placeholder defined inside App.js, not the full SacredPlacesScreen.
 
-- **ProfileScreen.jsx** ✅ — REDESIGNED
-  - No hero image
-  - Category shelf: full-bleed sage (#EBF2EE) background, bottom border, 3×2 grid
-  - Active shelf item: solid colors.primary fill, white text
-  - Scroll-to-section via sectionY refs on each section wrapper
-  - 6 sections: Tools, Prepare & Shop, Islamic Reference, Video & Podcasts, Official Resources, Accounts & Settings
+**Status: zero dead links** as of last verification. All `navigate()` targets resolve to registered routes.
 
-### Duas Stack
-- **DuaListScreen.jsx** ✅ — title 17/600, sub 14pt
-- **DuaDetailScreen.jsx** ✅ — full-screen, Arabic 34pt, translit 17pt, translation 17pt
+### Retired (files kept, intentionally unwired — do not re-wire without reason)
+- `GuidesScreen.jsx` — 945-line pre-Hub monolith, superseded by the Four Pillars + Hub pattern.
+- `MyJourneyScreen.jsx` — personal dashboard, superseded by Plan hub.
+- `BoardScreen.jsx` — old twin of MyBoardScreen (MyBoard is current).
 
-### Stack Screens (tab bar visible)
-- **ProgressScreen.jsx** ✅
-- **MapScreen.jsx** ✅ — SVG aerial map
-- **GroupsScreen.jsx** ✅
-- **MyBoardScreen.jsx** ✅ — FULLY REBUILT (see below)
-- **MyContactsScreen.jsx** ✅
-- **BookmarksScreen.jsx** ✅ — item text 15pt
-- **NotesScreen.jsx** ✅ — preview text 15pt
-- **CurrencyScreen.jsx** ✅
-- **WhatToExpectScreen.jsx** ✅ — what_to_expect.jpg hero, body 16pt
-- **SupportScreen.jsx** ✅ — body 16pt
-- **SettingsScreen.jsx** ✅
-- **ConnectionsScreen.jsx** ✅
-- **PracticeLearnScreen.jsx** ✅ — full-screen
-- **PrintOfflineScreen.jsx** ✅ — full-screen
-
-### Components
-- **OnboardingCarousel.jsx** ✅ — components/ folder, once-ever (safar_onboarded_v1)
+### Parked components (`parked-components.jsx`)
+`FocusModeCard` and `SacredPlacesCard` — removed from Home to cut clutter, preserved for reuse on a future screen. Not imported anywhere yet.
 
 ---
 
-## 6. MyBoardScreen — Full Rebuild Details
+## 5. Home screen (current design)
 
-Architecture:
-- Two-column masonry grid (COL_W = half screen minus gap)
-- SwipeCard wrapper (swipe right=edit, left=delete)
-- CardFace renders per type
-- PinnedStrip — horizontal scroll of pinned cards
-- QuickAddModal — bottom sheet with type selector, smart detection, pin toggle
-- FAB — green pill "+ Add" bottom-right
+Vertical order: **hero slideshow → welcome card → Four Pillars → My Journey card → My Shortcuts → Du'ā of the Day.**
 
-Card types + tints:
-```
-note:      tint #FFFBE8, pill #F0DC88/#6A5010 (warm yellow)
-checklist: tint #F8FAF8, pill #D4E8D8/#1E4A2A (white-green)
-dua:       tint #EBF2EE, pill #B8D8C8/#1A4030 (sage)
-link:      tint #EEF2F8, pill #C0CEE8/#1A2850 (blue-grey)
-```
-
-Smart add detection:
-- Paste URL → auto-switch to Link type
-- Arabic text detected → auto-switch to Duʿāʾ type
-
-Your Pins strip: horizontal scroll, appears when cards are pinned.
-Subhead: "Your most important items, always at the top"
-
-Persistent storage: AsyncStorage key "safar_journey_board_v1"
+- **Hero:** full-bleed image (no beige top bar); uses `useSafeAreaInsets()` to offset salam/name/badge below the notch; light-content StatusBar.
+- **Four Pillars:** cards (NOT pills — pills imply filtering; pillars are navigation). Each opens `Hub` with `{ hub: "learn"|"practice"|"plan"|"connect" }`. (Route param key stays "practice" internally; visible label is "Practice".) Pillar secondary text matches hero card secondary text (13px, ~0.92 opacity).
+- **My Journey card:** below pillars. Countdown + quick-links row (Board, Checklist, Contacts, Groups). Arrow → Plan hub. *Kept deliberately despite Plan-pillar overlap — different intent (shortcut vs destination). Rule: journey quick-links must stay consistent with Plan/Connect hubs, never drift.*
+- **My Shortcuts:** 2×4 grid, light-gold tiles (#F3E9D2 bg, gold border, #9A7A3A icons, #6A5A38 labels) — quiet, doesn't compete with pillars. 8 items: Groups, Guides, Shop, Prayer Times, Media, Tools, Notes, Settings.
+- **Du'ā of the Day:** styled to match DuaDetailScreen — geometric SVG pattern header (`PATTERN_PATH` from `./headerPatternPath`), large centered serif Arabic, italic transliteration, serif translation. Source caption collapsed to a small "Du'ā sources" line + Info icon → modal popup with full scholarly text.
+- Section titles ("Explore", "My Shortcuts", "Today's Du'ā") use the plain `pillarsHeaderText` style.
 
 ---
 
-## 7. Assets (all in assets/)
+## 6. Content: Du'ās
 
-### Photos
-```
-homescreen_hero2.jpg     — HomeScreen hero
-kaaba_mixed.png          — JourneyScreen step card, DuaDetailScreen, OnboardingCarousel
-journey3.png             — HomeScreen Duas tile, OnboardingCarousel slide 2
-prepare2.png             — OnboardingCarousel slide 3
-what_to_expect.jpg       — WhatToExpectScreen hero, JourneyScreen What to Expect card
-kaaba_map.png            — MapScreen + JourneyScreen Sacred Places card
-medina.png               — MapScreen
-myboard.jpg              — JourneyScreen My Journey Board card
-```
-
-### My Dua List images
-```
-dua_kaaba.jpg, dua_family.jpg, dua_reminders.jpg, dua_sleep.jpg
-dua_icon1.jpg through dua_icon7.jpg (image picker options)
-```
-
-### Tab button images
-```
-tab_my_lists.jpg         — used on Dua Library button
-tab_dua_library.jpg      — used on My Dua Lists button
-tab_shared_duas.jpg      — Shared Duas button
-```
-
-### Dua category images
-```
-cat_gratitude.jpg, cat_forgive.jpg, cat_guidance.jpg, cat_protect.jpg,
-cat_patience.jpg, cat_provision.jpg, cat_healing2.jpg, cat_anxiety2.jpg,
-cat_travel2.jpg, cat_morning.jpg, cat_parents.jpg, cat_repentance.jpg,
-cat_salah2.jpg, cat_guidance2.jpg, cat_hajj2.jpg, cat_entering.jpg
-```
-
-### Fonts
-```
-fonts/SourceSerif4-Regular.ttf
-```
-
-### Audio
-```
-assets/audio/  — EMPTY. Needed for PracticeLearnScreen + DuaDetailScreen.
-```
+- Normalized schema designed for DB/CMS import: id, title, arabic, transliteration, translation, source_collection/reference/full, authenticity (sahih/hasan/quran), stage, stage_order, categories[], keywords[], is_featured, audio_traditional/gentle, verified/verified_by/verified_date.
+- `dua-content.js` is the adapter mapping normalized fields to screen field names; builds content by category tag. Has a `SHOW_UNVERIFIED` dev toggle.
+- ~20 entries sourced (pilgrimage du'ās + sleep/protection adhkar) from Hisn al-Muslim. **All `verified:false` pending scholar review.** Categories still needing harvest: guidance, patience, family, daily, morning/evening adhkar, repentance.
+- **Never fabricate** Arabic/translation/citations.
 
 ---
 
-## 8. What's Mid-Build
+## 7. Design principles (agreed)
 
-- **dua-content.js** — 12 duas only. Priority: expand to 50+ across all Umrah + Hajj stages
-- **DuaDetailScreen audio** — UI complete with mock timer. Wire to expo-av post dev build
-- **GroupsScreen Firebase** — scaffolded, not connected
-- **MyBoardScreen drag reorder** — deferred to dev build
-- **Map pin positions** — need device verification
-- **ProfileScreen departure date** — hardcoded placeholder in JourneyScreen, needs AsyncStorage setter in Settings
-
----
-
-## 9. Pending (Apple Developer Account)
-
-```bash
-npm install -g eas-cli && eas login && eas build:configure
-eas build --profile development --platform ios
-npx expo start --dev-client
-```
-Unlocks: expo-av, expo-image-picker, react-native-draggable-flatlist, Share Extension, TestFlight.
+- **Pillars = cards, not pills.** Use pills only for filterable content (Du'ā library, Media).
+- **Hub link cards:** uniform MEDIUM rich cards (~90–110px, photo + title + one-line desc) — "premium but not huge." Consistency reads as premium. (1–2 may be larger as primary; rest compact — mix decided per hub.)
+- **Card cohesion principle:** shared "grammar" (radius / shadow / border / spacing / type tokens) + deliberate 1–2 variable deviations for hierarchy. NOT all identical (blends together), NOT all different (looks random). Define a named card-tier system as its own focused pass.
+- **Match the app's existing card style** rather than inventing new looks: `colors.card` fill, thin `colors.border`, the standard subtle warm shadow (as DuaCard / HubScreen use).
+- Low cognitive load, legible, calm — the audience spans all ages (teens–50s), so keep the style **neutral**: not optimized for one generation, warm but never sterile, no stylistic lever pushed to an extreme.
+- Don't over-design; live with changes on device before iterating further.
 
 ---
 
-## 10. Key Design Decisions
+## 7b. Hub design + Plan + Personal Collection (DECIDED 2026-06-23)
 
-| Decision | Detail |
-|---|---|
-| Background deepened | parchment100 → parchment200 (#EDE6D8) — 1.8:1 contrast with cards |
-| Borders deepened | ink100 → ink200 (#D4D0CA) — crisp card edges |
-| Typography bumped | All scales +1-2pt. arabic 28pt, translation 17pt, body 16pt |
-| Heading weight | "600" token added — authority without aggression |
-| Shadow warmer+deeper | #6A4A28, opacity 0.14, radius 8 |
-| JourneyScreen | No hero. Tiered card hierarchy: step-by-step dominant, board featured, half-width pair, utility row |
-| MyBoardScreen | Pinboard model. Two-column grid, type tints, Your Pins strip, smart add detection |
-| MyDuasScreen | Nav tray (sage container) with image-based tab buttons |
-| ProfileScreen | Category shelf (full-bleed sage, 3×2 grid, scroll-to-section) replaces hero |
-| HomeScreen tiles | 3 tiles → 2 (Duas + What to Expect). 18/16pt text |
-| Navigation | Tab bar visible on all browsing/decision screens. Full-screen for DuaDetail, StepGuide, PracticeLearn, PrintOffline |
-| "Ritual" removed | ibadah / sacred practice / worship throughout |
+### Hub template (APPROVED — applies to all four pillar hubs)
+Visual template locked from design mockups. Structure top→bottom:
+1. **Colored hero header band** (pillar's identity color, subtle `expo-linear-gradient` — keep direction/intensity identical across all four). Holds: salam + name + search (quiet), large serif pillar title, one-line warm intent subline.
+2. **Sub-nav pills** (Learn/Practice/Plan/Connect) for lateral hopping between hubs.
+3. **One emphasized context card** — the single "loudest" body element; personal + live (e.g. "Continue learning 60%", "Trip countdown 42 days"). MUST have a graceful **empty state** for new users / no-date users (e.g. "Set your travel dates", "Start your first guide") — never show a broken-looking empty countdown. Date stays optional.
+4. **Uniform list rows** — tinted icon square + title + one-line sub + chevron. Same grammar across all hubs (this is the "shared grammar + 1 deliberate deviation" principle; the deviation is the hero/promoted card).
+- **Hierarchy rule: ONE hero per hub.** Promoting two cards dilutes both. Each hub gets a single promoted card; rest uniform.
+- **Neutrality:** color confined to the header keeps it calm/all-ages (resolves the saturation risk of fully-colored cards). Earthy muted hues, not bright.
+- **To verify:** amber (Practice) header — white text contrast may be marginal; test for legibility (outdoor/Makkah sun, all ages).
+- Build **Plan first** as the reference implementation, then roll the template to the others. ✓ **Plan hub built 2026-06-24** — see `screens/PlanHubScreen.jsx`.
 
----
+### Plan hub — contents & order (DECIDED)
+Ordered as you'd actually plan a trip (sequence = a path, not a menu):
+1. **SafarAssist** — *promoted hero card* (taller/richer/distinct, may carry pillar color). "Import your travel details, we set up the rest." The headline feature + first step that populates everything downstream.
+2. **What to Expect** — deliberately placed in Plan (not Learn): it informs what you plan, buy, expect. (Accept the Learn/Plan overlap on purpose.)
+3. **Checklist** — pack & prepare. *(Fix: currently mis-points to `PracticeLearn`; route to real checklist.)*
+4. **Shop**
+5. **Contacts**
+6. **Media** — videos, articles, podcasts.
+7. **Official Resources** — links.
+8. **Bookmarks** — (capture point → feeds the Collection; see below)
+9. **Notes** — (capture point → feeds the Collection)
+- **Currency** — keep, low/near the reference end; a dip-in tool, not a planning stage.
+- **My Board is REMOVED from Plan.** One hero per hub = SafarAssist owns Plan's top; My Board owned Journey. (And My Board is being replaced — see Collection.)
 
-## 11. Discarded Ideas
-
-| Idea | Why |
-|---|---|
-| Module-level StyleSheet | Crashes Expo Go |
-| && in style arrays | Returns false, crashes StyleSheet |
-| expo-image-picker/av in Expo Go | Not installed |
-| Hero image on JourneyScreen | Step-by-step card is the visual anchor |
-| Green band behind Groups/Contacts | Replaced with text-only cards |
-| FAB as only add action on MyBoard | Green pill "+ Add" FAB + add bar together |
-| Progress tracking on MyBoard | It's a pinboard, not a task tracker |
-| Horizontal chip pills on ProfileScreen | Squash — replaced with shelf grid |
-| "Pinned for Today" | Pilgrim context doesn't map to "today" — renamed "Your Pins" |
-| Three HomeScreen tiles | Duas + What to Expect combined, Practice & Learn accessible within Duas tab |
-
----
-
-## 12. Crash Patterns
-
-1. `getUseOfValueInStyleWarning of undefined` → module-level StyleSheet
-2. `Property 'useState' doesn't exist` → missing useState in React import
-3. `Unable to resolve module expo-image-picker` → not installed
-4. `&& style in style array` → replace with ternary
-5. `The action navigate with payload...` → screen not in right navigator
-6. Literal `du\u02bf...` rendering → unicode escape in JSX text node, wrap in `{"..."}`
+### Personal Collection system (DECIDED — separate build, do NOT block Plan on it)
+Replaces "My Board" (kill the dashboard execution; the idea was sound, the design wasn't).
+- **One personal collection, lives in the Journey tab** — gathers ALL bookmarks, saved du'ās, and notes for the trip. The "everything I kept, one spot, one link" surface. Accessible **before and during** (during = highest need; why Journey beats Prepare).
+- **Capture happens anywhere, in context; everything flows into the one store.** Plan's Notes/Bookmarks rows are *capture points*, not separate stores.
+- **Notes & Bookmarks are category-aware** — tagged by pillar (Learn/Practice/Plan/Connect) or topic/rite. This tagging is the spine that lets one store serve many views.
+- **Hubs show filtered VIEWS of the one store**, not their own copies. e.g. Plan's "planning notes" = the collection filtered to the Plan tag. One Notes system, one Bookmarks system, many lenses.
+- **Capture must never require categorizing** — provide a neutral default (general/uncategorized). Capture first, categorize optionally (no friction when pasting a quick thought).
+- **Scope note:** this is its own build pass (unified store + tagging + filtered views across multiple screens). Ship the Plan *hub* on the approved template first; build the Collection system after. Plan's template doesn't depend on it.
 
 ---
 
-*Safar TDD v3 — Updated May 2026*
-*Next session: paste this file and say "Continue Safar development"*
+## 7c. Plan hub — built (2026-06-24)
+
+`screens/PlanHubScreen.jsx` — dedicated screen (not a config of the old HubScreen) implementing the approved hub template for the Plan pillar.
+
+**Wiring:**
+- Registered in HomeStack as `PlanHub` (App.js)
+- Both Plan pillar entry points in HomeScreen updated: `navigate("PlanHub")` replaces the old `navigate("Hub", { hub: "plan" })`
+
+**Layout (top → bottom):**
+1. `expo-linear-gradient` header band (navy: `#1A202E` → `#101828`) with salam + name, large serif "Plan" title, subtitle
+2. Segmented control sub-nav (Learn · Practice · Plan · Connect) — matches MyDuasScreen pill style; active pill tracks state, tapping Learn/Practice/Connect navigates to `Hub` with the corresponding key
+3. SafarAssist hero card (full-width, navy gradient) — three live states driven by AsyncStorage:
+   - **State A** (no trip): "Set up your trip in seconds" + "Import details" CTA → `navigate("SafarAssist")`
+   - **State B** (trip + date): countdown number + "days until your departure" + "Review details →" → `navigate("SafarAssist")`
+   - **State C** (trip saved, no date): "Trip details saved — add your dates" + "Review details" CTA → `navigate("SafarAssist")`
+   - Keys read: `safar_departure_date_v1`, `safar_journey_board_v1`, `safar_user_name_v1`
+4. Nine uniform list rows (tinted navy icon square + title + sub + chevron), in approved order
+
+**Navigation status per row:**
+- What to Expect → `WhatToExpect` (HomeStack) ✓
+- Checklist → **Soon** (no real screen yet)
+- Shop → `Shop` (HomeStack) ✓
+- Contacts → `Journey` tab / `MyContacts` ✓
+- Media → `Media` (HomeStack) ✓
+- Official Resources → **Soon** (no screen yet)
+- Bookmarks → `Prepare` tab / `Bookmarks` ✓
+- Notes → `Notes` (HomeStack) ✓
+- Currency → `CurrencyConverter` (HomeStack) ✓
+
+---
+
+## 8. Open items / next steps
+
+**Sequenced plan:** (1) sitemap ✓ done · (2) redesign structure together · (3) refine/design each page · (4) finalize content (du'ā audio, media links).
+
+**Immediate next:** structure redesign conversation — is the 5-tab + 4-pillar model right? Where do SacredPlaces and SafarAssist best belong? How should each Hub be organized (with the medium rich-card treatment)?
+
+**Then:** roll the hub template to Learn, Practice, and Connect (Plan is the reference — see `PlanHubScreen.jsx`).
+
+**Content to finalize:** du'ā audio (traditional + gentle), media links, harvest remaining du'ā categories, scholar verification pass to flip `verified:true`.
+
+**Unresolved screen questions (need product owner's memory):**
+- `ImportTripScreen` (904 lines) — likely tied to SafarAssist; built, was orphaned. Keep/wire/retire?
+- `NotificationsScreen` — built, unwired. Not-yet-wired or abandoned?
+- `AuthScreen` — built, unwired. Deferred by design (onboarding-only chosen); revisit if/when a real auth backend exists.
+- `HajjUmrahPickerScreen` — du'ā-library gateway; confirm its role vs GuidesHubScreen.
+- `SacredPlacesScreen` — now registered, but in-app only reached from the retired GuidesScreen; needs a real entry point in the redesign.
+
+**Known caveats:**
+- GuidesHubScreen uses `require("../assets/tawaf.jpg")` and `arafah.jpg` — confirm those assets exist or swap.
+- ShopScreen imports `getAffiliateUrl` from `"../utils/affiliateLinks"` — confirm the file resolves at that path in the real folder tree.
+- Nothing here is device-tested by the assistant; code-level verification only. Confirm on simulator.

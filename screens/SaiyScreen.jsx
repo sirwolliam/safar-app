@@ -241,6 +241,8 @@ export default function SaiyScreen({ navigation }) {
 
       {/* Header */}
       <View style={s.header}>
+        {/* Back navigates to Tools tab root once registered
+            in ToolsNavigator (see App.js tab restructure) */}
         <TouchableOpacity style={s.backBtn} onPress={() => navigation?.goBack?.()} activeOpacity={0.8}>
           <ArrowLeft size={22} color={WHITE} weight="regular" />
         </TouchableOpacity>
