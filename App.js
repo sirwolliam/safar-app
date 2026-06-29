@@ -118,7 +118,7 @@ const ph = StyleSheet.create({
 const TAB_CONFIG = {
   Home:    { Icon: House,      label: "Home"    },
   Journey: { Icon: Compass,    label: "Journey" },
-  Duas:    { Icon: Moon,       label: "Du'ās",  center: true },
+  Duas:    { Icon: Moon,       label: "Duas",   center: true },
   Tools:   { Icon: Wrench,     label: "Tools"   },
   Prepare: { Icon: ListChecks, label: "Prepare" },
 };

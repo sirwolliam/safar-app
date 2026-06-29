@@ -1,465 +1,635 @@
-import React, { useState } from "react";
+/**
+ * MyDuasScreen.jsx — Safar
+ * Duas browser: Favourites · Practice · My Duas tabs.
+ * Built from design mockup — image-to-code + emil-design-eng craft.
+ *
+ * Hard rules: StyleSheet.create module-level, literal values only.
+ * No && in style arrays — ternaries only. Phosphor icons only.
+ * ScrollView not FlatList. Modal not external sheet library.
+ */
+import React, { useState, useRef } from "react";
 import {
-  SafeAreaView,
   View,
   Text,
   ScrollView,
   TouchableOpacity,
-  TextInput,
   StyleSheet,
-  FlatList,
+  TextInput,
+  Image,
+  Modal,
+  Animated,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
-import { colors, spacing, radius, typography, shadows } from "../theme";
+import { LinearGradient } from "expo-linear-gradient";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
-  Mosque, Heart, Sun, Moon, HandsPraying, HandHeart,
-  BookOpen, Shield, Plant, Sparkle, MagnifyingGlass, Faders,
+  Star,
+  BookOpen,
+  User,
+  ArrowsCounterClockwise,
+  ArrowsClockwise,
+  PersonSimpleWalk,
+  Mountains,
+  Columns,
+  Shield,
+  Moon,
+  ArrowCounterClockwise,
+  Heart,
+  Users,
+  Heartbeat,
+  Hourglass,
+  CloudRain,
+  Leaf,
+  Flame,
+  SunHorizon,
+  Plus,
+  PlayCircle,
+  MagnifyingGlass,
+  Sliders,
+  CaretLeft,
+  CaretRight,
+  X,
 } from "phosphor-react-native";
-import { countFor } from "../dua-content";
+
+const SERIF = "SourceSerif4-Regular";
+const HEADER_IMAGE = require("../assets/dua-header.png");
 
 // ── Data ──────────────────────────────────────────────────────────────────────
-// Counts are LIVE — read from the dua library via countFor(id) at render,
-// not hardcoded. Icons are Phosphor components (Rule 8: no emoji).
-
-const MY_LISTS = [
-  { id: "umrah",  name: "My Umrah Journey",  Icon: Mosque, updated: "2d ago", gradientTop: "#4A6A50", gradientBot: "#2A3C30" },
-  { id: "family", name: "Duas for Family",   Icon: Heart, updated: "1w ago", gradientTop: "#8AA878", gradientBot: "#5A7848" },
-  { id: "daily",  name: "Daily Reminders",   Icon: Sun,   updated: "3d ago", gradientTop: "#C8B888", gradientBot: "#906830" },
-  { id: "sleep",  name: "Before Sleep",      Icon: Moon,  updated: "5d ago", gradientTop: "#283848", gradientBot: "#0E1828" },
+const HAJJ_ROWS = [
+  { key: "ihram",   num: "1", title: "Before Ihram", sub: "Duas before entering the state of Ihram",  image: require("../assets/hajj/hajj-ihram.png"),   mode: "umrah" },
+  { key: "tawaf",   num: "2", title: "Tawaf",        sub: "Duas for circumambulating the Kaaba",       image: require("../assets/hajj/hajj-tawaf.png"),   mode: "umrah" },
+  { key: "sai",     num: "3", title: "Sa’i",          sub: "Duas for walking between Safa & Marwah",   image: require("../assets/hajj/hajj-saiy.png"),    mode: "umrah" },
+  { key: "arafah",  num: "4", title: "Arafah",        sub: "Duas for the Day of Arafah",               image: require("../assets/hajj/hajj-arafah.png"),  mode: "hajj"  },
+  { key: "jamarat", num: "5", title: "Jamarat",       sub: "Duas for the stoning of the Jamarat",      image: require("../assets/hajj/hajj-jamarat.png"), mode: "hajj"  },
 ];
 
-const LIBRARY_CATEGORIES = [
-  { id: "gratitude", name: "Gratitude & Praise",   Icon: HandsPraying, shade: "#A8C8A0" },
-  { id: "forgive",   name: "Forgiveness",          Icon: HandHeart,         shade: "#C8C4A0" },
-  { id: "guidance",  name: "Guidance & Knowledge", Icon: BookOpen,     shade: "#A8B8C8" },
-  { id: "protect",   name: "Protection",           Icon: Shield,       shade: "#A8C8B8" },
-  { id: "patience",  name: "Patience & Trust",     Icon: Plant,        shade: "#C8C090" },
-  { id: "provision", name: "Provision & Rizq",     Icon: Sparkle,      shade: "#B8C8A8" },
+const THEMES = [
+  { key: "quran",       Icon: BookOpen,              label: "Qurʼan &\nDuʿās"   },
+  { key: "guidance",    Icon: Shield,                label: "Guidance &\nProtection"        },
+  { key: "salah",       Icon: Moon,                  label: "Salah &\nWorship"              },
+  { key: "forgiveness", Icon: ArrowCounterClockwise, label: "Forgiveness &\nRepentance"     },
+  { key: "gratitude",   Icon: Heart,                 label: "Gratitude &\nThankfulness"     },
+  { key: "family",      Icon: Users,                 label: "Family &\nLoved Ones"          },
+  { key: "health",      Icon: Heartbeat,             label: "Health &\nHealing"             },
+  { key: "patience",    Icon: Hourglass,             label: "Patience &\nTrust"             },
 ];
 
-const FILTER_CHIPS = ["All", "By Theme", "By Occasion", "By Reference"];
+const MOODS = [
+  { key: "anxious",  label: "Feeling\nAnxious",  icon: CloudRain,  image: require("../assets/mood/mood-anxious.png")  },
+  { key: "peace",    label: "Seeking\nPeace",    icon: Leaf,       image: require("../assets/mood/mood-peace.png")    },
+  { key: "strength", label: "Need\nStrength",    icon: Flame,      image: require("../assets/mood/mood-strength.png") },
+  { key: "grateful", label: "Feeling\nGrateful", icon: Moon,       image: require("../assets/mood/mood-grateful.png") },
+  { key: "anew",     label: "Starting\nAnew",    icon: SunHorizon, image: require("../assets/mood/mood-anew.png")     },
+];
 
-// ─────────────────────────────────────────────────────────────────────────────
+const TAGS      = ["Health", "Family", "Forgiveness", "Gratitude", "Protection", "Custom"];
+const LOCATIONS = ["Arafah", "Mina", "Tawaf", "Madinah", "General", "Custom"];
 
+// ── Component ─────────────────────────────────────────────────────────────────
 export default function MyDuasScreen({ navigation }) {
-  const openList = (id, name) =>
-    navigation?.navigate?.("DuaList", { list: { id, name } });
+  const insets = useSafeAreaInsets();
 
-  const [tab,          setTab]          = useState("myLists"); // "myLists" | "shared"
-  const [view,         setView]         = useState("lists");   // "lists" | "library"
-  const [activeFilter, setActiveFilter] = useState("By Theme");
-  const [searchQuery,  setSearchQuery]  = useState("");
+  const [activeTab,    setActiveTab]    = useState("discover");
+  const [search,       setSearch]       = useState("");
+  const [showModal,    setShowModal]    = useState(false);
+  const [duaText,      setDuaText]      = useState("");
+  const [duaTitle,     setDuaTitle]     = useState("");
+  const [duaFor,       setDuaFor]       = useState("");
+  const [selectedTag,  setSelectedTag]  = useState(null);
+  const [selectedLoc,  setSelectedLoc]  = useState(null);
+
+  const slideAnim   = useRef(new Animated.Value(700)).current;
+  const backdropAnim = useRef(new Animated.Value(0)).current;
+
+  function openModal() {
+    setShowModal(true);
+    Animated.parallel([
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 380,
+        useNativeDriver: true,
+      }),
+      Animated.timing(backdropAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }
+
+  function closeModal() {
+    Animated.parallel([
+      Animated.timing(slideAnim, {
+        toValue: 700,
+        duration: 260,
+        useNativeDriver: true,
+      }),
+      Animated.timing(backdropAnim, {
+        toValue: 0,
+        duration: 220,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setShowModal(false);
+      setDuaText("");
+      setDuaTitle("");
+      setDuaFor("");
+      setSelectedTag(null);
+      setSelectedLoc(null);
+    });
+  }
+
+  function saveDua() {
+    closeModal();
+  }
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <ScrollView
-        contentContainerStyle={styles.scroll}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-      >
+    <View style={styles.root}>
 
-        {/* ── Header ── */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>
-            {view === "lists" ? "My Lists" : "Duʿāʾ Library"}
-          </Text>
-          <View style={styles.headerRight}>
-            {view === "lists" ? (
-              <>
-                <TouchableOpacity
-                  style={styles.libraryLink}
-                  onPress={() => setView("library")}
-                >
-                  <Text style={styles.libraryLinkText}>Library</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.addBtn}>
-                  <Text style={styles.addBtnText}>+</Text>
-                </TouchableOpacity>
-              </>
-            ) : (
-              <TouchableOpacity
-                style={styles.backBtn}
-                onPress={() => setView("lists")}
-              >
-                <Text style={styles.backBtnText}>← Lists</Text>
-              </TouchableOpacity>
-            )}
+      {/* ── Header ───────────────────────────────────────────────────────── */}
+      <View style={styles.header}>
+        <Image
+          source={HEADER_IMAGE}
+          defaultSource={HEADER_IMAGE}
+          style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, width: "100%", height: "100%" }}
+          resizeMode="cover"
+          fadeDuration={0}
+        />
+        <LinearGradient
+          colors={["transparent", "rgba(0,0,0,0.10)", "rgba(26,20,16,0.72)", "rgba(26,20,16,0.96)"]}
+          locations={[0, 0.35, 0.75, 1]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          style={StyleSheet.absoluteFillObject}
+        />
+        <TouchableOpacity
+          style={[styles.backBtn, { top: insets.top + 14 }]}
+          onPress={() => navigation.goBack()}
+          activeOpacity={0.8}
+        >
+          <CaretLeft size={18} color="#FFFFFF" weight="bold" />
+        </TouchableOpacity>
+        <View style={styles.headerContent}>
+          <View style={styles.titleRow}>
+            <View style={styles.iconBadge}>
+              <BookOpen size={22} color="#C8A96A" weight="regular" />
+            </View>
+            <Text style={styles.headerTitle}>Duas</Text>
           </View>
+          <Text style={styles.headerSub}>
+            Supplications for every moment of your journey
+          </Text>
+        </View>
+        <TouchableOpacity style={[styles.addBtn, { top: insets.top + 14 }]} onPress={openModal} activeOpacity={0.85}>
+          <Plus size={14} color="#C8A96A" weight="bold" />
+          <Text style={styles.addBtnText}>Add Dua</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* ── Main scroll ──────────────────────────────────────────────────── */}
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Search + Practice */}
+        <View style={styles.searchRow}>
+          <View style={styles.searchBarInner}>
+            <MagnifyingGlass size={18} color="#8A7D6A" />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search duas..."
+              placeholderTextColor="#B0A090"
+              value={search}
+              onChangeText={setSearch}
+            />
+            <Sliders size={18} color="#8A7D6A" />
+          </View>
+          <TouchableOpacity
+            style={styles.practicePill}
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate("PracticeLearn")}
+          >
+            <PlayCircle size={18} color="#1A1410" weight="fill" />
+            <Text style={styles.practicePillText}>Practice</Text>
+          </TouchableOpacity>
         </View>
 
-        {/* ══════════════ MY LISTS VIEW ══════════════ */}
-        {view === "lists" && (
-          <>
-            {/* Segment */}
-            <View style={styles.segmentCtrl}>
-              {[["myLists", "My Lists"], ["shared", "Shared with me"]].map(([key, label]) => (
-                <TouchableOpacity
-                  key={key}
-                  style={tab === key ? [styles.segOpt, styles.segOptActive] : styles.segOpt}
-                  onPress={() => setTab(key)}
-                  activeOpacity={0.8}
-                >
-                  <Text style={tab === key ? [styles.segLabel, styles.segLabelActive] : styles.segLabel}>
-                    {label}
+        {/* Quick-access tabs */}
+        <View style={styles.tabBar}>
+          <TouchableOpacity
+            style={activeTab === "discover" ? [styles.tab, styles.tabActive] : styles.tab}
+            onPress={() => setActiveTab("discover")}
+            activeOpacity={0.8}
+          >
+            <Star
+              size={16}
+              color={activeTab === "discover" ? "#FFFFFF" : "#5C534A"}
+              weight={activeTab === "discover" ? "fill" : "regular"}
+            />
+            <Text style={activeTab === "discover" ? [styles.tabLabel, styles.tabLabelActive] : styles.tabLabel}>
+              Discover
+            </Text>
+          </TouchableOpacity>
+
+          <View style={styles.tabDivider} />
+
+          <TouchableOpacity
+            style={activeTab === "favourites" ? [styles.tab, styles.tabActive] : styles.tab}
+            onPress={() => setActiveTab("favourites")}
+            activeOpacity={0.8}
+          >
+            <Star
+              size={16}
+              color={activeTab === "favourites" ? "#FFFFFF" : "#5C534A"}
+              weight={activeTab === "favourites" ? "fill" : "regular"}
+            />
+            <Text style={activeTab === "favourites" ? [styles.tabLabel, styles.tabLabelActive] : styles.tabLabel}>
+              Favourites
+            </Text>
+          </TouchableOpacity>
+
+          <View style={styles.tabDivider} />
+
+          <TouchableOpacity
+            style={activeTab === "myduas" ? [styles.tab, styles.tabActive] : styles.tab}
+            onPress={() => setActiveTab("myduas")}
+            activeOpacity={0.8}
+          >
+            <User
+              size={16}
+              color={activeTab === "myduas" ? "#FFFFFF" : "#5C534A"}
+              weight="regular"
+            />
+            <Text style={activeTab === "myduas" ? [styles.tabLabel, styles.tabLabelActive] : styles.tabLabel}>
+              My Duas
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* ── Tab: Discover ────────────────────────────────────────────── */}
+        {activeTab === "discover" ? (
+          <View>
+            {/* Duas for Hajj & Umrah */}
+            <View style={styles.card}>
+              <View style={styles.cardHeaderRow}>
+                <View style={styles.cardHeaderLeft}>
+                  <Text style={styles.sectionTitle}>Duas for Hajj & Umrah</Text>
+                  <Text style={styles.sectionSub}>
+                    {"Step-by-step supplications for every\nmoment of your worship."}
                   </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            {/* List rows */}
-            <View style={styles.listContainer}>
-              {MY_LISTS.map((list, idx) => (
+                </View>
                 <TouchableOpacity
-                  key={list.id}
-                  style={
-                    idx < MY_LISTS.length - 1
-                      ? [styles.listRow, styles.listRowBorder]
-                      : styles.listRow
-                  }
-                  activeOpacity={0.8}
-                  onPress={() => openList(list.id, list.name)}
+                  onPress={() => navigation.navigate("PilgrimageDuas", { mode: "umrah" })}
+                  activeOpacity={0.75}
                 >
-                  {/* Thumbnail */}
-                  <View
-                    style={[
-                      styles.listThumb,
-                      { backgroundColor: list.gradientBot },
-                    ]}
-                  >
-                    <list.Icon size={22} color="#F5F0E8" weight="regular" />
-                  </View>
+                  <Text style={styles.viewAll}>View all  ›</Text>
+                </TouchableOpacity>
+              </View>
 
-                  {/* Info */}
-                  <View style={styles.listInfo}>
-                    <Text style={styles.listName}>{list.name}</Text>
-                    <Text style={styles.listMeta}>
-                      {countFor(list.id)} duas · Updated {list.updated}
-                    </Text>
+              {HAJJ_ROWS.map((item, idx) => (
+                <TouchableOpacity
+                  key={item.key}
+                  style={idx < HAJJ_ROWS.length - 1 ? [styles.row, styles.rowBorder] : styles.row}
+                  activeOpacity={0.75}
+                  onPress={() => navigation.navigate("PilgrimageDuas", { mode: item.mode })}
+                >
+                  <View style={styles.rowThumb}>
+                    <Image source={item.image} style={styles.rowThumbImg} resizeMode="cover" />
                   </View>
-
-                  <Text style={styles.listArrow}>›</Text>
+                  <View style={styles.rowInfo}>
+                    <Text style={styles.rowTitle}>{item.num}. {item.title}</Text>
+                    <Text style={styles.rowSub} numberOfLines={2} ellipsizeMode="tail">{item.sub}</Text>
+                  </View>
+                  <CaretRight size={16} color="#B0A090" weight="bold" />
                 </TouchableOpacity>
               ))}
+
             </View>
 
-            {/* ── New list CTA ── */}
-            <TouchableOpacity style={styles.newListBtn} activeOpacity={0.85}>
-              <Text style={styles.newListBtnText}>+ Create new list</Text>
-            </TouchableOpacity>
-          </>
+            {/* Themes / Library */}
+            <View style={styles.themeSection}>
+              <View style={styles.sectionRow}>
+                <View>
+                  <Text style={styles.sectionTitle}>Themes / Library</Text>
+                  <Text style={styles.sectionSub}>Browse duas by topic</Text>
+                </View>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("DuaList", { category: "all" })}
+                  activeOpacity={0.75}
+                >
+                  <Text style={styles.viewAll}>View all  ›</Text>
+                </TouchableOpacity>
+              </View>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.themeScroll}
+              >
+                {THEMES.map((t) => (
+                  <TouchableOpacity
+                    key={t.key}
+                    style={styles.themeCard}
+                    activeOpacity={0.8}
+                    onPress={() => navigation.navigate("DuaList", { category: t.key })}
+                  >
+                    <View style={styles.themeIconBox}>
+                      <t.Icon size={34} color="#7A5C30" weight="regular" />
+                    </View>
+                    <Text style={styles.themeLabel}>{t.label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+
+            {/* Duas by Mood */}
+            <View style={styles.moodSection}>
+              <View style={styles.sectionRow}>
+                <View>
+                  <Text style={styles.sectionTitle}>Duas by Mood</Text>
+                  <Text style={styles.sectionSub}>Find the right words for how you feel</Text>
+                </View>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("DuaList", { category: "mood" })}
+                  activeOpacity={0.75}
+                >
+                  <Text style={styles.viewAll}>View all  ›</Text>
+                </TouchableOpacity>
+              </View>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.moodScroll}
+              >
+                {MOODS.map((m) => (
+                  <TouchableOpacity
+                    key={m.key}
+                    style={styles.moodCard}
+                    activeOpacity={0.85}
+                    onPress={() => navigation.navigate("DuaList", { category: m.key })}
+                  >
+                    <Image
+                      source={m.image}
+                      style={StyleSheet.absoluteFillObject}
+                      resizeMode="cover"
+                    />
+                    <LinearGradient
+                      colors={["rgba(0,0,0,0.15)", "rgba(0,0,0,0.70)"]}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 0, y: 1 }}
+                      style={StyleSheet.absoluteFillObject}
+                    />
+                    <View style={styles.moodCardContent}>
+                      <m.icon size={24} color="#FFFFFF" weight="regular" />
+                      <Text style={styles.moodLabel}>{m.label}</Text>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+          </View>
+
+        ) : activeTab === "favourites" ? (
+          <View style={styles.emptyTab}>
+            <Star size={48} color="#C8A96A" weight="regular" />
+            <Text style={styles.favEmptyTitle}>Your favourite duas</Text>
+            <Text style={styles.favEmptySub}>{"Tap ★ on any du’ā to save it here."}</Text>
+          </View>
+
+        ) : (
+          <View style={styles.emptyTab}>
+            <User size={44} color="#C8A96A" weight="regular" />
+            <Text style={styles.emptyTitle}>My Duas</Text>
+            <Text style={styles.emptySub}>Duas you have saved will appear here.</Text>
+          </View>
         )}
 
-        {/* ══════════════ LIBRARY VIEW ══════════════ */}
-        {view === "library" && (
-          <>
-            {/* Search bar */}
-            <View style={styles.searchBar}>
-              <MagnifyingGlass size={18} color={colors.subtext} weight="regular" />
-              <TextInput
-                style={styles.searchInput}
-                placeholder="Search duas…"
-                placeholderTextColor={colors.subtext}
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-              />
-              <TouchableOpacity>
-                <Faders size={18} color={colors.subtext} weight="regular" />
-              </TouchableOpacity>
-            </View>
-
-            {/* Filter chips */}
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.filterRow}
-            >
-              {FILTER_CHIPS.map((chip) => (
-                <TouchableOpacity
-                  key={chip}
-                  style={activeFilter === chip ? [styles.filterChip, styles.filterChipActive] : styles.filterChip}
-                  onPress={() => setActiveFilter(chip)}
-                  activeOpacity={0.8}
-                >
-                  <Text
-                    style={activeFilter === chip ? [styles.filterChipText, styles.filterChipTextActive] : styles.filterChipText}
-                  >
-                    {chip}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-
-            {/* Category grid */}
-            <View style={styles.categoryGrid}>
-              {LIBRARY_CATEGORIES.map((cat, idx) => (
-                <TouchableOpacity
-                  key={cat.id}
-                  style={[styles.categoryCard, { backgroundColor: cat.shade + "55" }]}
-                  activeOpacity={0.85}
-                  onPress={() => openList(cat.id, cat.name)}
-                >
-                  {/* Icon area */}
-                  <View style={[styles.catImage, { backgroundColor: cat.shade }]}>
-                    <cat.Icon size={26} color="#2A3828" weight="regular" />
-                  </View>
-                  <View style={styles.catBody}>
-                    <Text style={styles.catName}>{cat.name}</Text>
-                    <Text style={styles.catCount}>{countFor(cat.id)} duas</Text>
-                  </View>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </>
-        )}
-
-        <View style={{ height: spacing(4) }} />
+        <View style={styles.bottomSpacer} />
       </ScrollView>
-    </SafeAreaView>
+
+      {/* ── Add Dua Modal (bottom sheet) ─────────────────────────────────── */}
+      <Modal transparent visible={showModal} onRequestClose={closeModal}>
+        <View style={styles.modalRoot}>
+          <Animated.View style={[styles.backdrop, { opacity: backdropAnim }]}>
+            <TouchableOpacity
+              style={styles.backdropTouch}
+              onPress={closeModal}
+              activeOpacity={1}
+            />
+          </Animated.View>
+          <Animated.View style={[styles.sheet, { transform: [{ translateY: slideAnim }] }]}>
+            <KeyboardAvoidingView
+              behavior={Platform.OS === "ios" ? "padding" : "height"}
+              style={styles.sheetKav}
+            >
+              <View style={styles.sheetHandle} />
+              <View style={styles.sheetHeaderRow}>
+                <Text style={styles.sheetTitle}>Add Dua</Text>
+                <TouchableOpacity onPress={closeModal} activeOpacity={0.7}>
+                  <X size={20} color="#8A7D6A" />
+                </TouchableOpacity>
+              </View>
+              <ScrollView
+                style={styles.sheetScroll}
+                contentContainerStyle={styles.sheetScrollContent}
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+              >
+                {/* Dua text */}
+                <TextInput
+                  style={styles.duaInput}
+                  placeholder="Paste or type your dua here"
+                  placeholderTextColor="#B0A090"
+                  multiline
+                  value={duaText}
+                  onChangeText={setDuaText}
+                  textAlignVertical="top"
+                />
+
+                {/* Title */}
+                <Text style={styles.fieldEyebrow}>TITLE (OPTIONAL)</Text>
+                <TextInput
+                  style={styles.fieldInput}
+                  placeholder="Name this dua"
+                  placeholderTextColor="#B0A090"
+                  value={duaTitle}
+                  onChangeText={setDuaTitle}
+                />
+
+                {/* For */}
+                <Text style={styles.fieldEyebrow}>FOR (OPTIONAL)</Text>
+                <TextInput
+                  style={styles.fieldInput}
+                  placeholder="e.g. For Mum"
+                  placeholderTextColor="#B0A090"
+                  value={duaFor}
+                  onChangeText={setDuaFor}
+                />
+
+                {/* Tag picker */}
+                <Text style={styles.fieldEyebrow}>TAG</Text>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.pillRow}
+                >
+                  {TAGS.map((t) => (
+                    <TouchableOpacity
+                      key={t}
+                      style={selectedTag === t ? [styles.pill, styles.pillActive] : styles.pill}
+                      onPress={() => setSelectedTag(selectedTag === t ? null : t)}
+                      activeOpacity={0.8}
+                    >
+                      <Text style={selectedTag === t ? [styles.pillText, styles.pillTextActive] : styles.pillText}>
+                        {t}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+
+                {/* Location picker */}
+                <Text style={styles.fieldEyebrow}>LOCATION</Text>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.pillRow}
+                >
+                  {LOCATIONS.map((l) => (
+                    <TouchableOpacity
+                      key={l}
+                      style={selectedLoc === l ? [styles.pill, styles.pillActive] : styles.pill}
+                      onPress={() => setSelectedLoc(selectedLoc === l ? null : l)}
+                      activeOpacity={0.8}
+                    >
+                      <Text style={selectedLoc === l ? [styles.pillText, styles.pillTextActive] : styles.pillText}>
+                        {l}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+
+                {/* Actions */}
+                <TouchableOpacity style={styles.saveBtn} onPress={saveDua} activeOpacity={0.85}>
+                  <Text style={styles.saveBtnText}>Save Dua</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.cancelLink} onPress={closeModal} activeOpacity={0.7}>
+                  <Text style={styles.cancelText}>Cancel</Text>
+                </TouchableOpacity>
+                <View style={styles.sheetBottom} />
+              </ScrollView>
+            </KeyboardAvoidingView>
+          </Animated.View>
+        </View>
+      </Modal>
+    </View>
   );
 }
 
 // ── Styles ────────────────────────────────────────────────────────────────────
-
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  scroll: {
-    paddingHorizontal: spacing(2.5),
-    paddingTop: spacing(2.5),
-  },
+  root:           { flex: 1, backgroundColor: "#F0EBE1" },
 
-  // Header
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: spacing(2),
-  },
-  headerTitle: {
-    fontSize: typography.title,
-    fontWeight: "400",
-    color: colors.text,
-  },
-  headerRight: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing(1),
-  },
-  libraryLink: {
-    paddingHorizontal: spacing(1.5),
-    paddingVertical: spacing(0.5),
-    borderRadius: radius.sm,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  libraryLinkText: {
-    fontSize: typography.small,
-    color: colors.subtext,
-    fontWeight: "400",
-  },
-  addBtn: {
-    width: 34, height: 34,
-    borderRadius: 17,
-    backgroundColor: colors.primary,
-    alignItems: "center",
-    justifyContent: "center",
-    ...shadows.button,
-  },
-  addBtnText: {
-    fontSize: 22,
-    color: colors.card,
-    lineHeight: 26,
-    fontWeight: "300",
-  },
-  backBtn: {},
-  backBtnText: {
-    fontSize: typography.small,
-    color: colors.primary,
-    fontWeight: "400",
-  },
+  // ── Header
+  header:         { height: 260, overflow: "hidden", position: "relative", backgroundColor: "#1A1410" },
+  backBtn:        { position: "absolute", left: 18, width: 36, height: 36, borderRadius: 18, backgroundColor: "rgba(0,0,0,0.35)", alignItems: "center", justifyContent: "center" },
+  headerContent:  { position: "absolute", bottom: 22, left: 20, right: 20 },
+  titleRow:       { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 10 },
+  iconBadge:      { width: 44, height: 44, borderRadius: 22, borderWidth: 1.5, borderColor: "#C8A96A", alignItems: "center", justifyContent: "center" },
+  headerTitle:    { fontFamily: SERIF, fontSize: 38, color: "#FFFFFF", fontWeight: "600" },
+  headerSub:      { fontSize: 15, color: "rgba(255,255,255,0.82)", lineHeight: 22, maxWidth: "88%" },
+  addBtn:         { position: "absolute", top: 0, right: 20, flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: "#4A5C48", borderRadius: 22, paddingHorizontal: 16, paddingVertical: 10 },
+  addBtnText:     { fontSize: 14, fontWeight: "600", color: "#C8A96A" },
 
-  // Segment control
-  segmentCtrl: {
-    flexDirection: "row",
-    backgroundColor: "rgba(200,190,168,0.2)",
-    borderRadius: radius.md,
-    padding: 3,
-    borderWidth: 1,
-    borderColor: colors.border,
-    marginBottom: spacing(2),
-  },
-  segOpt: {
-    flex: 1,
-    paddingVertical: spacing(1),
-    borderRadius: radius.sm,
-    alignItems: "center",
-  },
-  segOptActive: {
-    backgroundColor: colors.card,
-    shadowColor: "#2A2A2A",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  segLabel: {
-    fontSize: typography.small,
-    color: colors.subtext,
-    fontWeight: "300",
-  },
-  segLabelActive: {
-    color: colors.text,
-    fontWeight: "500",
-  },
+  // ── Scroll
+  scroll:         { flex: 1 },
+  scrollContent:  { paddingBottom: 16 },
 
-  // List rows
-  listContainer: {
-    backgroundColor: colors.card,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    overflow: "hidden",
-    marginBottom: spacing(2),
-    ...shadows.card,
-  },
-  listRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: spacing(2),
-    paddingVertical: spacing(1.75),
-    gap: spacing(1.5),
-  },
-  listRowBorder: {
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  listThumb: {
-    width: 54, height: 54,
-    borderRadius: radius.md,
-    alignItems: "center",
-    justifyContent: "center",
-    flexShrink: 0,
-  },
-  listThumbEmoji: { fontSize: 24 },
-  listInfo: { flex: 1 },
-  listName: {
-    fontSize: typography.body,
-    fontWeight: "500",
-    color: colors.text,
-    marginBottom: 3,
-  },
-  listMeta: {
-    fontSize: typography.small,
-    color: colors.subtext,
-    fontWeight: "300",
-  },
-  listArrow: {
-    fontSize: 18,
-    color: colors.border,
-  },
+  // ── Search + Practice row
+  searchRow:       { flexDirection: "row", alignItems: "center", marginHorizontal: 16, marginTop: 14, gap: 8 },
+  searchBarInner:  { flex: 1, flexDirection: "row", alignItems: "center", backgroundColor: "#FDFAF4", borderRadius: 16, paddingHorizontal: 14, paddingVertical: 12, gap: 8, shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.10, shadowRadius: 6, elevation: 3 },
+  practicePill:    { flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: "#FDFAF4", borderRadius: 16, paddingHorizontal: 14, paddingVertical: 12, shadowColor: "#1A1410", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.20, shadowRadius: 6, elevation: 4 },
+  practicePillText:{ fontSize: 14, fontWeight: "600", color: "#1A1410" },
+  searchInput:    { flex: 1, fontSize: 15, color: "#1A1410" },
 
-  // New list button
-  newListBtn: {
-    borderRadius: radius.md,
-    borderWidth: 1.5,
-    borderColor: colors.border,
-    borderStyle: "dashed",
-    paddingVertical: spacing(2),
-    alignItems: "center",
-    marginBottom: spacing(2),
-  },
-  newListBtnText: {
-    fontSize: typography.body,
-    color: colors.subtext,
-    fontWeight: "300",
-  },
+  // ── Tabs
+  tabBar:         { flexDirection: "row", backgroundColor: "#FDFAF4", borderRadius: 16, marginHorizontal: 16, marginTop: 12, padding: 4, gap: 4, borderWidth: 0.5, borderColor: "#DDD5C0" },
+  tab:            { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", paddingVertical: 13, gap: 6, backgroundColor: "#EDE4D4", borderRadius: 12 },
+  tabActive:      { backgroundColor: "#4A5C48", borderRadius: 12 },
+  tabDivider:     { width: 0, backgroundColor: "transparent" },
+  tabLabel:       { fontSize: 13, fontWeight: "600", color: "#5C534A" },
+  tabLabelActive: { color: "#FFFFFF" },
 
-  // Search
-  searchBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: colors.card,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing(2),
-    paddingVertical: spacing(1.25),
-    gap: spacing(1),
-    borderWidth: 1,
-    borderColor: colors.border,
-    marginBottom: spacing(1.5),
-    ...shadows.card,
-  },
-  searchIcon:  { fontSize: 14, color: colors.subtext },
-  searchInput: {
-    flex: 1,
-    fontSize: typography.body,
-    color: colors.text,
-    fontWeight: "300",
-    padding: 0,
-  },
-  filterIcon: { fontSize: 15, color: colors.subtext },
+  // ── Hajj card
+  card:           { backgroundColor: "#FDF7EE", borderRadius: 20, marginHorizontal: 16, marginTop: 16, overflow: "hidden", borderWidth: 0.5, borderColor: "#DDD5C0" },
+  cardHeaderRow:  { flexDirection: "row", alignItems: "center", paddingHorizontal: 20, paddingTop: 20, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: "#EDE4D4" },
+  cardHeaderLeft: { flex: 1, paddingRight: 12 },
+  sectionTitle:   { fontFamily: SERIF, fontSize: 20, color: "#1A1410", marginBottom: 5 },
+  sectionSub:     { fontSize: 13, color: "#8A7D6A", lineHeight: 19 },
 
-  // Filter chips
-  filterRow: {
-    gap: spacing(1),
-    paddingBottom: spacing(2),
-  },
-  filterChip: {
-    paddingHorizontal: spacing(2),
-    paddingVertical: spacing(0.75),
-    borderRadius: radius.pill,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: "transparent",
-  },
-  filterChipActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-  filterChipText: {
-    fontSize: typography.small,
-    color: colors.subtext,
-    fontWeight: "300",
-  },
-  filterChipTextActive: {
-    color: colors.card,
-    fontWeight: "400",
-  },
+  // ── List rows
+  row:            { flexDirection: "row", alignItems: "center", paddingHorizontal: 20, paddingVertical: 14, minHeight: 88, backgroundColor: "#FDF7EE" },
+  rowBorder:      { borderBottomWidth: 1, borderBottomColor: "#EDE4D4" },
+  rowIcon:        { width: 52, height: 52, borderRadius: 14, backgroundColor: "#243020", alignItems: "center", justifyContent: "center", marginRight: 14 },
+  rowThumb:       { width: 72, height: 72, borderRadius: 14, overflow: "hidden", marginRight: 14 },
+  rowThumbImg:    { width: "100%", height: "100%" },
+  rowInfo:        { flex: 1, paddingRight: 8 },
+  rowTitle:       { fontFamily: SERIF, fontSize: 20, color: "#1A1410", marginBottom: 2 },
+  rowSub:         { fontSize: 14, color: "#8A7D6A", lineHeight: 19 },
 
-  // Category grid
-  categoryGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: spacing(1.25),
-  },
-  categoryCard: {
-    width: "47.5%",
-    borderRadius: radius.md,
-    overflow: "hidden",
-    borderWidth: 1,
-    borderColor: colors.border,
-    ...shadows.card,
-  },
-  catImage: {
-    height: 80,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  catEmoji: { fontSize: 30, opacity: 0.85 },
-  catBody: {
-    padding: spacing(1.25),
-    backgroundColor: colors.card,
-  },
-  catName: {
-    fontSize: typography.small,
-    fontWeight: "500",
-    color: colors.text,
-    lineHeight: typography.small * 1.4,
-    marginBottom: 2,
-  },
-  catCount: {
-    fontSize: typography.tiny,
-    color: colors.subtext,
-    fontWeight: "300",
-  },
+  // ── View all row (bottom of card)
+  viewAll:        { fontSize: 13, fontWeight: "600", color: "#C8A96A" },
+
+  // ── Shared section row (header + view all)
+  sectionRow:     { flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between", paddingHorizontal: 16, marginBottom: 16 },
+
+  // ── Themes
+  themeSection:   { backgroundColor: "#FDF7EE", borderRadius: 16, marginHorizontal: 16, marginTop: 16, marginBottom: 0, paddingHorizontal: 16, paddingTop: 14, paddingBottom: 16, shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.10, shadowRadius: 6, elevation: 3 },
+  themeScroll:    { paddingHorizontal: 16, gap: 8 },
+  themeCard:      { width: 88, alignItems: "center" },
+  themeIconBox:   { borderRadius: 14, backgroundColor: "#EDE4D4", borderWidth: 1, borderColor: "#C8BFB2", padding: 14, alignItems: "center", justifyContent: "center", marginBottom: 8, shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.10, shadowRadius: 6, elevation: 3 },
+  themeLabel:     { fontSize: 12, color: "#1A1410", fontWeight: "600", textAlign: "center", lineHeight: 16, marginTop: 8 },
+
+  // ── Moods
+  moodSection:    { backgroundColor: "#FDF7EE", borderRadius: 16, marginHorizontal: 16, marginTop: 16, marginBottom: 12, paddingTop: 14, paddingBottom: 16, shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.10, shadowRadius: 6, elevation: 3 },
+  moodScroll:     { paddingHorizontal: 16, gap: 10 },
+  moodCard:       { width: 100, height: 110, borderRadius: 12, overflow: "hidden", marginRight: 10 },
+  moodCardContent:{ flex: 1, alignItems: "center", justifyContent: "center", gap: 6, paddingHorizontal: 4 },
+  moodLabel:      { fontFamily: SERIF, fontSize: 14, fontWeight: "600", color: "#FFFFFF", textAlign: "center", lineHeight: 18 },
+
+  // ── Empty tab states
+  emptyTab:       { alignItems: "center", paddingTop: 64, paddingBottom: 40, gap: 14 },
+  emptyTitle:     { fontFamily: SERIF, fontSize: 24, color: "#1A1410" },
+  emptySub:       { fontSize: 14, color: "#8A7D6A", textAlign: "center" },
+  favEmptyTitle:  { fontFamily: SERIF, fontSize: 20, color: "#1A1410" },
+  favEmptySub:    { fontSize: 14, color: "#8A7D6A", textAlign: "center", marginTop: 8, paddingHorizontal: 32 },
+
+  bottomSpacer:   { height: 32 },
+
+  // ── Modal
+  modalRoot:      { flex: 1, justifyContent: "flex-end" },
+  backdrop:       { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.48)" },
+  backdropTouch:  { flex: 1 },
+  sheet:          { backgroundColor: "#FDFAF4", borderTopLeftRadius: 24, borderTopRightRadius: 24, maxHeight: "88%" },
+  sheetKav:       { flex: 1 },
+  sheetHandle:    { width: 40, height: 4, borderRadius: 2, backgroundColor: "#DDD5C0", alignSelf: "center", marginTop: 12, marginBottom: 4 },
+  sheetHeaderRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: "#EDE4D4" },
+  sheetTitle:     { fontFamily: SERIF, fontSize: 20, color: "#1A1410" },
+  sheetScroll:    { flex: 1 },
+  sheetScrollContent: { paddingHorizontal: 20, paddingTop: 4 },
+
+  // ── Add Dua form
+  duaInput:       { backgroundColor: "#F5F0E8", borderRadius: 14, borderWidth: 1, borderColor: "#DDD5C0", padding: 16, fontSize: 16, color: "#1A1410", minHeight: 120, marginTop: 20, marginBottom: 22 },
+  fieldEyebrow:   { fontSize: 10, fontWeight: "700", letterSpacing: 1.2, color: "#C8A96A", marginBottom: 10 },
+  fieldInput:     { backgroundColor: "#F5F0E8", borderRadius: 12, borderWidth: 1, borderColor: "#DDD5C0", paddingHorizontal: 14, paddingVertical: 13, fontSize: 15, color: "#1A1410", marginBottom: 22 },
+  pillRow:        { gap: 8, paddingBottom: 22 },
+  pill:           { borderRadius: 20, borderWidth: 1, borderColor: "#DDD5C0", paddingHorizontal: 15, paddingVertical: 9, backgroundColor: "#F5F0E8" },
+  pillActive:     { backgroundColor: "#1A1410", borderColor: "#1A1410" },
+  pillText:       { fontSize: 13, fontWeight: "500", color: "#5A4E42" },
+  pillTextActive: { color: "#C8A96A" },
+  saveBtn:        { backgroundColor: "#1A1410", borderRadius: 28, paddingVertical: 16, alignItems: "center", marginTop: 6, marginBottom: 14 },
+  saveBtnText:    { fontSize: 16, fontWeight: "600", color: "#C8A96A" },
+  cancelLink:     { alignItems: "center", paddingVertical: 8 },
+  cancelText:     { fontSize: 15, color: "#8A7D6A" },
+  sheetBottom:    { height: 40 },
 });
