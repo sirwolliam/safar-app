@@ -37,12 +37,16 @@ import {
   ArrowCounterClockwise,
   Heart,
   Users,
+  UsersThree,
   Heartbeat,
   Hourglass,
   CloudRain,
   Leaf,
   Flame,
   SunHorizon,
+  Sparkle,
+  Mosque,
+  Compass,
   Plus,
   PlayCircle,
   MagnifyingGlass,
@@ -65,14 +69,90 @@ const HAJJ_ROWS = [
 ];
 
 const THEMES = [
-  { key: "quran",       Icon: BookOpen,              label: "Qurʼan &\nDuʿās"   },
-  { key: "guidance",    Icon: Shield,                label: "Guidance &\nProtection"        },
-  { key: "salah",       Icon: Moon,                  label: "Salah &\nWorship"              },
-  { key: "forgiveness", Icon: ArrowCounterClockwise, label: "Forgiveness &\nRepentance"     },
-  { key: "gratitude",   Icon: Heart,                 label: "Gratitude &\nThankfulness"     },
-  { key: "family",      Icon: Users,                 label: "Family &\nLoved Ones"          },
-  { key: "health",      Icon: Heartbeat,             label: "Health &\nHealing"             },
-  { key: "patience",    Icon: Hourglass,             label: "Patience &\nTrust"             },
+  {
+    key: "pilgrimage",
+    label: "Pilgrimage\n& Worship",
+    icon: Mosque,
+    image: require("../assets/themes/dua_kaaba.png"),
+    overlay: 0.45,
+  },
+  {
+    key: "prayer",
+    label: "Salah\n& Prayer",
+    icon: Moon,
+    image: require("../assets/themes/dua_sleep.png"),
+    overlay: 0.25,
+  },
+  {
+    key: "dhikr",
+    label: "Dhikr &\nRemembrance",
+    icon: Heart,
+    image: require("../assets/themes/dua_reminders.png"),
+    overlay: 0.40,
+  },
+  {
+    key: "forgiveness",
+    label: "Forgiveness\n& Repentance",
+    icon: ArrowCounterClockwise,
+    image: require("../assets/themes/dua_icon6.png"),
+    overlay: 0.35,
+  },
+  {
+    key: "gratitude",
+    label: "Gratitude\n& Praise",
+    icon: SunHorizon,
+    image: require("../assets/themes/dua_icon1.png"),
+    overlay: 0.38,
+  },
+  {
+    key: "tawakkul",
+    label: "Trust\nin Allah",
+    icon: Sparkle,
+    image: require("../assets/themes/dua_icon5.png"),
+    overlay: 0.35,
+  },
+  {
+    key: "patience",
+    label: "Patience\n& Steadfastness",
+    icon: Hourglass,
+    image: require("../assets/themes/dua_icon2.png"),
+    overlay: 0.38,
+  },
+  {
+    key: "family",
+    label: "Family\n& Loved Ones",
+    icon: UsersThree,
+    image: require("../assets/themes/dua_family.png"),
+    overlay: 0.42,
+  },
+  {
+    key: "health",
+    label: "Health\n& Healing",
+    icon: Heartbeat,
+    image: require("../assets/themes/dua_icon7.png"),
+    overlay: 0.35,
+  },
+  {
+    key: "anxiety",
+    label: "Anxiety\n& Worry",
+    icon: CloudRain,
+    image: require("../assets/themes/dua_icon4.png"),
+    overlay: 0.30,
+  },
+  {
+    key: "travel",
+    label: "Travel\n& Journey",
+    icon: Compass,
+    image: require("../assets/themes/dua_icon3.png"),
+    overlay: 0.38,
+  },
+  {
+    key: "guidance",
+    label: "Guidance\n& Wisdom",
+    icon: BookOpen,
+    image: require("../assets/themes/duas.png"),
+    overlay: 0.48,
+  },
 ];
 
 const MOODS = [
@@ -147,52 +227,52 @@ export default function MyDuasScreen({ navigation }) {
   return (
     <View style={styles.root}>
 
-      {/* ── Header ───────────────────────────────────────────────────────── */}
-      <View style={styles.header}>
-        <Image
-          source={HEADER_IMAGE}
-          defaultSource={HEADER_IMAGE}
-          style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, width: "100%", height: "100%" }}
-          resizeMode="cover"
-          fadeDuration={0}
-        />
-        <LinearGradient
-          colors={["transparent", "rgba(0,0,0,0.10)", "rgba(26,20,16,0.72)", "rgba(26,20,16,0.96)"]}
-          locations={[0, 0.35, 0.75, 1]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 0, y: 1 }}
-          style={StyleSheet.absoluteFillObject}
-        />
-        <TouchableOpacity
-          style={[styles.backBtn, { top: insets.top + 14 }]}
-          onPress={() => navigation.goBack()}
-          activeOpacity={0.8}
-        >
-          <CaretLeft size={18} color="#FFFFFF" weight="bold" />
-        </TouchableOpacity>
-        <View style={styles.headerContent}>
-          <View style={styles.titleRow}>
-            <View style={styles.iconBadge}>
-              <BookOpen size={22} color="#C8A96A" weight="regular" />
-            </View>
-            <Text style={styles.headerTitle}>Duas</Text>
-          </View>
-          <Text style={styles.headerSub}>
-            Supplications for every moment of your journey
-          </Text>
-        </View>
-        <TouchableOpacity style={[styles.addBtn, { top: insets.top + 14 }]} onPress={openModal} activeOpacity={0.85}>
-          <Plus size={14} color="#C8A96A" weight="bold" />
-          <Text style={styles.addBtnText}>Add Dua</Text>
-        </TouchableOpacity>
-      </View>
-
       {/* ── Main scroll ──────────────────────────────────────────────────── */}
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
+        {/* ── Header ───────────────────────────────────────────────────────── */}
+        <View style={styles.header}>
+          <Image
+            source={HEADER_IMAGE}
+            defaultSource={HEADER_IMAGE}
+            style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, width: "100%", height: "100%" }}
+            resizeMode="cover"
+            fadeDuration={0}
+          />
+          <LinearGradient
+            colors={["transparent", "rgba(0,0,0,0.10)", "rgba(26,20,16,0.72)", "rgba(26,20,16,0.96)"]}
+            locations={[0, 0.35, 0.75, 1]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+            style={StyleSheet.absoluteFillObject}
+          />
+          <TouchableOpacity
+            style={[styles.backBtn, { top: insets.top + 14 }]}
+            onPress={() => navigation.goBack()}
+            activeOpacity={0.8}
+          >
+            <CaretLeft size={18} color="#FFFFFF" weight="bold" />
+          </TouchableOpacity>
+          <View style={styles.headerContent}>
+            <View style={styles.titleRow}>
+              <View style={styles.iconBadge}>
+                <BookOpen size={22} color="#C8A96A" weight="regular" />
+              </View>
+              <Text style={styles.headerTitle}>Duas</Text>
+            </View>
+            <Text style={styles.headerSub}>
+              Supplications for every moment of your journey
+            </Text>
+          </View>
+          <TouchableOpacity style={[styles.addBtn, { top: insets.top + 14 }]} onPress={openModal} activeOpacity={0.85}>
+            <Plus size={14} color="#C8A96A" weight="bold" />
+            <Text style={styles.addBtnText}>Add Dua</Text>
+          </TouchableOpacity>
+        </View>
+
         {/* Search + Practice */}
         <View style={styles.searchRow}>
           <View style={styles.searchBarInner}>
@@ -216,7 +296,7 @@ export default function MyDuasScreen({ navigation }) {
           </TouchableOpacity>
         </View>
 
-        {/* Quick-access tabs */}
+        {/* Tab bar */}
         <View style={styles.tabBar}>
           <TouchableOpacity
             style={activeTab === "discover" ? [styles.tab, styles.tabActive] : styles.tab}
@@ -311,11 +391,12 @@ export default function MyDuasScreen({ navigation }) {
             {/* Themes / Library */}
             <View style={styles.themeSection}>
               <View style={styles.sectionRow}>
-                <View>
+                <View style={styles.sectionHeaderLeft}>
                   <Text style={styles.sectionTitle}>Themes / Library</Text>
                   <Text style={styles.sectionSub}>Browse duas by topic</Text>
                 </View>
                 <TouchableOpacity
+                  style={styles.sectionViewAll}
                   onPress={() => navigation.navigate("DuaList", { category: "all" })}
                   activeOpacity={0.75}
                 >
@@ -325,19 +406,33 @@ export default function MyDuasScreen({ navigation }) {
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
+                style={styles.themeScrollView}
                 contentContainerStyle={styles.themeScroll}
               >
-                {THEMES.map((t) => (
+                {THEMES.map((theme) => (
                   <TouchableOpacity
-                    key={t.key}
-                    style={styles.themeCard}
-                    activeOpacity={0.8}
-                    onPress={() => navigation.navigate("DuaList", { category: t.key })}
+                    key={theme.key}
+                    style={styles.themeCardWrapper}
+                    activeOpacity={0.85}
+                    onPress={() => navigation.navigate("DuaList", { category: theme.key })}
                   >
-                    <View style={styles.themeIconBox}>
-                      <t.Icon size={34} color="#7A5C30" weight="regular" />
+                    <View style={styles.themeCard}>
+                      <Image
+                        source={theme.image}
+                        style={StyleSheet.absoluteFillObject}
+                        resizeMode="cover"
+                      />
+                      <LinearGradient
+                        colors={["transparent", `rgba(26,20,16,${theme.overlay})`]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 0, y: 1 }}
+                        style={StyleSheet.absoluteFillObject}
+                      />
+                      <View style={styles.themeCardContent}>
+                        <theme.icon size={40} color="#FFFFFF" weight="regular" />
+                      </View>
                     </View>
-                    <Text style={styles.themeLabel}>{t.label}</Text>
+                    <Text style={styles.themeLabel}>{theme.label}</Text>
                   </TouchableOpacity>
                 ))}
               </ScrollView>
@@ -346,11 +441,12 @@ export default function MyDuasScreen({ navigation }) {
             {/* Duas by Mood */}
             <View style={styles.moodSection}>
               <View style={styles.sectionRow}>
-                <View>
+                <View style={styles.sectionHeaderLeft}>
                   <Text style={styles.sectionTitle}>Duas by Mood</Text>
                   <Text style={styles.sectionSub}>Find the right words for how you feel</Text>
                 </View>
                 <TouchableOpacity
+                  style={styles.sectionViewAll}
                   onPress={() => navigation.navigate("DuaList", { category: "mood" })}
                   activeOpacity={0.75}
                 >
@@ -522,6 +618,7 @@ export default function MyDuasScreen({ navigation }) {
           </Animated.View>
         </View>
       </Modal>
+
     </View>
   );
 }
@@ -581,18 +678,22 @@ const styles = StyleSheet.create({
   viewAll:        { fontSize: 13, fontWeight: "600", color: "#C8A96A" },
 
   // ── Shared section row (header + view all)
-  sectionRow:     { flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between", paddingHorizontal: 16, marginBottom: 16 },
+  sectionRow:       { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", paddingHorizontal: 16, paddingTop: 14, paddingBottom: 10 },
+  sectionHeaderLeft:{ flex: 1, alignItems: "flex-start" },
+  sectionViewAll:   { alignSelf: "flex-start", paddingTop: 2 },
 
   // ── Themes
-  themeSection:   { backgroundColor: "#FDF7EE", borderRadius: 16, marginHorizontal: 16, marginTop: 16, marginBottom: 0, paddingHorizontal: 16, paddingTop: 14, paddingBottom: 16, shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.10, shadowRadius: 6, elevation: 3 },
-  themeScroll:    { paddingHorizontal: 16, gap: 8 },
-  themeCard:      { width: 88, alignItems: "center" },
-  themeIconBox:   { borderRadius: 14, backgroundColor: "#EDE4D4", borderWidth: 1, borderColor: "#C8BFB2", padding: 14, alignItems: "center", justifyContent: "center", marginBottom: 8, shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.10, shadowRadius: 6, elevation: 3 },
-  themeLabel:     { fontSize: 12, color: "#1A1410", fontWeight: "600", textAlign: "center", lineHeight: 16, marginTop: 8 },
+  themeSection:     { backgroundColor: "#FDF7EE", borderRadius: 16, marginHorizontal: 16, marginTop: 16, marginBottom: 0, paddingBottom: 16, borderWidth: 0, shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.10, shadowRadius: 6, elevation: 3 },
+  themeScrollView:  { paddingBottom: 8 },
+  themeScroll:      { paddingHorizontal: 16, paddingBottom: 8, alignItems: "flex-start", gap: 8 },
+  themeCardWrapper: { width: 110, alignItems: "center", marginRight: 8, overflow: "visible" },
+  themeCard:        { width: 110, height: 110, borderRadius: 14, overflow: "hidden" },
+  themeCardContent: { flex: 1, alignItems: "center", justifyContent: "center" },
+  themeLabel:       { fontSize: 14, fontFamily: SERIF, color: "#1A1410", textAlign: "center", lineHeight: 18, marginTop: 6, paddingHorizontal: 4 },
 
   // ── Moods
-  moodSection:    { backgroundColor: "#FDF7EE", borderRadius: 16, marginHorizontal: 16, marginTop: 16, marginBottom: 12, paddingTop: 14, paddingBottom: 16, shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.10, shadowRadius: 6, elevation: 3 },
-  moodScroll:     { paddingHorizontal: 16, gap: 10 },
+  moodSection:    { backgroundColor: "#FDF7EE", borderRadius: 16, marginHorizontal: 16, marginTop: 16, marginBottom: 12, paddingBottom: 16, borderWidth: 0, shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.10, shadowRadius: 6, elevation: 3 },
+  moodScroll:     { paddingHorizontal: 16, paddingBottom: 8, gap: 10 },
   moodCard:       { width: 100, height: 110, borderRadius: 12, overflow: "hidden", marginRight: 10 },
   moodCardContent:{ flex: 1, alignItems: "center", justifyContent: "center", gap: 6, paddingHorizontal: 4 },
   moodLabel:      { fontFamily: SERIF, fontSize: 14, fontWeight: "600", color: "#FFFFFF", textAlign: "center", lineHeight: 18 },

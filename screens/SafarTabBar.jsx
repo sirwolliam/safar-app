@@ -18,7 +18,9 @@ import {
   StyleSheet,
   Platform,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import { colors, spacing, radius, shadows, typography } from "../theme";
+import HubBar from "../components/HubBar";
 
 // ─── Icon set ─────────────────────────────────────────────────────────────────
 // Pure React Native SVG-free icons rendered as text glyphs + geometry.
@@ -98,44 +100,52 @@ export default function SafarTabBar({
   // React Navigation compat
   navProps,
 }) {
+  const navigation = useNavigation();
+
   // React Navigation integration
   if (navProps) {
-    const { state, navigation } = navProps;
+    const { state, navigation: navPropsNav } = navProps;
     const routeNames = state.routes.map((r) => r.name.toLowerCase());
 
     const handleNav = (routeName) => {
-      navigation.navigate(routeName);
+      navPropsNav.navigate(routeName);
     };
 
     return (
-      <View style={styles.bar}>
-        {tabs.map((item) => {
-          const routeIdx = routeNames.indexOf(item.id);
-          const active = routeIdx === state.index;
-          return (
-            <TabItem
-              key={item.id}
-              item={item}
-              isActive={active}
-              onPress={() => handleNav(item.id)}
-            />
-          );
-        })}
+      <View style={styles.wrapper}>
+        <HubBar navigation={navigation} />
+        <View style={styles.bar}>
+          {tabs.map((item) => {
+            const routeIdx = routeNames.indexOf(item.id);
+            const active = routeIdx === state.index;
+            return (
+              <TabItem
+                key={item.id}
+                item={item}
+                isActive={active}
+                onPress={() => handleNav(item.id)}
+              />
+            );
+          })}
+        </View>
       </View>
     );
   }
 
   // Standalone usage
   return (
-    <View style={styles.bar}>
-      {tabs.map((item) => (
-        <TabItem
-          key={item.id}
-          item={item}
-          isActive={activeTab === item.id}
-          onPress={() => onTabPress?.(item.id)}
-        />
-      ))}
+    <View style={styles.wrapper}>
+      <HubBar navigation={navigation} />
+      <View style={styles.bar}>
+        {tabs.map((item) => (
+          <TabItem
+            key={item.id}
+            item={item}
+            isActive={activeTab === item.id}
+            onPress={() => onTabPress?.(item.id)}
+          />
+        ))}
+      </View>
     </View>
   );
 }
@@ -145,6 +155,9 @@ export default function SafarTabBar({
 const BAR_HEIGHT = Platform.OS === "ios" ? 82 : 64;
 
 const styles = StyleSheet.create({
+  wrapper: {
+    backgroundColor: "transparent",
+  },
   bar: {
     flexDirection: "row",
     alignItems: "center",
