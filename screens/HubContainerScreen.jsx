@@ -8,7 +8,7 @@
  */
 import React, { useEffect, useRef, useState } from "react";
 import {
-  View, Text, ScrollView, TouchableOpacity, StyleSheet,
+  View, Text, Image, ScrollView, TouchableOpacity, StyleSheet,
   Animated, Share,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
@@ -216,18 +216,27 @@ export default function HubContainerScreen({ navigation, route }) {
 
       {/* ── Header ───────────────────────────────────────────────────────── */}
       <View style={styles.header}>
-        <Animated.Image
-          source={displayedImage}
-          style={[{
-            position: "absolute",
-            top: 0, left: 0, right: 0, bottom: 0,
-            width: "100%", height: "100%",
-          }, {
-            transform: [{ scale: imageScale }],
-          }]}
-          resizeMode="cover"
-          fadeDuration={0}
-        />
+        <Animated.View
+          style={[
+            StyleSheet.absoluteFillObject,
+            { transform: [{ scale: imageScale }] }
+          ]}
+        >
+          <Image
+            source={displayedImage}
+            style={{
+              width: "100%",
+              height: "100%",
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+            }}
+            resizeMode="cover"
+            fadeDuration={0}
+          />
+        </Animated.View>
         <LinearGradient
           colors={config.gradient}
           locations={config.gradientLocations}
@@ -375,7 +384,7 @@ export default function HubContainerScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   root:          { flex: 1, backgroundColor: "#EDE6D8" },
   // Header
-  header:        { height: 260, overflow: "hidden" },
+  header:        { height: 260, overflow: "hidden", position: "relative", backgroundColor: "#1A1410" },
   headerImg:     { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, width: "100%", height: "100%" },
   backBtn:       { position: "absolute", left: 18, width: 36, height: 36, borderRadius: 18, backgroundColor: "rgba(0,0,0,0.35)", alignItems: "center", justifyContent: "center" },
   headerContent: { position: "absolute", bottom: 22, left: 20, right: 20 },
