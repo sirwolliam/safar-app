@@ -1,6 +1,6 @@
 # Safar — Technical Design Document
 *Hajj & Umrah pilgrimage companion app. React Native (Expo).*
-*Last verified: 2026-06-25. This TDD is derived from the actual code, not aspiration — keep it that way.*
+*Last verified: 2026-07-01. This TDD is derived from the actual code, not aspiration — keep it that way.*
 
 ---
 
@@ -52,7 +52,7 @@ The app is organized around **Four Pillars**: Learn, Practice, Plan, Connect —
 - **Attic:** `versions/` and assorted root/`screens/` `.jsx` duplicates are old hand-saved backups (the project was manually version-controlled before git). To be archived OUT of the project so the folder is unambiguous for tools/agents. Git is now the version history; manual `copy N` files are redundant.
 
 ### Coding rules (hard-won)
-1. `StyleSheet.create` at module level.
+1. `StyleSheet.create` at module level, **literal values only** — no token references (`colors.primary`, `spacing(2)`) inside screen StyleSheets.
 2. **No `&&` in style arrays** — use ternaries. `style={cond ? [a, b] : a}`, never `style={[a, cond && b]}`. (Documented crash pattern.) Same caution for `&&` rendering JSX children when the left side could be `0` or `""`.
 3. Phosphor icons only, verified to exist. No emoji.
 4. After edits: `npx expo start --clear` (Metro caches aggressively; `--clear` is required to see changes).
@@ -60,6 +60,8 @@ The app is organized around **Four Pillars**: Learn, Practice, Plan, Connect —
 6. Propose design in plain language and get sign-off before coding (esp. for anything structural/visual).
 7. Read the existing file — and grep for the SPECIFIC feature — before writing, to avoid duplicating an existing section.
 8. Don't reproduce fabricated Islamic content. Arabic, translations, hadith citations must come from real sources; unverified entries flagged `verified:false` pending qualified human review.
+9. **No `react-native-reanimated`** — use the built-in `Animated` API only.
+10. **No new packages** without explicit approval.
 
 ---
 
@@ -67,11 +69,19 @@ The app is organized around **Four Pillars**: Learn, Practice, Plan, Connect —
 
 - `background` #EDE6D8 (parchment, deepened for card contrast)
 - `card` #FDFAF4 (cream-white)
-- `primary` #2F5D50 (forest green)
+- `primary` #2F5D50 (forest green — used in theme.js)
 - `gold` #C8A96A (and darker golds #BF9F60, #9A7A3A for text/icons)
 - `text` #1A1712
 - `subtext` #5A5650 (darkened for legibility)
 - `border` #D4D0CA
+
+### Screen-level color decisions (literal values, decided 2026-07-01)
+These are used directly in StyleSheet.create (literal values only — no token references in screen files):
+- **Action / active color:** `#4A5C48` (sage green) — used for: Add Dua button, active tab in MyDuasScreen, Hajj/Umrah selector active state in JourneyScreen
+- **Page background:** `#F0EBE1` (warm parchment, slightly darker than card) — used in MyDuasScreen root
+- **Card background:** `#FDF7EE` (cream) — all three content cards in MyDuasScreen (Hajj, Themes, Mood)
+- **Dark base:** `#1A1410` — header backgrounds, icon text
+- **Gold accent:** `#C8A96A` — secondary icon/text accent (not used for active states; sage green is preferred for interactive states)
 
 ---
 
@@ -82,10 +92,10 @@ The app is organized around **Four Pillars**: Learn, Practice, Plan, Connect —
 **App boots through an onboarding gate:** reads AsyncStorage flag `safar_onboarded_v1`; if unset → `Onboarding` (OnboardingFlow), else → `MainTabs`. Onboarding writes the flag and `replace("MainTabs")` on completion. No forced signup — onboarding-only by design; signup deferred to where it's contextually needed later. "Restart Setup" lives in Settings.
 
 ### Stacks and screens
-- **HomeStack:** HomeMain, Hub, **PlanHub** (PlanHubScreen), UmrahGuide, HajjGuide, WhatToExpect, Groups, Guides (GuidesHubScreen), Tools, Shop, Media, Notes, Settings, Notifications
+- **HomeStack:** HomeMain, Hub, **PlanHub** (PlanHubScreen), **LearnHub** (LearnHubScreen), **PracticeHub** (PracticeHubScreen), **ConnectHub** (ConnectHubScreen), **HubContainer** (HubContainerScreen), UmrahGuide, HajjGuide, WhatToExpect, Groups, Guides (GuidesHubScreen), Shop, Media, Notes, Settings, Notifications
 - **JourneyStack:** JourneyMain, Map, SiteDuas*, WhatToExpect, Groups, GroupDetail, Connections, MyBoard, MyContacts, Tawaf, Saiy
 - **DuasStack:** MyDuas, DuaList, Dhikr
-- **ToolsStack:** ToolsMain, PrayerTimes, Qibla, CurrencyConverter, Tawaf, Saiy, Dhikr
+- **ToolsStack:** ToolsMain, PrayerTimes, Qibla, CurrencyConverter, Tawaf, Saiy, Dhikr, PracticeLearn, Notes, Bookmarks
 - **PrepareStack:** PrepareMain (ProfileScreen), Bookmarks, Notes, CurrencyConverter, Support, Settings
 - **Root Stack (full-screen, no tab bar):** Onboarding, MainTabs, DuaDetail, StepGuide (ProgressScreen), PracticeLearn, PrintOffline, PilgrimageDuas, SafarAssist, SacredPlaces
 
@@ -205,13 +215,127 @@ Replaces "My Board" (kill the dashboard execution; the idea was sound, the desig
 
 ---
 
+## 7d. Hub screen architecture — HubContainerScreen (BUILT 2026-07-01)
+
+`screens/HubContainerScreen.jsx` — single unified screen replacing the four individual hub screens (PlanHubScreen, LearnHubScreen, PracticeHubScreen, ConnectHubScreen). Configured entirely via `PILLAR_CONFIG` — switching pillars requires no new files.
+
+**Why consolidated:** pill switching between hubs previously used `navigation.replace()` to swap between four separate screens, causing a flash on transition. HubContainerScreen renders everything in one component; pill taps update local state (`activePillar`) — no navigation, instant transition.
+
+**Ken Burns zoom animation:**
+- `imageScale` = `useRef(new Animated.Value(1.08)).current`
+- On pillar switch: scale resets to 1.08, then animates to 1.0 over 3500ms with `easing: Easing.out(Easing.quad)` and `useNativeDriver: true`
+- Image is rendered as `<Animated.View style={[StyleSheet.absoluteFillObject, { transform: [{ scale: imageScale }] }]}>` wrapping a regular `<Image>` — **not** `Animated.Image` (Animated.View + Image is more reliable on device)
+- `header` style has `backgroundColor: "#1A1410"` so dark shows while image loads
+
+**PILLAR_CONFIG shape** (one entry per pillar):
+```js
+{
+  image,             // pre-required at module level
+  gradient,          // colors[] for LinearGradient
+  gradientLocations, // locations[]
+  pillColor,         // active pill backgroundColor
+  iconBg,            // icon square backgroundColor
+  Icon,              // Phosphor icon component
+  title,             // "Plan" | "Learn" | "Practice" | "Connect"
+  subtitle,          // one-line intent string
+  hasHeroCard,       // boolean — show SafarAssist hero card
+  rows,              // array of list rows
+}
+```
+
+**Per-pillar identity colors (icon square / active pill):**
+| Pillar  | Color    | Feel       |
+|---------|----------|------------|
+| Plan    | #2E4560  | Navy       |
+| Learn   | #3D2240  | Plum       |
+| Practice| #4E3414  | Warm brown |
+| Connect | #3D2240  | Plum       |
+
+**Photo headers:** `../assets/hub-headers/{plan,learn,practice,connect}-header.png` — 390×260px, no `@3x` suffix.
+
+**Pill switching:** tapping an inactive pill calls `switchPillar(key)` which updates `activePillar` state and triggers the Ken Burns animation. No `navigation.replace()` — all in one screen.
+
+**Image cross-fade on pillar switch:** `displayedImage` state holds the current visible image; after a short delay (matching the animation), it updates to the new pillar's image with an opacity cross-fade via `Animated.timing`.
+
+---
+
+## 7e. Tools screen (BUILT — current)
+
+`screens/ToolsScreen.jsx` — matches the hub template visual language.
+
+**Photo header:** `../assets/hub-headers/tools-header.png`, 260px height, dark gradient overlay.
+
+**Nine rows in order:**
+1. Dhikr Counter
+2. Ṭawāf Counter
+3. Saʿy Counter
+4. Prayer Times
+5. Qibla
+6. Currency Converter
+7. Notes
+8. Bookmarks
+9. Practice & Learn
+
+---
+
+## 7f. Duas screen — MyDuasScreen.jsx (CURRENT DESIGN 2026-07-01)
+
+`screens/MyDuasScreen.jsx` — the Duas tab (center tab).
+
+### Structure (top → bottom)
+1. **Hub-style photo header** — `../assets/dua-header.png`, 260px, `LinearGradient` overlay, `BookOpen` icon badge, serif "Duas" title, subtitle. Back button (top-left), "Add Dua" button (top-right).
+2. **Search + Practice row** — single horizontal row: flex-1 search field (`searchBarInner`, `#FDFAF4` bg, radius 16) + compact "Practice" pill (`practicePill`, same `#FDFAF4` bg, dark text/icon `#1A1410`, navigates to `PracticeLearn`).
+3. **Three-tab bar** — Discover · Favourites · My Duas. Active tab: `#4A5C48` (sage green) bg, white text and icon. Inactive: `#EDE4D4` bg, `#5C534A` text.
+4. **Tab: Discover** (default) — three content cards:
+   - **Duas for Hajj & Umrah card** (`#FDF7EE`) — 5 rows with 72×72 photo thumbnails from `../assets/hajj/`
+   - **Themes / Library** (`#FDF7EE`) — horizontal scroll of icon cards, 8 themes, icon color `#7A5C30`, box bg `#EDE4D4`
+   - **Duas by Mood** (`#FDF7EE`) — horizontal scroll of 5 mood cards (100×110), real photos from `../assets/mood/` with `LinearGradient` overlay `["rgba(0,0,0,0.15)", "rgba(0,0,0,0.70)"]`, white icons and labels
+5. **Tab: Favourites** — empty state (Star icon)
+6. **Tab: My Duas** — empty state (User icon)
+
+### Key style values
+- Root background: `#F0EBE1`
+- All three content cards background: `#FDF7EE`
+- Add Dua button: `#4A5C48` (sage green), gold text
+- Active tab: `#4A5C48`, white text + white icon
+- Mood card icon color: `#FFFFFF`
+- Mood label fontSize: 14, lineHeight: 18
+
+### Add Dua modal
+Bottom-sheet `Modal` (transparent) with `Animated.timing` slide-up. Fields: arabic text, title, transliteration (optional), translation (optional), category picker (horizontal scroll pills), location picker (horizontal scroll pills). Save writes to local AsyncStorage.
+
+### Photo assets
+- Hajj thumbnails: `../assets/hajj/hajj-{ihram,tawaf,saiy,arafah,jamarat}.png`
+- Mood photos: `../assets/mood/mood-{anxious,peace,strength,grateful,anew}.png`
+- Header: `../assets/dua-header.png`
+
+---
+
+## 7g. Session commit ritual
+
+**GitHub repo:** `github.com/sirwolliam/safar-app`
+
+**End of session:**
+```
+git add -A
+git commit -m "brief description"
+git push
+```
+
+---
+
 ## 8. Open items / next steps
 
-**Sequenced plan:** (1) sitemap ✓ done · (2) redesign structure together · (3) refine/design each page · (4) finalize content (du'ā audio, media links).
+**Sequenced plan:** (1) sitemap ✓ done · (2) structure redesign ✓ done · (3) refine/design each page — IN PROGRESS · (4) finalize content (du'ā audio, media links).
 
-**Immediate next:** structure redesign conversation — is the 5-tab + 4-pillar model right? Where do SacredPlaces and SafarAssist best belong? How should each Hub be organized (with the medium rich-card treatment)?
-
-**Then:** roll the hub template to Learn, Practice, and Connect (Plan is the reference — see `PlanHubScreen.jsx`).
+**Screens needing redesign** (not yet updated to hub visual language):
+- MyDuasScreen linked pages: du'ā detail view, Favourites tab, My Duas tab
+- Groups, Connections, MyContacts
+- Notes, Bookmarks
+- PrayerTimes, Qibla, Currency Converter
+- UmrahGuide, HajjGuide
+- WhatToExpect, SacredPlaces
+- PracticeLearn
 
 **Content to finalize:** du'ā audio (traditional + gentle), media links, harvest remaining du'ā categories, scholar verification pass to flip `verified:true`.
 
