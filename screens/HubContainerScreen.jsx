@@ -163,6 +163,17 @@ export default function HubContainerScreen({ navigation, route }) {
   const [activePillar,    setActivePillar]    = useState(initialPillar);
   const [displayedImage,  setDisplayedImage]  = useState(PILLAR_CONFIG[initialPillar].image);
 
+  useEffect(() => {
+    const incoming = route?.params?.pillar;
+    if (incoming && incoming !== activePillar) {
+      setActivePillar(incoming);
+      setDisplayedImage(
+        PILLAR_CONFIG[incoming]?.image ??
+        PILLAR_CONFIG["plan"].image
+      );
+    }
+  }, [route?.params?.pillar]);
+
   // Hero card state (Plan only, loaded once on mount)
   const [tripState, setTripState] = useState(null);
   const [depDate,   setDepDate]   = useState(null);

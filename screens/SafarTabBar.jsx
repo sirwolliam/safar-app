@@ -20,7 +20,6 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { colors, spacing, radius, shadows, typography } from "../theme";
-import HubBar from "../components/HubBar";
 
 // ─── Icon set ─────────────────────────────────────────────────────────────────
 // Pure React Native SVG-free icons rendered as text glyphs + geometry.
@@ -113,7 +112,6 @@ export default function SafarTabBar({
 
     return (
       <View style={styles.wrapper}>
-        <HubBar navigation={navigation} />
         <View style={styles.bar}>
           {tabs.map((item) => {
             const routeIdx = routeNames.indexOf(item.id);
@@ -135,7 +133,6 @@ export default function SafarTabBar({
   // Standalone usage
   return (
     <View style={styles.wrapper}>
-      <HubBar navigation={navigation} />
       <View style={styles.bar}>
         {tabs.map((item) => (
           <TabItem

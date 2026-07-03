@@ -248,7 +248,9 @@ function ToolsNavigator() {
 
 function MainTabs() {
   return (
-    <Tab.Navigator tabBar={props => <SafarTabBar {...props} />} screenOptions={{ headerShown:false }}>
+    <Tab.Navigator tabBar={(props) => (
+      <SafarTabBar navProps={props} />
+    )} screenOptions={{ headerShown:false }}>
       <Tab.Screen name="Home"    component={HomeNavigator}    />
       <Tab.Screen name="Journey" component={JourneyNavigator} />
       <Tab.Screen name="Duas"    component={DuasNavigator}    />
