@@ -288,7 +288,21 @@ Replaces "My Board" (kill the dashboard execution; the idea was sound, the desig
 3. **Three-tab bar** — Discover · Favourites · My Duas. Active tab: `#4A5C48` (sage green) bg, white text and icon. Inactive: `#EDE4D4` bg, `#5C534A` text.
 4. **Tab: Discover** (default) — three content cards:
    - **Duas for Hajj & Umrah card** (`#FDF7EE`) — 5 rows with 72×72 photo thumbnails from `../assets/hajj/`
-   - **Themes / Library** (`#FDF7EE`) — horizontal scroll of icon cards, 8 themes, icon color `#7A5C30`, box bg `#EDE4D4`
+   - **Themes / Library** (`#FDF7EE`) — horizontal scroll of 12 photo-backed theme cards. Each card: 110×110px, `borderRadius: 14`, full-bleed photo (`../assets/themes/`), per-card `LinearGradient` overlay, Phosphor icon centered (size 40, color `#FFFFFF`), label below the card (`#1A1410`, serif, fontSize 14). Card list with image and overlay opacity:
+     | Category | Image | Overlay |
+     |---|---|---|
+     | Pilgrimage & Worship | dua_kaaba.png | 0.45 |
+     | Salah & Prayer | dua_sleep.png | 0.25 |
+     | Dhikr & Remembrance | dua_reminders.png | 0.40 |
+     | Forgiveness & Repentance | dua_icon6.png | 0.35 |
+     | Gratitude & Praise | dua_icon1.png | 0.38 |
+     | Trust in Allah | dua_icon5.png | 0.35 |
+     | Patience & Steadfastness | dua_icon2.png | 0.38 |
+     | Family & Loved Ones | dua_family.png | 0.42 |
+     | Health & Healing | dua_icon7.png | 0.35 |
+     | Anxiety & Worry | dua_icon4.png | 0.30 |
+     | Travel & Journey | dua_icon3.png | 0.38 |
+     | Guidance & Wisdom | duas.png | 0.48 |
    - **Duas by Mood** (`#FDF7EE`) — horizontal scroll of 5 mood cards (100×110), real photos from `../assets/mood/` with `LinearGradient` overlay `["rgba(0,0,0,0.15)", "rgba(0,0,0,0.70)"]`, white icons and labels
 5. **Tab: Favourites** — empty state (Star icon)
 6. **Tab: My Duas** — empty state (User icon)
@@ -308,6 +322,29 @@ Bottom-sheet `Modal` (transparent) with `Animated.timing` slide-up. Fields: arab
 - Hajj thumbnails: `../assets/hajj/hajj-{ihram,tawaf,saiy,arafah,jamarat}.png`
 - Mood photos: `../assets/mood/mood-{anxious,peace,strength,grateful,anew}.png`
 - Header: `../assets/dua-header.png`
+
+---
+
+## 7h. HubBar component (BUILT 2026-07-03)
+
+`components/HubBar.jsx` — slim horizontal hub navigation bar, 36px tall, designed to sit above the tab bar on root screens.
+
+**Purpose:** gives users one-tap access to any of the four pillar hubs from the tab bar without going through the Home screen. Replaces the earlier `HubQuickNav` floating action menu (removed from `MyDuasScreen`).
+
+**Navigation:** each item calls `navigation.navigate("HubContainer", { pillar: hub.key })` — same route used by the pill switcher inside HubContainerScreen itself.
+
+**Four items (left → right):** Plan · Learn · Practice · Connect
+
+**Design:**
+- Container: `BlurView` from `expo-blur`, `intensity={40}`, `tint="dark"`
+- `backgroundColor: "rgba(26,20,16,0.55)"` — warm dark tint layered over the blur (smoked-glass effect)
+- `borderTopWidth: 1`, `borderTopColor: "rgba(200,169,106,0.15)"` — subtle gold hairline
+- Height: 36px
+- Item dividers: `borderRightColor: "rgba(200,169,106,0.20)"`
+- Icon: Phosphor, size 14, color `#C8A96A`
+- Label: fontSize 12, fontWeight 600, color `#C8A96A`, letterSpacing 0.3
+
+**Integration note:** `screens/SafarTabBar.jsx` (standalone/draft component) has been updated to import and render HubBar above the tab row. The live tab bar used in the app is currently defined inline in `App.js` — HubBar is not yet wired into the production tab bar.
 
 ---
 
