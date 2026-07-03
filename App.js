@@ -128,9 +128,9 @@ function SafarTabBar({ state, descriptors, navigation }) {
     <View style={tb.bar}>
       {state.routes.map((route, index) => {
         const focused = state.index === index;
-        const { Icon, label, center } = TAB_CONFIG[route.name] ?? { Icon:House, label:route.name };
+        const { Icon, label, center } = TAB_CONFIG[route.name] ?? { Icon: House, label: route.name };
         const onPress = () => {
-          const event = navigation.emit({ type:"tabPress", target:route.key, canPreventDefault:true });
+          const event = navigation.emit({ type: "tabPress", target: route.key, canPreventDefault: true });
           if (!focused && !event.defaultPrevented) navigation.navigate(route.name);
         };
         if (center) {
@@ -139,14 +139,18 @@ function SafarTabBar({ state, descriptors, navigation }) {
               <View style={focused ? [tb.centerBtn, tb.centerBtnActive] : tb.centerBtn}>
                 <Icon size={26} color={colors.card} weight="fill" />
               </View>
-              <Text style={focused ? [tb.label, tb.labelActive] : tb.label}>{label}</Text>
+              <Text style={focused ? [tb.label, tb.labelActive] : tb.label}>
+                {label}
+              </Text>
             </TouchableOpacity>
           );
         }
         return (
           <TouchableOpacity key={route.key} style={tb.tab} onPress={onPress} activeOpacity={0.7}>
             <Icon size={22} color={focused ? colors.primary : ICON_INACTIVE} weight={focused ? "fill" : "regular"} />
-            <Text style={focused ? [tb.label, tb.labelActive] : tb.label}>{label}</Text>
+            <Text style={focused ? [tb.label, tb.labelActive] : tb.label}>
+              {label}
+            </Text>
           </TouchableOpacity>
         );
       })}
@@ -249,7 +253,7 @@ function ToolsNavigator() {
 function MainTabs() {
   return (
     <Tab.Navigator tabBar={(props) => (
-      <SafarTabBar navProps={props} />
+      <SafarTabBar {...props} />
     )} screenOptions={{ headerShown:false }}>
       <Tab.Screen name="Home"    component={HomeNavigator}    />
       <Tab.Screen name="Journey" component={JourneyNavigator} />

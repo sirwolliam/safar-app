@@ -633,7 +633,7 @@ const styles = StyleSheet.create({
   headerContent:  { position: "absolute", bottom: 22, left: 20, right: 20 },
   titleRow:       { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 10 },
   iconBadge:      { width: 44, height: 44, borderRadius: 22, borderWidth: 1.5, borderColor: "#C8A96A", alignItems: "center", justifyContent: "center" },
-  headerTitle:    { fontFamily: SERIF, fontSize: 38, color: "#FFFFFF", fontWeight: "600" },
+  headerTitle:    { fontFamily: undefined, fontSize: 38, color: "#FFFFFF", fontWeight: "600" },
   headerSub:      { fontSize: 15, color: "rgba(255,255,255,0.82)", lineHeight: 22, maxWidth: "88%" },
   addBtn:         { position: "absolute", top: 0, right: 20, flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: "#4A5C48", borderRadius: 22, paddingHorizontal: 16, paddingVertical: 10 },
   addBtnText:     { fontSize: 14, fontWeight: "600", color: "#C8A96A" },
@@ -647,21 +647,21 @@ const styles = StyleSheet.create({
   searchBarInner:  { flex: 1, flexDirection: "row", alignItems: "center", backgroundColor: "#FDFAF4", borderRadius: 16, paddingHorizontal: 14, paddingVertical: 12, gap: 8, shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.10, shadowRadius: 6, elevation: 3 },
   practicePill:    { flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: "#FDFAF4", borderRadius: 16, paddingHorizontal: 14, paddingVertical: 12, shadowColor: "#1A1410", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.20, shadowRadius: 6, elevation: 4 },
   practicePillText:{ fontSize: 14, fontWeight: "600", color: "#1A1410" },
-  searchInput:    { flex: 1, fontSize: 15, color: "#1A1410" },
+  searchInput:    { flex: 1, fontFamily: SERIF, fontSize: 15, color: "#1A1410" },
 
   // ── Tabs
   tabBar:         { flexDirection: "row", backgroundColor: "#FDFAF4", borderRadius: 16, marginHorizontal: 16, marginTop: 12, padding: 4, gap: 4, borderWidth: 0.5, borderColor: "#DDD5C0" },
   tab:            { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", paddingVertical: 13, gap: 6, backgroundColor: "#EDE4D4", borderRadius: 12 },
   tabActive:      { backgroundColor: "#4A5C48", borderRadius: 12 },
   tabDivider:     { width: 0, backgroundColor: "transparent" },
-  tabLabel:       { fontSize: 13, fontWeight: "600", color: "#5C534A" },
+  tabLabel:       { fontFamily: SERIF, fontSize: 13, fontWeight: "600", color: "#5C534A" },
   tabLabelActive: { color: "#FFFFFF" },
 
   // ── Hajj card
   card:           { backgroundColor: "#FDF7EE", borderRadius: 20, marginHorizontal: 16, marginTop: 16, overflow: "hidden", borderWidth: 0.5, borderColor: "#DDD5C0" },
   cardHeaderRow:  { flexDirection: "row", alignItems: "center", paddingHorizontal: 20, paddingTop: 20, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: "#EDE4D4" },
   cardHeaderLeft: { flex: 1, paddingRight: 12 },
-  sectionTitle:   { fontFamily: SERIF, fontSize: 20, color: "#1A1410", marginBottom: 5 },
+  sectionTitle:   { fontFamily: undefined, fontSize: 20, color: "#1A1410", marginBottom: 5 },
   sectionSub:     { fontSize: 13, color: "#8A7D6A", lineHeight: 19 },
 
   // ── List rows
@@ -671,8 +671,8 @@ const styles = StyleSheet.create({
   rowThumb:       { width: 72, height: 72, borderRadius: 14, overflow: "hidden", marginRight: 14 },
   rowThumbImg:    { width: "100%", height: "100%" },
   rowInfo:        { flex: 1, paddingRight: 8 },
-  rowTitle:       { fontFamily: SERIF, fontSize: 20, color: "#1A1410", marginBottom: 2 },
-  rowSub:         { fontSize: 14, color: "#8A7D6A", lineHeight: 19 },
+  rowTitle:       { fontFamily: undefined, fontSize: 20, color: "#1A1410", marginBottom: 2 },
+  rowSub:         { fontFamily: SERIF, fontSize: 14, color: "#8A7D6A", lineHeight: 19 },
 
   // ── View all row (bottom of card)
   viewAll:        { fontSize: 13, fontWeight: "600", color: "#C8A96A" },
@@ -689,20 +689,20 @@ const styles = StyleSheet.create({
   themeCardWrapper: { width: 110, alignItems: "center", marginRight: 8, overflow: "visible" },
   themeCard:        { width: 110, height: 110, borderRadius: 14, overflow: "hidden" },
   themeCardContent: { flex: 1, alignItems: "center", justifyContent: "center" },
-  themeLabel:       { fontSize: 14, fontFamily: SERIF, color: "#1A1410", textAlign: "center", lineHeight: 18, marginTop: 6, paddingHorizontal: 4 },
+  themeLabel:       { fontSize: 14, fontFamily: undefined, color: "#1A1410", textAlign: "center", lineHeight: 18, marginTop: 6, paddingHorizontal: 4 },
 
   // ── Moods
   moodSection:    { backgroundColor: "#FDF7EE", borderRadius: 16, marginHorizontal: 16, marginTop: 16, marginBottom: 12, paddingBottom: 16, borderWidth: 0, shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.10, shadowRadius: 6, elevation: 3 },
   moodScroll:     { paddingHorizontal: 16, paddingBottom: 8, gap: 10 },
   moodCard:       { width: 100, height: 110, borderRadius: 12, overflow: "hidden", marginRight: 10 },
   moodCardContent:{ flex: 1, alignItems: "center", justifyContent: "center", gap: 6, paddingHorizontal: 4 },
-  moodLabel:      { fontFamily: SERIF, fontSize: 14, fontWeight: "600", color: "#FFFFFF", textAlign: "center", lineHeight: 18 },
+  moodLabel:      { fontFamily: undefined, fontSize: 14, fontWeight: "600", color: "#FFFFFF", textAlign: "center", lineHeight: 18 },
 
   // ── Empty tab states
   emptyTab:       { alignItems: "center", paddingTop: 64, paddingBottom: 40, gap: 14 },
-  emptyTitle:     { fontFamily: SERIF, fontSize: 24, color: "#1A1410" },
+  emptyTitle:     { fontFamily: undefined, fontSize: 24, color: "#1A1410" },
   emptySub:       { fontSize: 14, color: "#8A7D6A", textAlign: "center" },
-  favEmptyTitle:  { fontFamily: SERIF, fontSize: 20, color: "#1A1410" },
+  favEmptyTitle:  { fontFamily: undefined, fontSize: 20, color: "#1A1410" },
   favEmptySub:    { fontSize: 14, color: "#8A7D6A", textAlign: "center", marginTop: 8, paddingHorizontal: 32 },
 
   bottomSpacer:   { height: 32 },
@@ -715,7 +715,7 @@ const styles = StyleSheet.create({
   sheetKav:       { flex: 1 },
   sheetHandle:    { width: 40, height: 4, borderRadius: 2, backgroundColor: "#DDD5C0", alignSelf: "center", marginTop: 12, marginBottom: 4 },
   sheetHeaderRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: "#EDE4D4" },
-  sheetTitle:     { fontFamily: SERIF, fontSize: 20, color: "#1A1410" },
+  sheetTitle:     { fontFamily: undefined, fontSize: 20, color: "#1A1410" },
   sheetScroll:    { flex: 1 },
   sheetScrollContent: { paddingHorizontal: 20, paddingTop: 4 },
 

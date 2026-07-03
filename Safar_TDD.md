@@ -62,6 +62,8 @@ The app is organized around **Four Pillars**: Learn, Practice, Plan, Connect —
 8. Don't reproduce fabricated Islamic content. Arabic, translations, hadith citations must come from real sources; unverified entries flagged `verified:false` pending qualified human review.
 9. **No `react-native-reanimated`** — use the built-in `Animated` API only.
 10. **No new packages** without explicit approval.
+11. **Read before writing** — before making any edit, read the target file in full. Never write new code without understanding what already exists. Do not apply "quick fixes" that solve the immediate symptom but create future problems. If a proper fix requires restructuring, do it correctly.
+12. **No silent assumptions** — if a file, component, or screen is referenced but not confirmed to exist, check first. Never assume a file exists or contains specific code without reading it.
 
 ---
 

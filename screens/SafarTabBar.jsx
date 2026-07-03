@@ -103,8 +103,10 @@ export default function SafarTabBar({
 
   // React Navigation integration
   if (navProps) {
+    if (!navProps.state?.routes) return null;
     const { state, navigation: navPropsNav } = navProps;
-    const routeNames = state.routes.map((r) => r.name.toLowerCase());
+    const routes = state?.routes ?? [];
+    const routeNames = routes.map((r) => r.name.toLowerCase());
 
     const handleNav = (routeName) => {
       navPropsNav.navigate(routeName);
