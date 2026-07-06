@@ -219,6 +219,8 @@ function PrepareNavigator() {
       <PrepareStack.Screen name="CurrencyConverter" component={CurrencyScreen}      />
       <PrepareStack.Screen name="Support"           component={SupportScreen}       />
       <PrepareStack.Screen name="Settings"          component={SettingsScreen}      />
+      <PrepareStack.Screen name="WhatToExpect"      component={WhatToExpectScreen}  />
+      <PrepareStack.Screen name="PrintOffline"      component={PrintOfflineScreen}  />
     </PrepareStack.Navigator>
   );
 }

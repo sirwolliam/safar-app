@@ -5,13 +5,42 @@
 import React, { useState, useMemo } from "react";
 import {
   SafeAreaView, View, Text, ScrollView, TouchableOpacity,
-  StyleSheet, Switch, Alert,
+  StyleSheet, Switch, Alert, Modal,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { colors, spacing, radius, shadows, typography } from "../theme";
 import { useAccessibility } from "../AccessibilityContext";
+import { Info, CaretRight } from "phosphor-react-native";
 
 const SERIF = "SourceSerif4-Regular";
+
+const ABOUT_CONTENT = "Safar is your companion for every step of your sacred Hajj or Umrah journey.\n\nBuild a personalised step-by-step plan, pin your hotel, guide and travel group, practice the most important duʿāʾs, and carry the guidance of scholars in your pocket.\n\nShare milestones with fellow pilgrims, track your progress through every ibadah, and arrive prepared, calm and confident.\n\nMay Allah accept your journey. آمين";
+
+function AboutSafarModal({ visible, onClose }) {
+  return (
+    <Modal visible={visible} transparent animationType="fade">
+      <TouchableOpacity
+        style={{ flex: 1, backgroundColor: "rgba(15,36,25,0.65)", justifyContent: "center", alignItems: "center", paddingHorizontal: 28 }}
+        activeOpacity={1}
+        onPress={onClose}
+      >
+        <View
+          style={{ backgroundColor: "#FDFAF4", borderRadius: 20, padding: 28, width: "100%", shadowColor: "#4A5C48", shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.20, shadowRadius: 24, elevation: 12 }}
+          onStartShouldSetResponder={() => true}
+        >
+          <Text style={{ fontFamily: SERIF, fontSize: 22, fontWeight: "600", color: "#4A5C48", marginBottom: 14 }}>What is Safar?</Text>
+          <Text style={{ fontSize: 15, color: "#3A3530", lineHeight: 24, marginBottom: 22 }}>{ABOUT_CONTENT}</Text>
+          <TouchableOpacity
+            style={{ backgroundColor: "#4A5C48", borderRadius: 50, paddingHorizontal: 32, paddingVertical: 11, alignSelf: "flex-start" }}
+            onPress={onClose}
+          >
+            <Text style={{ color: "#FDFAF4", fontSize: 14, fontWeight: "600" }}>Close</Text>
+          </TouchableOpacity>
+        </View>
+      </TouchableOpacity>
+    </Modal>
+  );
+}
 
 function SettingRow({ label, sub, value, onToggle, isLast, navigation, screen, onPress }) {
   if (onToggle !== undefined) {
@@ -59,6 +88,7 @@ export default function SettingsScreen({ navigation }) {
   const s = useMemo(() => createStyles(colors), [colors]);
 
   const [notif, setNotif] = useState(true);
+  const [showAbout, setShowAbout] = useState(false);
 
   const resetOnboarding = () => {
     Alert.alert(
@@ -153,11 +183,32 @@ export default function SettingsScreen({ navigation }) {
           />
         </View>
 
+        {/* About */}
+        <Text style={s.sectionLabel}>ABOUT</Text>
+        <View style={s.card}>
+          <TouchableOpacity
+            style={[s.row, s.rowBorder]}
+            onPress={() => setShowAbout(true)}
+            activeOpacity={0.75}
+          >
+            <View style={s.rowIconBox}>
+              <Info size={24} color="#C8A96A" weight="regular" />
+            </View>
+            <View style={s.rowInfo}>
+              <Text style={s.rowLabel}>About Safar</Text>
+              <Text style={s.rowSub}>Version, credits and legal</Text>
+            </View>
+            <CaretRight size={18} color="#C8BFB2" weight="bold" />
+          </TouchableOpacity>
+        </View>
+
         {/* Version */}
         <Text style={s.version}>Safar {"\u00b7"} Version 1.0.0</Text>
 
         <View style={{ height: spacing(4) }} />
       </ScrollView>
+
+      <AboutSafarModal visible={showAbout} onClose={() => setShowAbout(false)} />
     </SafeAreaView>
   );
 }
@@ -171,4 +222,10 @@ const createStyles = (colors) => StyleSheet.create({
   sectionLabel: { fontSize:10, fontWeight:"700", letterSpacing:1.5, color:"#3A3530", marginBottom:8, marginTop:16 },
   card:         { backgroundColor:colors.card, borderRadius:radius.lg, borderWidth:1, borderColor:"#C8BFB2", overflow:"hidden", ...shadows.card, marginBottom:4 },
   version:      { fontSize:typography.tiny, color:"#C8BFB2", textAlign:"center", marginTop:spacing(3), fontWeight:"400" },
+  row:          { flexDirection: "row", alignItems: "center", paddingHorizontal: 18, paddingVertical: 16 },
+  rowBorder:    { borderBottomWidth: 1, borderBottomColor: "#C8BFB2" },
+  rowIconBox:   { width: 52, height: 52, borderRadius: 14, backgroundColor: "rgba(58,53,69,0.85)", alignItems: "center", justifyContent: "center", marginRight: 16 },
+  rowInfo:      { flex: 1 },
+  rowLabel:     { fontSize: 16, color: "#1C1A14", marginBottom: 3 },
+  rowSub:       { fontSize: 13, color: "#5C534A", lineHeight: 18 },
 });

@@ -194,6 +194,10 @@ export default function ProfileScreen({ navigation }) {
   const [userName,         setUserName]         = useState("Pilgrim");
   const [journeyType,      setJourneyType]      = useState("");
   const [userEmail,        setUserEmail]        = useState("");
+  const [showEditSheet,    setShowEditSheet]    = useState(false);
+  const [editName,         setEditName]         = useState("");
+  const [editEmail,        setEditEmail]        = useState("");
+  const [editJourney,      setEditJourney]      = useState("");
 
   const initials = userName
     .split(" ")
@@ -229,6 +233,25 @@ export default function ProfileScreen({ navigation }) {
     setAvatarKey(key);
     setShowAvatarPicker(false);
     await AsyncStorage.setItem(AVATAR_KEY, key);
+  }
+
+  async function saveProfile() {
+    const trimmedName  = editName.trim();
+    const trimmedEmail = editEmail.trim();
+
+    if (trimmedName) {
+      await AsyncStorage.setItem("safar_user_name_v1", trimmedName);
+      setUserName(trimmedName);
+    }
+    if (trimmedEmail) {
+      await AsyncStorage.setItem("safar_user_email_v1", trimmedEmail);
+      setUserEmail(trimmedEmail);
+    }
+    if (editJourney) {
+      await AsyncStorage.setItem("safar_journey_type_v1", editJourney);
+      setJourneyType(editJourney);
+    }
+    setShowEditSheet(false);
   }
 
   const scrollTo = (key) => {
@@ -452,7 +475,12 @@ export default function ProfileScreen({ navigation }) {
                       s.profileAvatar,
                       avatarKey ? null : { backgroundColor: "#3A3545" },
                     ]}
-                    onPress={() => setShowAvatarPicker(true)}
+                    onPress={() => {
+                      setEditName(userName);
+                      setEditEmail(userEmail);
+                      setEditJourney(journeyType);
+                      setShowEditSheet(true);
+                    }}
                     activeOpacity={0.85}
                   >
                     {avatarKey ? (
@@ -468,7 +496,6 @@ export default function ProfileScreen({ navigation }) {
                       </Text>
                     )}
                   </TouchableOpacity>
-                  <Text style={s.profileChangeLabel}>Change</Text>
                 </View>
 
                 {/* Vertical divider */}
@@ -488,7 +515,12 @@ export default function ProfileScreen({ navigation }) {
                     ) : null}
                     <View style={{ flex: 1 }} />
                     <TouchableOpacity
-                      onPress={() => navigation.navigate("Settings")}
+                      onPress={() => {
+                        setEditName(userName);
+                        setEditEmail(userEmail);
+                        setEditJourney(journeyType);
+                        setShowEditSheet(true);
+                      }}
                       activeOpacity={0.75}
                       hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                     >
@@ -622,7 +654,43 @@ export default function ProfileScreen({ navigation }) {
               </View>
             </View>
 
-            {/* ── Zone 4: Official ─────────────────────────────────────── */}
+            {/* ── Zone 4: Settings & Support ───────────────────────────── */}
+            <View>
+              <Text style={s.eyebrow}>SETTINGS & SUPPORT</Text>
+              <View style={s.listCard}>
+                <TouchableOpacity
+                  style={[s.row, s.rowBorder]}
+                  onPress={() => navigation?.navigate?.("Settings")}
+                  activeOpacity={0.75}
+                >
+                  <View style={s.rowIconBox}>
+                    <Gear size={24} color="#C8A96A" weight="regular" />
+                  </View>
+                  <View style={s.rowInfo}>
+                    <Text style={s.rowLabel}>Settings</Text>
+                    <Text style={s.rowSub}>Account, notifications & preferences</Text>
+                  </View>
+                  <CaretRight size={18} color="#C8BFB2" weight="bold" />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={s.row}
+                  onPress={() => navigation?.navigate?.("Support")}
+                  activeOpacity={0.75}
+                >
+                  <View style={s.rowIconBox}>
+                    <Question size={24} color="#C8A96A" weight="regular" />
+                  </View>
+                  <View style={s.rowInfo}>
+                    <Text style={s.rowLabel}>Support & Help</Text>
+                    <Text style={s.rowSub}>FAQs, contact and feedback</Text>
+                  </View>
+                  <CaretRight size={18} color="#C8BFB2" weight="bold" />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* ── Zone 5: Official ─────────────────────────────────────── */}
             <View onLayout={e => { sectionY.current.official = e.nativeEvent.layout.y; }}>
               <Text style={s.eyebrow}>OFFICIAL</Text>
               <View style={s.listCard}>
@@ -643,34 +711,6 @@ export default function ProfileScreen({ navigation }) {
               </View>
             </View>
 
-            {/* ── Zone 5: Settings ─────────────────────────────────────── */}
-            <View style={s.settingsZone}>
-              <TouchableOpacity
-                style={[s.settingsRow, s.settingsRowBorder]}
-                onPress={() => navigation?.navigate?.("Settings")}
-                activeOpacity={0.75}
-              >
-                <Gear size={22} color="#8A7D6A" weight="regular" />
-                <Text style={s.settingsLabel}>Settings</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[s.settingsRow, s.settingsRowBorder]}
-                onPress={() => navigation?.navigate?.("Support")}
-                activeOpacity={0.75}
-              >
-                <Question size={22} color="#8A7D6A" weight="regular" />
-                <Text style={s.settingsLabel}>Support & Help</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={s.settingsRow}
-                onPress={() => setShowAbout(true)}
-                activeOpacity={0.75}
-              >
-                <Info size={22} color="#8A7D6A" weight="regular" />
-                <Text style={s.settingsLabel}>About Safar</Text>
-              </TouchableOpacity>
-            </View>
-
             <ScholarlyFootnote />
             <View style={{ height: 40 }} />
           </>
@@ -680,68 +720,153 @@ export default function ProfileScreen({ navigation }) {
       <AboutSafarModal visible={showAbout} onClose={() => setShowAbout(false)} />
 
       <Modal
-        visible={showAvatarPicker}
+        visible={showEditSheet}
         transparent
         animationType="slide"
-        onRequestClose={() => setShowAvatarPicker(false)}
+        onRequestClose={() => setShowEditSheet(false)}
       >
         <TouchableOpacity
           style={s.pickerBackdrop}
           activeOpacity={1}
-          onPress={() => setShowAvatarPicker(false)}
+          onPress={() => setShowEditSheet(false)}
         >
           <View
             style={s.pickerSheet}
             onStartShouldSetResponder={() => true}
           >
-            <View style={s.pickerHandle} />
-
-            <Text style={s.pickerTitle}>Choose your avatar</Text>
-            <Text style={s.pickerSub}>Tap an icon or use your initials</Text>
-
-            <TouchableOpacity
-              style={s.pickerInitialsRow}
-              onPress={async () => {
-                setAvatarKey(null);
-                setShowAvatarPicker(false);
-                await AsyncStorage.removeItem(AVATAR_KEY);
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+              contentContainerStyle={{
+                paddingHorizontal: 24,
+                paddingBottom: 16,
               }}
-              activeOpacity={0.75}
             >
-              <View style={s.pickerInitialsCircle}>
-                <Text style={s.pickerInitialsText}>{initials || "S"}</Text>
-              </View>
-              <Text style={s.pickerInitialsLabel}>Use my initials</Text>
-              {!avatarKey ? (
-                <View style={s.pickerCheck}>
-                  <Text style={s.pickerCheckText}>✓</Text>
-                </View>
-              ) : null}
-            </TouchableOpacity>
 
-            <View style={s.pickerGrid}>
-              {AVATARS.map((avatar) => (
-                <TouchableOpacity
-                  key={avatar.key}
-                  style={avatarKey === avatar.key
-                    ? [s.pickerItem, s.pickerItemActive]
-                    : s.pickerItem}
-                  onPress={() => selectAvatar(avatar.key)}
-                  activeOpacity={0.75}
-                >
-                  <Image
-                    source={avatar.src}
-                    style={s.pickerItemImg}
-                    resizeMode="cover"
-                  />
-                  {avatarKey === avatar.key ? (
-                    <View style={s.pickerItemCheck}>
-                      <Text style={s.pickerCheckText}>✓</Text>
-                    </View>
-                  ) : null}
-                </TouchableOpacity>
-              ))}
-            </View>
+              {/* 1 — handle */}
+              <View style={s.pickerHandle} />
+
+              {/* 2 — title */}
+              <Text style={s.pickerTitle}>Edit Profile</Text>
+
+              {/* 3 — Your Details label */}
+              <Text style={s.editSectionLabel}>Your Details</Text>
+
+              {/* 4 — Name */}
+              <View style={s.editField}>
+                <Text style={s.editFieldLabel}>Name</Text>
+                <TextInput
+                  style={s.editFieldInput}
+                  value={editName}
+                  onChangeText={setEditName}
+                  placeholder="Your name"
+                  placeholderTextColor="#C8BFB2"
+                  autoCorrect={false}
+                />
+              </View>
+
+              {/* 5 — Email */}
+              <View style={s.editField}>
+                <Text style={s.editFieldLabel}>Email</Text>
+                <TextInput
+                  style={s.editFieldInput}
+                  value={editEmail}
+                  onChangeText={setEditEmail}
+                  placeholder="your@email.com"
+                  placeholderTextColor="#C8BFB2"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                />
+              </View>
+
+              {/* 6 — Journey selector */}
+              <Text style={s.editFieldLabel}>Journey</Text>
+              <View style={s.editJourneyRow}>
+                {["umrah", "hajj", "learn"].map((type) => (
+                  <TouchableOpacity
+                    key={type}
+                    style={editJourney === type
+                      ? [s.editJourneyPill, s.editJourneyPillActive]
+                      : s.editJourneyPill}
+                    onPress={() => setEditJourney(type)}
+                    activeOpacity={0.75}
+                  >
+                    <Text style={editJourney === type
+                      ? [s.editJourneyText, s.editJourneyTextActive]
+                      : s.editJourneyText}>
+                      {type === "umrah" ? "Umrah" :
+                       type === "hajj"  ? "Hajj"  :
+                       "Learning"}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              {/* 7 — Divider */}
+              <View style={s.editDivider} />
+
+              {/* 8 — Avatar label */}
+              <Text style={s.editSectionLabel}>Avatar</Text>
+
+              {/* 9 — Initials option */}
+              <TouchableOpacity
+                style={s.pickerInitialsRow}
+                onPress={async () => {
+                  setAvatarKey(null);
+                  await AsyncStorage.removeItem(AVATAR_KEY);
+                }}
+                activeOpacity={0.75}
+              >
+                <View style={s.pickerInitialsCircle}>
+                  <Text style={s.pickerInitialsText}>{initials || "S"}</Text>
+                </View>
+                <Text style={s.pickerInitialsLabel}>Use my initials</Text>
+                {!avatarKey ? (
+                  <View style={s.pickerCheck}>
+                    <Text style={s.pickerCheckText}>✓</Text>
+                  </View>
+                ) : null}
+              </TouchableOpacity>
+
+              {/* 10 — Avatar grid */}
+              <View style={s.pickerGrid}>
+                {AVATARS.map((avatar) => (
+                  <TouchableOpacity
+                    key={avatar.key}
+                    style={avatarKey === avatar.key
+                      ? [s.pickerItem, s.pickerItemActive]
+                      : s.pickerItem}
+                    onPress={async () => {
+                      setAvatarKey(avatar.key);
+                      await AsyncStorage.setItem(AVATAR_KEY, avatar.key);
+                    }}
+                    activeOpacity={0.75}
+                  >
+                    <Image
+                      source={avatar.src}
+                      style={s.pickerItemImg}
+                      resizeMode="cover"
+                    />
+                    {avatarKey === avatar.key ? (
+                      <View style={s.pickerItemCheck}>
+                        <Text style={s.pickerCheckText}>✓</Text>
+                      </View>
+                    ) : null}
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              {/* 11 — Save button */}
+              <TouchableOpacity
+                style={s.editSaveBtn}
+                onPress={saveProfile}
+                activeOpacity={0.85}
+              >
+                <Text style={s.editSaveBtnText}>Save Profile</Text>
+              </TouchableOpacity>
+
+            </ScrollView>
 
           </View>
         </TouchableOpacity>
@@ -871,12 +996,6 @@ const s = StyleSheet.create({
   affiliateSub: { fontSize: 12, color: "#5C534A", lineHeight: 16, flex: 1 },
   affiliateShop: { fontSize: 12, color: "#7A5A2A", fontWeight: "600", marginTop: 4 },
 
-  // Settings zone (Zone 5)
-  settingsZone: { marginHorizontal: 16, marginTop: 16 },
-  settingsRow: { flexDirection: "row", alignItems: "center", paddingVertical: 14, gap: 14 },
-  settingsRowBorder: { borderBottomWidth: 1, borderBottomColor: "#EDE4D4" },
-  settingsLabel: { flex: 1, fontSize: 15, color: "#5C534A" },
-
   // Empty search
   emptySearch: { alignItems: "center", paddingVertical: 48 },
   emptySearchText: { fontSize: 16, color: "#8A7D6A", textAlign: "center" },
@@ -885,12 +1004,6 @@ const s = StyleSheet.create({
     alignItems: "center",
     gap: 4,
     flexShrink: 0,
-  },
-  profileChangeLabel: {
-    fontSize: 10,
-    fontWeight: "600",
-    color: "#8A7D6A",
-    letterSpacing: 0.3,
   },
 
   // Profile card & avatar
@@ -911,7 +1024,7 @@ const s = StyleSheet.create({
     elevation: 2,
   },
   profileAvatarCol: {
-    width: 88,
+    width: 100,
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 14,
@@ -934,22 +1047,22 @@ const s = StyleSheet.create({
     marginBottom: 2,
   },
   profileAvatar: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
   },
   profileInitials: {
-    fontSize: 22,
+    fontSize: 28,
     fontWeight: "700",
     color: "#FFFFFF",
   },
   profileAvatarImg: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
   },
   profileAvatarEdit: {
     position: "absolute",
@@ -1000,9 +1113,9 @@ const s = StyleSheet.create({
     backgroundColor: "#FDFAF4",
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    paddingHorizontal: 24,
     paddingTop: 16,
     paddingBottom: 40,
+    maxHeight: "90%",
   },
   pickerHandle: {
     width: 36,
@@ -1095,5 +1208,81 @@ const s = StyleSheet.create({
     backgroundColor: "#4A5C48",
     alignItems: "center",
     justifyContent: "center",
+  },
+
+  // Edit sheet styles
+  editSectionLabel: {
+    fontSize: 11,
+    fontWeight: "700",
+    letterSpacing: 1.0,
+    color: "#C8A96A",
+    textTransform: "uppercase",
+    marginBottom: 10,
+    marginTop: 4,
+  },
+  editDivider: {
+    height: 1,
+    backgroundColor: "#EDE4D4",
+    marginVertical: 16,
+  },
+  editField: {
+    marginBottom: 12,
+  },
+  editFieldLabel: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#8A7D6A",
+    marginBottom: 6,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  editFieldInput: {
+    backgroundColor: "#F0EBE1",
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 15,
+    color: "#1A1410",
+    borderWidth: 1,
+    borderColor: "#DDD5C0",
+  },
+  editJourneyRow: {
+    flexDirection: "row",
+    gap: 8,
+    marginTop: 6,
+    marginBottom: 20,
+  },
+  editJourneyPill: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 10,
+    alignItems: "center",
+    backgroundColor: "#F0EBE1",
+    borderWidth: 1,
+    borderColor: "#DDD5C0",
+  },
+  editJourneyPillActive: {
+    backgroundColor: "#4A5C48",
+    borderColor: "#4A5C48",
+  },
+  editJourneyText: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#5C534A",
+  },
+  editJourneyTextActive: {
+    color: "#FFFFFF",
+  },
+  editSaveBtn: {
+    backgroundColor: "#1A1410",
+    borderRadius: 14,
+    paddingVertical: 16,
+    alignItems: "center",
+  },
+  editSaveBtnText: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#C8A96A",
+    letterSpacing: 0.3,
   },
 });
