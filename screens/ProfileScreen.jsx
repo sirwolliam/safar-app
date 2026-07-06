@@ -1,22 +1,50 @@
 /**
  * ProfileScreen.jsx — Safar  (tab label: "Prepare")
- * Practice & Learn · Save Offline · Bookmarks · Notes
- * Prepare & Shop (affiliate) · Resources · Settings
+ * Hub-style header, pill navigation, zone layout.
  */
-import React, { useMemo, useRef, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
-  SafeAreaView, View, Text, ScrollView, TouchableOpacity,
-  StyleSheet, Dimensions, Linking, TextInput, ImageBackground, Modal,
+  View, Text, Image, ScrollView, TouchableOpacity,
+  StyleSheet, Dimensions, Linking, TextInput, Modal, StatusBar,
 } from "react-native";
-import { Wrench, ShoppingBag, BookOpen, PlayCircle, Buildings,
-         MapTrifold, Headphones, Mosque, Compass, CurrencyCircleDollar,
-         BookmarkSimple, NotePencil, Question, Gear, Info } from "phosphor-react-native";
-import { colors, spacing, radius, shadows, typography } from "../theme";
+import { LinearGradient } from "expo-linear-gradient";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  ListChecks, BookmarkSimple, NotePencil, Compass, Headphones,
+  BookOpen, PlayCircle, DownloadSimple, Gear, Question, Info,
+  ArrowSquareOut, MagnifyingGlass, CaretRight,
+  Wrench, ShoppingBag, Buildings, MapTrifold, Mosque,
+  CurrencyCircleDollar, PencilSimple,
+} from "phosphor-react-native";
 import { getAffiliateUrl } from "../utils/affiliateLinks";
-import { useAccessibility } from "../AccessibilityContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getCurrentUser } from "../firebase";
 
 const SERIF = "SourceSerif4-Regular";
+const { width: SW } = Dimensions.get("window");
 
+const AVATARS = [
+  { key: "kaabah",   src: require("../assets/avatars/avatar-kaabah.png")   },
+  { key: "moon",     src: require("../assets/avatars/avatar-moon.png")     },
+  { key: "mosque",   src: require("../assets/avatars/avatar-mosque.png")   },
+  { key: "beads",    src: require("../assets/avatars/avatar-beads.png")    },
+  { key: "compass",  src: require("../assets/avatars/avatar-compass.png")  },
+  { key: "book",     src: require("../assets/avatars/avatar-book.png")     },
+  { key: "lantern",  src: require("../assets/avatars/avatar-lantern.png")  },
+  { key: "hands",    src: require("../assets/avatars/avatar-hands.png")    },
+  { key: "leaf",     src: require("../assets/avatars/avatar-leaf.png")     },
+  { key: "mountain", src: require("../assets/avatars/avatar-mountain.png") },
+  { key: "star",     src: require("../assets/avatars/avatar-star.png")     },
+  { key: "heart",    src: require("../assets/avatars/avatar-heart.png")    },
+  { key: "sun",      src: require("../assets/avatars/avatar-sun.png")      },
+  { key: "dove",     src: require("../assets/avatars/avatar-dove.png")     },
+  { key: "flower",   src: require("../assets/avatars/avatar-flower.png")   },
+  { key: "wave",     src: require("../assets/avatars/avatar-wave.png")     },
+];
+
+const AVATAR_KEY = "safar_avatar_v1";
+
+// ── ScholarlyFootnote (unchanged) ─────────────────────────────────────────────
 function ScholarlyFootnote({ style }) {
   return (
     <View style={[fn.wrap, style]}>
@@ -27,7 +55,6 @@ function ScholarlyFootnote({ style }) {
     </View>
   );
 }
-
 const fn = StyleSheet.create({
   wrap: {
     marginTop: 16, marginBottom: 8,
@@ -38,34 +65,33 @@ const fn = StyleSheet.create({
   bold: { fontWeight: "600" },
 });
 
-const { width: SW } = Dimensions.get("window");
-
+// ── Data arrays (unchanged) ───────────────────────────────────────────────────
 const CATEGORIES = [
-  { key:"tools",    label:"Tools",     Icon:Wrench,       desc:"Apps & utilities"         },
-  { key:"shop",     label:"Shop",      Icon:ShoppingBag,  desc:"Essentials for the journey" },
-  { key:"islamic",  label:"Scholars",  Icon:BookOpen,     desc:"Trusted Islamic sources"   },
-  { key:"media",    label:"Media",     Icon:PlayCircle,   desc:"Videos & podcasts"         },
-  { key:"official", label:"Official",  Icon:Buildings,    desc:"Saudi & gov resources"     },
-  { key:"settings", label:"Settings",  Icon:Gear,          desc:"Account & preferences"     },
+  { key: "tools",    label: "Tools",    Icon: Wrench,             desc: "Apps & utilities"           },
+  { key: "shop",     label: "Shop",     Icon: ShoppingBag,        desc: "Essentials for the journey" },
+  { key: "islamic",  label: "Scholars", Icon: BookOpen,           desc: "Trusted Islamic sources"    },
+  { key: "media",    label: "Media",    Icon: PlayCircle,         desc: "Videos & podcasts"          },
+  { key: "official", label: "Official", Icon: Buildings,          desc: "Saudi & gov resources"      },
+  { key: "settings", label: "Settings", Icon: Gear,               desc: "Account & preferences"      },
 ];
 
 const TOOLS = [
-  { id: "wtexpect",  Icon: MapTrifold,           title: "What to Expect",       sub: "Health, logistics & travel tips",  screen: "WhatToExpect"       },
-  { id: "practice",  Icon: Headphones,           title: "Practice & Learn",    sub: "Audio, repeat, and recite",      screen: "PracticeLearn"      },
-  { id: "prayer",    Icon: Mosque,               title: "Prayer Times",         sub: "Daily salah times for your city", screen: "PrayerTimes"        },
-  { id: "qibla",     Icon: Compass,              title: "Qibla Finder",         sub: "Direction of the Ka'bah",         screen: "Qibla"              },
-  { id: "currency",  Icon: CurrencyCircleDollar, title: "Currency Converter",   sub: "SAR to your home currency",       screen: "CurrencyConverter"  },
-  { id: "bookmark",  Icon: BookmarkSimple,        title: "Bookmarks",           sub: "Your saved duas",                screen: "Bookmarks"         },
-  { id: "notes",     Icon: NotePencil,           title: "Notes",               sub: "Personal reflections",           screen: "Notes"             },
+  { id: "wtexpect",  Icon: MapTrifold,           title: "What to Expect",     sub: "Health, logistics & travel tips",  screen: "WhatToExpect"      },
+  { id: "practice",  Icon: Headphones,           title: "Practice & Learn",   sub: "Audio, repeat, and recite",        screen: "PracticeLearn"     },
+  { id: "prayer",    Icon: Mosque,               title: "Prayer Times",       sub: "Daily salah times for your city",  screen: "PrayerTimes"       },
+  { id: "qibla",     Icon: Compass,              title: "Qibla Finder",       sub: "Direction of the Ka'bah",          screen: "Qibla"             },
+  { id: "currency",  Icon: CurrencyCircleDollar, title: "Currency Converter", sub: "SAR to your home currency",        screen: "CurrencyConverter" },
+  { id: "bookmark",  Icon: BookmarkSimple,        title: "Bookmarks",          sub: "Your saved duas",                 screen: "Bookmarks"         },
+  { id: "notes",     Icon: NotePencil,           title: "Notes",              sub: "Personal reflections",             screen: "Notes"             },
 ];
 
 const AFFILIATE_ITEMS = [
-  { id: "ihram",    icon: "🕌", title: "Ihram Clothing",        sub: "Men's & women's ihram garments",    query: "ihram clothing hajj"             },
-  { id: "bag",      icon: "🎒", title: "Hajj & Umrah Bags",     sub: "Waist bags, travel pouches, luggage", query: "hajj umrah bag"                },
-  { id: "sandals",  icon: "👡", title: "Comfortable Sandals",   sub: "Ihram-compliant footwear",          query: "ihram sandals hajj"              },
-  { id: "zamzam",   icon: "💧", title: "Zamzam Water Bottle",   sub: "Insulated bottles for the journey", query: "zamzam water bottle insulated"   },
-  { id: "umbrella", icon: "☂️", title: "Sun Protection",        sub: "Umbrellas, sun cream, cooling towels", query: "hajj umbrella sun protection" },
-  { id: "prayer",   icon: "📿", title: "Prayer Essentials",     sub: "Tasbih, prayer mat, compass",       query: "islamic prayer essentials hajj"  },
+  { id: "ihram",    icon: "🕌", title: "Ihram Clothing",       sub: "Men's & women's ihram garments",       query: "ihram clothing hajj"             },
+  { id: "bag",      icon: "🎒", title: "Hajj & Umrah Bags",    sub: "Waist bags, travel pouches, luggage",  query: "hajj umrah bag"                  },
+  { id: "sandals",  icon: "👡", title: "Comfortable Sandals",  sub: "Ihram-compliant footwear",             query: "ihram sandals hajj"              },
+  { id: "zamzam",   icon: "💧", title: "Zamzam Water Bottle",  sub: "Insulated bottles for the journey",    query: "zamzam water bottle insulated"   },
+  { id: "umbrella", icon: "☂️", title: "Sun Protection",       sub: "Umbrellas, sun cream, cooling towels", query: "hajj umbrella sun protection"    },
+  { id: "prayer",   icon: "📿", title: "Prayer Essentials",    sub: "Tasbih, prayer mat, compass",          query: "islamic prayer essentials hajj"  },
 ];
 
 const ISLAMIC_REFS = [
@@ -91,67 +117,15 @@ const OFFICIAL_LINKS = [
   { title: "IATA Travel Centre — KSA",   sub: "Visa and entry requirements",             url: "https://www.iata.org/en/publications/timatic/" },
 ];
 
-function SectionHeader({ title, sub, styles }) {
-  return (
-    <View style={styles.sectionHeader}>
-      <View style={styles.sectionTitleRow}>
-        <View style={styles.sectionBar} />
-        <Text style={styles.sectionTitle}>{title.toUpperCase()}</Text>
-        <View style={styles.sectionLine} />
-      </View>
-      {sub ? <Text style={styles.sectionSub}>{sub}</Text> : null}
-    </View>
-  );
-}
+// ── Pill nav items ────────────────────────────────────────────────────────────
+const PILLS = [
+  { key: "personal",  label: "Personal"  },
+  { key: "resources", label: "Resources" },
+  { key: "shop",      label: "Shop"      },
+  { key: "official",  label: "Official"  },
+];
 
-function MenuCard({ items, navigation, styles }) {
-  return (
-    <View style={styles.menuCard}>
-      {items.map((item, i) => {
-        const ItemIcon = item.Icon;
-        return (
-          <TouchableOpacity
-            key={item.id}
-            style={i < items.length - 1 ? [styles.menuRow, styles.menuRowBorder] : styles.menuRow}
-            onPress={() => navigation?.navigate?.(item.screen)}
-            activeOpacity={0.85}
-          >
-            <View style={styles.menuIconWrap}>
-              <ItemIcon size={24} color="#2A4A38" weight="thin" />
-            </View>
-            <View style={styles.menuInfo}>
-              <Text style={styles.menuTitle}>{item.title}</Text>
-              <Text style={styles.menuSub}>{item.sub}</Text>
-            </View>
-            <Text style={styles.menuArrow}>›</Text>
-          </TouchableOpacity>
-        );
-      })}
-    </View>
-  );
-}
-
-function LinkCard({ items, styles }) {
-  return (
-    <View style={styles.menuCard}>
-      {items.map((item, i) => (
-        <TouchableOpacity
-          key={item.url}
-          style={i < items.length - 1 ? [styles.menuRow, styles.menuRowBorder] : styles.menuRow}
-          onPress={() => Linking.openURL(item.url)}
-          activeOpacity={0.85}
-        >
-          <View style={styles.menuInfo}>
-            <Text style={styles.menuTitle}>{item.title}</Text>
-            <Text style={styles.menuSub}>{item.sub}</Text>
-          </View>
-          <Text style={styles.externalArrow}>↗</Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-  );
-}
-
+// ── AffiliateCard (unchanged) ─────────────────────────────────────────────────
 function AffiliateCard({ items, styles }) {
   return (
     <>
@@ -177,26 +151,28 @@ function AffiliateCard({ items, styles }) {
   );
 }
 
-const ABOUT_CONTENT = "Safar is your companion for every step of your sacred Hajj or Umrah journey.\n\nBuild a personalised step-by-step plan, pin your hotel, guide and travel group, practice the most important du\u02bf\u0101\u02bes, and carry the guidance of scholars in your pocket.\n\nShare milestones with fellow pilgrims, track your progress through every ibadah, and arrive prepared, calm and confident.\n\nMay Allah accept your journey. \u0622\u0645\u064a\u0646";
+// ── About modal (unchanged) ───────────────────────────────────────────────────
+const ABOUT_CONTENT = "Safar is your companion for every step of your sacred Hajj or Umrah journey.\n\nBuild a personalised step-by-step plan, pin your hotel, guide and travel group, practice the most important duʿāʾs, and carry the guidance of scholars in your pocket.\n\nShare milestones with fellow pilgrims, track your progress through every ibadah, and arrive prepared, calm and confident.\n\nMay Allah accept your journey. آمين";
 
 function AboutSafarModal({ visible, onClose }) {
   return (
     <Modal visible={visible} transparent animationType="fade">
       <TouchableOpacity
-        style={{ flex:1, backgroundColor:"rgba(15,36,25,0.65)", justifyContent:"center", alignItems:"center", paddingHorizontal:28 }}
-        activeOpacity={1} onPress={onClose}
+        style={{ flex: 1, backgroundColor: "rgba(15,36,25,0.65)", justifyContent: "center", alignItems: "center", paddingHorizontal: 28 }}
+        activeOpacity={1}
+        onPress={onClose}
       >
         <View
-          style={{ backgroundColor:"#FDFAF4", borderRadius:20, padding:28, width:"100%", shadowColor:"#4A5C48", shadowOffset:{width:0,height:8}, shadowOpacity:0.20, shadowRadius:24, elevation:12 }}
+          style={{ backgroundColor: "#FDFAF4", borderRadius: 20, padding: 28, width: "100%", shadowColor: "#4A5C48", shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.20, shadowRadius: 24, elevation: 12 }}
           onStartShouldSetResponder={() => true}
         >
-          <Text style={{ fontFamily:SERIF, fontSize:22, fontWeight:"600", color:"#4A5C48", marginBottom:14 }}>What is Safar?</Text>
-          <Text style={{ fontSize:15, color:"#3A3530", lineHeight:24, marginBottom:22 }}>{ABOUT_CONTENT}</Text>
+          <Text style={{ fontFamily: SERIF, fontSize: 22, fontWeight: "600", color: "#4A5C48", marginBottom: 14 }}>What is Safar?</Text>
+          <Text style={{ fontSize: 15, color: "#3A3530", lineHeight: 24, marginBottom: 22 }}>{ABOUT_CONTENT}</Text>
           <TouchableOpacity
-            style={{ backgroundColor:"#4A5C48", borderRadius:50, paddingHorizontal:32, paddingVertical:11, alignSelf:"flex-start" }}
+            style={{ backgroundColor: "#4A5C48", borderRadius: 50, paddingHorizontal: 32, paddingVertical: 11, alignSelf: "flex-start" }}
             onPress={onClose}
           >
-            <Text style={{ color:"#FDFAF4", fontSize:14, fontWeight:"600" }}>Close</Text>
+            <Text style={{ color: "#FDFAF4", fontSize: 14, fontWeight: "600" }}>Close</Text>
           </TouchableOpacity>
         </View>
       </TouchableOpacity>
@@ -204,21 +180,62 @@ function AboutSafarModal({ visible, onClose }) {
   );
 }
 
+// ── Screen ────────────────────────────────────────────────────────────────────
 export default function ProfileScreen({ navigation }) {
-  const { colors } = useAccessibility();
-  const s = useMemo(() => createStyles(colors), [colors]);
-  const scrollRef    = useRef(null);
-  const sectionY     = useRef({});
-  const [activeKey, setActiveKey]     = useState("tools");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchFocused, setSearchFocused] = useState(false);
-  const [showAbout, setShowAbout]     = useState(false);
+  const insets = useSafeAreaInsets();
+  const scrollRef = useRef(null);
+  const sectionY  = useRef({});
+  const [activeKey,        setActiveKey]        = useState("personal");
+  const [searchQuery,      setSearchQuery]      = useState("");
+  const [searchFocused,    setSearchFocused]    = useState(false);
+  const [showAbout,        setShowAbout]        = useState(false);
+  const [avatarKey,        setAvatarKey]        = useState(null);
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false);
+  const [userName,         setUserName]         = useState("Pilgrim");
+  const [journeyType,      setJourneyType]      = useState("");
+  const [userEmail,        setUserEmail]        = useState("");
+
+  const initials = userName
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(w => w[0].toUpperCase())
+    .join("");
+
+  const journeyLabel =
+    journeyType === "hajj"  ? "Hajj"     :
+    journeyType === "umrah" ? "Umrah"    :
+    journeyType === "learn" ? "Learning" : "";
+
+  useEffect(() => {
+    async function loadProfile() {
+      const [name, journey, avatar] =
+        await Promise.all([
+          AsyncStorage.getItem("safar_user_name_v1"),
+          AsyncStorage.getItem("safar_journey_type_v1"),
+          AsyncStorage.getItem(AVATAR_KEY),
+        ]);
+      setUserName(name ?? "Pilgrim");
+      setJourneyType(journey ?? "");
+      setAvatarKey(avatar ?? null);
+
+      const user = getCurrentUser();
+      setUserEmail(user?.email ?? "");
+    }
+    loadProfile();
+  }, []);
+
+  async function selectAvatar(key) {
+    setAvatarKey(key);
+    setShowAvatarPicker(false);
+    await AsyncStorage.setItem(AVATAR_KEY, key);
+  }
 
   const scrollTo = (key) => {
     const y = sectionY.current[key];
     if (y !== undefined) {
       setActiveKey(key);
-      scrollRef.current?.scrollTo({ y, animated:true });
+      scrollRef.current?.scrollTo({ y, animated: true });
     }
   };
 
@@ -228,300 +245,855 @@ export default function ProfileScreen({ navigation }) {
   );
   const isSearching = q.length > 0;
 
-  return (
-    <SafeAreaView style={s.safe}>
+  const noSearchResults =
+    filterItems(TOOLS).length === 0 &&
+    filterItems(AFFILIATE_ITEMS).length === 0 &&
+    filterItems(ISLAMIC_REFS).length === 0 &&
+    filterItems(MULTIMEDIA).length === 0 &&
+    filterItems(OFFICIAL_LINKS).length === 0;
 
-      {/* Header — fixed height matches all other tabs */}
+  return (
+    <View style={s.root}>
+      <StatusBar barStyle="light-content" />
+
+      {/* ── Photo header ─────────────────────────────────────────────────── */}
       <View style={s.header}>
-        <View style={s.headerLeft}>
-          <View style={s.headerTitleRow}>
-            <Text style={s.headerTitle}>Prepare</Text>
-            <View style={s.headerIcons}>
-              <TouchableOpacity style={s.headerIconBtn}
-                onPress={() => navigation?.navigate?.("Support")} activeOpacity={0.8}>
-                <Question size={22} color="#2A4A38" weight="thin" />
-              </TouchableOpacity>
-              <TouchableOpacity style={s.headerIconBtn}
-                onPress={() => navigation?.navigate?.("Settings")} activeOpacity={0.8}>
-                <Gear size={22} color="#2A4A38" weight="thin" />
-              </TouchableOpacity>
+        <Image
+          source={require("../assets/prepare-header.jpg")}
+          style={s.headerImg}
+          resizeMode="cover"
+        />
+        <LinearGradient
+          colors={["transparent", "rgba(0,0,0,0.10)", "rgba(58,53,69,0.72)", "rgba(58,53,69,0.96)"]}
+          locations={[0, 0.35, 0.75, 1]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          style={s.gradient}
+        />
+        <View style={[s.headerContent, { paddingTop: insets.top + 16 }]}>
+          <View style={s.titleRow}>
+            <View style={s.iconCircle}>
+              <ListChecks size={22} color="#C8A96A" weight="regular" />
             </View>
+            <Text style={s.headerTitle}>Prepare</Text>
           </View>
           <Text style={s.headerSub}>Everything you need before and during your journey</Text>
         </View>
       </View>
 
-      {/* Hero image — same height as Duas page hero */}
-      <ImageBackground
-        source={require("../assets/tab_dua_library.jpg")}
-        style={s.heroImg}
-        imageStyle={s.heroImgStyle}
-      >
-        <View style={s.heroScrim} />
-      </ImageBackground>
-
-      {/* Tab navigation — horizontal scroll with icon + label + underline */}
-      {!isSearching && (
-        <View style={s.tabsWrap}>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={s.tabsRow}
-          >
-            {CATEGORIES.map(cat => {
-              const active = activeKey === cat.key;
-              const CatIcon = cat.Icon;
-              return (
-                <TouchableOpacity
-                  key={cat.key}
-                  style={s.tab}
-                  onPress={() => scrollTo(cat.key)}
-                  activeOpacity={0.75}
-                >
-                  <View style={{ marginBottom:4 }}>
-                    <CatIcon
-                      size={24}
-                      color={active ? colors.primary : "#3A3530"}
-                      weight="thin"
-                    />
-                  </View>
-                  <Text style={active ? [s.tabLabel, s.tabLabelActive] : s.tabLabel}>
-                    {cat.label}
-                  </Text>
-                  {active && <View style={s.tabUnderline} />}
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
-          <View style={s.tabsBorder} />
-        </View>
-      )}
-
-      {/* Search bar — below nav */}
-      {/* Search bar */}
+      {/* ── Search bar ───────────────────────────────────────────────────── */}
       <View style={s.searchWrap}>
-        <View style={[s.searchBar, searchFocused && s.searchBarFocused]}>
-          <Text style={s.searchIcon}>{"🔍"}</Text>
+        <View style={s.searchBar}>
+          <MagnifyingGlass size={18} color="#8A7D6A" weight="regular" />
           <TextInput
             style={s.searchInput}
-            placeholder="Search tools, resources, links…"
-            placeholderTextColor="#5C534A"
+            placeholder="Search tools, resources…"
+            placeholderTextColor="#8A7D6A"
             value={searchQuery}
             onChangeText={setSearchQuery}
             onFocus={() => setSearchFocused(true)}
             onBlur={() => setSearchFocused(false)}
             returnKeyType="search"
           />
-          {searchQuery.length > 0 && (
-            <TouchableOpacity onPress={() => setSearchQuery("")} hitSlop={{top:8,bottom:8,left:8,right:8}}>
-              <Text style={s.searchClear}>{"✕"}</Text>
+          {searchQuery.length > 0 ? (
+            <TouchableOpacity onPress={() => setSearchQuery("")} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+              <Text style={s.searchClear}>✕</Text>
             </TouchableOpacity>
-          )}
+          ) : null}
         </View>
       </View>
+
+      {/* ── Section pill nav ─────────────────────────────────────────────── */}
+      {!isSearching ? (
+        <View style={s.pillsBar}>
+          {PILLS.map((p) => {
+            const active = p.key === activeKey;
+            return (
+              <TouchableOpacity
+                key={p.key}
+                style={active ? s.pillActive : s.pill}
+                onPress={() => scrollTo(p.key)}
+                activeOpacity={active ? 1 : 0.7}
+              >
+                <Text style={active ? s.pillTextActive : s.pillText}>{p.label}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      ) : null}
 
       <ScrollView
         ref={scrollRef}
         contentContainerStyle={s.scroll}
-        showsVerticalScrollIndicator={false}>
-
-        {/* Search results */}
+        showsVerticalScrollIndicator={false}
+      >
         {isSearching ? (
           <View>
-            {filterItems(TOOLS).length > 0 && (
-              <>
-                <SectionHeader styles={s} title="Tools" />
-                <MenuCard styles={s} items={filterItems(TOOLS)} navigation={navigation} />
-              </>
-            )}
-            {filterItems(AFFILIATE_ITEMS).length > 0 && (
-              <>
-                <SectionHeader styles={s} title="Prepare & Shop" />
-                <AffiliateCard styles={s} items={filterItems(AFFILIATE_ITEMS)} />
-              </>
-            )}
-            {filterItems(ISLAMIC_REFS).length > 0 && (
-              <>
-                <SectionHeader styles={s} title="Islamic Reference" />
-                <LinkCard styles={s} items={filterItems(ISLAMIC_REFS)} />
-              </>
-            )}
-            {filterItems(MULTIMEDIA).length > 0 && (
-              <>
-                <SectionHeader styles={s} title="Videos & Podcasts" />
-                <LinkCard styles={s} items={filterItems(MULTIMEDIA)} />
-              </>
-            )}
-            {filterItems(OFFICIAL_LINKS).length > 0 && (
-              <>
-                <SectionHeader styles={s} title="Official Resources" />
-                <LinkCard styles={s} items={filterItems(OFFICIAL_LINKS)} />
-              </>
-            )}
-            {filterItems(TOOLS).length === 0 &&
-             filterItems(AFFILIATE_ITEMS).length === 0 &&
-             filterItems(ISLAMIC_REFS).length === 0 &&
-             filterItems(MULTIMEDIA).length === 0 &&
-             filterItems(OFFICIAL_LINKS).length === 0 && (
+            {filterItems(TOOLS).length > 0 ? (
+              <View>
+                <Text style={s.eyebrow}>TOOLS</Text>
+                <View style={s.listCard}>
+                  {filterItems(TOOLS).map((item, i, arr) => {
+                    const ItemIcon = item.Icon;
+                    return (
+                      <TouchableOpacity
+                        key={item.id}
+                        style={i < arr.length - 1 ? [s.row, s.rowBorder] : s.row}
+                        onPress={() => navigation?.navigate?.(item.screen)}
+                        activeOpacity={0.75}
+                      >
+                        <View style={s.rowIconBox}>
+                          <ItemIcon size={24} color="#C8A96A" weight="regular" />
+                        </View>
+                        <View style={s.rowInfo}>
+                          <Text style={s.rowLabel}>{item.title}</Text>
+                          <Text style={s.rowSub}>{item.sub}</Text>
+                        </View>
+                        <CaretRight size={18} color="#C8BFB2" weight="bold" />
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+            ) : null}
+
+            {filterItems(AFFILIATE_ITEMS).length > 0 ? (
+              <View>
+                <Text style={s.eyebrow}>SHOP</Text>
+                <View style={s.affiliateCard}>
+                  <AffiliateCard styles={s} items={filterItems(AFFILIATE_ITEMS)} />
+                </View>
+              </View>
+            ) : null}
+
+            {filterItems(ISLAMIC_REFS).length > 0 ? (
+              <View>
+                <Text style={s.eyebrow}>ISLAMIC REFERENCE</Text>
+                <View style={s.listCard}>
+                  {filterItems(ISLAMIC_REFS).map((item, i, arr) => (
+                    <TouchableOpacity
+                      key={item.url}
+                      style={i < arr.length - 1 ? [s.row, s.rowBorder] : s.row}
+                      onPress={() => Linking.openURL(item.url)}
+                      activeOpacity={0.75}
+                    >
+                      <View style={s.rowInfo}>
+                        <Text style={s.rowLabel}>{item.title}</Text>
+                        <Text style={s.rowSub}>{item.sub}</Text>
+                      </View>
+                      <ArrowSquareOut size={18} color="#C8BFB2" weight="regular" />
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+            ) : null}
+
+            {filterItems(MULTIMEDIA).length > 0 ? (
+              <View>
+                <Text style={s.eyebrow}>MEDIA</Text>
+                <View style={s.listCard}>
+                  {filterItems(MULTIMEDIA).map((item, i, arr) => (
+                    <TouchableOpacity
+                      key={item.url}
+                      style={i < arr.length - 1 ? [s.row, s.rowBorder] : s.row}
+                      onPress={() => Linking.openURL(item.url)}
+                      activeOpacity={0.75}
+                    >
+                      <View style={s.rowInfo}>
+                        <Text style={s.rowLabel}>{item.title}</Text>
+                        <Text style={s.rowSub}>{item.sub}</Text>
+                      </View>
+                      <ArrowSquareOut size={18} color="#C8BFB2" weight="regular" />
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+            ) : null}
+
+            {filterItems(OFFICIAL_LINKS).length > 0 ? (
+              <View>
+                <Text style={s.eyebrow}>OFFICIAL</Text>
+                <View style={s.listCard}>
+                  {filterItems(OFFICIAL_LINKS).map((item, i, arr) => (
+                    <TouchableOpacity
+                      key={item.url}
+                      style={i < arr.length - 1 ? [s.row, s.rowBorder] : s.row}
+                      onPress={() => Linking.openURL(item.url)}
+                      activeOpacity={0.75}
+                    >
+                      <View style={s.rowInfo}>
+                        <Text style={s.rowLabel}>{item.title}</Text>
+                        <Text style={s.rowSub}>{item.sub}</Text>
+                      </View>
+                      <ArrowSquareOut size={18} color="#C8BFB2" weight="regular" />
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+            ) : null}
+
+            {noSearchResults ? (
               <View style={s.emptySearch}>
-                <Text style={s.emptySearchIcon}>{"🔍"}</Text>
                 <Text style={s.emptySearchText}>No results for "{searchQuery}"</Text>
               </View>
-            )}
+            ) : null}
           </View>
         ) : (
           <>
-        {/* Tools */}
-        <View onLayout={e => { sectionY.current.tools = e.nativeEvent.layout.y; }}>
-          <SectionHeader styles={s} title="Tools" sub="Apps and utilities for your journey" />
-          <MenuCard styles={s} items={TOOLS} navigation={navigation} />
-        </View>
+            {/* ── Zone 1: Personal ──────────────────────────────────────── */}
+            <View onLayout={e => { sectionY.current.personal = e.nativeEvent.layout.y; }}>
 
-        {/* Prepare & Shop */}
-        <View onLayout={e => { sectionY.current.shop = e.nativeEvent.layout.y; }}>
-          <SectionHeader styles={s} title="Prepare & Shop" sub="Curated essentials for the journey" />
-          <AffiliateCard styles={s} items={AFFILIATE_ITEMS} />
-        </View>
+              <View style={s.profileCard}>
 
-        {/* Islamic reference */}
-        <View onLayout={e => { sectionY.current.islamic = e.nativeEvent.layout.y; }}>
-          <SectionHeader styles={s} title="Islamic Reference" sub="Trusted scholarly sources and fatwa services" />
-          <LinkCard styles={s} items={ISLAMIC_REFS} />
-        </View>
+                {/* Left column — avatar */}
+                <View style={s.profileAvatarCol}>
+                  <TouchableOpacity
+                    style={[
+                      s.profileAvatar,
+                      avatarKey ? null : { backgroundColor: "#3A3545" },
+                    ]}
+                    onPress={() => setShowAvatarPicker(true)}
+                    activeOpacity={0.85}
+                  >
+                    {avatarKey ? (
+                      <Image
+                        source={AVATARS.find(
+                          a => a.key === avatarKey)?.src}
+                        style={s.profileAvatarImg}
+                        resizeMode="cover"
+                      />
+                    ) : (
+                      <Text style={s.profileInitials}>
+                        {initials || "S"}
+                      </Text>
+                    )}
+                  </TouchableOpacity>
+                  <Text style={s.profileChangeLabel}>Change</Text>
+                </View>
 
-        {/* Multimedia */}
-        <View onLayout={e => { sectionY.current.media = e.nativeEvent.layout.y; }}>
-          <SectionHeader styles={s} title="Videos & Podcasts" sub="How-to guides and spiritual preparation" />
-          <LinkCard styles={s} items={MULTIMEDIA} />
-        </View>
+                {/* Vertical divider */}
+                <View style={s.profileDividerV} />
 
-        {/* Official */}
-        <View onLayout={e => { sectionY.current.official = e.nativeEvent.layout.y; }}>
-          <SectionHeader styles={s} title="Official Resources" sub="Saudi government and pilgrimage authorities" />
-          <LinkCard styles={s} items={OFFICIAL_LINKS} />
-        </View>
+                {/* Right column — info */}
+                <View style={s.profileInfoCol}>
 
-        {/* Account & Settings */}
-        <View onLayout={e => { sectionY.current.settings = e.nativeEvent.layout.y; }}>
-          <SectionHeader styles={s} title="Accounts & Settings" />
-          <View style={s.menuCard}>
-            <TouchableOpacity
-              style={[s.menuRow, s.menuRowBorder]}
-              onPress={() => navigation?.navigate?.("Settings")}
-              activeOpacity={0.85}>
-              <View style={s.menuIconWrap}>
-                <Gear size={26} color="#2A4A38" weight="thin" />
-              </View>
-              <View style={s.menuInfo}>
-                <Text style={s.menuTitle}>Settings</Text>
-                <Text style={s.menuSub}>Voice, display, account, privacy</Text>
-              </View>
-              <Text style={s.menuArrow}>{"›"}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[s.menuRow, s.menuRowBorder]}
-              onPress={() => navigation?.navigate?.("Support")}
-              activeOpacity={0.85}>
-              <View style={s.menuIconWrap}>
-                <Question size={26} color="#2A4A38" weight="thin" />
-              </View>
-              <View style={s.menuInfo}>
-                <Text style={s.menuTitle}>Help & Support</Text>
-                <Text style={s.menuSub}>FAQs, tutorials, contact us</Text>
-              </View>
-              <Text style={s.menuArrow}>{"›"}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={s.menuRow}
-              onPress={() => setShowAbout(true)}
-              activeOpacity={0.85}>
-              <View style={s.menuIconWrap}>
-                <Info size={26} color="#2A4A38" weight="thin" />
-              </View>
-              <View style={s.menuInfo}>
-                <Text style={s.menuTitle}>About Safar</Text>
-                <Text style={s.menuSub}>What is Safar and how to use it</Text>
-              </View>
-              <Text style={s.menuArrow}>{"›"}</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+                  {/* Top row: journey badge + pencil */}
+                  <View style={s.profileTopRow}>
+                    {journeyLabel ? (
+                      <View style={s.journeyBadge}>
+                        <Text style={s.journeyBadgeText}>
+                          {journeyLabel}
+                        </Text>
+                      </View>
+                    ) : null}
+                    <View style={{ flex: 1 }} />
+                    <TouchableOpacity
+                      onPress={() => navigation.navigate("Settings")}
+                      activeOpacity={0.75}
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    >
+                      <PencilSimple size={14} color="#8A7D6A" weight="regular" />
+                    </TouchableOpacity>
+                  </View>
 
-        <ScholarlyFootnote />
-        <View style={{ height:40 }} />
-        </>
+                  {/* Name */}
+                  <Text style={s.profileName} numberOfLines={1}>
+                    {userName || "Pilgrim"}
+                  </Text>
+
+                  {/* Email */}
+                  {userEmail ? (
+                    <Text style={s.profileEmail} numberOfLines={1}>
+                      {userEmail}
+                    </Text>
+                  ) : null}
+
+                </View>
+
+              </View>
+
+              <View style={s.tileGrid}>
+                <TouchableOpacity
+                  style={[s.tile, { backgroundColor: "rgba(58,53,69,0.90)" }]}
+                  onPress={() => navigation?.navigate?.("Bookmarks")}
+                  activeOpacity={0.85}
+                >
+                  <BookmarkSimple size={28} color="#C8A96A" weight="regular" />
+                  <View>
+                    <Text style={s.tileLabel}>Bookmarks</Text>
+                    <Text style={s.tileSub}>Saved content</Text>
+                  </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[s.tile, { backgroundColor: "rgba(58,53,69,0.78)" }]}
+                  onPress={() => navigation?.navigate?.("Notes")}
+                  activeOpacity={0.85}
+                >
+                  <NotePencil size={28} color="#C8A96A" weight="regular" />
+                  <View>
+                    <Text style={s.tileLabel}>Notes</Text>
+                    <Text style={s.tileSub}>Reflections</Text>
+                  </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[s.tile, { backgroundColor: "rgba(58,53,69,0.68)" }]}
+                  onPress={() => navigation?.navigate?.("WhatToExpect")}
+                  activeOpacity={0.85}
+                >
+                  <Compass size={28} color="#C8A96A" weight="regular" />
+                  <View>
+                    <Text style={s.tileLabel}>What to Expect</Text>
+                    <Text style={s.tileSub}>Health & logistics</Text>
+                  </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[s.tile, { backgroundColor: "rgba(58,53,69,0.58)" }]}
+                  onPress={() => navigation?.navigate?.("PracticeLearn")}
+                  activeOpacity={0.85}
+                >
+                  <Headphones size={28} color="#C8A96A" weight="regular" />
+                  <View>
+                    <Text style={s.tileLabel}>Practice & Learn</Text>
+                    <Text style={s.tileSub}>Audio & recite</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* ── Zone 2: Resources ────────────────────────────────────── */}
+            <View onLayout={e => { sectionY.current.resources = e.nativeEvent.layout.y; }}>
+              <Text style={s.eyebrow}>RESOURCES</Text>
+              <View style={s.listCard}>
+                <TouchableOpacity
+                  style={[s.row, s.rowBorder]}
+                  onPress={() => Linking.openURL(ISLAMIC_REFS[0].url)}
+                  activeOpacity={0.75}
+                >
+                  <View style={s.rowIconBox}>
+                    <BookOpen size={24} color="#C8A96A" weight="regular" />
+                  </View>
+                  <View style={s.rowInfo}>
+                    <Text style={s.rowLabel}>Islamic Scholars & References</Text>
+                    <Text style={s.rowSub}>Sunnah.com, IslamQA, SeekersGuidance</Text>
+                  </View>
+                  <CaretRight size={18} color="#C8BFB2" weight="bold" />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[s.row, s.rowBorder]}
+                  onPress={() => navigation?.navigate?.("Media")}
+                  activeOpacity={0.75}
+                >
+                  <View style={s.rowIconBox}>
+                    <PlayCircle size={24} color="#C8A96A" weight="regular" />
+                  </View>
+                  <View style={s.rowInfo}>
+                    <Text style={s.rowLabel}>Media & Videos</Text>
+                    <Text style={s.rowSub}>Hajj guides, podcasts, lectures</Text>
+                  </View>
+                  <CaretRight size={18} color="#C8BFB2" weight="bold" />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={s.row}
+                  onPress={() => navigation?.navigate?.("PrintOffline")}
+                  activeOpacity={0.75}
+                >
+                  <View style={s.rowIconBox}>
+                    <DownloadSimple size={24} color="#C8A96A" weight="regular" />
+                  </View>
+                  <View style={s.rowInfo}>
+                    <Text style={s.rowLabel}>Save for Offline</Text>
+                    <Text style={s.rowSub}>Access guides without internet</Text>
+                  </View>
+                  <CaretRight size={18} color="#C8BFB2" weight="bold" />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* ── Zone 3: Shop ─────────────────────────────────────────── */}
+            <View onLayout={e => { sectionY.current.shop = e.nativeEvent.layout.y; }}>
+              <Text style={s.eyebrow}>SHOP</Text>
+              <View style={s.affiliateCard}>
+                <AffiliateCard styles={s} items={AFFILIATE_ITEMS} />
+              </View>
+            </View>
+
+            {/* ── Zone 4: Official ─────────────────────────────────────── */}
+            <View onLayout={e => { sectionY.current.official = e.nativeEvent.layout.y; }}>
+              <Text style={s.eyebrow}>OFFICIAL</Text>
+              <View style={s.listCard}>
+                {OFFICIAL_LINKS.map((item, i, arr) => (
+                  <TouchableOpacity
+                    key={item.url}
+                    style={i < arr.length - 1 ? [s.row, s.rowBorder] : s.row}
+                    onPress={() => Linking.openURL(item.url)}
+                    activeOpacity={0.75}
+                  >
+                    <View style={s.rowInfo}>
+                      <Text style={s.rowLabel}>{item.title}</Text>
+                      <Text style={s.rowSub}>{item.sub}</Text>
+                    </View>
+                    <ArrowSquareOut size={18} color="#C8BFB2" weight="regular" />
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
+            {/* ── Zone 5: Settings ─────────────────────────────────────── */}
+            <View style={s.settingsZone}>
+              <TouchableOpacity
+                style={[s.settingsRow, s.settingsRowBorder]}
+                onPress={() => navigation?.navigate?.("Settings")}
+                activeOpacity={0.75}
+              >
+                <Gear size={22} color="#8A7D6A" weight="regular" />
+                <Text style={s.settingsLabel}>Settings</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[s.settingsRow, s.settingsRowBorder]}
+                onPress={() => navigation?.navigate?.("Support")}
+                activeOpacity={0.75}
+              >
+                <Question size={22} color="#8A7D6A" weight="regular" />
+                <Text style={s.settingsLabel}>Support & Help</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={s.settingsRow}
+                onPress={() => setShowAbout(true)}
+                activeOpacity={0.75}
+              >
+                <Info size={22} color="#8A7D6A" weight="regular" />
+                <Text style={s.settingsLabel}>About Safar</Text>
+              </TouchableOpacity>
+            </View>
+
+            <ScholarlyFootnote />
+            <View style={{ height: 40 }} />
+          </>
         )}
       </ScrollView>
 
       <AboutSafarModal visible={showAbout} onClose={() => setShowAbout(false)} />
-    </SafeAreaView>
+
+      <Modal
+        visible={showAvatarPicker}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowAvatarPicker(false)}
+      >
+        <TouchableOpacity
+          style={s.pickerBackdrop}
+          activeOpacity={1}
+          onPress={() => setShowAvatarPicker(false)}
+        >
+          <View
+            style={s.pickerSheet}
+            onStartShouldSetResponder={() => true}
+          >
+            <View style={s.pickerHandle} />
+
+            <Text style={s.pickerTitle}>Choose your avatar</Text>
+            <Text style={s.pickerSub}>Tap an icon or use your initials</Text>
+
+            <TouchableOpacity
+              style={s.pickerInitialsRow}
+              onPress={async () => {
+                setAvatarKey(null);
+                setShowAvatarPicker(false);
+                await AsyncStorage.removeItem(AVATAR_KEY);
+              }}
+              activeOpacity={0.75}
+            >
+              <View style={s.pickerInitialsCircle}>
+                <Text style={s.pickerInitialsText}>{initials || "S"}</Text>
+              </View>
+              <Text style={s.pickerInitialsLabel}>Use my initials</Text>
+              {!avatarKey ? (
+                <View style={s.pickerCheck}>
+                  <Text style={s.pickerCheckText}>✓</Text>
+                </View>
+              ) : null}
+            </TouchableOpacity>
+
+            <View style={s.pickerGrid}>
+              {AVATARS.map((avatar) => (
+                <TouchableOpacity
+                  key={avatar.key}
+                  style={avatarKey === avatar.key
+                    ? [s.pickerItem, s.pickerItemActive]
+                    : s.pickerItem}
+                  onPress={() => selectAvatar(avatar.key)}
+                  activeOpacity={0.75}
+                >
+                  <Image
+                    source={avatar.src}
+                    style={s.pickerItemImg}
+                    resizeMode="cover"
+                  />
+                  {avatarKey === avatar.key ? (
+                    <View style={s.pickerItemCheck}>
+                      <Text style={s.pickerCheckText}>✓</Text>
+                    </View>
+                  ) : null}
+                </TouchableOpacity>
+              ))}
+            </View>
+
+          </View>
+        </TouchableOpacity>
+      </Modal>
+    </View>
   );
 }
 
-const createStyles = (colors) => StyleSheet.create({
-  safe:   { flex:1, backgroundColor:colors.background },
-  heroImg:      { height:96, marginBottom:12 },
-  heroImgStyle: { resizeMode:"cover" },
-  heroScrim:    { ...StyleSheet.absoluteFillObject, backgroundColor:"rgba(30,61,48,0.15)" },
+const s = StyleSheet.create({
+  root: { flex: 1, backgroundColor: "#F5F0E8" },
 
-  // Header — consistent padding matches all other tabs
-  header:         { paddingHorizontal:spacing(2.5), paddingTop:14, paddingBottom:12, backgroundColor:colors.background },
-  headerLeft:     { flex:1 },
-  headerTitleRow: { flexDirection:"row", alignItems:"center", justifyContent:"space-between", marginBottom:3 },
-  headerIcons:    { flexDirection:"row", gap:8 },
-  headerIconBtn:  { width:32, height:32, borderRadius:16, backgroundColor:colors.card, borderWidth:1, borderColor:colors.border, alignItems:"center", justifyContent:"center" },
-  headerTitle:    { fontFamily:SERIF, fontSize:26, fontWeight:"400", color:colors.text },
-  headerSub:      { fontSize:14, color:colors.subtext, fontWeight:"400" },
+  // Header
+  header: { height: 260, overflow: "hidden", backgroundColor: "#3A3545" },
+  headerImg: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, width: "100%", height: "100%" },
+  gradient: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
+  headerContent: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, justifyContent: "flex-end", paddingHorizontal: 20, paddingBottom: 22 },
+  titleRow: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 8 },
+  iconCircle: { width: 44, height: 44, borderRadius: 22, borderWidth: 1.5, borderColor: "#C8A96A", alignItems: "center", justifyContent: "center" },
+  headerTitle: { fontFamily: SERIF, fontSize: 38, color: "#FFFFFF", fontWeight: "600" },
+  headerSub: { fontSize: 15, color: "rgba(255,255,255,0.82)", lineHeight: 22, maxWidth: "88%" },
 
-  // Search bar
-  searchWrap:        { paddingHorizontal:20, paddingBottom:12, paddingTop:16 },
-  searchBar:         { flexDirection:"row", alignItems:"center", gap:10, backgroundColor:colors.card, borderRadius:14, borderWidth:1.5, borderColor:colors.border, paddingHorizontal:14, paddingVertical:11, shadowColor:"#4A2E10", shadowOffset:{width:0,height:2}, shadowOpacity:0.14, shadowRadius:6, elevation:3 },
-  searchBarFocused:  { borderColor:colors.primary },
-  searchIcon:        { fontSize:15, opacity:0.5 },
-  searchInput:       { flex:1, fontSize:16, color:colors.text, padding:0 },
-  searchClear:       { fontSize:14, color:colors.subtext, paddingLeft:4 },
+  // Search
+  searchWrap: { paddingHorizontal: 16, paddingVertical: 10, backgroundColor: "#F5F0E8" },
+  searchBar: {
+    backgroundColor: "#FDFAF4",
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    shadowColor: "#2A1F0E",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.10,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  searchInput: { flex: 1, fontSize: 15, color: "#1C1A14", padding: 0 },
+  searchClear: { fontSize: 14, color: "#8A7D6A" },
 
-  // Tab navigation — horizontal scroll
-  tabsWrap:      { marginBottom:0, backgroundColor:"#E8DDD0" },
-  tabsRow:       { paddingHorizontal:16, paddingBottom:0, gap:0 },
-  tab:           { alignItems:"center", paddingHorizontal:14, paddingVertical:10, position:"relative", minWidth:72 },
-  tabLabel:      { fontSize:13, color:"#3A3530", fontWeight:"600", textAlign:"center" },
-  tabLabelActive:{ color:colors.primary, fontWeight:"600" },
-  tabUnderline:  { position:"absolute", bottom:0, left:10, right:10, height:2.5, backgroundColor:colors.primary, borderRadius:2 },
-  tabsBorder:    { height:1, backgroundColor:colors.border, marginBottom:4 },
+  // Pill nav
+  pillsBar: {
+    backgroundColor: "#FDFAF4",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    flexDirection: "row",
+    gap: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E8E0D4",
+  },
+  pill: { flex: 1, alignItems: "center", paddingVertical: 10 },
+  pillActive: { flex: 1, alignItems: "center", paddingVertical: 10, backgroundColor: "#3A3545", borderRadius: 22 },
+  pillText: { fontSize: 13, color: "#8A7A6A" },
+  pillTextActive: { fontSize: 13, fontWeight: "600", color: "#FFFFFF" },
 
-  scroll: { paddingBottom:40 },
+  // Scroll
+  scroll: { paddingBottom: 40 },
 
-  // Section headers — generous spacing, clear hierarchy
-  sectionHeader:   { paddingHorizontal:20, marginTop:28, marginBottom:12 },
-  sectionTitleRow: { flexDirection:"row", alignItems:"center", gap:10, marginBottom:4 },
-  sectionBar:      { width:3, height:20, borderRadius:2, backgroundColor:colors.primary },
-  sectionTitle:    { fontFamily:SERIF, fontSize:17, fontWeight:"700", letterSpacing:0.5, color:colors.primary, lineHeight:20 },
-  sectionLine:     { flex:1, height:1, backgroundColor:colors.border },
-  sectionSub:      { fontSize:14, color:"#3A3530", fontWeight:"600", lineHeight:20, marginLeft:13 },
+  // Eyebrow section labels
+  eyebrow: {
+    fontSize: 10,
+    fontWeight: "700",
+    letterSpacing: 1.2,
+    color: "#C8A96A",
+    marginHorizontal: 16,
+    marginTop: 24,
+    marginBottom: 10,
+  },
 
-  // Menu card
-  menuCard:      { marginHorizontal:20, backgroundColor:colors.card, borderRadius:16, borderWidth:1, borderColor:colors.border, overflow:"hidden", shadowColor:"#4A2E10", shadowOffset:{width:0,height:3}, shadowOpacity:0.18, shadowRadius:10, elevation:5 },
-  menuRow:       { flexDirection:"row", alignItems:"center", gap:14, paddingHorizontal:18, paddingVertical:16 },
-  menuRowBorder: { borderBottomWidth:1, borderBottomColor:colors.border },
-  menuIconWrap:  { width:46, height:46, borderRadius:12, backgroundColor:"#E2EDE6", alignItems:"center", justifyContent:"center", flexShrink:0 },
-  menuInfo:      { flex:1 },
-  menuTitle:     { fontFamily:SERIF, fontSize:16, color:colors.text, marginBottom:2 },
-  menuSub:       { fontSize:14, color:colors.subtext },
-  menuArrow:     { fontSize:20, color:colors.border },
-  externalArrow: { fontSize:14, color:colors.primary, fontWeight:"500" },
+  // Tile grid (Zone 1)
+  tileGrid: { flexDirection: "row", flexWrap: "wrap", paddingHorizontal: 16, gap: 10 },
+  tile: { width: "47%", flexGrow: 1, height: 110, borderRadius: 16, overflow: "hidden", padding: 16, justifyContent: "space-between" },
+  tileLabel: { fontSize: 15, fontWeight: "600", color: "#FFFFFF" },
+  tileSub: { fontSize: 12, color: "rgba(255,255,255,0.72)", marginTop: 2 },
 
-  // Affiliate grid
-  affiliateDisclosure: { fontSize:12, color:colors.subtext, fontStyle:"italic", marginHorizontal:20, marginBottom:10, lineHeight:16 },
-  affiliateGrid:       { flexDirection:"row", flexWrap:"wrap", gap:12, paddingHorizontal:20 },
-  affiliateTile:       { width:(SW - 40 - 12)/2, backgroundColor:colors.card, borderRadius:14, borderWidth:1, borderColor:colors.border, padding:16, gap:4, shadowColor:"#4A2E10", shadowOffset:{width:0,height:2}, shadowOpacity:0.14, shadowRadius:6, elevation:3 },
-  affiliateEmoji:      { fontSize:26, marginBottom:4 },
-  affiliateTitle:      { fontFamily:SERIF, fontSize:14, color:colors.text, lineHeight:18 },
-  affiliateSub:        { fontSize:12, color:colors.subtext, lineHeight:16, flex:1 },
-  affiliateShop:       { fontSize:12, color:"#7A5A2A", fontWeight:"600", marginTop:4 },
+  // List card
+  listCard: {
+    backgroundColor: "#FDFAF4",
+    borderRadius: 16,
+    marginHorizontal: 16,
+    shadowColor: "#2A1F0E",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+  },
 
-  // Empty search state
-  emptySearch:     { alignItems:"center", paddingVertical:48 },
-  emptySearchIcon: { fontSize:36, marginBottom:12, opacity:0.4 },
-  emptySearchText: { fontSize:16, color:colors.subtext, textAlign:"center" },
+  // Row anatomy
+  row: { flexDirection: "row", alignItems: "center", paddingHorizontal: 18, paddingVertical: 16 },
+  rowBorder: { borderBottomWidth: 1, borderBottomColor: "#EDE4D4" },
+  rowIconBox: {
+    width: 52,
+    height: 52,
+    borderRadius: 14,
+    backgroundColor: "rgba(58,53,69,0.85)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 16,
+  },
+  rowInfo: { flex: 1 },
+  rowLabel: { fontSize: 16, color: "#1C1A14", marginBottom: 3 },
+  rowSub: { fontSize: 13, color: "#5C534A", lineHeight: 18 },
+
+  // Affiliate card wrapper (Zone 3)
+  affiliateCard: {
+    backgroundColor: "#FDFAF4",
+    borderRadius: 16,
+    marginHorizontal: 16,
+    padding: 16,
+    shadowColor: "#2A1F0E",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  affiliateDisclosure: { fontSize: 12, color: "#8A7D6A", fontStyle: "italic", marginBottom: 10, lineHeight: 16 },
+  affiliateGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
+  affiliateTile: {
+    width: (SW - 74) / 2,
+    backgroundColor: "#F0EBE1",
+    borderRadius: 12,
+    padding: 14,
+    gap: 4,
+  },
+  affiliateEmoji: { fontSize: 26, marginBottom: 4 },
+  affiliateTitle: { fontFamily: SERIF, fontSize: 14, color: "#1C1A14", lineHeight: 18 },
+  affiliateSub: { fontSize: 12, color: "#5C534A", lineHeight: 16, flex: 1 },
+  affiliateShop: { fontSize: 12, color: "#7A5A2A", fontWeight: "600", marginTop: 4 },
+
+  // Settings zone (Zone 5)
+  settingsZone: { marginHorizontal: 16, marginTop: 16 },
+  settingsRow: { flexDirection: "row", alignItems: "center", paddingVertical: 14, gap: 14 },
+  settingsRowBorder: { borderBottomWidth: 1, borderBottomColor: "#EDE4D4" },
+  settingsLabel: { flex: 1, fontSize: 15, color: "#5C534A" },
+
+  // Empty search
+  emptySearch: { alignItems: "center", paddingVertical: 48 },
+  emptySearchText: { fontSize: 16, color: "#8A7D6A", textAlign: "center" },
+
+  profileAvatarWrap: {
+    alignItems: "center",
+    gap: 4,
+    flexShrink: 0,
+  },
+  profileChangeLabel: {
+    fontSize: 10,
+    fontWeight: "600",
+    color: "#8A7D6A",
+    letterSpacing: 0.3,
+  },
+
+  // Profile card & avatar
+  profileCard: {
+    marginHorizontal: 13,
+    marginTop: 16,
+    marginBottom: 10,
+    backgroundColor: "#FDFAF4",
+    borderWidth: 1,
+    borderColor: "#C8BFB2",
+    borderRadius: 16,
+    overflow: "hidden",
+    flexDirection: "row",
+    shadowColor: "#4A2E10",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  profileAvatarCol: {
+    width: 88,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 14,
+    gap: 5,
+  },
+  profileDividerV: {
+    width: 1,
+    backgroundColor: "#E0D8CC",
+    marginVertical: 14,
+  },
+  profileInfoCol: {
+    flex: 1,
+    padding: 14,
+    justifyContent: "center",
+    gap: 5,
+  },
+  profileTopRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 2,
+  },
+  profileAvatar: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+  profileInitials: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#FFFFFF",
+  },
+  profileAvatarImg: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+  },
+  profileAvatarEdit: {
+    position: "absolute",
+    bottom: -2,
+    right: -2,
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: "#C8A96A",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  profileAvatarEditText: {
+    fontSize: 10,
+    color: "#FFFFFF",
+  },
+  profileName: {
+    fontFamily: "SourceSerif4-Regular",
+    fontSize: 22,
+    fontWeight: "600",
+    color: "#1A1410",
+  },
+  journeyBadge: {
+    backgroundColor: "rgba(74,92,72,0.12)",
+    borderRadius: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  journeyBadgeText: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: "#4A5C48",
+    letterSpacing: 0.3,
+  },
+  profileEmail: {
+    fontSize: 14,
+    color: "#8A7D6A",
+    marginTop: 2,
+  },
+
+  // Avatar picker modal
+  pickerBackdrop: {
+    flex: 1,
+    backgroundColor: "rgba(26,20,16,0.60)",
+    justifyContent: "flex-end",
+  },
+  pickerSheet: {
+    backgroundColor: "#FDFAF4",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: 24,
+    paddingTop: 16,
+    paddingBottom: 40,
+  },
+  pickerHandle: {
+    width: 36,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: "#DDD5C0",
+    alignSelf: "center",
+    marginBottom: 20,
+  },
+  pickerTitle: {
+    fontFamily: "SourceSerif4-Regular",
+    fontSize: 20,
+    color: "#1A1410",
+    fontWeight: "600",
+    marginBottom: 4,
+  },
+  pickerSub: {
+    fontSize: 13,
+    color: "#8A7D6A",
+    marginBottom: 20,
+  },
+  pickerInitialsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#EDE4D4",
+    marginBottom: 16,
+  },
+  pickerInitialsCircle: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#C8A96A",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  pickerInitialsText: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#FFFFFF",
+  },
+  pickerInitialsLabel: {
+    flex: 1,
+    fontSize: 15,
+    color: "#1A1410",
+    fontWeight: "500",
+  },
+  pickerCheck: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: "#4A5C48",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  pickerCheckText: {
+    fontSize: 12,
+    color: "#FFFFFF",
+    fontWeight: "700",
+  },
+  pickerGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+  },
+  pickerItem: {
+    width: "22%",
+    aspectRatio: 1,
+    borderRadius: 12,
+    overflow: "hidden",
+    borderWidth: 2,
+    borderColor: "transparent",
+  },
+  pickerItemActive: {
+    borderColor: "#4A5C48",
+  },
+  pickerItemImg: {
+    width: "100%",
+    height: "100%",
+  },
+  pickerItemCheck: {
+    position: "absolute",
+    top: 4,
+    right: 4,
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: "#4A5C48",
+    alignItems: "center",
+    justifyContent: "center",
+  },
 });

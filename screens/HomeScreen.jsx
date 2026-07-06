@@ -22,7 +22,7 @@ import {
   UsersThree, ShoppingBag, CheckSquare, Sparkle,
   ArrowRight, BookOpen, Moon, ListChecks, Users,
   Clock, PlayCircle, Wrench, Note, Gear, Info,
-  SunHorizon,
+  SunHorizon, Compass, Heartbeat, NotePencil,
 } from "phosphor-react-native";
 
 const SERIF = "SourceSerif4-Regular";
@@ -49,27 +49,15 @@ const HERO_SLIDES = [
     showGreeting: true,
   },
   {
-    id: "journey",
-    image: require("../assets/hero_guide.jpg"),
-    scrim: "rgba(8,16,8,0.26)",
-    tag: "MY JOURNEY",
-    headline: "Your Step-by-Step Guide",
-    sub: "Every ibadah, in order, with the right du\u02bfa\u02be",
-    cta: "View guides",
+    id: "media",
+    image: require("../assets/hero-media.png"),
+    scrim: "rgba(12,8,4,0.55)",
+    tag: "CURATED MEDIA",
+    headline: "Learn with confidence",
+    sub: "Handpicked videos, podcasts, and articles to prepare, learn, and travel with confidence",
+    cta: "Explore Media",
     ctaIsAbout: false,
-    ctaScreen: "Guidance",
-    showGreeting: false,
-  },
-  {
-    id: "setup",
-    image: require("../assets/what_to_expect.jpg"),
-    scrim: "rgba(12,8,4,0.26)",
-    tag: "AI-POWERED SETUP",
-    headline: "Everything you need. Fast.",
-    sub: "Add your itinerary, key dates and contacts",
-    cta: "Get started",
-    ctaIsAbout: false,
-    ctaScreen: "SafarAssist",
+    ctaScreen: "Media",
     showGreeting: false,
   },
   {
@@ -82,18 +70,6 @@ const HERO_SLIDES = [
     cta: "View du\u02bfa\u02bes",
     ctaIsAbout: false,
     ctaScreen: "Duas",
-    showGreeting: false,
-  },
-  {
-    id: "people",
-    image: require("../assets/hero_groups.jpg"),
-    scrim: "rgba(4,12,20,0.26)",
-    tag: "MY PEOPLE",
-    headline: "Travel Together, Stay Connected",
-    sub: "Share milestones with your group and loved ones",
-    cta: "View groups",
-    ctaIsAbout: false,
-    ctaScreen: "Groups",
     showGreeting: false,
   },
 ];
@@ -221,7 +197,6 @@ const ab = StyleSheet.create({
     elevation: 12,
   },
   title: {
-    fontFamily: SERIF,
     fontSize: 22,
     fontWeight: "600",
     color: "#4A5C48",
@@ -429,7 +404,11 @@ export default function HomeScreen({ navigation }) {
 
   // ── Prayer + calendar card (shown after intro is dismissed) ───────────────
   const PrayerCard = () => (
-    <View style={s.prayerCard}>
+    <TouchableOpacity
+      style={s.prayerCard}
+      activeOpacity={0.85}
+      onPress={() => navigation.navigate("PrayerTimes")}
+    >
       {/* Prayer + date row */}
       <View style={s.prayerContentRow}>
         {/* Left: dates */}
@@ -476,7 +455,7 @@ export default function HomeScreen({ navigation }) {
           <Text style={s.prayerWeatherTemp}>34°C</Text>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
@@ -514,7 +493,7 @@ export default function HomeScreen({ navigation }) {
             existing screen; replace targets when hub screens are built)
         ══════════════════════════════════════════════════════════════════ */}
         <View style={[s.pillarsHeader, { marginTop: 19 }]}>
-          <Text style={[s.pillarsHeaderText, { fontSize: 20, fontWeight: "600", color: "#1A1712" }]}>Prepare for every step</Text>
+          <Text style={[s.pillarsHeaderText, { fontSize: 20, fontWeight: "600", color: "#1A1712", textAlign: "center" }]}>Where would you like to begin?</Text>
         </View>
         <View style={s.pillarsGrid}>
 
@@ -582,7 +561,9 @@ export default function HomeScreen({ navigation }) {
             After dismiss:  prayer times + dual calendar (same footprint)
         ══════════════════════════════════════════════════════════════════ */}
         {introDismissed ? (
-          <PrayerCard />
+          <View>
+            <PrayerCard />
+          </View>
         ) : (
           <View style={s.introCard}>
             {/* Dismiss × */}
@@ -611,22 +592,50 @@ export default function HomeScreen({ navigation }) {
         {/* ══════════════════════════════════════════════════════════════════
             MY JOURNEY CARD
         ══════════════════════════════════════════════════════════════════ */}
+        <View style={{ marginTop: 20, marginBottom: 16 }}>
         <View style={s.journeyCard}>
-          <View style={s.journeyCardTop}>
-            <View>
-              <Text style={s.journeyCardEyebrow}>MY JOURNEY</Text>
-              <Text style={s.journeyCardTitle}>
-                {daysAway !== null
-                  ? `${daysAway} days until departure`
-                  : "Plan your pilgrimage"}
-              </Text>
+          <View style={s.journeyCardImg}>
+            <Image
+              source={require("../assets/myboard.jpg")}
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                width: "100%",
+                height: "100%",
+              }}
+              resizeMode="cover"
+            />
+            <LinearGradient
+              colors={["transparent", "rgba(42,31,14,0.95)"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 0, y: 1 }}
+              style={[StyleSheet.absoluteFillObject, {
+                borderTopLeftRadius: 18,
+                borderTopRightRadius: 18,
+              }]}
+            />
+            <View style={s.journeyCardOverlay}>
+              <View style={{ flex: 1 }}>
+                <Text style={s.journeyCardEyebrow}>MY JOURNEY</Text>
+                <Text style={s.journeyCardTitle}>
+                  {daysAway !== null
+                    ? `${daysAway} days until departure`
+                    : "Plan your pilgrimage"}
+                </Text>
+                <Text style={s.journeyCardSub}>
+                  Track your preparation, notes, checklists, and contacts in one place.
+                </Text>
+              </View>
             </View>
             <TouchableOpacity
-              style={s.journeyCardBtn}
-              onPress={() => navigation?.navigate?.("Hubs", { tab: "plan" })}
+              style={s.cardCornerBtn}
+              onPress={() => navigation?.navigate?.("HubContainer", { pillar: "plan" })}
               activeOpacity={0.85}
             >
-              <ArrowRight size={18} color="#FFFFFF" weight="regular" />
+              <ArrowRight size={16} color="#FFFFFF" weight="regular" />
             </TouchableOpacity>
           </View>
 
@@ -651,26 +660,22 @@ export default function HomeScreen({ navigation }) {
             ))}
           </View>
         </View>
+        </View>
 
+        <View style={{ backgroundColor: "#D4C9B4", paddingTop: 8 }}>
         {/* ══════════════════════════════════════════════════════════════════
             MY SHORTCUTS ICON GRID — 2×4
         ══════════════════════════════════════════════════════════════════ */}
+        <View style={{ marginTop: 16 }}>
         <View style={s.shortcutsHeader}>
           <Text style={s.shortcutsHeaderText}>My Shortcuts</Text>
-          <TouchableOpacity activeOpacity={0.7}>
-            <Text style={s.shortcutsHeaderEdit}>Edit</Text>
-          </TouchableOpacity>
         </View>
         <View style={s.gridWrap}>
           {[
-            { label:"Groups",       Icon:UsersThree,   screen:"Groups"      },
-            { label:"Guides",        Icon:BookOpenText, screen:"Guides"      },
-            { label:"Shop",          Icon:ShoppingBag,  screen:"Shop"        },
-            { label:"Prayer Times",  Icon:Clock,        screen:"PrayerTimes" },
-            { label:"Media",         Icon:PlayCircle,   screen:"Media"       },
-            { label:"Tools",         Icon:Wrench,       screen:"Tools"       },
-            { label:"Notes",         Icon:Note,         screen:"Notes"       },
-            { label:"Settings",      Icon:Gear,         screen:"Settings"    },
+            { label: "Qibla",   Icon: Compass,      screen: "Qibla"        },
+            { label: "Prayer",  Icon: Clock,        screen: "PrayerTimes"  },
+            { label: "Dhikr",   Icon: Heartbeat,    screen: "Dhikr"        },
+            { label: "Notes",   Icon: NotePencil,   screen: "Notes"        },
           ].map(({ label, Icon, screen }) => (
             <TouchableOpacity
               key={label}
@@ -679,11 +684,12 @@ export default function HomeScreen({ navigation }) {
               activeOpacity={0.78}
             >
               <View style={s.gridIconWrap}>
-                <Icon size={24} color="#9A7A3A" weight="regular" />
+                <Icon size={24} color="#FFFFFF" weight="regular" />
               </View>
               <Text style={s.gridLabel}>{label}</Text>
             </TouchableOpacity>
           ))}
+        </View>
         </View>
 
         {/* ══════════════════════════════════════════════════════════════════
@@ -715,19 +721,16 @@ export default function HomeScreen({ navigation }) {
             />
             {/* Text overlaid on left */}
             <View style={s.continuationLeft}>
-              {/* Top row: eyebrow + arrow */}
-              <View style={s.continuationTopRow}>
-                <Text style={s.continuationEyebrow} numberOfLines={1}>CONTINUE READING</Text>
-                <View style={s.continuationBtn}>
-                  <ArrowRight size={16} color="#F5F0E8" weight="regular" />
-                </View>
-              </View>
+              <Text style={s.continuationEyebrow} numberOfLines={1}>CONTINUE READING</Text>
               <Text style={s.continuationTitle} numberOfLines={2}>
                 {lastDua.dua?.title ?? "Your last du\u02bf\u0101\u02be"}
               </Text>
               {lastDua.dua?.stage ? (
                 <Text style={s.continuationStage}>{lastDua.dua.stage}</Text>
               ) : null}
+            </View>
+            <View style={s.cardCornerBtn}>
+              <ArrowRight size={16} color="#FFFFFF" weight="regular" />
             </View>
           </TouchableOpacity>
         ) : null}
@@ -736,7 +739,7 @@ export default function HomeScreen({ navigation }) {
             for reuse on a future screen. */}
 
         <View style={s.pillarsHeader}>
-          <Text style={s.pillarsHeaderText}>{"Today\u2019s Du\u02bf\u0101"}</Text>
+          <Text style={[s.pillarsHeaderText, { fontSize: 20, fontWeight: "600", color: "#1A1712", textAlign: "center" }]}>{"Today\u2019s Du\u02bf\u0101"}</Text>
         </View>
 
         <View style={s.duaCard}>
@@ -783,6 +786,7 @@ export default function HomeScreen({ navigation }) {
           <Info size={15} color="#8A7D6A" weight="regular" />
           <Text style={s.sourceLineTxt}>Du'ā sources</Text>
         </TouchableOpacity>
+        </View>
 
       </ScrollView>
 
@@ -827,7 +831,6 @@ const s = StyleSheet.create({
     lineHeight: 18,
   },
   heroUserName: {
-    fontFamily: SERIF,
     fontSize: 20,
     color: "#FFFFFF",
     fontWeight: "600",
@@ -849,7 +852,6 @@ const s = StyleSheet.create({
     backgroundColor: "transparent",
   },
   daysNum: {
-    fontFamily: SERIF,
     fontSize: 30,
     fontWeight: "700",
     color: "#FFFFFF",
@@ -890,7 +892,6 @@ const s = StyleSheet.create({
     marginBottom:  6,
   },
   heroPanelGreeting: {
-    fontFamily:   SERIF,
     fontSize:     22,
     color:        "#FFFFFF",
     fontWeight:   "400",
@@ -898,7 +899,6 @@ const s = StyleSheet.create({
     marginBottom: 4,
   },
   heroPanelHeadline: {
-    fontFamily:   SERIF,
     fontSize:     22,
     color:        "#FFFFFF",
     fontWeight:   "400",
@@ -920,7 +920,6 @@ const s = StyleSheet.create({
     marginBottom:    10,
   },
   heroPanelCtaTxt: {
-    fontFamily:    SERIF,
     fontSize:      15,
     color:         "#FFFFFF",
     fontWeight:    "600",
@@ -980,7 +979,6 @@ const s = StyleSheet.create({
     lineHeight: 20,
   },
   introTitle: {
-    fontFamily: SERIF,
     fontSize: 16,
     fontWeight: "600",
     color: "#4A5C48",
@@ -1032,14 +1030,13 @@ const s = StyleSheet.create({
   },
   prayerGregorian: {
     fontSize: 12,
-    color: "#3A3530",
+    color: "#8A7D6A",
     fontWeight: "500",
     lineHeight: 17,
   },
   prayerHijri: {
-    fontFamily: SERIF,
     fontSize: 13,
-    color: "#4A5C48",
+    color: "#8A7D6A",
     fontWeight: "600",
     lineHeight: 18,
   },
@@ -1078,14 +1075,13 @@ const s = StyleSheet.create({
   },
   prayerCurrentName: {
     flex: 1,
-    fontFamily: SERIF,
     fontSize: 15,
-    color: "#4A5C48",
+    color: "#1C1A14",
     fontWeight: "600",
   },
   prayerCurrentTime: {
     fontSize: 15,
-    color: "#4A5C48",
+    color: "#1C1A14",
     fontWeight: "700",
     fontVariant: ["tabular-nums"],
   },
@@ -1097,12 +1093,12 @@ const s = StyleSheet.create({
   prayerNextName: {
     flex: 1,
     fontSize: 12,
-    color: "#8A7D70",
+    color: "#5C534A",
     fontWeight: "400",
   },
   prayerNextTime: {
     fontSize: 12,
-    color: "#8A7D70",
+    color: "#5C534A",
     fontWeight: "500",
     fontVariant: ["tabular-nums"],
   },
@@ -1165,12 +1161,12 @@ const s = StyleSheet.create({
   pillarCard: {
     width: "47%",
     flexGrow: 1,
-    height: 120,
+    height: 100,
     borderRadius: 18,
     overflow: "hidden",
-    padding: 16,
+    padding: 12,
     justifyContent: "space-between",
-    opacity: 0.75,
+    opacity: 0.55,
     shadowColor: "#1C2E1C",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.30,
@@ -1216,14 +1212,15 @@ const s = StyleSheet.create({
     gap: 8,
   },
   pillarLabel: {
-    fontFamily: SERIF,
-    fontSize: 20,
+    fontFamily: "SourceSerif4-Regular",
+    fontSize: 22,
     color: "#FDFAF4",
     fontWeight: "400",
     lineHeight: 25,
   },
   pillarDesc: {
-    fontSize: 13,
+    fontFamily: "SourceSerif4-Regular",
+    fontSize: 14,
     color: "rgba(235,228,210,0.92)",
     fontWeight: "400",
     lineHeight: 19,
@@ -1248,46 +1245,40 @@ const s = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     marginHorizontal: 20,
-    marginTop: 18,
+    marginTop: 8,
     marginBottom: 0,
   },
   shortcutsHeaderText: {
     fontFamily: SERIF,
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#4A5C48",
-  },
-  shortcutsHeaderEdit: {
-    fontSize: 13,
-    color: "#8A7D70",
-    fontWeight: "500",
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#1A1712",
+    textAlign: "center",
   },
 
   // ── Section dividers ──────────────────────────────────────────────────────
   // ── Icon grid ────────────────────────────────────────────────────────────────
   gridWrap: {
     flexDirection: "row",
-    flexWrap: "wrap",
     paddingHorizontal: 14,
-    paddingTop: 20,
+    paddingTop: 12,
     paddingBottom: 8,
     gap: 10,
   },
   gridCell: {
-    width: "22%",
-    flexGrow: 1,
+    flex: 1,
     alignItems: "center",
     gap: 8,
-    backgroundColor: "#F3E9D2",
+    backgroundColor: "rgba(28,43,30,0.55)",
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "rgba(184,146,42,0.30)",
+    borderColor: "#DDD5C0",
     paddingVertical: 16,
     paddingHorizontal: 6,
-    shadowColor: "#6A4A28",
+    shadowColor: "#2A1F0E",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.10,
-    shadowRadius: 5,
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
     elevation: 2,
   },
   gridIconWrap: {
@@ -1301,7 +1292,7 @@ const s = StyleSheet.create({
   gridLabel: {
     fontSize: 13,
     fontWeight: "600",
-    color: "#6A5A38",
+    color: "#FDFAF4",
     textAlign: "center",
     lineHeight: 17,
   },
@@ -1311,16 +1302,27 @@ const s = StyleSheet.create({
     marginHorizontal: 14,
     marginTop: 12,
     marginBottom: 4,
-    backgroundColor: "#FDFAF4",
+    backgroundColor: "rgba(42,31,14,0.35)",
     borderRadius: 18,
     overflow: "hidden",
-    borderWidth: 1.5,
-    borderColor: "rgba(184,146,42,0.40)",
-    shadowColor: "#1C2E1C",
+    shadowColor: "#2A1F0E",
     shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.12,
+    shadowOpacity: 0.15,
     shadowRadius: 5,
     elevation: 4,
+  },
+  journeyCardImg: {
+    height: 150,
+    overflow: "hidden",
+  },
+  journeyCardOverlay: {
+    position: "absolute",
+    bottom: 14,
+    left: 22,
+    right: 22,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   journeyCardTop: {
     flexDirection: "row",
@@ -1333,15 +1335,25 @@ const s = StyleSheet.create({
   journeyCardEyebrow: {
     fontSize: 10,
     fontWeight: "700",
-    color: "#B8922A",
-    letterSpacing: 1.2,
-    marginBottom: 3,
+    color: "rgba(200,169,106,0.90)",
+    letterSpacing: 1.5,
+    marginBottom: 6,
+    textTransform: "uppercase",
   },
   journeyCardTitle: {
-    fontFamily: SERIF,
-    fontSize: 18,
-    color: "#1C1A14",
+    fontSize: 22,
+    color: "#FFFFFF",
     fontWeight: "400",
+    lineHeight: 28,
+    marginBottom: 4,
+  },
+  journeyCardSub: {
+    fontSize: 14,
+    color: "rgba(255,255,255,0.88)",
+    lineHeight: 20,
+    fontWeight: "400",
+    marginTop: 0,
+    marginBottom: 0,
   },
   journeyCardBtn: {
     width: 36,
@@ -1351,10 +1363,22 @@ const s = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  cardCornerBtn: {
+    position: "absolute",
+    top: 12,
+    right: 12,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "#4A5C48",
+    alignItems: "center",
+    justifyContent: "center",
+  },
   journeyLinks: {
     flexDirection: "row",
     borderTopWidth: 1,
-    borderTopColor: "rgba(184,146,42,0.22)",
+    borderTopColor: "rgba(253,250,244,0.30)",
+    paddingVertical: 14,
   },
   journeyLink: {
     flex: 1,
@@ -1363,12 +1387,12 @@ const s = StyleSheet.create({
   },
   journeyLinkTxt: {
     fontSize: 13,
-    color: "#4A5C48",
+    color: "#FDFAF4",
     fontWeight: "600",
   },
   journeyLinkDiv: {
     width: 1,
-    backgroundColor: "rgba(184,146,42,0.22)",
+    backgroundColor: "rgba(253,250,244,0.30)",
     marginVertical: 8,
   },
 
@@ -1378,7 +1402,7 @@ const s = StyleSheet.create({
     marginHorizontal: 14,
     marginTop: 12,
     marginBottom: 0,
-    height: 104,
+    height: 150,
     borderRadius: 16,
     overflow: "hidden",
     flexDirection: "row",
@@ -1390,34 +1414,39 @@ const s = StyleSheet.create({
     elevation: 2,
   },
   continuationLeft: {
-    flex: 1,
-    paddingHorizontal: 16,
-    paddingTop: 14,
-    paddingBottom: 14,
-    justifyContent: "center",
-    gap: 3,
+    position: "absolute",
+    bottom: 14,
+    left: 22,
+    right: 22,
   },
   continuationTopRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 2,
+    width: "100%",
   },
   continuationEyebrow: {
     fontSize: 10,
     fontWeight: "700",
     color: "rgba(200,169,106,0.90)",
-    letterSpacing: 1.4,
+    letterSpacing: 1.5,
+    marginBottom: 6,
+    textAlign: "left",
+    textTransform: "uppercase",
   },
   continuationTitle: {
-    fontFamily: SERIF,
     fontSize: 22,
-    color: "#FDFAF4",
+    color: "#FFFFFF",
     fontWeight: "400",
+    lineHeight: 28,
+    marginTop: 0,
+    textAlign: "left",
   },
   continuationStage: {
-    fontSize: 13,
-    color: "rgba(245,240,232,0.60)",
+    fontSize: 14,
+    color: "rgba(255,255,255,0.88)",
+    lineHeight: 20,
+    fontWeight: "400",
   },
   continuationBtn: {
     width: 32,
@@ -1472,7 +1501,6 @@ const s = StyleSheet.create({
     marginBottom: 5,
   },
   sacredCardTitle: {
-    fontFamily: SERIF,
     fontSize: 20,
     color: "#FFFFFF",
     fontWeight: "400",
@@ -1517,7 +1545,6 @@ const s = StyleSheet.create({
     marginBottom: 6,
   },
   focusCardTitle: {
-    fontFamily: SERIF,
     fontSize: 22,
     color: "#FFFFFF",
     fontWeight: "400",
@@ -1558,10 +1585,10 @@ const s = StyleSheet.create({
     backgroundColor: "#4A5C48",
   },
   sectionLabel: {
-    fontFamily: SERIF,
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#4A5C48",
+    fontFamily: "SourceSerif4-Regular",
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#1A1712",
   },
   sectionLine: {
     flex: 1,
@@ -1612,7 +1639,6 @@ const s = StyleSheet.create({
     marginBottom: 4,
   },
   gridTitleLight: {
-    fontFamily: SERIF,
     fontSize: 20,
     color: "#FFFFFF",
     fontWeight: "600",
@@ -1662,14 +1688,12 @@ const s = StyleSheet.create({
     marginBottom: 4,
   },
   solidCardTitle: {
-    fontFamily: SERIF,
     fontSize: 20,
     color: "#FDFAF4",
     fontWeight: "600",
     lineHeight: 26,
   },
   solidCardTitleDark: {
-    fontFamily: SERIF,
     fontSize: 20,
     color: "#4A5C48",
     fontWeight: "600",
@@ -1783,7 +1807,6 @@ const s = StyleSheet.create({
     maxWidth: 380,
   },
   sourcesTitle: {
-    fontFamily: SERIF,
     fontSize: 20,
     color: "#1A1712",
     fontWeight: "600",
@@ -1802,7 +1825,6 @@ const s = StyleSheet.create({
     alignItems: "center",
   },
   sourcesCloseTxt: {
-    fontFamily: SERIF,
     fontSize: 16,
     color: "#fff",
     fontWeight: "600",
@@ -1848,7 +1870,9 @@ const s = StyleSheet.create({
   },
   duaActions: {
     flexDirection: "row",
-    gap: 8,
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 12,
   },
   duaBtn: {
     backgroundColor: "#4A5C48",

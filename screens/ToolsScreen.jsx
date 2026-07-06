@@ -106,7 +106,7 @@ const s = StyleSheet.create({
   rowBorder:    { borderBottomWidth: 1, borderBottomColor: "#EDE4D4" },
   rowIconBox:   { width: 52, height: 52, borderRadius: 14, backgroundColor: "#3A2F1E", alignItems: "center", justifyContent: "center", marginRight: 16 },
   rowInfo:      { flex: 1 },
-  rowLabel:     { fontFamily: SERIF, fontSize: 19, color: "#1C1A14", marginBottom: 3 },
+  rowLabel:     { fontSize: 19, color: "#1C1A14", marginBottom: 3 },
   rowSub:       { fontSize: 13, color: "#5C534A", lineHeight: 18 },
   bottomPad:    { height: 40 },
 });
