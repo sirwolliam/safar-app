@@ -20,6 +20,8 @@ import AskModal from "../components/AskModal";
 import { PATTERN_PATH } from "./headerPatternPath";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { isDuaBookmarked, toggleDuaBookmark } from "../bookmarkStore";
+import { showToast } from "../Toast";
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
 const SERIF      = "SourceSerif4-Regular";
@@ -312,6 +314,30 @@ export default function DuaDetailScreen({ route, navigation }) {
     AsyncStorage.setItem("SAFAR_LAST_DUA", JSON.stringify(payload)).catch(() => {});
   }, [idx, activeDua]);
 
+  useEffect(() => {
+    let cancelled = false;
+    if (activeDua?.id) {
+      isDuaBookmarked(activeDua.id).then((v) => { if (!cancelled) setBookmarked(v); });
+    } else {
+      setBookmarked(false);
+    }
+    return () => { cancelled = true; };
+  }, [activeDua?.id]);
+
+  const handleToggleBookmark = () => {
+    if (!activeDua?.id) return;
+    setBookmarked((v) => !v);
+    toggleDuaBookmark(activeDua.id).then((newState) => {
+      setBookmarked(newState);
+      if (newState) {
+        showToast("Bookmark added", {
+          actionLabel: "View",
+          onAction: () => navigation.navigate("Tools", { screen: "Bookmarks" }),
+        });
+      }
+    });
+  };
+
   const hasPrev = idx > 0;
   const hasNext = idx < allDuas.length - 1;
   const goPrev  = () => { if (hasPrev) { setIdx(i => i - 1); audio.repeat(); } };
@@ -360,7 +386,7 @@ export default function DuaDetailScreen({ route, navigation }) {
           <TouchableOpacity style={s.navCircle} onPress={() => navigation?.goBack?.()} activeOpacity={0.8}>
             <IconBack color={MID_TEXT} size={20} />
           </TouchableOpacity>
-          <TouchableOpacity style={s.navCircle} onPress={() => setBookmarked(v => !v)} activeOpacity={0.8}>
+          <TouchableOpacity style={s.navCircle} onPress={handleToggleBookmark} activeOpacity={0.8}>
             <IconBookmark active={bookmarked} size={20} />
           </TouchableOpacity>
         </View>

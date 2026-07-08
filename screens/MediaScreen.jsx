@@ -8,7 +8,7 @@
  * - Two-column smaller cards below
  * - "Continue learning" placeholder section
  */
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   SafeAreaView, View, Text, TouchableOpacity, ScrollView,
   StyleSheet, Linking, Dimensions, Image,
@@ -18,6 +18,8 @@ import {
   Sparkle, Clock, BookmarkSimple,
 } from "phosphor-react-native";
 import { spacing, radius } from "../theme";
+import { getMediaBookmarks, toggleMediaBookmark } from "../bookmarkStore";
+import { showToast } from "../Toast";
 
 const { width: SW } = Dimensions.get("window");
 const BG     = "#F5EFE4";
@@ -31,14 +33,14 @@ const MUTED  = "#7A7060";
 const SERIF  = "SourceSerif4-Regular";
 
 // ── Type config ───────────────────────────────────────────────────────────────
-const T = {
+export const T = {
   video:   { label:"Video",   color:"#C0392B", bg:"rgba(192,57,43,0.10)",  Icon:YoutubeLogo },
   podcast: { label:"Podcast", color:"#6C3483", bg:"rgba(108,52,131,0.10)", Icon:Microphone  },
   article: { label:"Article", color:"#1A5276", bg:"rgba(26,82,118,0.10)",  Icon:Article     },
 };
 
 // ── Content ───────────────────────────────────────────────────────────────────
-const MEDIA = [
+export const MEDIA = [
   {
     id:"menk-umrah", type:"video", tags:["umrah","practical"], featured:true,
     title:"Umrah Guide \u2014 Mufti Menk",
@@ -138,7 +140,7 @@ const TOPICS = [
 ];
 
 // ── Featured card — large image left, text right ──────────────────────────────
-function FeaturedCard({ item }) {
+function FeaturedCard({ item, bookmarked, onToggleBookmark }) {
   const conf = T[item.type];
   return (
     <TouchableOpacity style={fc.card} onPress={() => Linking.openURL(item.url)} activeOpacity={0.88}>
@@ -172,8 +174,8 @@ function FeaturedCard({ item }) {
         </View>
         <Text style={fc.title}>{item.title}</Text>
         <Text style={fc.desc} numberOfLines={4}>{item.desc}</Text>
-        <TouchableOpacity style={fc.bookmark} hitSlop={{top:8,bottom:8,left:8,right:8}}>
-          <BookmarkSimple size={18} color={MUTED} weight="regular"/>
+        <TouchableOpacity style={fc.bookmark} onPress={() => onToggleBookmark?.(item.id)} hitSlop={{top:8,bottom:8,left:8,right:8}}>
+          <BookmarkSimple size={18} color={bookmarked ? GOLD : MUTED} weight={bookmarked ? "fill" : "regular"}/>
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
@@ -200,7 +202,7 @@ const fc = StyleSheet.create({
 });
 
 // ── Small card — used in two-column grid ──────────────────────────────────────
-function SmallCard({ item, w }) {
+function SmallCard({ item, w, bookmarked, onToggleBookmark }) {
   const conf = T[item.type];
   return (
     <TouchableOpacity style={[sc.card, { width:w }]} onPress={() => Linking.openURL(item.url)} activeOpacity={0.88}>
@@ -222,8 +224,8 @@ function SmallCard({ item, w }) {
       <Text style={sc.title} numberOfLines={2}>{item.title}</Text>
       <Text style={[sc.source, { color:conf.color }]}>{item.source}</Text>
       <Text style={sc.desc} numberOfLines={3}>{item.desc}</Text>
-      <TouchableOpacity style={sc.bookmark} hitSlop={{top:8,bottom:8,left:8,right:8}}>
-        <BookmarkSimple size={16} color={MUTED} weight="regular"/>
+      <TouchableOpacity style={sc.bookmark} onPress={() => onToggleBookmark?.(item.id)} hitSlop={{top:8,bottom:8,left:8,right:8}}>
+        <BookmarkSimple size={16} color={bookmarked ? GOLD : MUTED} weight={bookmarked ? "fill" : "regular"}/>
       </TouchableOpacity>
     </TouchableOpacity>
   );
@@ -249,6 +251,32 @@ export default function MediaScreen({ navigation, route }) {
   const initialFilter = route?.params?.filter ?? "all";
   const [typeFilter,  setTypeFilter]  = useState("all");
   const [topicFilter, setTopicFilter] = useState(initialFilter);
+  const [bookmarkedIds, setBookmarkedIds] = useState([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    getMediaBookmarks().then((list) => { if (!cancelled) setBookmarkedIds(list.map((e) => e.id)); });
+    return () => { cancelled = true; };
+  }, []);
+
+  const handleToggleBookmark = (id) => {
+    const was = bookmarkedIds.includes(id);
+    setBookmarkedIds((prev) => (was ? prev.filter((x) => x !== id) : [...prev, id]));
+    toggleMediaBookmark(id).then((newState) => {
+      setBookmarkedIds((prev) => {
+        const has = prev.includes(id);
+        if (newState && !has) return [...prev, id];
+        if (!newState && has) return prev.filter((x) => x !== id);
+        return prev;
+      });
+      if (newState) {
+        showToast("Bookmark added", {
+          actionLabel: "View",
+          onAction: () => navigation.navigate("Tools", { screen: "Bookmarks" }),
+        });
+      }
+    });
+  };
 
   const filtered = MEDIA.filter(m => {
     const typeMatch  = typeFilter  === "all" || m.type === typeFilter;
@@ -331,7 +359,7 @@ export default function MediaScreen({ navigation, route }) {
                 <Text style={s.viewAll}>View all</Text>
               </TouchableOpacity>
             </View>
-            {featured && <FeaturedCard item={featured}/>}
+            {featured && <FeaturedCard item={featured} bookmarked={bookmarkedIds.includes(featured.id)} onToggleBookmark={handleToggleBookmark}/>}
           </View>
         )}
 
@@ -340,12 +368,12 @@ export default function MediaScreen({ navigation, route }) {
           <View style={s.grid}>
             <View style={s.gridCol}>
               {nonFeatured.filter((_,i)=>i%2===0).map(item => (
-                <SmallCard key={item.id} item={item} w={colW}/>
+                <SmallCard key={item.id} item={item} w={colW} bookmarked={bookmarkedIds.includes(item.id)} onToggleBookmark={handleToggleBookmark}/>
               ))}
             </View>
             <View style={s.gridCol}>
               {nonFeatured.filter((_,i)=>i%2===1).map(item => (
-                <SmallCard key={item.id} item={item} w={colW}/>
+                <SmallCard key={item.id} item={item} w={colW} bookmarked={bookmarkedIds.includes(item.id)} onToggleBookmark={handleToggleBookmark}/>
               ))}
             </View>
           </View>
