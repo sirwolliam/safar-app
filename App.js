@@ -60,6 +60,7 @@ import HubContainerScreen  from "./screens/HubContainerScreen";
 
 // ── Context ───────────────────────────────────────────────────────────────────
 import { AccessibilityProvider } from "./AccessibilityContext";
+import { ToastHost } from "./Toast";
 import { colors, spacing, shadows, typography } from "./theme";
 
 const SERIF = "SourceSerif4-Regular";
@@ -311,6 +312,7 @@ export default function App() {
           <Stack.Screen name="SafarAssist"        component={SafarAssistScreen}    />
           <Stack.Screen name="SacredPlaces"       component={SacredPlacesScreen}   />
         </Stack.Navigator>
+        <ToastHost />
       </NavigationContainer>
     </AccessibilityProvider>
   );

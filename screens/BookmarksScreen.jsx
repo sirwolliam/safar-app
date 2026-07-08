@@ -487,10 +487,10 @@ export default function BookmarksScreen({ navigation }) {
         </TouchableOpacity>
 
         <View style={s.headerCenter}>
-          <View style={s.headerBadge}>
-            <BookmarkSimple size={16} color={colors.text} weight="regular" />
+          <View style={s.headerTitleRow}>
+            <BookmarkSimple size={20} color="#C8A96A" weight="regular" />
+            <Text style={s.headerTitle}>Bookmarks</Text>
           </View>
-          <Text style={s.headerTitle}>Bookmarks</Text>
           <Text style={s.headerSub}>Save and organise what matters for your journey.</Text>
         </View>
 
@@ -729,23 +729,16 @@ const createStyles = (colors) => StyleSheet.create({
     flex: 1,
     alignItems: "center",
   },
-  headerBadge: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.border,
+  headerTitleRow: {
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 6,
+    gap: 8,
   },
   headerTitle: {
     fontFamily: "SourceSerif4-Regular",
-    fontSize: 22,
+    fontSize: 28,
     color: colors.text,
     fontWeight: "400",
-    textAlign: "center",
   },
   headerSub: {
     fontSize: 12,
