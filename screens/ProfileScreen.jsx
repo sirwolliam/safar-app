@@ -4,8 +4,9 @@
  */
 import React, { useEffect, useRef, useState } from "react";
 import {
-  View, Text, Image, ScrollView, TouchableOpacity,
-  StyleSheet, Dimensions, Linking, TextInput, Modal, StatusBar,
+  View, Text, Image, ImageBackground, ScrollView,
+  TouchableOpacity, StyleSheet, Dimensions, Linking,
+  TextInput, Modal, StatusBar,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -86,12 +87,12 @@ const TOOLS = [
 ];
 
 const AFFILIATE_ITEMS = [
-  { id: "ihram",    icon: "🕌", title: "Ihram Clothing",       sub: "Men's & women's ihram garments",       query: "ihram clothing hajj"             },
-  { id: "bag",      icon: "🎒", title: "Hajj & Umrah Bags",    sub: "Waist bags, travel pouches, luggage",  query: "hajj umrah bag"                  },
-  { id: "sandals",  icon: "👡", title: "Comfortable Sandals",  sub: "Ihram-compliant footwear",             query: "ihram sandals hajj"              },
-  { id: "zamzam",   icon: "💧", title: "Zamzam Water Bottle",  sub: "Insulated bottles for the journey",    query: "zamzam water bottle insulated"   },
-  { id: "umbrella", icon: "☂️", title: "Sun Protection",       sub: "Umbrellas, sun cream, cooling towels", query: "hajj umbrella sun protection"    },
-  { id: "prayer",   icon: "📿", title: "Prayer Essentials",    sub: "Tasbih, prayer mat, compass",          query: "islamic prayer essentials hajj"  },
+  { id: "ihram",    image: require("../assets/shop/shop-ihram.jpg"),    title: "Ihram Clothing",       sub: "Men's & women's ihram garments",       query: "ihram clothing hajj"            },
+  { id: "bag",      image: require("../assets/shop/shop-bag.jpg"),      title: "Hajj & Umrah Bags",    sub: "Waist bags, travel pouches, luggage",  query: "hajj umrah bag"                 },
+  { id: "sandals",  image: require("../assets/shop/shop-sandals.jpg"),  title: "Comfortable Sandals",  sub: "Ihram-compliant footwear",             query: "ihram sandals hajj"             },
+  { id: "zamzam",   image: require("../assets/shop/shop-zamzam.jpg"),   title: "Zamzam Water Bottle",  sub: "Insulated bottles for the journey",    query: "zamzam water bottle insulated"  },
+  { id: "umbrella", image: require("../assets/shop/shop-umbrella.jpg"), title: "Sun Protection",       sub: "Umbrellas, sun cream, cooling towels", query: "hajj umbrella sun protection"   },
+  { id: "prayer",   image: require("../assets/shop/shop-prayer.jpg"),   title: "Prayer Essentials",    sub: "Tasbih, prayer mat, compass",          query: "islamic prayer essentials hajj" },
 ];
 
 const ISLAMIC_REFS = [
@@ -129,24 +130,37 @@ const PILLS = [
 function AffiliateCard({ items, styles }) {
   return (
     <>
-      <Text style={styles.affiliateDisclosure}>
-        Links below may earn Safar a small commission at no extra cost to you.
-      </Text>
       <View style={styles.affiliateGrid}>
         {items.map((item) => (
           <TouchableOpacity
             key={item.id}
             style={styles.affiliateTile}
             onPress={() => Linking.openURL(getAffiliateUrl(item.query))}
-            activeOpacity={0.85}
+            activeOpacity={0.88}
           >
-            <Text style={styles.affiliateEmoji}>{item.icon}</Text>
-            <Text style={styles.affiliateTitle}>{item.title}</Text>
-            <Text style={styles.affiliateSub}>{item.sub}</Text>
-            <Text style={styles.affiliateShop}>Shop ↗</Text>
+            <ImageBackground
+              source={item.image}
+              style={styles.affiliateTileBg}
+              imageStyle={{ borderRadius: 14 }}
+              resizeMode="cover"
+            >
+              <LinearGradient
+                colors={["transparent", "rgba(20,14,8,0.72)"]}
+                start={{ x: 0, y: 0.4 }}
+                end={{ x: 0, y: 1 }}
+                style={styles.affiliateTileGradient}
+              >
+                <Text style={styles.affiliateTitle}>{item.title}</Text>
+                <Text style={styles.affiliateSub}>{item.sub}</Text>
+                <Text style={styles.affiliateShop}>Shop ↗</Text>
+              </LinearGradient>
+            </ImageBackground>
           </TouchableOpacity>
         ))}
       </View>
+      <Text style={styles.affiliateDisclosure}>
+        Links above may earn Safar a small commission at no extra cost to you.
+      </Text>
     </>
   );
 }
@@ -595,7 +609,51 @@ export default function ProfileScreen({ navigation }) {
               </View>
             </View>
 
-            {/* ── Zone 2: Resources ────────────────────────────────────── */}
+            {/* ── Zone 2: Shop ─────────────────────────────────────────── */}
+            <View onLayout={e => { sectionY.current.shop = e.nativeEvent.layout.y; }}>
+              <Text style={s.eyebrow}>SHOP</Text>
+
+              {/* Shop banner card */}
+              <TouchableOpacity
+                style={s.shopBanner}
+                onPress={() => navigation?.navigate?.("Shop")}
+                activeOpacity={0.9}
+              >
+                <ImageBackground
+                  source={require("../assets/shop/shop-banner.jpg")}
+                  style={s.shopBannerBg}
+                  imageStyle={{ borderRadius: 16 }}
+                  resizeMode="cover"
+                >
+                  <LinearGradient
+                    colors={["rgba(10,8,4,0.18)", "rgba(10,8,4,0.72)"]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 0, y: 1 }}
+                    style={s.shopBannerGradient}
+                  >
+                    <View style={s.shopBannerBadge}>
+                      <Text style={s.shopBannerBadgeTxt}>THE SAFAR SHOP</Text>
+                    </View>
+                    <View style={s.shopBannerBottom}>
+                      <Text style={s.shopBannerTitle}>
+                        Everything you need for the journey
+                      </Text>
+                      <Text style={s.shopBannerSub}>
+                        Curated essentials — ihram, sandals, sun
+                        protection and more
+                      </Text>
+                      <Text style={s.shopBannerCta}>Browse all ↗</Text>
+                    </View>
+                  </LinearGradient>
+                </ImageBackground>
+              </TouchableOpacity>
+
+              <View style={s.affiliateCard}>
+                <AffiliateCard styles={s} items={AFFILIATE_ITEMS} />
+              </View>
+            </View>
+
+            {/* ── Zone 3: Resources ────────────────────────────────────── */}
             <View onLayout={e => { sectionY.current.resources = e.nativeEvent.layout.y; }}>
               <Text style={s.eyebrow}>RESOURCES</Text>
               <View style={s.listCard}>
@@ -643,14 +701,6 @@ export default function ProfileScreen({ navigation }) {
                   </View>
                   <CaretRight size={18} color="#C8BFB2" weight="bold" />
                 </TouchableOpacity>
-              </View>
-            </View>
-
-            {/* ── Zone 3: Shop ─────────────────────────────────────────── */}
-            <View onLayout={e => { sectionY.current.shop = e.nativeEvent.layout.y; }}>
-              <Text style={s.eyebrow}>SHOP</Text>
-              <View style={s.affiliateCard}>
-                <AffiliateCard styles={s} items={AFFILIATE_ITEMS} />
               </View>
             </View>
 
@@ -970,31 +1020,105 @@ const s = StyleSheet.create({
   rowLabel: { fontSize: 16, color: "#1C1A14", marginBottom: 3 },
   rowSub: { fontSize: 13, color: "#5C534A", lineHeight: 18 },
 
+  // Shop banner
+  shopBanner: {
+    marginHorizontal: 16,
+    marginBottom: 12,
+    borderRadius: 16,
+    overflow: "hidden",
+    height: 155,
+    shadowColor: "#2A1F0E",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.22,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+  shopBannerBg: {
+    flex: 1,
+  },
+  shopBannerGradient: {
+    flex: 1,
+    borderRadius: 16,
+    padding: 16,
+    justifyContent: "space-between",
+  },
+  shopBannerBadge: {
+    alignSelf: "flex-start",
+    backgroundColor: "rgba(200,169,106,0.22)",
+    borderWidth: 1,
+    borderColor: "#C8A96A",
+    borderRadius: 50,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  shopBannerBadgeTxt: {
+    fontSize: 10,
+    fontWeight: "700",
+    color: "#C8A96A",
+    letterSpacing: 1.5,
+  },
+  shopBannerBottom: {
+    gap: 3,
+  },
+  shopBannerTitle: {
+    fontFamily: "SourceSerif4-Regular",
+    fontSize: 18,
+    color: "#FFFFFF",
+    fontWeight: "600",
+    lineHeight: 24,
+  },
+  shopBannerSub: {
+    fontSize: 12,
+    color: "rgba(255,255,255,0.72)",
+    lineHeight: 17,
+  },
+  shopBannerCta: {
+    fontSize: 13,
+    color: "#C8A96A",
+    fontWeight: "700",
+    marginTop: 4,
+  },
+
   // Affiliate card wrapper (Zone 3)
   affiliateCard: {
     backgroundColor: "#FDFAF4",
     borderRadius: 16,
     marginHorizontal: 16,
-    padding: 16,
+    paddingTop: 16,
+    paddingHorizontal: 16,
+    paddingBottom: 16,
     shadowColor: "#2A1F0E",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 3,
   },
-  affiliateDisclosure: { fontSize: 12, color: "#8A7D6A", fontStyle: "italic", marginBottom: 10, lineHeight: 16 },
+  affiliateDisclosure: { fontSize: 12, color: "#8A7D6A", fontStyle: "italic", marginTop: 10, lineHeight: 16 },
   affiliateGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
   affiliateTile: {
-    width: (SW - 74) / 2,
-    backgroundColor: "#F0EBE1",
-    borderRadius: 12,
-    padding: 14,
-    gap: 4,
+    width: "47%",
+    flexGrow: 1,
+    borderRadius: 14,
+    overflow: "hidden",
+    shadowColor: "#2A1F0E",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.18,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  affiliateEmoji: { fontSize: 26, marginBottom: 4 },
-  affiliateTitle: { fontFamily: SERIF, fontSize: 14, color: "#1C1A14", lineHeight: 18 },
-  affiliateSub: { fontSize: 12, color: "#5C534A", lineHeight: 16, flex: 1 },
-  affiliateShop: { fontSize: 12, color: "#7A5A2A", fontWeight: "600", marginTop: 4 },
+  affiliateTileBg: {
+    height: 140,
+    justifyContent: "flex-end",
+  },
+  affiliateTileGradient: {
+    borderRadius: 14,
+    padding: 12,
+    justifyContent: "flex-end",
+    flex: 1,
+  },
+  affiliateTitle: { fontFamily: "SourceSerif4-Regular", fontSize: 14, color: "#FFFFFF", fontWeight: "600", lineHeight: 18, marginBottom: 2 },
+  affiliateSub: { fontSize: 11, color: "rgba(255,255,255,0.75)", lineHeight: 15, marginBottom: 6 },
+  affiliateShop: { fontSize: 12, color: "#C8A96A", fontWeight: "700" },
 
   // Empty search
   emptySearch: { alignItems: "center", paddingVertical: 48 },
