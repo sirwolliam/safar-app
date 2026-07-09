@@ -1009,7 +1009,7 @@ const s = StyleSheet.create({
   // Profile card & avatar
   profileCard: {
     marginHorizontal: 13,
-    marginTop: 16,
+    marginTop: 8,
     marginBottom: 10,
     backgroundColor: "#FDFAF4",
     borderWidth: 1,

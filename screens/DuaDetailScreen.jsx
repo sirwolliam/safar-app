@@ -21,6 +21,7 @@ import { PATTERN_PATH } from "./headerPatternPath";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { isDuaBookmarked, toggleDuaBookmark } from "../bookmarkStore";
+import { isInPractice, togglePractice } from "../practiceStore";
 import { showToast } from "../Toast";
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
@@ -185,6 +186,29 @@ function IconBookmark({ active, size = 22 }) {
   );
 }
 
+function IconPractice({ active, size = 22 }) {
+  const color = active ? GOLD : MID_TEXT;
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"
+        stroke={color} strokeWidth="1.8"
+        strokeLinecap="round" strokeLinejoin="round"
+      />
+      <Path
+        d="M13 3H11a2 2 0 000 4h2a2 2 0 000-4z"
+        stroke={color} strokeWidth="1.8"
+        strokeLinecap="round" strokeLinejoin="round"
+      />
+      <Path
+        d="M9 12l2 2 4-4"
+        stroke={color} strokeWidth="1.8"
+        strokeLinecap="round" strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
 function IconRepeat({ size = 22, color = CTRL_ICON }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -290,6 +314,7 @@ export default function DuaDetailScreen({ route, navigation }) {
   const [showTranslit, setShowTranslit] = useState(true);
   const [showTrans,    setShowTrans]    = useState(true);
   const [bookmarked,   setBookmarked]   = useState(false);
+  const [inPractice,   setInPractice]   = useState(false);
   const [speedIndex,   setSpeedIndex]   = useState(2);
   const [looping,      setLooping]      = useState(false);
   const [showAsk,      setShowAsk]      = useState(false);
@@ -324,6 +349,16 @@ export default function DuaDetailScreen({ route, navigation }) {
     return () => { cancelled = true; };
   }, [activeDua?.id]);
 
+  useEffect(() => {
+    let cancelled = false;
+    if (activeDua?.id) {
+      isInPractice(activeDua.id).then((v) => { if (!cancelled) setInPractice(v); });
+    } else {
+      setInPractice(false);
+    }
+    return () => { cancelled = true; };
+  }, [activeDua?.id]);
+
   const handleToggleBookmark = () => {
     if (!activeDua?.id) return;
     setBookmarked((v) => !v);
@@ -333,6 +368,20 @@ export default function DuaDetailScreen({ route, navigation }) {
         showToast("Bookmark added", {
           actionLabel: "View",
           onAction: () => navigation.navigate("Tools", { screen: "Bookmarks" }),
+        });
+      }
+    });
+  };
+
+  const handleTogglePractice = () => {
+    if (!activeDua?.id) return;
+    setInPractice(v => !v);
+    togglePractice(activeDua.id).then((newState) => {
+      setInPractice(newState);
+      if (newState) {
+        showToast("Added to Practice", {
+          actionLabel: "View",
+          onAction: () => navigation.navigate("PracticeLearn"),
         });
       }
     });
@@ -386,9 +435,22 @@ export default function DuaDetailScreen({ route, navigation }) {
           <TouchableOpacity style={s.navCircle} onPress={() => navigation?.goBack?.()} activeOpacity={0.8}>
             <IconBack color={MID_TEXT} size={20} />
           </TouchableOpacity>
-          <TouchableOpacity style={s.navCircle} onPress={handleToggleBookmark} activeOpacity={0.8}>
-            <IconBookmark active={bookmarked} size={20} />
-          </TouchableOpacity>
+          <View style={s.topNavRight}>
+            <TouchableOpacity
+              style={s.navCircle}
+              onPress={handleTogglePractice}
+              activeOpacity={0.8}
+            >
+              <IconPractice active={inPractice} size={20} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={s.navCircle}
+              onPress={handleToggleBookmark}
+              activeOpacity={0.8}
+            >
+              <IconBookmark active={bookmarked} size={20} />
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* ── Scrollable content ── */}
@@ -535,6 +597,10 @@ const s = StyleSheet.create({
     justifyContent:"space-between",
     paddingHorizontal:spacing(2),
     zIndex:20,
+  },
+  topNavRight: {
+    flexDirection: "row",
+    gap: 8,
   },
   navCircle: {
     width:40,
