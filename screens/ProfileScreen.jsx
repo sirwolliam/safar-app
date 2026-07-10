@@ -45,27 +45,6 @@ const AVATARS = [
 
 const AVATAR_KEY = "safar_avatar_v1";
 
-// ── ScholarlyFootnote (unchanged) ─────────────────────────────────────────────
-function ScholarlyFootnote({ style }) {
-  return (
-    <View style={[fn.wrap, style]}>
-      <Text style={fn.text}>
-        <Text style={fn.bold}>Sources</Text>{" — "}
-        Duas are drawn from Ṣaḥīḥ al-Bukhārī, Ṣaḥīḥ Muslim, Sunan Abī Dāwūd, Sunan al-Tirmidhī, and established scholarly works. Practice and wording may differ across the four madhabs (Ḥanafī, Mālikī, Shāfiʿī, Ḥanbalī). Consult a qualified scholar for rulings specific to your school of thought.
-      </Text>
-    </View>
-  );
-}
-const fn = StyleSheet.create({
-  wrap: {
-    marginTop: 16, marginBottom: 8,
-    backgroundColor: "#EEE4CB", borderRadius: 10,
-    borderWidth: 1, borderColor: "#DDD0A8", padding: 16,
-  },
-  text: { fontSize: 12, color: "#6B5020", lineHeight: 17 },
-  bold: { fontWeight: "600" },
-});
-
 // ── Data arrays (unchanged) ───────────────────────────────────────────────────
 const CATEGORIES = [
   { key: "tools",    label: "Tools",    Icon: Wrench,             desc: "Apps & utilities"           },
@@ -761,7 +740,6 @@ export default function ProfileScreen({ navigation }) {
               </View>
             </View>
 
-            <ScholarlyFootnote />
             <View style={{ height: 40 }} />
           </>
         )}

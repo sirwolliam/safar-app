@@ -493,12 +493,9 @@ export default function HomeScreen({ navigation }) {
             Each opens a dedicated hub screen (stubs navigate to closest
             existing screen; replace targets when hub screens are built)
         ══════════════════════════════════════════════════════════════════ */}
-        <View style={[s.pillarsHeader, { marginTop: 12 }]}>
+        <View style={[s.pillarsHeader, { marginTop: 19 }]}>
           <Text style={[s.pillarsHeaderText, { fontSize: 20, fontWeight: "600", color: "#1A1712", textAlign: "center" }]}>Where would you like to begin?</Text>
         </View>
-        <Text style={s.pillarsHeaderSub}>
-          {"We’ve organized the Umrah and Hajj journeys into four sections to help you prepare with confidence and focus on what matters most."}
-        </Text>
         <View style={s.pillarsGrid}>
 
           {/* Plan */}
@@ -1185,14 +1182,6 @@ const s = StyleSheet.create({
     fontWeight: "700",
     color: "#4A5C48",
   },
-  pillarsHeaderSub: {
-    fontSize: 15,
-    color: "#8A7D6A",
-    lineHeight: 19,
-    marginHorizontal: 20,
-    marginTop: -6,
-    marginBottom: 14,
-  },
   pillarsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -1204,24 +1193,22 @@ const s = StyleSheet.create({
     // ORIGINAL: height: 100, opacity: 0.55
     width: "47%",
     flexGrow: 1,
-    height: 138,
+    height: 160,
     borderRadius: 18,
     overflow: "hidden",
     padding: 12,
     justifyContent: "space-between",
+    opacity: 0.92,
     shadowColor: "#1C2E1C",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.30,
     shadowRadius: 8,
     elevation: 6,
   },
-  // ORIGINAL: "#1C2B1E", "#2A1F0E", "#1A202E", "#221820"
-  // V2: "#3D5C48", "#5C4A28", "#3A4A5C", "#4A3850"
-  // V3: "#4A6E58", "#6E5A30", "#4A5E72", "#5A4662"
-  pillarCardLearn:    { backgroundColor: "#5C8A6E" },
-  pillarCardPractice: { backgroundColor: "#8A7040" },
-  pillarCardPlan:     { backgroundColor: "#5C7490" },
-  pillarCardConnect:  { backgroundColor: "#725880" },
+  pillarCardLearn:    { backgroundColor: "#1C2B1E" },
+  pillarCardPractice: { backgroundColor: "#2A1F0E" },
+  pillarCardPlan:     { backgroundColor: "#1A202E" },
+  pillarCardConnect:  { backgroundColor: "#221820" },
 
   // Decorative background circles per pillar
   pillarCircle: {
