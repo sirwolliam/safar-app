@@ -13,7 +13,7 @@ import {
   StatusBar,
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import Svg, { Path, Defs, LinearGradient as SvgGrad, Stop, Mask, Rect, Polygon } from "react-native-svg";
+import Svg, { Path, Defs, LinearGradient as SvgGrad, Stop, Mask, Rect } from "react-native-svg";
 import { PATTERN_PATH } from "./headerPatternPath";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
@@ -224,45 +224,6 @@ const ab = StyleSheet.create({
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-const GOLD = "#C8A96A";
-
-function StarOrnament({ size = 20, color = GOLD }) {
-  const c = size / 2;
-  const r = size * 0.38;
-  const pts1 = Array.from({ length: 4 }, (_, i) => {
-    const a = (i * 90 - 45) * Math.PI / 180;
-    return `${(c + r * Math.cos(a)).toFixed(1)},${(c + r * Math.sin(a)).toFixed(1)}`;
-  }).join(" ");
-  const pts2 = Array.from({ length: 4 }, (_, i) => {
-    const a = (i * 90) * Math.PI / 180;
-    return `${(c + r * Math.cos(a)).toFixed(1)},${(c + r * Math.sin(a)).toFixed(1)}`;
-  }).join(" ");
-  return (
-    <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      <Polygon points={pts1} fill={color} opacity="0.9" />
-      <Polygon points={pts2} fill={color} opacity="0.9" />
-    </Svg>
-  );
-}
-
-function OrnamentDivider() {
-  return (
-    <View style={od.row}>
-      <View style={od.line} />
-      <StarOrnament size={14} color={GOLD} />
-      <View style={od.line} />
-    </View>
-  );
-}
-const od = StyleSheet.create({
-  row:  { flexDirection: "row", alignItems: "center",
-          marginVertical: 8, paddingHorizontal: 32 },
-  line: { flex: 1, height: 1, backgroundColor: GOLD,
-          opacity: 0.35 },
-});
-
-// ─────────────────────────────────────────────────────────────────────────────
-
 export default function HomeScreen({ navigation }) {
   const [heroSlide, setHeroSlide]           = useState(0);
   const [showAbout, setShowAbout]           = useState(false);
@@ -277,8 +238,7 @@ export default function HomeScreen({ navigation }) {
   const insets    = useSafeAreaInsets();
 
   // ORIGINAL: const HERO_H = Math.round(SH * 0.60) + 35;
-  // V2: Math.round(SH * 0.42)
-  const HERO_H = Math.round(SH * 0.52);
+  const HERO_H = Math.round(SH * 0.42);
   const displayName = userName || "Pilgrim";
 
   // Auto-advance hero every 5s
@@ -533,13 +493,12 @@ export default function HomeScreen({ navigation }) {
             Each opens a dedicated hub screen (stubs navigate to closest
             existing screen; replace targets when hub screens are built)
         ══════════════════════════════════════════════════════════════════ */}
-        <View style={[s.pillarsHeader, { marginTop: 24 }]}>
+        <View style={[s.pillarsHeader, { marginTop: 12 }]}>
           <Text style={[s.pillarsHeaderText, { fontSize: 20, fontWeight: "600", color: "#1A1712", textAlign: "center" }]}>Where would you like to begin?</Text>
         </View>
         <Text style={s.pillarsHeaderSub}>
           {"We’ve organized the Umrah and Hajj journeys into four sections to help you prepare with confidence and focus on what matters most."}
         </Text>
-        <OrnamentDivider />
         <View style={s.pillarsGrid}>
 
           {/* Plan */}
@@ -1232,7 +1191,7 @@ const s = StyleSheet.create({
     lineHeight: 19,
     marginHorizontal: 20,
     marginTop: -6,
-    marginBottom: 4,
+    marginBottom: 14,
   },
   pillarsGrid: {
     flexDirection: "row",
@@ -1259,12 +1218,10 @@ const s = StyleSheet.create({
   // ORIGINAL: "#1C2B1E", "#2A1F0E", "#1A202E", "#221820"
   // V2: "#3D5C48", "#5C4A28", "#3A4A5C", "#4A3850"
   // V3: "#4A6E58", "#6E5A30", "#4A5E72", "#5A4662"
-  // V4: "#5C8A6E", "#8A7040", "#5C7490", "#725880"
-  // V5: "#527862", "#786538", "#526880", "#664F70"
-  pillarCardLearn:    { backgroundColor: "#446655" },
-  pillarCardPractice: { backgroundColor: "#66572E" },
-  pillarCardPlan:     { backgroundColor: "#445870" },
-  pillarCardConnect:  { backgroundColor: "#584260" },
+  pillarCardLearn:    { backgroundColor: "#5C8A6E" },
+  pillarCardPractice: { backgroundColor: "#8A7040" },
+  pillarCardPlan:     { backgroundColor: "#5C7490" },
+  pillarCardConnect:  { backgroundColor: "#725880" },
 
   // Decorative background circles per pillar
   pillarCircle: {

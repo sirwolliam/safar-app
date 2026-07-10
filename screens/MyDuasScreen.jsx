@@ -54,6 +54,7 @@ import {
   CaretLeft,
   CaretRight,
   X,
+  ClipboardText,
 } from "phosphor-react-native";
 
 const SERIF = "SourceSerif4-Regular";
@@ -269,7 +270,7 @@ export default function MyDuasScreen({ navigation }) {
           </View>
           <TouchableOpacity style={[styles.addBtn, { top: insets.top + 14 }]} onPress={openModal} activeOpacity={0.85}>
             <Plus size={14} color="#C8A96A" weight="bold" />
-            <Text style={styles.addBtnText}>Add Dua</Text>
+            <Text style={styles.addBtnText}>Add a Du'ā</Text>
           </TouchableOpacity>
         </View>
 
@@ -494,10 +495,54 @@ export default function MyDuasScreen({ navigation }) {
           </View>
 
         ) : (
-          <View style={styles.emptyTab}>
-            <User size={44} color="#C8A96A" weight="regular" />
-            <Text style={styles.emptyTitle}>My Duas</Text>
-            <Text style={styles.emptySub}>Duas you have saved will appear here.</Text>
+          <View>
+            {/* My saved duas empty state */}
+            <View style={styles.emptyTab}>
+              <User size={44} color="#C8A96A" weight="regular" />
+              <Text style={styles.emptyTitle}>My Duas</Text>
+              <Text style={styles.emptySub}>
+                Duas you have saved or added will appear here.
+              </Text>
+              <TouchableOpacity
+                style={styles.addDuaEmptyBtn}
+                onPress={openModal}
+                activeOpacity={0.85}
+              >
+                <Plus size={16} color="#FFFFFF" weight="bold" />
+                <Text style={styles.addDuaEmptyBtnText}>Add a Du'ā</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Shared with me section */}
+            <View style={styles.sharedSection}>
+              <View style={styles.sharedSectionHeader}>
+                <View>
+                  <Text style={styles.sharedSectionTitle}>Shared with me</Text>
+                  <Text style={styles.sharedSectionSub}>
+                    Du'ā requests from family and friends
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  style={styles.importBtn}
+                  onPress={() => {
+                    setDuaFor("Shared");
+                    openModal();
+                  }}
+                  activeOpacity={0.85}
+                >
+                  <ClipboardText size={14} color="#C8A96A" weight="regular" />
+                  <Text style={styles.importBtnText}>Import</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.sharedEmpty}>
+                <Text style={styles.sharedEmptyText}>
+                  When someone asks you to make du'ā for them,
+                  tap Import to paste their message. It will be
+                  saved here so you can find it easily during
+                  your journey.
+                </Text>
+              </View>
+            </View>
           </View>
         )}
 
@@ -514,14 +559,14 @@ export default function MyDuasScreen({ navigation }) {
               activeOpacity={1}
             />
           </Animated.View>
-          <Animated.View style={[styles.sheet, { transform: [{ translateY: slideAnim }] }]}>
+          <Animated.View style={[styles.sheet, { transform: [{ translateY: slideAnim }], minHeight: "55%" }]}>
             <KeyboardAvoidingView
               behavior={Platform.OS === "ios" ? "padding" : "height"}
               style={styles.sheetKav}
             >
               <View style={styles.sheetHandle} />
               <View style={styles.sheetHeaderRow}>
-                <Text style={styles.sheetTitle}>Add Dua</Text>
+                <Text style={styles.sheetTitle}>Add a Du'ā</Text>
                 <TouchableOpacity onPress={closeModal} activeOpacity={0.7}>
                   <X size={20} color="#8A7D6A" />
                 </TouchableOpacity>
@@ -733,4 +778,73 @@ const styles = StyleSheet.create({
   cancelLink:     { alignItems: "center", paddingVertical: 8 },
   cancelText:     { fontSize: 15, color: "#8A7D6A" },
   sheetBottom:    { height: 40 },
+
+  addDuaEmptyBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: "#4A5C48",
+    borderRadius: 50,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    marginTop: 4,
+  },
+  addDuaEmptyBtnText: {
+    fontSize: 14,
+    color: "#FFFFFF",
+    fontWeight: "600",
+  },
+  sharedSection: {
+    marginHorizontal: 16,
+    marginBottom: 16,
+    backgroundColor: "#FDF7EE",
+    borderRadius: 20,
+    overflow: "hidden",
+    borderWidth: 0.5,
+    borderColor: "#DDD5C0",
+  },
+  sharedSectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    paddingTop: 18,
+    paddingBottom: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: "#EDE4D4",
+  },
+  sharedSectionTitle: {
+    fontFamily: "SourceSerif4-Regular",
+    fontSize: 18,
+    color: "#1A1410",
+    marginBottom: 3,
+  },
+  sharedSectionSub: {
+    fontSize: 13,
+    color: "#8A7D6A",
+  },
+  importBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    borderWidth: 1,
+    borderColor: "#C8A96A",
+    borderRadius: 50,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+  },
+  importBtnText: {
+    fontSize: 13,
+    color: "#C8A96A",
+    fontWeight: "600",
+  },
+  sharedEmpty: {
+    padding: 20,
+  },
+  sharedEmptyText: {
+    fontSize: 14,
+    color: "#8A7D6A",
+    lineHeight: 21,
+    textAlign: "center",
+  },
 });
