@@ -1,58 +1,58 @@
 /**
  * MediaScreen.jsx — Safar
- * Redesigned to match reference:
- * - Full hero with Ka'bah + large serif title
- * - Single-row type filter in white pill card
- * - Topic chip row with icons
- * - "Featured for you" split layout (large image left, text right)
- * - Two-column smaller cards below
- * - "Continue learning" placeholder section
+ * Learning paths + browse by topic + format rows.
+ * Hard rules: no && in style arrays, ternaries only.
+ * No new npm packages. Phosphor icons only.
  */
 import React, { useState, useEffect } from "react";
 import {
   SafeAreaView, View, Text, TouchableOpacity, ScrollView,
-  StyleSheet, Linking, Dimensions, Image,
+  StyleSheet, Linking, Image, TextInput,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
-  ArrowLeft, YoutubeLogo, Microphone, Article, BookOpen,
-  Sparkle, Clock, BookmarkSimple,
+  CaretLeft, CaretRight, YoutubeLogo, Microphone,
+  Article, BookOpen, Sparkle, BookmarkSimple,
+  MagnifyingGlass, PlayCircle, UsersThree,
+  SuitcaseRolling, HandsPraying, Heart, MapPin,
 } from "phosphor-react-native";
-import { spacing, radius } from "../theme";
 import { getMediaBookmarks, toggleMediaBookmark } from "../bookmarkStore";
 import { showToast } from "../Toast";
 
-const { width: SW } = Dimensions.get("window");
-const BG     = "#F5EFE4";
-const CARD   = "#FDFAF4";
-const SAGE   = "#2D4A34";
-const SAGE_L = "#4A5C48";
-const GOLD   = "#B8922A";
-const BORDER = "#E0D8CC";
-const TEXT   = "#1C1A14";
-const MUTED  = "#7A7060";
-const SERIF  = "SourceSerif4-Regular";
+const BG    = "#F5EFE4";
+const CARD  = "#FDFAF4";
+const SAGE  = "#2D4A34";
+const SAGE_L= "#4A5C48";
+const GOLD  = "#B8922A";
+const BORDER= "#E0D8CC";
+const TEXT  = "#1C1A14";
+const MUTED = "#7A7060";
+const SERIF = "SourceSerif4-Regular";
 
-// ── Type config ───────────────────────────────────────────────────────────────
+// ── Type config (exported for BookmarksScreen) ────────────────────────────────
 export const T = {
   video:   { label:"Video",   color:"#C0392B", bg:"rgba(192,57,43,0.10)",  Icon:YoutubeLogo },
   podcast: { label:"Podcast", color:"#6C3483", bg:"rgba(108,52,131,0.10)", Icon:Microphone  },
   article: { label:"Article", color:"#1A5276", bg:"rgba(26,82,118,0.10)",  Icon:Article     },
 };
 
-// ── Content ───────────────────────────────────────────────────────────────────
+// ── Content (exported for BookmarksScreen) ────────────────────────────────────
 export const MEDIA = [
   {
     id:"menk-umrah", type:"video", tags:["umrah","practical"], featured:true,
-    title:"Umrah Guide \u2014 Mufti Menk",
+    level:"first",
+    title:"Umrah Guide — Mufti Menk",
     source:"YouTube", duration:"18:45",
-    desc:"Step-by-step Umrah walkthrough from Mufti Ismail Menk \u2014 clear, accessible and widely recommended for first-time pilgrims.",
+    desc:"Step-by-step Umrah walkthrough from Mufti Ismail Menk — clear, accessible and widely recommended for first-time pilgrims.",
     url:"https://www.youtube.com/results?search_query=mufti+menk+umrah+guide",
     image:require("../assets/tawaf2.jpg"),
     label:"STEP-BY-STEP",
   },
   {
     id:"ministry-hajj", type:"video", tags:["hajj","practical"], featured:false,
-    title:"Hajj Step by Step \u2014 Official",
+    level:"first",
+    title:"Hajj Step by Step — Official",
     source:"Saudi Ministry of Hajj", duration:"22:10",
     desc:"Authenticated guidance from the official Saudi Ministry of Hajj YouTube channel.",
     url:"https://www.youtube.com/@HajjMinistry",
@@ -61,6 +61,7 @@ export const MEDIA = [
   },
   {
     id:"yaqeen-hajj", type:"video", tags:["hajj","spiritual"], featured:false,
+    level:"all",
     title:"The Spirituality of Hajj",
     source:"Yaqeen Institute", duration:"35:00",
     desc:"A video series on the deeper spiritual meaning behind each ritual of Hajj.",
@@ -70,15 +71,17 @@ export const MEDIA = [
   },
   {
     id:"qalam-hajj", type:"podcast", tags:["hajj","umrah","spiritual"], featured:false,
+    level:"all",
     title:"Hajj & Umrah Prep Series",
     source:"Qalam Institute", duration:"45 min",
-    desc:"Podcast covering both Hajj and Umrah \u2014 spiritual preparation, duas and practical tips.",
+    desc:"Podcast covering both Hajj and Umrah — spiritual preparation, duas and practical tips.",
     url:"https://www.qalaminstitute.org",
     image:require("../assets/journey3.png"),
     label:"PODCAST",
   },
   {
     id:"deenshow-hajj", type:"podcast", tags:["hajj","practical"], featured:false,
+    level:"all",
     title:"Preparing for Hajj",
     source:"The Deen Show", duration:"52 min",
     desc:"Audio guide covering the practical and spiritual preparation for Hajj.",
@@ -88,6 +91,7 @@ export const MEDIA = [
   },
   {
     id:"seekers", type:"article", tags:["hajj","umrah","spiritual","practical"], featured:false,
+    level:"all",
     title:"Hajj & Umrah Guidance",
     source:"SeekersGuidance.org", duration:"6 min read",
     desc:"Scholarly guidance on Hajj and Umrah rites across madhabs.",
@@ -97,6 +101,7 @@ export const MEDIA = [
   },
   {
     id:"islamqa", type:"article", tags:["hajj","umrah","practical"], featured:false,
+    level:"experienced",
     title:"Hajj & Umrah Q&A",
     source:"IslamQA.info", duration:"4 min read",
     desc:"Comprehensive scholarly Q&A on fiqh and worship for pilgrims.",
@@ -106,15 +111,17 @@ export const MEDIA = [
   },
   {
     id:"sunnah", type:"article", tags:["hajj","umrah","spiritual"], featured:false,
+    level:"experienced",
     title:"Hadith on Hajj & Umrah",
     source:"Sunnah.com", duration:"Reference",
-    desc:"Authenticated hadith collections for the Prophet\u2019s guidance on pilgrimage.",
+    desc:"Authenticated hadith collections for the Prophet’s guidance on pilgrimage.",
     url:"https://sunnah.com",
     image:require("../assets/journey3.png"),
     label:"REFERENCE",
   },
   {
     id:"islamweb", type:"article", tags:["hajj","umrah","practical"], featured:false,
+    level:"experienced",
     title:"Fatawa & Research",
     source:"Islamweb.net", duration:"Reference",
     desc:"Fatawa, Quran and hadith research for all aspects of Hajj and Umrah.",
@@ -124,149 +131,337 @@ export const MEDIA = [
   },
 ];
 
-const TYPE_BTNS = [
-  { key:"all",     label:"All",      Icon:null       },
-  { key:"video",   label:"Videos",   Icon:YoutubeLogo },
-  { key:"podcast", label:"Podcasts", Icon:Microphone  },
-  { key:"article", label:"Articles", Icon:Article     },
+// ── New data constants ─────────────────────────────────────────────────────────
+const LEARNING_PATHS = [
+  {
+    id: "first-umrah",
+    label: "First Time Umrah",
+    sub: "Everything you need from intention to completion",
+    Icon: HandsPraying,
+    color: "#2D4A34",
+    level: "first",
+    items: ["menk-umrah", "seekers", "qalam-hajj"],
+  },
+  {
+    id: "first-hajj",
+    label: "First Time Hajj",
+    sub: "A complete guide to the five pillars of Hajj",
+    Icon: MapPin,
+    color: "#3A4A5C",
+    level: "first",
+    items: ["ministry-hajj", "yaqeen-hajj", "islamqa"],
+  },
+  {
+    id: "spiritual-prep",
+    label: "Spiritual Preparation",
+    sub: "Prepare your heart before the journey begins",
+    Icon: Heart,
+    color: "#5A3050",
+    level: "all",
+    items: ["yaqeen-hajj", "qalam-hajj", "sunnah"],
+  },
+  {
+    id: "pack-prepare",
+    label: "Pack & Prepare",
+    sub: "Everything practical before you fly",
+    Icon: SuitcaseRolling,
+    color: "#5A3A1A",
+    level: "all",
+    items: ["deenshow-hajj", "seekers", "islamweb"],
+  },
+  {
+    id: "family-travel",
+    label: "Traveling with Family",
+    sub: "Tips for a smooth journey with loved ones",
+    Icon: UsersThree,
+    color: "#4A3A6A",
+    level: "all",
+    items: ["menk-umrah", "deenshow-hajj", "islamqa"],
+  },
 ];
 
-const TOPICS = [
-  { key:"all",       label:"All Topics",  Icon:BookOpen   },
-  { key:"umrah",     label:"Umrah",       Icon:Sparkle    },
-  { key:"hajj",      label:"Hajj",        Icon:Sparkle    },
-  { key:"spiritual", label:"Spiritual",   Icon:Sparkle    },
-  { key:"practical", label:"Practical",   Icon:BookOpen   },
+const BROWSE_TOPICS = [
+  { key: "umrah",     label: "Umrah Guides",      sub: "Step-by-step rites",          Icon: HandsPraying,    color: "#2D4A34" },
+  { key: "hajj",      label: "Hajj Guides",        sub: "The full pilgrimage",         Icon: MapPin,          color: "#3A4A5C" },
+  { key: "spiritual", label: "Spiritual Growth",   sub: "Deepen your connection",      Icon: Heart,           color: "#5A3050" },
+  { key: "practical", label: "Planning & Prep",    sub: "Visas, packing, logistics",   Icon: SuitcaseRolling, color: "#5A3A1A" },
+  { key: "family",    label: "Family Travel",      sub: "Tips for traveling together", Icon: UsersThree,      color: "#4A3A6A" },
+  { key: "worship",   label: "Duʿā & Worship",sub: "Supplications for the trip",  Icon: BookOpen,        color: "#1A4A3A" },
 ];
 
-// ── Featured card — large image left, text right ──────────────────────────────
-function FeaturedCard({ item, bookmarked, onToggleBookmark }) {
-  const conf = T[item.type];
+// ── Card components ───────────────────────────────────────────────────────────
+
+function LearningPathCard({ path, onPress }) {
+  const items = path.items
+    .map(id => MEDIA.find(m => m.id === id))
+    .filter(Boolean);
+  const types = [...new Set(items.map(i => i.type))];
+
   return (
-    <TouchableOpacity style={fc.card} onPress={() => Linking.openURL(item.url)} activeOpacity={0.88}>
-      {/* Left image */}
-      <View style={fc.imgWrap}>
-        <Image source={item.image} style={fc.img} resizeMode="cover"/>
-        {item.label && (
-          <View style={fc.labelPill}>
-            <Text style={fc.labelTxt}>{item.label}</Text>
-          </View>
-        )}
-        {/* Play button overlay for videos */}
-        {item.type === "video" && (
-          <View style={fc.playBtn}>
-            <YoutubeLogo size={22} color="#fff" weight="fill"/>
-          </View>
-        )}
-        {/* Title overlay at bottom */}
-        <View style={fc.imgOverlay}>
-          <Text style={fc.imgTitle} numberOfLines={2}>{item.title}</Text>
-          <Text style={fc.imgSource}>{item.source}</Text>
+    <TouchableOpacity
+      style={lp.card}
+      onPress={onPress}
+      activeOpacity={0.88}
+    >
+      <LinearGradient
+        colors={[path.color, path.color + "BB"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={lp.gradient}
+      >
+        <View style={lp.iconWrap}>
+          <path.Icon size={26} color="#C8A96A" weight="regular" />
         </View>
-      </View>
-
-      {/* Right content */}
-      <View style={fc.right}>
-        <View style={[fc.typePill, { backgroundColor:conf.bg }]}>
-          <conf.Icon size={11} color={conf.color} weight="fill"/>
-          <Text style={[fc.typeLabel, { color:conf.color }]}>{conf.label}</Text>
-          {item.duration && <Text style={[fc.dur, { color:conf.color }]}>{item.duration}</Text>}
+        <View style={lp.content}>
+          <Text style={lp.label}>{path.label}</Text>
+          <Text style={lp.sub} numberOfLines={2}>{path.sub}</Text>
+          <View style={lp.meta}>
+            <Text style={lp.count}>{items.length} items</Text>
+            <View style={lp.typePills}>
+              {types.map(t => (
+                <View key={t} style={lp.typePill}>
+                  <Text style={lp.typePillText}>{T[t].label}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
         </View>
-        <Text style={fc.title}>{item.title}</Text>
-        <Text style={fc.desc} numberOfLines={4}>{item.desc}</Text>
-        <TouchableOpacity style={fc.bookmark} onPress={() => onToggleBookmark?.(item.id)} hitSlop={{top:8,bottom:8,left:8,right:8}}>
-          <BookmarkSimple size={18} color={bookmarked ? GOLD : MUTED} weight={bookmarked ? "fill" : "regular"}/>
-        </TouchableOpacity>
-      </View>
+        <CaretRight size={18} color="rgba(255,255,255,0.7)" weight="bold" />
+      </LinearGradient>
     </TouchableOpacity>
   );
 }
 
-const fc = StyleSheet.create({
-  card:      { flexDirection:"row", backgroundColor:CARD, borderRadius:radius.lg, borderWidth:1, borderColor:BORDER, overflow:"hidden", marginBottom:spacing(1.5), shadowColor:"#000", shadowOffset:{width:0,height:2}, shadowOpacity:0.06, shadowRadius:8, elevation:3 },
-  imgWrap:   { width:SW*0.40, position:"relative" },
-  img:       { width:"100%", height:"100%" },
-  labelPill: { position:"absolute", top:10, left:10, backgroundColor:SAGE, borderRadius:50, paddingHorizontal:8, paddingVertical:4 },
-  labelTxt:  { fontSize:9, color:"#fff", fontWeight:"800", letterSpacing:0.8 },
-  playBtn:   { position:"absolute", bottom:44, right:10, width:40, height:40, borderRadius:20, backgroundColor:"rgba(0,0,0,0.60)", alignItems:"center", justifyContent:"center" },
-  imgOverlay:{ position:"absolute", bottom:0, left:0, right:0, padding:10, backgroundColor:"rgba(0,0,0,0.50)" },
-  imgTitle:  { fontFamily:SERIF, fontSize:13, color:"#fff", fontWeight:"600", lineHeight:17 },
-  imgSource: { fontSize:10, color:"rgba(255,255,255,0.75)", marginTop:2 },
-  right:     { flex:1, padding:spacing(1.5), position:"relative" },
-  typePill:  { flexDirection:"row", alignItems:"center", gap:4, paddingHorizontal:8, paddingVertical:4, borderRadius:50, alignSelf:"flex-start", marginBottom:8 },
-  typeLabel: { fontSize:10, fontWeight:"700" },
-  dur:       { fontSize:10, opacity:0.80 },
-  title:     { fontFamily:SERIF, fontSize:15, color:TEXT, lineHeight:20, marginBottom:6 },
-  desc:      { fontSize:12, color:MUTED, lineHeight:18 },
-  bookmark:  { position:"absolute", bottom:10, right:10 },
+const lp = StyleSheet.create({
+  card:         { marginHorizontal: 16, marginBottom: 10, borderRadius: 16, overflow: "hidden", shadowColor: "#1A1410", shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.18, shadowRadius: 10, elevation: 5 },
+  gradient:     { flexDirection: "row", alignItems: "center", padding: 16, gap: 12 },
+  iconWrap:     { width: 48, height: 48, borderRadius: 12, backgroundColor: "rgba(255,255,255,0.12)", alignItems: "center", justifyContent: "center", flexShrink: 0 },
+  content:      { flex: 1, gap: 3 },
+  label:        { fontFamily: SERIF, fontSize: 17, color: "#FFFFFF", fontWeight: "600" },
+  sub:          { fontSize: 12, color: "rgba(255,255,255,0.72)", lineHeight: 17 },
+  meta:         { flexDirection: "row", alignItems: "center", gap: 8, marginTop: 6 },
+  count:        { fontSize: 11, color: "rgba(255,255,255,0.60)" },
+  typePills:    { flexDirection: "row", gap: 4 },
+  typePill:     { backgroundColor: "rgba(255,255,255,0.15)", borderRadius: 50, paddingHorizontal: 7, paddingVertical: 2 },
+  typePillText: { fontSize: 10, color: "rgba(255,255,255,0.85)", fontWeight: "600" },
 });
 
-// ── Small card — used in two-column grid ──────────────────────────────────────
-function SmallCard({ item, w, bookmarked, onToggleBookmark }) {
-  const conf = T[item.type];
+function TopicCard({ topic, onPress }) {
   return (
-    <TouchableOpacity style={[sc.card, { width:w }]} onPress={() => Linking.openURL(item.url)} activeOpacity={0.88}>
-      {/* Thumbnail */}
-      <View style={sc.imgWrap}>
-        <Image source={item.image} style={sc.img} resizeMode="cover"/>
-        {item.type === "video" && (
-          <View style={sc.playBtn}>
-            <YoutubeLogo size={14} color="#fff" weight="fill"/>
-          </View>
-        )}
+    <TouchableOpacity
+      style={tc.card}
+      onPress={onPress}
+      activeOpacity={0.85}
+    >
+      <View style={[tc.iconBox, { backgroundColor: topic.color }]}>
+        <topic.Icon size={20} color="#C8A96A" weight="regular" />
       </View>
-      {/* Type badge */}
-      <View style={[sc.badge, { backgroundColor:conf.bg }]}>
-        <conf.Icon size={9} color={conf.color} weight="fill"/>
-        <Text style={[sc.badgeTxt, { color:conf.color }]}>{conf.label}</Text>
-        {item.duration && <Text style={[sc.dur, { color:conf.color }]}>{item.duration}</Text>}
+      <View style={tc.info}>
+        <Text style={tc.label}>{topic.label}</Text>
+        <Text style={tc.sub}>{topic.sub}</Text>
       </View>
-      <Text style={sc.title} numberOfLines={2}>{item.title}</Text>
-      <Text style={[sc.source, { color:conf.color }]}>{item.source}</Text>
-      <Text style={sc.desc} numberOfLines={3}>{item.desc}</Text>
-      <TouchableOpacity style={sc.bookmark} onPress={() => onToggleBookmark?.(item.id)} hitSlop={{top:8,bottom:8,left:8,right:8}}>
-        <BookmarkSimple size={16} color={bookmarked ? GOLD : MUTED} weight={bookmarked ? "fill" : "regular"}/>
-      </TouchableOpacity>
     </TouchableOpacity>
   );
 }
 
-const SCARD_H = 220;
-const sc = StyleSheet.create({
-  card:      { backgroundColor:CARD, borderRadius:radius.lg, borderWidth:1, borderColor:BORDER, overflow:"hidden", marginBottom:spacing(1.5), shadowColor:"#000", shadowOffset:{width:0,height:2}, shadowOpacity:0.06, shadowRadius:6, elevation:2 },
-  imgWrap:   { width:"100%", height:110, position:"relative" },
-  img:       { width:"100%", height:"100%" },
-  playBtn:   { position:"absolute", bottom:8, right:8, width:30, height:30, borderRadius:15, backgroundColor:"rgba(0,0,0,0.55)", alignItems:"center", justifyContent:"center" },
-  badge:     { flexDirection:"row", alignItems:"center", gap:4, margin:10, marginBottom:6, paddingHorizontal:7, paddingVertical:3, borderRadius:50, alignSelf:"flex-start" },
-  badgeTxt:  { fontSize:9, fontWeight:"700" },
-  dur:       { fontSize:9, opacity:0.80 },
-  title:     { fontFamily:SERIF, fontSize:13, color:TEXT, lineHeight:18, paddingHorizontal:10, marginBottom:3 },
-  source:    { fontSize:11, fontWeight:"700", paddingHorizontal:10, marginBottom:6 },
-  desc:      { fontSize:11, color:MUTED, lineHeight:16, paddingHorizontal:10, paddingBottom:30 },
-  bookmark:  { position:"absolute", bottom:8, right:8 },
+const tc = StyleSheet.create({
+  card:    { flex: 1, flexDirection: "row", alignItems: "center", backgroundColor: CARD, borderRadius: 14, borderWidth: 1, borderColor: BORDER, padding: 12, gap: 10, shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 4, elevation: 2 },
+  iconBox: { width: 38, height: 38, borderRadius: 10, alignItems: "center", justifyContent: "center", flexShrink: 0 },
+  info:    { flex: 1 },
+  label:   { fontFamily: SERIF, fontSize: 13, color: TEXT, marginBottom: 2 },
+  sub:     { fontSize: 11, color: MUTED, lineHeight: 15 },
+});
+
+function VideoCard({ item, bookmarked, onToggleBookmark }) {
+  return (
+    <TouchableOpacity
+      style={vc.card}
+      onPress={() => Linking.openURL(item.url)}
+      activeOpacity={0.88}
+    >
+      <View style={vc.thumb}>
+        <Image source={item.image} style={vc.thumbImg} resizeMode="cover" />
+        <LinearGradient
+          colors={["transparent", "rgba(0,0,0,0.55)"]}
+          start={{ x: 0, y: 0.4 }}
+          end={{ x: 0, y: 1 }}
+          style={StyleSheet.absoluteFillObject}
+        />
+        <View style={vc.playBtn}>
+          <PlayCircle size={30} color="#FFFFFF" weight="fill" />
+        </View>
+        <View style={vc.duration}>
+          <Text style={vc.durationText}>{item.duration}</Text>
+        </View>
+        <TouchableOpacity
+          style={vc.bookmark}
+          onPress={() => onToggleBookmark?.(item.id)}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
+          <BookmarkSimple
+            size={16}
+            color={bookmarked ? GOLD : "#FFFFFF"}
+            weight={bookmarked ? "fill" : "regular"}
+          />
+        </TouchableOpacity>
+      </View>
+      <View style={vc.info}>
+        <Text style={vc.title} numberOfLines={2}>{item.title}</Text>
+        <View style={vc.meta}>
+          <YoutubeLogo size={12} color={MUTED} weight="fill" />
+          <Text style={vc.source} numberOfLines={1}>{item.source}</Text>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+}
+
+const vc = StyleSheet.create({
+  card:         { width: 200, marginRight: 12, backgroundColor: CARD, borderRadius: 14, overflow: "hidden", borderWidth: 1, borderColor: BORDER, shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 6, elevation: 3 },
+  thumb:        { width: "100%", height: 120, position: "relative" },
+  thumbImg:     { width: "100%", height: "100%" },
+  playBtn:      { position: "absolute", top: "50%", left: "50%", marginTop: -15, marginLeft: -15 },
+  duration:     { position: "absolute", bottom: 8, left: 8, backgroundColor: "rgba(0,0,0,0.72)", borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2 },
+  durationText: { fontSize: 11, color: "#FFFFFF", fontWeight: "600" },
+  bookmark:     { position: "absolute", top: 8, right: 8 },
+  info:         { padding: 10, gap: 5 },
+  title:        { fontFamily: SERIF, fontSize: 13, color: TEXT, lineHeight: 18 },
+  meta:         { flexDirection: "row", alignItems: "center", gap: 5 },
+  source:       { fontSize: 11, color: MUTED, flex: 1 },
+});
+
+function PodcastCard({ item, bookmarked, onToggleBookmark }) {
+  return (
+    <TouchableOpacity
+      style={pc.card}
+      onPress={() => Linking.openURL(item.url)}
+      activeOpacity={0.88}
+    >
+      <View style={pc.artWrap}>
+        <Image source={item.image} style={pc.art} resizeMode="cover" />
+        <LinearGradient
+          colors={["transparent", "rgba(0,0,0,0.55)"]}
+          start={{ x: 0, y: 0.5 }}
+          end={{ x: 0, y: 1 }}
+          style={StyleSheet.absoluteFillObject}
+        />
+        <View style={pc.playBtn}>
+          <PlayCircle size={26} color="#FFFFFF" weight="fill" />
+        </View>
+        <TouchableOpacity
+          style={pc.bookmark}
+          onPress={() => onToggleBookmark?.(item.id)}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
+          <BookmarkSimple
+            size={16}
+            color={bookmarked ? GOLD : "#FFFFFF"}
+            weight={bookmarked ? "fill" : "regular"}
+          />
+        </TouchableOpacity>
+      </View>
+      <View style={pc.info}>
+        <Text style={pc.title} numberOfLines={2}>{item.title}</Text>
+        <View style={pc.meta}>
+          <Microphone size={11} color={MUTED} weight="fill" />
+          <Text style={pc.source}>{item.source}</Text>
+          <Text style={pc.dot}>·</Text>
+          <Text style={pc.dur}>{item.duration}</Text>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+}
+
+const pc = StyleSheet.create({
+  card:     { width: 155, marginRight: 12, backgroundColor: CARD, borderRadius: 14, overflow: "hidden", borderWidth: 1, borderColor: BORDER, shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 6, elevation: 3 },
+  artWrap:  { width: "100%", height: 155, position: "relative" },
+  art:      { width: "100%", height: "100%" },
+  playBtn:  { position: "absolute", bottom: 10, right: 10 },
+  bookmark: { position: "absolute", top: 8, right: 8 },
+  info:     { padding: 10, gap: 4 },
+  title:    { fontFamily: SERIF, fontSize: 13, color: TEXT, lineHeight: 18 },
+  meta:     { flexDirection: "row", alignItems: "center", gap: 4, flexWrap: "wrap" },
+  source:   { fontSize: 11, color: MUTED },
+  dot:      { fontSize: 11, color: MUTED },
+  dur:      { fontSize: 11, color: MUTED },
+});
+
+function ArticleCard({ item, bookmarked, onToggleBookmark }) {
+  return (
+    <TouchableOpacity
+      style={arc.card}
+      onPress={() => Linking.openURL(item.url)}
+      activeOpacity={0.88}
+    >
+      <View style={arc.imgWrap}>
+        <Image source={item.image} style={arc.img} resizeMode="cover" />
+        <View style={arc.categoryPill}>
+          <Text style={arc.categoryText}>{item.label}</Text>
+        </View>
+      </View>
+      <View style={arc.info}>
+        <Text style={arc.title} numberOfLines={2}>{item.title}</Text>
+        <View style={arc.footer}>
+          <View style={arc.meta}>
+            <Article size={11} color={MUTED} weight="regular" />
+            <Text style={arc.dur}>{item.duration}</Text>
+          </View>
+          <TouchableOpacity
+            onPress={() => onToggleBookmark?.(item.id)}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <BookmarkSimple
+              size={16}
+              color={bookmarked ? GOLD : MUTED}
+              weight={bookmarked ? "fill" : "regular"}
+            />
+          </TouchableOpacity>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+}
+
+const arc = StyleSheet.create({
+  card:         { width: 175, marginRight: 12, backgroundColor: CARD, borderRadius: 14, overflow: "hidden", borderWidth: 1, borderColor: BORDER, shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 6, elevation: 3 },
+  imgWrap:      { width: "100%", height: 105, position: "relative" },
+  img:          { width: "100%", height: "100%" },
+  categoryPill: { position: "absolute", top: 8, left: 8, backgroundColor: "rgba(245,239,228,0.92)", borderRadius: 50, paddingHorizontal: 8, paddingVertical: 3 },
+  categoryText: { fontSize: 10, fontWeight: "700", color: TEXT },
+  info:         { padding: 10, gap: 6 },
+  title:        { fontFamily: SERIF, fontSize: 13, color: TEXT, lineHeight: 18 },
+  footer:       { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  meta:         { flexDirection: "row", alignItems: "center", gap: 4 },
+  dur:          { fontSize: 11, color: MUTED },
 });
 
 // ── Screen ────────────────────────────────────────────────────────────────────
 export default function MediaScreen({ navigation, route }) {
-  const initialFilter = route?.params?.filter ?? "all";
-  const [typeFilter,  setTypeFilter]  = useState("all");
-  const [topicFilter, setTopicFilter] = useState(initialFilter);
+  const insets = useSafeAreaInsets();
+  const [search,        setSearch]        = useState("");
+  const [level,         setLevel]         = useState("all");
   const [bookmarkedIds, setBookmarkedIds] = useState([]);
 
   useEffect(() => {
     let cancelled = false;
-    getMediaBookmarks().then((list) => { if (!cancelled) setBookmarkedIds(list.map((e) => e.id)); });
+    getMediaBookmarks().then((list) => {
+      if (!cancelled) setBookmarkedIds(list.map((e) => e.id));
+    });
     return () => { cancelled = true; };
   }, []);
 
   const handleToggleBookmark = (id) => {
     const was = bookmarkedIds.includes(id);
-    setBookmarkedIds((prev) => (was ? prev.filter((x) => x !== id) : [...prev, id]));
-    toggleMediaBookmark(id).then((newState) => {
-      setBookmarkedIds((prev) => {
+    setBookmarkedIds(prev => was
+      ? prev.filter(x => x !== id)
+      : [...prev, id]
+    );
+    toggleMediaBookmark(id).then(newState => {
+      setBookmarkedIds(prev => {
         const has = prev.includes(id);
         if (newState && !has) return [...prev, id];
-        if (!newState && has) return prev.filter((x) => x !== id);
+        if (!newState && has) return prev.filter(x => x !== id);
         return prev;
       });
       if (newState) {
@@ -278,121 +473,298 @@ export default function MediaScreen({ navigation, route }) {
     });
   };
 
-  const filtered = MEDIA.filter(m => {
-    const typeMatch  = typeFilter  === "all" || m.type === typeFilter;
-    const topicMatch = topicFilter === "all" || m.tags.includes(topicFilter);
-    return typeMatch && topicMatch;
-  });
+  const levelMatch = (item) =>
+    level === "all" || item.level === "all" || item.level === level;
 
-  const featured    = filtered.find(m => m.featured) ?? filtered[0];
-  const nonFeatured = filtered.filter(m => m.id !== (featured?.id ?? "")).slice(0,6);
+  const pathMatch = (path) =>
+    level === "all" || path.level === "all" || path.level === level;
 
-  const colW = (SW - spacing(4) - 12) / 2;
+  const videos   = MEDIA.filter(m => m.type === "video"   && levelMatch(m));
+  const podcasts = MEDIA.filter(m => m.type === "podcast"  && levelMatch(m));
+  const articles = MEDIA.filter(m => m.type === "article"  && levelMatch(m));
+
+  const searchResults = search.trim()
+    ? MEDIA.filter(m =>
+        m.title.toLowerCase().includes(search.toLowerCase()) ||
+        m.source.toLowerCase().includes(search.toLowerCase()) ||
+        m.desc.toLowerCase().includes(search.toLowerCase())
+      )
+    : null;
 
   return (
     <SafeAreaView style={s.safe}>
-      <ScrollView showsVerticalScrollIndicator={false} bounces>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={s.scrollContent}
+      >
 
         {/* ── Hero ── */}
         <View style={s.hero}>
-          <Image source={require("../assets/kaaba_mixed.png")} style={s.heroImg} resizeMode="cover"/>
-          <View style={s.heroFade}/>
-          <TouchableOpacity style={s.backBtn} onPress={() => navigation.goBack()} activeOpacity={0.8}>
-            <ArrowLeft size={20} color={TEXT} weight="regular"/>
+          <Image
+            source={require("../assets/kaaba_mixed.png")}
+            style={StyleSheet.absoluteFillObject}
+            resizeMode="cover"
+          />
+          <LinearGradient
+            colors={["rgba(0,0,0,0.10)", "rgba(245,239,228,0.95)"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+            style={StyleSheet.absoluteFillObject}
+          />
+          <TouchableOpacity
+            style={[s.backBtn, { top: insets.top + 12 }]}
+            onPress={() => navigation.goBack()}
+            activeOpacity={0.8}
+          >
+            <CaretLeft size={18} color={TEXT} weight="bold" />
           </TouchableOpacity>
-          <View style={s.heroText}>
-            <Text style={s.heroTitle}>{"Learn\n& Prepare"}</Text>
-            <Text style={s.heroSub}>{"Inspiration and guidance\nfor your Hajj & Umrah journey"}</Text>
+          <View style={s.heroContent}>
+            <Text style={s.heroTitle}>Media</Text>
+            <Text style={s.heroSub}>
+              Curated content to inspire, prepare and guide your journey.
+            </Text>
           </View>
         </View>
 
-        {/* ── Type filter — horizontal pill row in white card ── */}
-        <View style={s.typeCard}>
-          {TYPE_BTNS.map(({ key, label, Icon }) => {
-            const on   = typeFilter === key;
-            const conf = T[key];
-            return (
-              <TouchableOpacity
-                key={key}
-                style={[s.typeBtn, on && s.typeBtnOn]}
-                onPress={() => setTypeFilter(key)}
-                activeOpacity={0.8}
-              >
-                {Icon ? (
-                  <Icon size={15} color={on ? "#fff" : MUTED} weight={on?"fill":"regular"}/>
-                ) : (
-                  <YoutubeLogo size={15} color={on ? "#fff" : MUTED} weight={on?"fill":"thin"}/>
-                )}
-                <Text style={[s.typeTxt, on && s.typeTxtOn]}>{label}</Text>
-              </TouchableOpacity>
-            );
-          })}
+        {/* ── Search bar ── */}
+        <View style={s.searchBar}>
+          <MagnifyingGlass size={16} color={MUTED} weight="regular" />
+          <TextInput
+            style={s.searchInput}
+            placeholder="Search videos, podcasts, articles…"
+            placeholderTextColor={MUTED}
+            value={search}
+            onChangeText={setSearch}
+            autoCorrect={false}
+            autoCapitalize="none"
+          />
         </View>
 
-        {/* ── Topic chips ── */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.topicRow}>
-          {TOPICS.map(({ key, label, Icon }) => {
-            const on = topicFilter === key;
-            return (
+        {/* ── Experience level ── */}
+        <View style={s.levelCard}>
+          <View style={s.levelLeft}>
+            <Text style={s.levelTitle}>Your experience</Text>
+            <Text style={s.levelSub}>
+              Find content that fits where you are
+            </Text>
+          </View>
+          <View style={s.levelBtns}>
+            {[
+              ["all",         "All"        ],
+              ["first",       "First Timer"],
+              ["experienced", "Experienced"],
+            ].map(([key, label]) => (
               <TouchableOpacity
                 key={key}
-                style={[s.topicChip, on && s.topicChipOn]}
-                onPress={() => setTopicFilter(key)}
+                style={level === key
+                  ? [s.levelBtn, s.levelBtnActive]
+                  : s.levelBtn}
+                onPress={() => setLevel(key)}
                 activeOpacity={0.8}
               >
-                <Icon size={13} color={on ? "#fff" : MUTED} weight={on?"fill":"thin"}/>
-                <Text style={[s.topicTxt, on && s.topicTxtOn]}>{label}</Text>
+                <Text style={level === key
+                  ? [s.levelBtnText, s.levelBtnTextActive]
+                  : s.levelBtnText}>
+                  {label}
+                </Text>
               </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
+            ))}
+          </View>
+        </View>
 
-        {/* ── Featured ── */}
-        {filtered.length > 0 && (
-          <View style={s.section}>
-            <View style={s.sectionHeader}>
-              <View style={s.sectionLeft}>
-                <Sparkle size={16} color={GOLD} weight="fill"/>
-                <Text style={s.sectionTitle}>Featured for you</Text>
+        {/* ── Search results (replaces everything when searching) ── */}
+        {searchResults !== null ? (
+          <View>
+            <View style={s.sectionRowHeader}>
+              <Text style={s.sectionTitle}>
+                {searchResults.length} result
+                {searchResults.length !== 1 ? "s" : ""}
+              </Text>
+            </View>
+            {searchResults.length === 0 ? (
+              <View style={s.empty}>
+                <Text style={s.emptyTxt}>No results for "{search}"</Text>
               </View>
-              <TouchableOpacity activeOpacity={0.7}>
-                <Text style={s.viewAll}>View all</Text>
-              </TouchableOpacity>
-            </View>
-            {featured && <FeaturedCard item={featured} bookmarked={bookmarkedIds.includes(featured.id)} onToggleBookmark={handleToggleBookmark}/>}
+            ) : (
+              <View style={s.searchResultsCard}>
+                {searchResults.map((item, idx) => {
+                  const conf = T[item.type];
+                  return (
+                    <TouchableOpacity
+                      key={item.id}
+                      style={idx < searchResults.length - 1
+                        ? [s.resultRow, s.resultRowBorder]
+                        : s.resultRow}
+                      onPress={() => Linking.openURL(item.url)}
+                      activeOpacity={0.8}
+                    >
+                      <View style={s.resultThumb}>
+                        <Image
+                          source={item.image}
+                          style={s.resultThumbImg}
+                          resizeMode="cover"
+                        />
+                        {item.type === "video" ? (
+                          <View style={s.resultPlay}>
+                            <PlayCircle size={18} color="#FFFFFF" weight="fill" />
+                          </View>
+                        ) : null}
+                      </View>
+                      <View style={s.resultInfo}>
+                        <View style={[s.resultBadge, { backgroundColor: conf.bg }]}>
+                          <conf.Icon size={10} color={conf.color} weight="fill" />
+                          <Text style={[s.resultBadgeText, { color: conf.color }]}>
+                            {conf.label}
+                          </Text>
+                        </View>
+                        <Text style={s.resultTitle} numberOfLines={2}>
+                          {item.title}
+                        </Text>
+                        <Text style={s.resultSource}>{item.source}</Text>
+                      </View>
+                      <TouchableOpacity
+                        onPress={() => handleToggleBookmark(item.id)}
+                        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                      >
+                        <BookmarkSimple
+                          size={18}
+                          color={bookmarkedIds.includes(item.id) ? GOLD : MUTED}
+                          weight={bookmarkedIds.includes(item.id) ? "fill" : "regular"}
+                        />
+                      </TouchableOpacity>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            )}
           </View>
+        ) : (
+          <>
+            {/* ── Learning Paths ── */}
+            <View style={s.sectionHeader}>
+              <Text style={s.sectionTitle}>Learning Paths</Text>
+              <Text style={s.sectionSub}>
+                Guided journeys from start to finish
+              </Text>
+            </View>
+            {LEARNING_PATHS.filter(pathMatch).map(path => (
+              <LearningPathCard
+                key={path.id}
+                path={path}
+                onPress={() => {
+                  const first = MEDIA.find(m => m.id === path.items[0]);
+                  if (first) Linking.openURL(first.url);
+                }}
+              />
+            ))}
+
+            {/* ── Browse by Topic ── */}
+            <View style={s.sectionHeader}>
+              <Text style={s.sectionTitle}>Browse by topic</Text>
+            </View>
+            <View style={s.topicGrid}>
+              {BROWSE_TOPICS.map((topic, i) => {
+                if (i % 2 !== 0) return null;
+                const right = BROWSE_TOPICS[i + 1];
+                return (
+                  <View key={topic.key + i} style={s.topicRow}>
+                    <TopicCard topic={topic} onPress={() => {}} />
+                    {right ? (
+                      <TopicCard topic={right} onPress={() => {}} />
+                    ) : (
+                      <View style={{ flex: 1 }} />
+                    )}
+                  </View>
+                );
+              })}
+            </View>
+
+            {/* ── YouTube Videos ── */}
+            {videos.length > 0 ? (
+              <View>
+                <View style={s.sectionRowHeader}>
+                  <Text style={s.sectionTitle}>YouTube Videos</Text>
+                  <TouchableOpacity activeOpacity={0.7}>
+                    <Text style={s.viewAll}>View all  ›</Text>
+                  </TouchableOpacity>
+                </View>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={s.cardScroll}
+                >
+                  {videos.map(item => (
+                    <VideoCard
+                      key={item.id}
+                      item={item}
+                      bookmarked={bookmarkedIds.includes(item.id)}
+                      onToggleBookmark={handleToggleBookmark}
+                    />
+                  ))}
+                </ScrollView>
+              </View>
+            ) : null}
+
+            {/* ── Podcasts ── */}
+            {podcasts.length > 0 ? (
+              <View>
+                <View style={s.sectionRowHeader}>
+                  <Text style={s.sectionTitle}>Podcasts</Text>
+                  <TouchableOpacity activeOpacity={0.7}>
+                    <Text style={s.viewAll}>View all  ›</Text>
+                  </TouchableOpacity>
+                </View>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={s.cardScroll}
+                >
+                  {podcasts.map(item => (
+                    <PodcastCard
+                      key={item.id}
+                      item={item}
+                      bookmarked={bookmarkedIds.includes(item.id)}
+                      onToggleBookmark={handleToggleBookmark}
+                    />
+                  ))}
+                </ScrollView>
+              </View>
+            ) : null}
+
+            {/* ── Articles ── */}
+            {articles.length > 0 ? (
+              <View>
+                <View style={s.sectionRowHeader}>
+                  <Text style={s.sectionTitle}>Articles</Text>
+                  <TouchableOpacity activeOpacity={0.7}>
+                    <Text style={s.viewAll}>View all  ›</Text>
+                  </TouchableOpacity>
+                </View>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={s.cardScroll}
+                >
+                  {articles.map(item => (
+                    <ArticleCard
+                      key={item.id}
+                      item={item}
+                      bookmarked={bookmarkedIds.includes(item.id)}
+                      onToggleBookmark={handleToggleBookmark}
+                    />
+                  ))}
+                </ScrollView>
+              </View>
+            ) : null}
+
+            <Text style={s.disclosure}>
+              All links open externally. Safar is not affiliated
+              with these resources.
+            </Text>
+          </>
         )}
 
-        {/* ── Two-column grid ── */}
-        {nonFeatured.length > 0 && (
-          <View style={s.grid}>
-            <View style={s.gridCol}>
-              {nonFeatured.filter((_,i)=>i%2===0).map(item => (
-                <SmallCard key={item.id} item={item} w={colW} bookmarked={bookmarkedIds.includes(item.id)} onToggleBookmark={handleToggleBookmark}/>
-              ))}
-            </View>
-            <View style={s.gridCol}>
-              {nonFeatured.filter((_,i)=>i%2===1).map(item => (
-                <SmallCard key={item.id} item={item} w={colW} bookmarked={bookmarkedIds.includes(item.id)} onToggleBookmark={handleToggleBookmark}/>
-              ))}
-            </View>
-          </View>
-        )}
-
-        {/* Empty */}
-        {filtered.length === 0 && (
-          <View style={s.empty}>
-            <Text style={s.emptyTxt}>No resources match this combination.</Text>
-            <TouchableOpacity onPress={() => { setTypeFilter("all"); setTopicFilter("all"); }}>
-              <Text style={s.emptyLink}>Clear filters</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-
-        <Text style={s.disclosure}>
-          All links open externally. Safar is not affiliated with these resources.
-        </Text>
-        <View style={{ height:spacing(4) }}/>
+        <View style={{ height: 32 }} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -400,45 +772,60 @@ export default function MediaScreen({ navigation, route }) {
 
 // ── Styles ────────────────────────────────────────────────────────────────────
 const s = StyleSheet.create({
-  safe: { flex:1, backgroundColor:BG },
+  safe:          { flex: 1, backgroundColor: BG },
+  scrollContent: { paddingBottom: 32 },
 
   // Hero
-  hero:     { height:260, position:"relative" },
-  heroImg:  { ...StyleSheet.absoluteFillObject, width:"100%", height:"100%" },
-  heroFade: { ...StyleSheet.absoluteFillObject, backgroundColor:"rgba(245,239,228,0.52)" },
-  backBtn:  { position:"absolute", top:16, left:spacing(2), width:38, height:38, borderRadius:19, backgroundColor:"rgba(253,250,244,0.90)", borderWidth:1, borderColor:BORDER, alignItems:"center", justifyContent:"center" },
-  heroText: { position:"absolute", bottom:24, left:spacing(2), right:SW*0.38 },
-  heroTitle:{ fontFamily:SERIF, fontSize:40, color:TEXT, lineHeight:46, fontWeight:"400" },
-  heroSub:  { fontSize:13, color:MUTED, lineHeight:19, marginTop:8 },
+  hero:        { height: 240, position: "relative", justifyContent: "flex-end" },
+  backBtn:     { position: "absolute", left: 16, width: 36, height: 36, borderRadius: 18, backgroundColor: "rgba(253,250,244,0.90)", borderWidth: 1, borderColor: BORDER, alignItems: "center", justifyContent: "center" },
+  heroContent: { paddingHorizontal: 20, paddingBottom: 22 },
+  heroTitle:   { fontFamily: SERIF, fontSize: 40, color: TEXT, fontWeight: "400", lineHeight: 46 },
+  heroSub:     { fontSize: 13, color: MUTED, lineHeight: 19, marginTop: 6, maxWidth: "80%" },
 
-  // Type filter card
-  typeCard: { flexDirection:"row", backgroundColor:CARD, marginHorizontal:spacing(2), marginTop:spacing(1.5), borderRadius:radius.lg, borderWidth:1, borderColor:BORDER, padding:5, gap:4 },
-  typeBtn:  { flex:1, flexDirection:"row", alignItems:"center", justifyContent:"center", gap:6, paddingVertical:10, borderRadius:10 },
-  typeBtnOn:{ backgroundColor:SAGE },
-  typeTxt:  { fontSize:13, color:MUTED, fontWeight:"500" },
-  typeTxtOn:{ color:"#fff", fontWeight:"600" },
+  // Search
+  searchBar:   { flexDirection: "row", alignItems: "center", marginHorizontal: 16, marginTop: 14, marginBottom: 4, backgroundColor: CARD, borderRadius: 14, borderWidth: 1, borderColor: BORDER, paddingHorizontal: 14, paddingVertical: 12, gap: 10 },
+  searchInput: { flex: 1, fontSize: 15, color: TEXT, padding: 0 },
 
-  // Topic chips
-  topicRow:  { paddingHorizontal:spacing(2), paddingVertical:spacing(1.25), gap:8, flexDirection:"row" },
-  topicChip: { flexDirection:"row", alignItems:"center", gap:6, paddingHorizontal:14, paddingVertical:8, borderRadius:50, borderWidth:1, borderColor:BORDER, backgroundColor:CARD },
-  topicChipOn:{ backgroundColor:SAGE, borderColor:SAGE },
-  topicTxt:  { fontSize:13, color:MUTED, fontWeight:"500" },
-  topicTxtOn:{ color:"#fff" },
+  // Experience level
+  levelCard:          { marginHorizontal: 16, marginTop: 12, marginBottom: 4, backgroundColor: CARD, borderRadius: 14, borderWidth: 1, borderColor: BORDER, padding: 14, gap: 10 },
+  levelLeft:          { gap: 2 },
+  levelTitle:         { fontFamily: SERIF, fontSize: 15, color: TEXT },
+  levelSub:           { fontSize: 12, color: MUTED },
+  levelBtns:          { flexDirection: "row", gap: 6 },
+  levelBtn:           { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 50, borderWidth: 1, borderColor: BORDER, backgroundColor: BG },
+  levelBtnActive:     { backgroundColor: SAGE, borderColor: SAGE },
+  levelBtnText:       { fontSize: 13, color: MUTED, fontWeight: "500" },
+  levelBtnTextActive: { color: "#FFFFFF", fontWeight: "600" },
 
-  // Sections
-  section:      { paddingHorizontal:spacing(2), marginTop:spacing(0.5) },
-  sectionHeader:{ flexDirection:"row", alignItems:"center", justifyContent:"space-between", marginBottom:spacing(1.25) },
-  sectionLeft:  { flexDirection:"row", alignItems:"center", gap:6 },
-  sectionTitle: { fontFamily:SERIF, fontSize:18, color:TEXT },
-  viewAll:      { fontSize:13, color:SAGE_L, fontWeight:"600" },
+  // Section headers
+  sectionHeader:    { paddingHorizontal: 16, marginTop: 22, marginBottom: 10 },
+  sectionTitle:     { fontFamily: SERIF, fontSize: 20, color: TEXT },
+  sectionSub:       { fontSize: 13, color: MUTED, marginTop: 3 },
+  sectionRowHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 16, marginTop: 22, marginBottom: 10 },
+  viewAll:          { fontSize: 13, color: SAGE_L, fontWeight: "600" },
 
-  // Grid
-  grid:    { flexDirection:"row", paddingHorizontal:spacing(2), gap:12, marginTop:spacing(0.5) },
-  gridCol: { flex:1 },
+  // Topic grid
+  topicGrid: { paddingHorizontal: 16, gap: 10 },
+  topicRow:  { flexDirection: "row", gap: 10 },
 
-  empty:    { alignItems:"center", paddingVertical:spacing(4), gap:12 },
-  emptyTxt: { fontSize:15, color:MUTED },
-  emptyLink:{ fontSize:14, color:SAGE, fontWeight:"600" },
+  // Horizontal card scroll
+  cardScroll: { paddingHorizontal: 16, paddingBottom: 4 },
 
-  disclosure:{ fontSize:11, color:MUTED, textAlign:"center", marginTop:spacing(2), marginHorizontal:spacing(2), fontStyle:"italic" },
+  // Search results
+  searchResultsCard: { marginHorizontal: 16, backgroundColor: CARD, borderRadius: 16, borderWidth: 1, borderColor: BORDER, overflow: "hidden", shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 8, elevation: 3 },
+  resultRow:         { flexDirection: "row", alignItems: "center", paddingHorizontal: 14, paddingVertical: 12, gap: 12 },
+  resultRowBorder:   { borderBottomWidth: 1, borderBottomColor: BORDER },
+  resultThumb:       { width: 72, height: 54, borderRadius: 8, overflow: "hidden", flexShrink: 0, position: "relative" },
+  resultThumbImg:    { width: "100%", height: "100%" },
+  resultPlay:        { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(0,0,0,0.25)" },
+  resultInfo:        { flex: 1, gap: 3 },
+  resultBadge:       { flexDirection: "row", alignItems: "center", gap: 4, alignSelf: "flex-start", paddingHorizontal: 7, paddingVertical: 2, borderRadius: 50 },
+  resultBadgeText:   { fontSize: 10, fontWeight: "700" },
+  resultTitle:       { fontFamily: SERIF, fontSize: 14, color: TEXT, lineHeight: 19 },
+  resultSource:      { fontSize: 12, color: MUTED },
+
+  // Empty / disclosure
+  empty:      { alignItems: "center", paddingVertical: 32, gap: 10 },
+  emptyTxt:   { fontSize: 15, color: MUTED },
+  disclosure: { fontSize: 11, color: MUTED, textAlign: "center", marginTop: 24, marginHorizontal: 16, fontStyle: "italic" },
 });
