@@ -4,10 +4,11 @@
  * Hard rules: no && in style arrays, ternaries only.
  * No new npm packages. Phosphor icons only.
  */
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   SafeAreaView, View, Text, TouchableOpacity, ScrollView,
-  StyleSheet, Linking, Image, TextInput,
+  StyleSheet, Linking, Image, TextInput, FlatList,
+  Dimensions,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -20,21 +21,23 @@ import {
 import { getMediaBookmarks, toggleMediaBookmark } from "../bookmarkStore";
 import { showToast } from "../Toast";
 
-const BG    = "#F5EFE4";
-const CARD  = "#FDFAF4";
-const SAGE  = "#2D4A34";
-const SAGE_L= "#4A5C48";
-const GOLD  = "#B8922A";
-const BORDER= "#E0D8CC";
-const TEXT  = "#1C1A14";
-const MUTED = "#7A7060";
+// ORIGINAL LIGHT: BG="#F5EFE4" CARD="#FDFAF4" BORDER="#E0D8CC" TEXT="#1C1A14" MUTED="#7A7060"
+const BG    = "#000000";
+const CARD  = "#141414";
+const SAGE  = "#C8A96A";
+const SAGE_L= "#C8A96A";
+const GOLD  = "#C8A96A";
+const BORDER= "rgba(200,185,160,0.18)";
+const TEXT  = "#F5EFE4";
+const MUTED = "rgba(245,239,228,0.55)";
 const SERIF = "SourceSerif4-Regular";
+const { width: SW } = Dimensions.get("window");
 
 // ── Type config (exported for BookmarksScreen) ────────────────────────────────
 export const T = {
-  video:   { label:"Video",   color:"#C0392B", bg:"rgba(192,57,43,0.10)",  Icon:YoutubeLogo },
-  podcast: { label:"Podcast", color:"#6C3483", bg:"rgba(108,52,131,0.10)", Icon:Microphone  },
-  article: { label:"Article", color:"#1A5276", bg:"rgba(26,82,118,0.10)",  Icon:Article     },
+  video:   { label:"Video",   color:"#E05550", bg:"rgba(224,85,80,0.18)",   Icon:YoutubeLogo },
+  podcast: { label:"Podcast", color:"#A064C8", bg:"rgba(160,100,200,0.18)", Icon:Microphone  },
+  article: { label:"Article", color:"#5090C8", bg:"rgba(80,144,200,0.18)",  Icon:Article     },
 };
 
 // ── Content (exported for BookmarksScreen) ────────────────────────────────────
@@ -138,7 +141,7 @@ const LEARNING_PATHS = [
     label: "First Time Umrah",
     sub: "Everything you need from intention to completion",
     Icon: HandsPraying,
-    color: "#2D4A34",
+    color: "#1A1A1A",
     level: "first",
     items: ["menk-umrah", "seekers", "qalam-hajj"],
   },
@@ -181,13 +184,16 @@ const LEARNING_PATHS = [
 ];
 
 const BROWSE_TOPICS = [
-  { key: "umrah",     label: "Umrah Guides",      sub: "Step-by-step rites",          Icon: HandsPraying,    color: "#2D4A34" },
+  { key: "umrah",     label: "Umrah Guides",      sub: "Step-by-step rites",          Icon: HandsPraying,    color: "#1A1A1A" },
   { key: "hajj",      label: "Hajj Guides",        sub: "The full pilgrimage",         Icon: MapPin,          color: "#3A4A5C" },
   { key: "spiritual", label: "Spiritual Growth",   sub: "Deepen your connection",      Icon: Heart,           color: "#5A3050" },
   { key: "practical", label: "Planning & Prep",    sub: "Visas, packing, logistics",   Icon: SuitcaseRolling, color: "#5A3A1A" },
   { key: "family",    label: "Family Travel",      sub: "Tips for traveling together", Icon: UsersThree,      color: "#4A3A6A" },
-  { key: "worship",   label: "Duʿā & Worship",sub: "Supplications for the trip",  Icon: BookOpen,        color: "#1A4A3A" },
+  { key: "worship",   label: "Duʿā & Worship",sub: "Supplications for the trip",  Icon: BookOpen,        color: "#1A1A1A" },
 ];
+
+const HERO_SLIDES_MEDIA = MEDIA.slice(0, 4);
+const HERO_H_MEDIA = 280;
 
 // ── Card components ───────────────────────────────────────────────────────────
 
@@ -439,8 +445,9 @@ const arc = StyleSheet.create({
 // ── Screen ────────────────────────────────────────────────────────────────────
 export default function MediaScreen({ navigation, route }) {
   const insets = useSafeAreaInsets();
+  const heroRef    = useRef(null);
   const [search,        setSearch]        = useState("");
-  const [level,         setLevel]         = useState("all");
+  const [heroSlide,     setHeroSlide]     = useState(0);
   const [bookmarkedIds, setBookmarkedIds] = useState([]);
 
   useEffect(() => {
@@ -449,6 +456,17 @@ export default function MediaScreen({ navigation, route }) {
       if (!cancelled) setBookmarkedIds(list.map((e) => e.id));
     });
     return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setHeroSlide(prev => {
+        const next = (prev + 1) % HERO_SLIDES_MEDIA.length;
+        heroRef.current?.scrollToIndex({ index: next, animated: true });
+        return next;
+      });
+    }, 4000);
+    return () => clearInterval(timer);
   }, []);
 
   const handleToggleBookmark = (id) => {
@@ -473,15 +491,9 @@ export default function MediaScreen({ navigation, route }) {
     });
   };
 
-  const levelMatch = (item) =>
-    level === "all" || item.level === "all" || item.level === level;
-
-  const pathMatch = (path) =>
-    level === "all" || path.level === "all" || path.level === level;
-
-  const videos   = MEDIA.filter(m => m.type === "video"   && levelMatch(m));
-  const podcasts = MEDIA.filter(m => m.type === "podcast"  && levelMatch(m));
-  const articles = MEDIA.filter(m => m.type === "article"  && levelMatch(m));
+  const videos   = MEDIA.filter(m => m.type === "video");
+  const podcasts = MEDIA.filter(m => m.type === "podcast");
+  const articles = MEDIA.filter(m => m.type === "article");
 
   const searchResults = search.trim()
     ? MEDIA.filter(m =>
@@ -498,31 +510,96 @@ export default function MediaScreen({ navigation, route }) {
         contentContainerStyle={s.scrollContent}
       >
 
-        {/* ── Hero ── */}
-        <View style={s.hero}>
-          <Image
-            source={require("../assets/kaaba_mixed.png")}
-            style={StyleSheet.absoluteFillObject}
-            resizeMode="cover"
+        {/* ── Page title ── */}
+        <View style={s.pageHeader}>
+          <View style={s.pageTitleRow}>
+            <PlayCircle size={28} color="#C8A96A" weight="regular" />
+            <Text style={s.pageTitle}>Media</Text>
+          </View>
+          <Text style={s.pageSub}>
+            Curated content to inspire, prepare and guide your journey.
+          </Text>
+          <Text style={s.pageDisclosure}>
+            All links open externally. Safar is not affiliated
+            with these resources.
+          </Text>
+        </View>
+
+        {/* ── Hero carousel ── */}
+        <View style={{ height: HERO_H_MEDIA }}>
+          <FlatList
+            ref={heroRef}
+            data={HERO_SLIDES_MEDIA}
+            keyExtractor={item => item.id}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onMomentumScrollEnd={e => {
+              const idx = Math.round(e.nativeEvent.contentOffset.x / SW);
+              setHeroSlide(idx);
+            }}
+            style={{ height: HERO_H_MEDIA }}
+            getItemLayout={(_, index) => ({
+              length: SW,
+              offset: SW * index,
+              index,
+            })}
+            renderItem={({ item }) => {
+              const conf = T[item.type];
+              return (
+                <TouchableOpacity
+                  style={{ width: SW, height: HERO_H_MEDIA, overflow: "hidden" }}
+                  onPress={() => Linking.openURL(item.url)}
+                  activeOpacity={0.92}
+                >
+                  <Image
+                    source={item.image}
+                    style={{ position: "absolute", width: SW, height: HERO_H_MEDIA }}
+                    resizeMode="cover"
+                  />
+                  <LinearGradient
+                    colors={["rgba(0,0,0,0.08)", "rgba(0,0,0,0.72)"]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 0, y: 1 }}
+                    style={StyleSheet.absoluteFillObject}
+                  />
+                  <View style={[s.slideBadge, { bottom: 97, left: 16, backgroundColor: conf.color }]}>
+                    <conf.Icon size={14} color="#FFFFFF" weight="fill" />
+                    <Text style={s.slideBadgeText}>{conf.label}</Text>
+                  </View>
+                  <View style={s.slideContent}>
+                    <Text style={s.slideTitle} numberOfLines={2}>
+                      {item.title}
+                    </Text>
+                    <Text style={s.slideSource}>{item.source}</Text>
+                  </View>
+                </TouchableOpacity>
+              );
+            }}
           />
-          <LinearGradient
-            colors={["rgba(0,0,0,0.10)", "rgba(245,239,228,0.95)"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 0, y: 1 }}
-            style={StyleSheet.absoluteFillObject}
-          />
+
+          {/* Back button — floats above carousel */}
           <TouchableOpacity
-            style={[s.backBtn, { top: insets.top + 12 }]}
+            style={[s.backBtn, { top: 16 }]}
             onPress={() => navigation.goBack()}
             activeOpacity={0.8}
           >
-            <CaretLeft size={18} color={TEXT} weight="bold" />
+            <CaretLeft size={18} color="#FFFFFF" weight="bold" />
           </TouchableOpacity>
-          <View style={s.heroContent}>
-            <Text style={s.heroTitle}>Media</Text>
-            <Text style={s.heroSub}>
-              Curated content to inspire, prepare and guide your journey.
-            </Text>
+
+          {/* Dot indicators */}
+          <View style={s.heroDots}>
+            {HERO_SLIDES_MEDIA.map((_, i) => (
+              <TouchableOpacity
+                key={i}
+                onPress={() => {
+                  heroRef.current?.scrollToIndex({ index: i, animated: true });
+                  setHeroSlide(i);
+                }}
+              >
+                <View style={i === heroSlide ? [s.dot, s.dotActive] : s.dot} />
+              </TouchableOpacity>
+            ))}
           </View>
         </View>
 
@@ -540,37 +617,6 @@ export default function MediaScreen({ navigation, route }) {
           />
         </View>
 
-        {/* ── Experience level ── */}
-        <View style={s.levelCard}>
-          <View style={s.levelLeft}>
-            <Text style={s.levelTitle}>Your experience</Text>
-            <Text style={s.levelSub}>
-              Find content that fits where you are
-            </Text>
-          </View>
-          <View style={s.levelBtns}>
-            {[
-              ["all",         "All"        ],
-              ["first",       "First Timer"],
-              ["experienced", "Experienced"],
-            ].map(([key, label]) => (
-              <TouchableOpacity
-                key={key}
-                style={level === key
-                  ? [s.levelBtn, s.levelBtnActive]
-                  : s.levelBtn}
-                onPress={() => setLevel(key)}
-                activeOpacity={0.8}
-              >
-                <Text style={level === key
-                  ? [s.levelBtnText, s.levelBtnTextActive]
-                  : s.levelBtnText}>
-                  {label}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
 
         {/* ── Search results (replaces everything when searching) ── */}
         {searchResults !== null ? (
@@ -640,52 +686,15 @@ export default function MediaScreen({ navigation, route }) {
           </View>
         ) : (
           <>
-            {/* ── Learning Paths ── */}
-            <View style={s.sectionHeader}>
-              <Text style={s.sectionTitle}>Learning Paths</Text>
-              <Text style={s.sectionSub}>
-                Guided journeys from start to finish
-              </Text>
-            </View>
-            {LEARNING_PATHS.filter(pathMatch).map(path => (
-              <LearningPathCard
-                key={path.id}
-                path={path}
-                onPress={() => {
-                  const first = MEDIA.find(m => m.id === path.items[0]);
-                  if (first) Linking.openURL(first.url);
-                }}
-              />
-            ))}
-
-            {/* ── Browse by Topic ── */}
-            <View style={s.sectionHeader}>
-              <Text style={s.sectionTitle}>Browse by topic</Text>
-            </View>
-            <View style={s.topicGrid}>
-              {BROWSE_TOPICS.map((topic, i) => {
-                if (i % 2 !== 0) return null;
-                const right = BROWSE_TOPICS[i + 1];
-                return (
-                  <View key={topic.key + i} style={s.topicRow}>
-                    <TopicCard topic={topic} onPress={() => {}} />
-                    {right ? (
-                      <TopicCard topic={right} onPress={() => {}} />
-                    ) : (
-                      <View style={{ flex: 1 }} />
-                    )}
-                  </View>
-                );
-              })}
-            </View>
-
             {/* ── YouTube Videos ── */}
             {videos.length > 0 ? (
-              <View>
+              <View style={s.typeSection}>
                 <View style={s.sectionRowHeader}>
-                  <Text style={s.sectionTitle}>YouTube Videos</Text>
+                  <Text style={[s.sectionTitle, { color: T.video.color }]}>
+                    Videos
+                  </Text>
                   <TouchableOpacity activeOpacity={0.7}>
-                    <Text style={s.viewAll}>View all  ›</Text>
+                    <Text style={[s.viewAll, { color: T.video.color }]}>View all  ›</Text>
                   </TouchableOpacity>
                 </View>
                 <ScrollView
@@ -702,16 +711,19 @@ export default function MediaScreen({ navigation, route }) {
                     />
                   ))}
                 </ScrollView>
+                <View style={{ height: 12 }} />
               </View>
             ) : null}
 
             {/* ── Podcasts ── */}
             {podcasts.length > 0 ? (
-              <View>
+              <View style={s.typeSection}>
                 <View style={s.sectionRowHeader}>
-                  <Text style={s.sectionTitle}>Podcasts</Text>
+                  <Text style={[s.sectionTitle, { color: T.podcast.color }]}>
+                    Podcasts
+                  </Text>
                   <TouchableOpacity activeOpacity={0.7}>
-                    <Text style={s.viewAll}>View all  ›</Text>
+                    <Text style={[s.viewAll, { color: T.podcast.color }]}>View all  ›</Text>
                   </TouchableOpacity>
                 </View>
                 <ScrollView
@@ -728,16 +740,19 @@ export default function MediaScreen({ navigation, route }) {
                     />
                   ))}
                 </ScrollView>
+                <View style={{ height: 12 }} />
               </View>
             ) : null}
 
             {/* ── Articles ── */}
             {articles.length > 0 ? (
-              <View>
+              <View style={s.typeSection}>
                 <View style={s.sectionRowHeader}>
-                  <Text style={s.sectionTitle}>Articles</Text>
+                  <Text style={[s.sectionTitle, { color: T.article.color }]}>
+                    Articles
+                  </Text>
                   <TouchableOpacity activeOpacity={0.7}>
-                    <Text style={s.viewAll}>View all  ›</Text>
+                    <Text style={[s.viewAll, { color: T.article.color }]}>View all  ›</Text>
                   </TouchableOpacity>
                 </View>
                 <ScrollView
@@ -754,13 +769,59 @@ export default function MediaScreen({ navigation, route }) {
                     />
                   ))}
                 </ScrollView>
+                <View style={{ height: 12 }} />
               </View>
             ) : null}
 
-            <Text style={s.disclosure}>
-              All links open externally. Safar is not affiliated
-              with these resources.
-            </Text>
+            <View style={s.sectionDivider} />
+
+            {/* ── Learning Paths ── */}
+            <View style={s.darkSection95}>
+              <View style={s.sectionHeader}>
+                <Text style={s.sectionTitle}>Learning Paths</Text>
+                <Text style={s.sectionSub}>
+                  Guided journeys from start to finish
+                </Text>
+              </View>
+              {LEARNING_PATHS.map(path => (
+                <LearningPathCard
+                  key={path.id}
+                  path={path}
+                  onPress={() => {
+                    const first = MEDIA.find(m => m.id === path.items[0]);
+                    if (first) Linking.openURL(first.url);
+                  }}
+                />
+              ))}
+              <View style={{ height: 12 }} />
+            </View>
+
+            <View style={s.sectionDivider} />
+
+            {/* ── Browse by Topic ── */}
+            <View style={s.darkSection90}>
+              <View style={s.sectionHeader}>
+                <Text style={s.sectionTitle}>Browse by topic</Text>
+              </View>
+              <View style={s.topicGrid}>
+                {BROWSE_TOPICS.map((topic, i) => {
+                  if (i % 2 !== 0) return null;
+                  const right = BROWSE_TOPICS[i + 1];
+                  return (
+                    <View key={topic.key + i} style={s.topicRow}>
+                      <TopicCard topic={topic} onPress={() => {}} />
+                      {right ? (
+                        <TopicCard topic={right} onPress={() => {}} />
+                      ) : (
+                        <View style={{ flex: 1 }} />
+                      )}
+                    </View>
+                  );
+                })}
+              </View>
+              <View style={{ height: 12 }} />
+            </View>
+
           </>
         )}
 
@@ -775,34 +836,38 @@ const s = StyleSheet.create({
   safe:          { flex: 1, backgroundColor: BG },
   scrollContent: { paddingBottom: 32 },
 
-  // Hero
-  hero:        { height: 240, position: "relative", justifyContent: "flex-end" },
-  backBtn:     { position: "absolute", left: 16, width: 36, height: 36, borderRadius: 18, backgroundColor: "rgba(253,250,244,0.90)", borderWidth: 1, borderColor: BORDER, alignItems: "center", justifyContent: "center" },
-  heroContent: { paddingHorizontal: 20, paddingBottom: 22 },
-  heroTitle:   { fontFamily: SERIF, fontSize: 40, color: TEXT, fontWeight: "400", lineHeight: 46 },
-  heroSub:     { fontSize: 13, color: MUTED, lineHeight: 19, marginTop: 6, maxWidth: "80%" },
+  // Page header
+  pageHeader:      { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 16, backgroundColor: BG },
+  pageTitleRow:    { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 2 },
+  pageTitle:       { fontFamily: SERIF, fontSize: 34, color: TEXT, fontWeight: "400", lineHeight: 40 },
+  pageSub:         { fontSize: 13, color: MUTED, lineHeight: 19, marginTop: 4 },
+  pageDisclosure:  { fontSize: 11, color: MUTED, marginTop: 2, lineHeight: 16 },
+
+  // Hero carousel
+  backBtn:        { position: "absolute", left: 16, width: 36, height: 36, borderRadius: 18, backgroundColor: "rgba(0,0,0,0.35)", borderWidth: 1, borderColor: "rgba(255,255,255,0.20)", alignItems: "center", justifyContent: "center" },
+  slideBadge:     { position: "absolute", flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: "rgba(0,0,0,0.50)", borderRadius: 50, paddingHorizontal: 14, paddingVertical: 7 },
+  slideBadgeText: { fontSize: 13, color: "#FFFFFF", fontWeight: "700", letterSpacing: 0.5 },
+  slideContent:   { position: "absolute", bottom: 32, left: 16, right: 16 },
+  slideTitle:     { fontFamily: SERIF, fontSize: 24, color: "#FFFFFF", fontWeight: "600", lineHeight: 30, marginBottom: 6 },
+  slideSource:    { fontSize: 13, color: "rgba(255,255,255,0.75)" },
+  heroDots:       { position: "absolute", bottom: 12, left: 0, right: 0, flexDirection: "row", justifyContent: "center", gap: 6 },
+  dot:            { width: 5, height: 5, borderRadius: 3, backgroundColor: "rgba(255,255,255,0.35)" },
+  dotActive:      { backgroundColor: "#C8A96A", width: 18 },
 
   // Search
-  searchBar:   { flexDirection: "row", alignItems: "center", marginHorizontal: 16, marginTop: 14, marginBottom: 4, backgroundColor: CARD, borderRadius: 14, borderWidth: 1, borderColor: BORDER, paddingHorizontal: 14, paddingVertical: 12, gap: 10 },
+  searchBar:   { flexDirection: "row", alignItems: "center", marginHorizontal: 16, marginTop: 14, marginBottom: 5, backgroundColor: CARD, borderRadius: 14, borderWidth: 1, borderColor: BORDER, paddingHorizontal: 14, paddingVertical: 12, gap: 10 },
   searchInput: { flex: 1, fontSize: 15, color: TEXT, padding: 0 },
-
-  // Experience level
-  levelCard:          { marginHorizontal: 16, marginTop: 12, marginBottom: 4, backgroundColor: CARD, borderRadius: 14, borderWidth: 1, borderColor: BORDER, padding: 14, gap: 10 },
-  levelLeft:          { gap: 2 },
-  levelTitle:         { fontFamily: SERIF, fontSize: 15, color: TEXT },
-  levelSub:           { fontSize: 12, color: MUTED },
-  levelBtns:          { flexDirection: "row", gap: 6 },
-  levelBtn:           { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 50, borderWidth: 1, borderColor: BORDER, backgroundColor: BG },
-  levelBtnActive:     { backgroundColor: SAGE, borderColor: SAGE },
-  levelBtnText:       { fontSize: 13, color: MUTED, fontWeight: "500" },
-  levelBtnTextActive: { color: "#FFFFFF", fontWeight: "600" },
 
   // Section headers
   sectionHeader:    { paddingHorizontal: 16, marginTop: 22, marginBottom: 10 },
   sectionTitle:     { fontFamily: SERIF, fontSize: 20, color: TEXT },
   sectionSub:       { fontSize: 13, color: MUTED, marginTop: 3 },
-  sectionRowHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 16, marginTop: 22, marginBottom: 10 },
-  viewAll:          { fontSize: 13, color: SAGE_L, fontWeight: "600" },
+  sectionRowHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 16, marginTop: 10, marginBottom: 10 },
+  viewAll:     { fontSize: 13, color: SAGE_L, fontWeight: "600" },
+  typeSection:   { marginTop: 6, paddingTop: 2 },
+  darkSection95: { backgroundColor: "rgba(0,0,0,0.95)", marginTop: 8 },
+  darkSection90: { backgroundColor: "rgba(0,0,0,0.90)", marginTop: 8 },
+  sectionDivider: { height: 1, backgroundColor: "rgba(255,255,255,0.15)", marginHorizontal: 40, marginVertical: 6 },
 
   // Topic grid
   topicGrid: { paddingHorizontal: 16, gap: 10 },
@@ -824,8 +889,7 @@ const s = StyleSheet.create({
   resultTitle:       { fontFamily: SERIF, fontSize: 14, color: TEXT, lineHeight: 19 },
   resultSource:      { fontSize: 12, color: MUTED },
 
-  // Empty / disclosure
-  empty:      { alignItems: "center", paddingVertical: 32, gap: 10 },
-  emptyTxt:   { fontSize: 15, color: MUTED },
-  disclosure: { fontSize: 11, color: MUTED, textAlign: "center", marginTop: 24, marginHorizontal: 16, fontStyle: "italic" },
+  // Empty state
+  empty:    { alignItems: "center", paddingVertical: 32, gap: 10 },
+  emptyTxt: { fontSize: 15, color: MUTED },
 });
