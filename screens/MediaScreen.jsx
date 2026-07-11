@@ -14,9 +14,10 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   CaretLeft, CaretRight, YoutubeLogo, Microphone,
-  Article, BookOpen, Sparkle, BookmarkSimple,
-  MagnifyingGlass, PlayCircle, UsersThree,
-  SuitcaseRolling, HandsPraying, Heart, MapPin,
+  Article, BookOpen, BookOpenText, Books, Sparkle,
+  BookmarkSimple, MagnifyingGlass, PlayCircle,
+  UsersThree, SuitcaseRolling, HandsPraying,
+  Heart, MapPin, Compass,
 } from "phosphor-react-native";
 import { getMediaBookmarks, toggleMediaBookmark } from "../bookmarkStore";
 import { showToast } from "../Toast";
@@ -141,7 +142,7 @@ const LEARNING_PATHS = [
     label: "First Time Umrah",
     sub: "Everything you need from intention to completion",
     Icon: HandsPraying,
-    color: "#1A1A1A",
+    color: "#4A5C48",
     level: "first",
     items: ["menk-umrah", "seekers", "qalam-hajj"],
   },
@@ -243,7 +244,7 @@ const lp = StyleSheet.create({
   gradient:     { flexDirection: "row", alignItems: "center", padding: 16, gap: 12 },
   iconWrap:     { width: 48, height: 48, borderRadius: 12, backgroundColor: "rgba(255,255,255,0.12)", alignItems: "center", justifyContent: "center", flexShrink: 0 },
   content:      { flex: 1, gap: 3 },
-  label:        { fontFamily: SERIF, fontSize: 17, color: "#FFFFFF", fontWeight: "600" },
+  label:        { fontSize: 17, color: "#FFFFFF", fontWeight: "600" },
   sub:          { fontSize: 12, color: "rgba(255,255,255,0.72)", lineHeight: 17 },
   meta:         { flexDirection: "row", alignItems: "center", gap: 8, marginTop: 6 },
   count:        { fontSize: 11, color: "rgba(255,255,255,0.60)" },
@@ -274,7 +275,7 @@ const tc = StyleSheet.create({
   card:    { flex: 1, flexDirection: "row", alignItems: "center", backgroundColor: CARD, borderRadius: 14, borderWidth: 1, borderColor: BORDER, padding: 12, gap: 10, shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 4, elevation: 2 },
   iconBox: { width: 38, height: 38, borderRadius: 10, alignItems: "center", justifyContent: "center", flexShrink: 0 },
   info:    { flex: 1 },
-  label:   { fontFamily: SERIF, fontSize: 13, color: TEXT, marginBottom: 2 },
+  label:   { fontSize: 13, color: TEXT, fontWeight: "500", marginBottom: 2 },
   sub:     { fontSize: 11, color: MUTED, lineHeight: 15 },
 });
 
@@ -331,7 +332,7 @@ const vc = StyleSheet.create({
   durationText: { fontSize: 11, color: "#FFFFFF", fontWeight: "600" },
   bookmark:     { position: "absolute", top: 8, right: 8 },
   info:         { padding: 10, gap: 5 },
-  title:        { fontFamily: SERIF, fontSize: 13, color: TEXT, lineHeight: 18 },
+  title:        { fontSize: 13, color: TEXT, lineHeight: 18, fontWeight: "500" },
   meta:         { flexDirection: "row", alignItems: "center", gap: 5 },
   source:       { fontSize: 11, color: MUTED, flex: 1 },
 });
@@ -386,7 +387,7 @@ const pc = StyleSheet.create({
   playBtn:  { position: "absolute", bottom: 10, right: 10 },
   bookmark: { position: "absolute", top: 8, right: 8 },
   info:     { padding: 10, gap: 4 },
-  title:    { fontFamily: SERIF, fontSize: 13, color: TEXT, lineHeight: 18 },
+  title:    { fontSize: 13, color: TEXT, lineHeight: 18, fontWeight: "500" },
   meta:     { flexDirection: "row", alignItems: "center", gap: 4, flexWrap: "wrap" },
   source:   { fontSize: 11, color: MUTED },
   dot:      { fontSize: 11, color: MUTED },
@@ -433,10 +434,10 @@ const arc = StyleSheet.create({
   card:         { width: 175, marginRight: 12, backgroundColor: CARD, borderRadius: 14, overflow: "hidden", borderWidth: 1, borderColor: BORDER, shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 6, elevation: 3 },
   imgWrap:      { width: "100%", height: 105, position: "relative" },
   img:          { width: "100%", height: "100%" },
-  categoryPill: { position: "absolute", top: 8, left: 8, backgroundColor: "rgba(245,239,228,0.92)", borderRadius: 50, paddingHorizontal: 8, paddingVertical: 3 },
-  categoryText: { fontSize: 10, fontWeight: "700", color: TEXT },
+  categoryPill: { position: "absolute", top: 8, left: 8, backgroundColor: T.article.color, borderRadius: 50, paddingHorizontal: 8, paddingVertical: 3 },
+  categoryText: { fontSize: 10, fontWeight: "500", color: "#FFFFFF" },
   info:         { padding: 10, gap: 6 },
-  title:        { fontFamily: SERIF, fontSize: 13, color: TEXT, lineHeight: 18 },
+  title:        { fontSize: 13, color: TEXT, lineHeight: 18, fontWeight: "500" },
   footer:       { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   meta:         { flexDirection: "row", alignItems: "center", gap: 4 },
   dur:          { fontSize: 11, color: MUTED },
@@ -657,9 +658,9 @@ export default function MediaScreen({ navigation, route }) {
                         ) : null}
                       </View>
                       <View style={s.resultInfo}>
-                        <View style={[s.resultBadge, { backgroundColor: conf.bg }]}>
-                          <conf.Icon size={10} color={conf.color} weight="fill" />
-                          <Text style={[s.resultBadgeText, { color: conf.color }]}>
+                        <View style={[s.resultBadge, { backgroundColor: conf.color }]}>
+                          <conf.Icon size={10} color="#FFFFFF" weight="fill" />
+                          <Text style={[s.resultBadgeText, { color: "#FFFFFF" }]}>
                             {conf.label}
                           </Text>
                         </View>
@@ -690,11 +691,12 @@ export default function MediaScreen({ navigation, route }) {
             {videos.length > 0 ? (
               <View style={s.typeSection}>
                 <View style={s.sectionRowHeader}>
-                  <Text style={[s.sectionTitle, { color: T.video.color }]}>
-                    Videos
-                  </Text>
+                  <View style={s.sectionTitleRow}>
+                    <YoutubeLogo size={20} color={T.video.color} weight="fill" />
+                    <Text style={[s.sectionTitle, { color: T.video.color }]}>Videos</Text>
+                  </View>
                   <TouchableOpacity activeOpacity={0.7}>
-                    <Text style={[s.viewAll, { color: T.video.color }]}>View all  ›</Text>
+                    <Text style={s.viewAll}>View all  ›</Text>
                   </TouchableOpacity>
                 </View>
                 <ScrollView
@@ -719,11 +721,12 @@ export default function MediaScreen({ navigation, route }) {
             {podcasts.length > 0 ? (
               <View style={s.typeSection}>
                 <View style={s.sectionRowHeader}>
-                  <Text style={[s.sectionTitle, { color: T.podcast.color }]}>
-                    Podcasts
-                  </Text>
+                  <View style={s.sectionTitleRow}>
+                    <Microphone size={20} color={T.podcast.color} weight="fill" />
+                    <Text style={[s.sectionTitle, { color: T.podcast.color }]}>Podcasts</Text>
+                  </View>
                   <TouchableOpacity activeOpacity={0.7}>
-                    <Text style={[s.viewAll, { color: T.podcast.color }]}>View all  ›</Text>
+                    <Text style={s.viewAll}>View all  ›</Text>
                   </TouchableOpacity>
                 </View>
                 <ScrollView
@@ -748,11 +751,12 @@ export default function MediaScreen({ navigation, route }) {
             {articles.length > 0 ? (
               <View style={s.typeSection}>
                 <View style={s.sectionRowHeader}>
-                  <Text style={[s.sectionTitle, { color: T.article.color }]}>
-                    Articles
-                  </Text>
+                  <View style={s.sectionTitleRow}>
+                    <BookOpenText size={20} color={T.article.color} weight="regular" />
+                    <Text style={[s.sectionTitle, { color: T.article.color }]}>Articles</Text>
+                  </View>
                   <TouchableOpacity activeOpacity={0.7}>
-                    <Text style={[s.viewAll, { color: T.article.color }]}>View all  ›</Text>
+                    <Text style={s.viewAll}>View all  ›</Text>
                   </TouchableOpacity>
                 </View>
                 <ScrollView
@@ -773,12 +777,13 @@ export default function MediaScreen({ navigation, route }) {
               </View>
             ) : null}
 
-            <View style={s.sectionDivider} />
-
             {/* ── Learning Paths ── */}
             <View style={s.darkSection95}>
               <View style={s.sectionHeader}>
-                <Text style={s.sectionTitle}>Learning Paths</Text>
+                <View style={s.sectionTitleRow}>
+                  <Books size={22} color={TEXT} weight="regular" />
+                  <Text style={s.sectionTitle}>Learning Paths</Text>
+                </View>
                 <Text style={s.sectionSub}>
                   Guided journeys from start to finish
                 </Text>
@@ -796,12 +801,13 @@ export default function MediaScreen({ navigation, route }) {
               <View style={{ height: 12 }} />
             </View>
 
-            <View style={s.sectionDivider} />
-
             {/* ── Browse by Topic ── */}
             <View style={s.darkSection90}>
               <View style={s.sectionHeader}>
-                <Text style={s.sectionTitle}>Browse by topic</Text>
+                <View style={s.sectionTitleRow}>
+                  <Compass size={22} color={TEXT} weight="regular" />
+                  <Text style={s.sectionTitle}>Browse by topic</Text>
+                </View>
               </View>
               <View style={s.topicGrid}>
                 {BROWSE_TOPICS.map((topic, i) => {
@@ -840,34 +846,34 @@ const s = StyleSheet.create({
   pageHeader:      { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 16, backgroundColor: BG },
   pageTitleRow:    { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 2 },
   pageTitle:       { fontFamily: SERIF, fontSize: 34, color: TEXT, fontWeight: "400", lineHeight: 40 },
-  pageSub:         { fontSize: 13, color: MUTED, lineHeight: 19, marginTop: 4 },
+  pageSub:         { fontSize: 13, color: TEXT, lineHeight: 19, marginTop: 4 },
   pageDisclosure:  { fontSize: 11, color: MUTED, marginTop: 2, lineHeight: 16 },
 
   // Hero carousel
   backBtn:        { position: "absolute", left: 16, width: 36, height: 36, borderRadius: 18, backgroundColor: "rgba(0,0,0,0.35)", borderWidth: 1, borderColor: "rgba(255,255,255,0.20)", alignItems: "center", justifyContent: "center" },
   slideBadge:     { position: "absolute", flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: "rgba(0,0,0,0.50)", borderRadius: 50, paddingHorizontal: 14, paddingVertical: 7 },
-  slideBadgeText: { fontSize: 13, color: "#FFFFFF", fontWeight: "700", letterSpacing: 0.5 },
+  slideBadgeText: { fontSize: 13, color: "#FFFFFF", fontWeight: "500", letterSpacing: 0.5 },
   slideContent:   { position: "absolute", bottom: 32, left: 16, right: 16 },
-  slideTitle:     { fontFamily: SERIF, fontSize: 24, color: "#FFFFFF", fontWeight: "600", lineHeight: 30, marginBottom: 6 },
+  slideTitle:     { fontSize: 24, color: "#FFFFFF", fontWeight: "600", lineHeight: 30, marginBottom: 6 },
   slideSource:    { fontSize: 13, color: "rgba(255,255,255,0.75)" },
   heroDots:       { position: "absolute", bottom: 12, left: 0, right: 0, flexDirection: "row", justifyContent: "center", gap: 6 },
   dot:            { width: 5, height: 5, borderRadius: 3, backgroundColor: "rgba(255,255,255,0.35)" },
   dotActive:      { backgroundColor: "#C8A96A", width: 18 },
 
   // Search
-  searchBar:   { flexDirection: "row", alignItems: "center", marginHorizontal: 16, marginTop: 14, marginBottom: 5, backgroundColor: CARD, borderRadius: 14, borderWidth: 1, borderColor: BORDER, paddingHorizontal: 14, paddingVertical: 12, gap: 10 },
+  searchBar:   { flexDirection: "row", alignItems: "center", marginHorizontal: 16, marginTop: 19, marginBottom: 5, backgroundColor: CARD, borderRadius: 14, borderWidth: 1, borderColor: BORDER, paddingHorizontal: 14, paddingVertical: 12, gap: 10 },
   searchInput: { flex: 1, fontSize: 15, color: TEXT, padding: 0 },
 
   // Section headers
   sectionHeader:    { paddingHorizontal: 16, marginTop: 22, marginBottom: 10 },
-  sectionTitle:     { fontFamily: SERIF, fontSize: 20, color: TEXT },
+  sectionTitle:     { fontSize: 20, color: TEXT, fontWeight: "600" },
   sectionSub:       { fontSize: 13, color: MUTED, marginTop: 3 },
   sectionRowHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 16, marginTop: 10, marginBottom: 10 },
-  viewAll:     { fontSize: 13, color: SAGE_L, fontWeight: "600" },
+  sectionTitleRow:  { flexDirection: "row", alignItems: "center", gap: 8 },
+  viewAll:     { fontSize: 13, color: "rgba(255,255,255,0.55)", fontWeight: "600" },
   typeSection:   { marginTop: 6, paddingTop: 2 },
-  darkSection95: { backgroundColor: "rgba(0,0,0,0.95)", marginTop: 8 },
+  darkSection95: { backgroundColor: "rgba(255,255,255,0.10)", marginTop: 8 },
   darkSection90: { backgroundColor: "rgba(0,0,0,0.90)", marginTop: 8 },
-  sectionDivider: { height: 1, backgroundColor: "rgba(255,255,255,0.15)", marginHorizontal: 40, marginVertical: 6 },
 
   // Topic grid
   topicGrid: { paddingHorizontal: 16, gap: 10 },
@@ -885,8 +891,8 @@ const s = StyleSheet.create({
   resultPlay:        { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(0,0,0,0.25)" },
   resultInfo:        { flex: 1, gap: 3 },
   resultBadge:       { flexDirection: "row", alignItems: "center", gap: 4, alignSelf: "flex-start", paddingHorizontal: 7, paddingVertical: 2, borderRadius: 50 },
-  resultBadgeText:   { fontSize: 10, fontWeight: "700" },
-  resultTitle:       { fontFamily: SERIF, fontSize: 14, color: TEXT, lineHeight: 19 },
+  resultBadgeText:   { fontSize: 10, fontWeight: "500" },
+  resultTitle:       { fontSize: 14, color: TEXT, lineHeight: 19, fontWeight: "500" },
   resultSource:      { fontSize: 12, color: MUTED },
 
   // Empty state
