@@ -638,12 +638,13 @@ const s = StyleSheet.create({
     marginBottom:6,
   },
   duaTitle: {
+    // Original values (2026-07-12): fontSize:32, lineHeight:40 — revert here if needed
     fontFamily:SERIF,
-    fontSize:32,
+    fontSize:28,
     fontWeight:"600",
     color:DARK_TEXT,
     textAlign:"center",
-    lineHeight:40,
+    lineHeight:36,
     paddingHorizontal:spacing(3),
   },
 
@@ -656,8 +657,9 @@ const s = StyleSheet.create({
   },
 
   arabic: {
+    // Original value (2026-07-12): fontSize:36 — revert here if needed
     fontFamily:SERIF,
-    fontSize:36,
+    fontSize:38,
     textAlign:"center",
     color:DARK_TEXT,
     lineHeight:62,
@@ -665,7 +667,8 @@ const s = StyleSheet.create({
     hyphens:"none",
   },
   translit: {
-    fontSize:17,
+    // Original value (2026-07-12): fontSize:17 — revert here if needed
+    fontSize:19,
     fontStyle:"italic",
     textAlign:"center",
     color:MID_TEXT,
