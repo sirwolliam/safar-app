@@ -10,14 +10,14 @@
 import React, { useState } from "react";
 import {
   SafeAreaView, View, Text, TouchableOpacity, ScrollView,
-  TextInput, StyleSheet, Linking, Dimensions, Image,
+  TextInput, StyleSheet, Linking, Dimensions, Image, Share,
 } from "react-native";
 import {
   ArrowLeft, ArrowRight, ShoppingBag, MagnifyingGlass,
   TShirt, BookOpen, FirstAid, Backpack, Sneaker,
   Devices, ShieldCheck, SunHorizon, Baby, Gift,
   HandbagSimple, Umbrella, Sparkle, Star, Syringe,
-  Bandaids, SuitcaseRolling, Compass,
+  Bandaids, SuitcaseRolling, Compass, ShareNetwork,
 } from "phosphor-react-native";
 import { spacing, radius } from "../theme";
 import { getAffiliateUrl } from "../utils/affiliateLinks";
@@ -95,6 +95,18 @@ function ProductTile({ item, tileW, onPress }) {
       </View>
       <Text style={pt.label} numberOfLines={2}>{item.label}</Text>
       <Text style={pt.sub} numberOfLines={1}>{item.sub}</Text>
+      <TouchableOpacity
+        style={pt.shareBtn}
+        hitSlop={{ top:8, bottom:8, left:8, right:8 }}
+        onPress={async () => {
+          try {
+            await Share.share({ message: `${item.label}\nRecommended on Safar:\n${getAffiliateUrl(item.query)}` });
+          } catch (_) {}
+        }}
+        activeOpacity={0.8}
+      >
+        <ShareNetwork size={13} color={GOLD} weight="regular" />
+      </TouchableOpacity>
     </TouchableOpacity>
   );
 }
@@ -120,6 +132,7 @@ const pt = StyleSheet.create({
   },
   label:   { fontSize:13, color:TEXT, fontWeight:"600", textAlign:"center", lineHeight:17 },
   sub:     { fontSize:11, color:MUTED, textAlign:"center" },
+  shareBtn: { position:"absolute", top:8, right:8, width:24, height:24, borderRadius:12, backgroundColor:"rgba(253,250,244,0.85)", alignItems:"center", justifyContent:"center" },
 });
 
 // ── Screen ────────────────────────────────────────────────────────────────────

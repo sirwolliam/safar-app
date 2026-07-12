@@ -222,6 +222,7 @@ function PrepareNavigator() {
       <PrepareStack.Screen name="Settings"          component={SettingsScreen}      />
       <PrepareStack.Screen name="WhatToExpect"      component={WhatToExpectScreen}  />
       <PrepareStack.Screen name="PrintOffline"      component={PrintOfflineScreen}  />
+      <PrepareStack.Screen name="Media"             component={MediaScreen}         />
     </PrepareStack.Navigator>
   );
 }

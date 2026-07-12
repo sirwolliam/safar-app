@@ -11,7 +11,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
   View, Text, ScrollView, TouchableOpacity,
-  StyleSheet, Dimensions,
+  StyleSheet, Dimensions, Share,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path, Line, Circle, G, Polygon, Defs, LinearGradient, Stop, Mask, Rect } from "react-native-svg";
@@ -19,6 +19,7 @@ import { spacing, radius } from "../theme";
 import AskModal from "../components/AskModal";
 import { PATTERN_PATH } from "./headerPatternPath";
 
+import { ShareNetwork } from "phosphor-react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { isDuaBookmarked, toggleDuaBookmark } from "../bookmarkStore";
 import { isInPractice, togglePractice } from "../practiceStore";
@@ -387,6 +388,18 @@ export default function DuaDetailScreen({ route, navigation }) {
     });
   };
 
+  const handleShareDua = async () => {
+    try {
+      const parts = [activeDua.title, ""];
+      parts.push(activeDua.arabic, "");
+      if (activeDua.transliteration) parts.push(activeDua.transliteration, "");
+      parts.push(`"${activeDua.translation}"`, "");
+      parts.push(`— ${activeDua.source}`, "");
+      parts.push("Shared via Safar");
+      await Share.share({ message: parts.join("\n") });
+    } catch (_) {}
+  };
+
   const hasPrev = idx > 0;
   const hasNext = idx < allDuas.length - 1;
   const goPrev  = () => { if (hasPrev) { setIdx(i => i - 1); audio.repeat(); } };
@@ -442,6 +455,13 @@ export default function DuaDetailScreen({ route, navigation }) {
               activeOpacity={0.8}
             >
               <IconPractice active={inPractice} size={20} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={s.navCircle}
+              onPress={handleShareDua}
+              activeOpacity={0.8}
+            >
+              <ShareNetwork size={20} color={MID_TEXT} weight="regular" />
             </TouchableOpacity>
             <TouchableOpacity
               style={s.navCircle}

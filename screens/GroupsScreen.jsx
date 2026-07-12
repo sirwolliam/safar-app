@@ -156,6 +156,17 @@ function MilestoneRow({ item, myUid, onAmeen, onDelete, s }) {
             }
           </TouchableOpacity>
           {item.count > 0 ? <Text style={s.msCount}>{item.count} \u0100meen</Text> : null}
+          <TouchableOpacity
+            style={s.msBtn}
+            onPress={async () => {
+              try {
+                await Share.share({ message: `${item.author} shared:\n${item.text}\n\nShared via Safar` });
+              } catch (_) {}
+            }}
+            activeOpacity={0.8}
+          >
+            <ShareNetwork size={14} color="#5C534A" weight="regular" />
+          </TouchableOpacity>
         </View>
       </Animated.View>
     </View>

@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import { colors, spacing, radius, typography, shadows } from "../theme";
 import {
-  MagnifyingGlass, DeviceMobile, BookOpenText, PlayCircle,
+  CaretLeft, MagnifyingGlass, DeviceMobile, BookOpenText, PlayCircle,
   MapTrifold, Sparkle, Handshake, WifiHigh, EnvelopeSimple,
   ChatCircleDots, GlobeSimple,
 } from "phosphor-react-native";
@@ -391,7 +391,7 @@ export default function SupportScreen({ navigation }) {
           style={styles.iconBtn}
           onPress={() => navigation?.goBack?.()}
         >
-          <Text style={styles.iconBtnTxt}>‹</Text>
+          <CaretLeft size={20} color="#1A1712" weight="bold" />
         </TouchableOpacity>
         <Text style={styles.title}>Help & Support</Text>
         <View style={{ width:36 }} />
@@ -602,9 +602,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#D4D0CA",
-    backgroundColor: "#EDE6D8",
+    backgroundColor: "#3A3545",
   },
   iconBtn: {
     width: 36, height: 36,
@@ -614,17 +612,11 @@ const styles = StyleSheet.create({
     borderColor: "#D4D0CA",
     alignItems: "center",
     justifyContent: "center",
-    shadowColor:"#6A4A28", shadowOffset:{width:0,height:3}, shadowOpacity:0.14, shadowRadius:8, elevation:4,
-  },
-  iconBtnTxt: {
-    fontSize: 20,
-    color: "#1A1712",
-    lineHeight: 24,
   },
   title: {
-    fontSize: 18,
-    fontWeight: "500",
-    color: "#1A1712",
+    fontFamily: "SourceSerif4-Regular",
+    fontSize: 22,
+    color: "#FDFAF4",
   },
 
   scroll: {
@@ -635,6 +627,7 @@ const styles = StyleSheet.create({
   // Hero
   hero: {
     alignItems: "center",
+    paddingTop: 20,
     paddingBottom: 20,
     marginBottom: 16,
   },

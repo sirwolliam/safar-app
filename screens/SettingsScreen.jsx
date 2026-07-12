@@ -10,7 +10,7 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { colors, spacing, radius, shadows, typography } from "../theme";
 import { useAccessibility } from "../AccessibilityContext";
-import { Info, CaretRight } from "phosphor-react-native";
+import { CaretLeft, Info, CaretRight } from "phosphor-react-native";
 
 const SERIF = "SourceSerif4-Regular";
 
@@ -113,8 +113,13 @@ export default function SettingsScreen({ navigation }) {
   return (
     <SafeAreaView style={s.safe}>
       <View style={s.header}>
-        <TouchableOpacity onPress={() => navigation?.goBack?.()} hitSlop={{ top:12, bottom:12, left:12, right:24 }}>
-          <Text style={s.back}>{"\u2190"}</Text>
+        <TouchableOpacity
+          style={s.backBtn}
+          onPress={() => navigation?.goBack?.()}
+          hitSlop={{ top:12, bottom:12, left:12, right:24 }}
+          activeOpacity={0.8}
+        >
+          <CaretLeft size={20} color="#1A1712" weight="bold" />
         </TouchableOpacity>
         <Text style={s.headerTitle}>Settings</Text>
         <View style={{ width:30 }} />
@@ -215,9 +220,9 @@ export default function SettingsScreen({ navigation }) {
 
 const createStyles = (colors) => StyleSheet.create({
   safe:   { flex:1, backgroundColor:"#E8DDD0" },
-  header: { flexDirection:"row", alignItems:"center", justifyContent:"space-between", paddingHorizontal:20, paddingTop:16, paddingBottom:12, borderBottomWidth:1, borderBottomColor:"#C8BFB2" },
-  back:        { fontSize:22, color:"#100E0A" },
-  headerTitle: { fontFamily:SERIF, fontSize:22, color:"#100E0A" },
+  header: { flexDirection:"row", alignItems:"center", justifyContent:"space-between", paddingHorizontal:20, paddingTop:16, paddingBottom:12, backgroundColor:"#3A3545" },
+  backBtn:     { width:36, height:36, borderRadius:18, backgroundColor:"#FDFAF4", borderWidth:1, borderColor:"#D4D0CA", alignItems:"center", justifyContent:"center" },
+  headerTitle: { fontFamily:SERIF, fontSize:22, color:"#FDFAF4" },
   scroll:       { paddingHorizontal:20, paddingTop:16 },
   sectionLabel: { fontSize:10, fontWeight:"700", letterSpacing:1.5, color:"#3A3530", marginBottom:8, marginTop:16 },
   card:         { backgroundColor:colors.card, borderRadius:radius.lg, borderWidth:1, borderColor:"#C8BFB2", overflow:"hidden", ...shadows.card, marginBottom:4 },
