@@ -13,6 +13,12 @@ import {
   UIManager,
 } from "react-native";
 import { colors, spacing, radius, typography, shadows } from "../theme";
+import {
+  MagnifyingGlass, DeviceMobile, BookOpenText, PlayCircle,
+  MapTrifold, Sparkle, Handshake, WifiHigh, EnvelopeSimple,
+  ChatCircleDots, GlobeSimple,
+} from "phosphor-react-native";
+import { KaabahIcon } from "../KaabahIcon";
 
 if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -24,7 +30,7 @@ const FAQ_SECTIONS = [
   {
     id: "app",
     label: "Using the App",
-    emoji: "📱",
+    Icon: DeviceMobile,
     questions: [
       {
         id: "app-1",
@@ -56,7 +62,7 @@ const FAQ_SECTIONS = [
   {
     id: "hajj",
     label: "Hajj & Umrah",
-    emoji: "🕋",
+    Icon: KaabahIcon,
     questions: [
       {
         id: "haj-1",
@@ -83,7 +89,7 @@ const FAQ_SECTIONS = [
   {
     id: "duas",
     label: "Duʿāʾ Sources & References",
-    emoji: "📖",
+    Icon: BookOpenText,
     questions: [
       {
         id: "dua-1",
@@ -115,42 +121,42 @@ const TUTORIALS = [
     title: "Getting started with Safar",
     type: "video",
     duration: "2 min",
-    emoji: "▶️",
+    Icon: PlayCircle,
   },
   {
     id: "tut-2",
     title: "Setting up your Umrah journey",
     type: "guide",
     duration: "4 steps",
-    emoji: "🗺",
+    Icon: MapTrifold,
   },
   {
     id: "tut-3",
     title: "Building your personal dua list",
     type: "interactive",
     duration: "3 min",
-    emoji: "✦",
+    Icon: Sparkle,
   },
   {
     id: "tut-4",
     title: "Sharing with your group",
     type: "guide",
     duration: "3 steps",
-    emoji: "🤝",
+    Icon: Handshake,
   },
   {
     id: "tut-5",
     title: "Using the Map of Sacred Places",
     type: "video",
     duration: "2 min",
-    emoji: "▶️",
+    Icon: PlayCircle,
   },
   {
     id: "tut-6",
     title: "Offline mode explained",
     type: "guide",
     duration: "2 steps",
-    emoji: "📶",
+    Icon: WifiHigh,
   },
 ];
 
@@ -230,7 +236,7 @@ function TutorialCard({ item }) {
   return (
     <TouchableOpacity style={tut.card} activeOpacity={0.85}>
       <View style={tut.iconWrap}>
-        <Text style={tut.icon}>{item.emoji}</Text>
+        <item.Icon size={26} color="#2F5D50" weight="regular" />
       </View>
       <View style={tut.info}>
         <Text style={tut.title}>{item.title}</Text>
@@ -267,7 +273,6 @@ const tut = StyleSheet.create({
     justifyContent: "center",
     flexShrink: 0,
   },
-  icon: { fontSize: 20 },
   info: { flex: 1 },
   title: {
     fontSize: 16,
@@ -400,7 +405,6 @@ export default function SupportScreen({ navigation }) {
 
         {/* ── Hero ── */}
         <View style={styles.hero}>
-          <Text style={styles.heroEmoji}>🤲</Text>
           <Text style={styles.heroTitle}>How can we help?</Text>
           <Text style={styles.heroSub}>
             Search below or browse by topic. We're here to make your journey as smooth as possible.
@@ -409,7 +413,7 @@ export default function SupportScreen({ navigation }) {
 
         {/* ── Search ── */}
         <View style={styles.searchBar}>
-          <Text style={styles.searchIcon}>🔍</Text>
+          <MagnifyingGlass size={18} color="#C8A96A" weight="regular" />
           <TextInput
             style={styles.searchInput}
             placeholder="Search questions…"
@@ -470,7 +474,7 @@ export default function SupportScreen({ navigation }) {
                     }}
                     activeOpacity={0.8}
                   >
-                    <Text style={styles.chipEmoji}>{s.emoji}</Text>
+                    <s.Icon size={18} color={on ? "#FDFAF4" : "#5A5650"} weight={on ? "fill" : "regular"} />
                     <Text style={on ? [styles.chipLabel, styles.chipLabelOn] : styles.chipLabel}>
                       {s.label}
                     </Text>
@@ -484,7 +488,9 @@ export default function SupportScreen({ navigation }) {
           <View style={styles.faqCard}>
             {filteredQuestions.length === 0 ? (
               <View style={styles.emptyState}>
-                <Text style={styles.emptyEmoji}>🔍</Text>
+                <View style={{ marginBottom: 8 }}>
+                  <MagnifyingGlass size={36} color="#C8A96A" weight="regular" />
+                </View>
                 <Text style={styles.emptyTitle}>No results found</Text>
                 <Text style={styles.emptySub}>
                   Try different keywords or contact us directly below.
@@ -514,7 +520,7 @@ export default function SupportScreen({ navigation }) {
             activeOpacity={0.85}
           >
             <View style={styles.contactIconWrap}>
-              <Text style={styles.contactIcon}>✉️</Text>
+              <EnvelopeSimple size={26} color="#5A5650" weight="regular" />
             </View>
             <View style={styles.contactInfo}>
               <Text style={styles.contactLabel}>Email support</Text>
@@ -532,7 +538,7 @@ export default function SupportScreen({ navigation }) {
             activeOpacity={0.85}
           >
             <View style={styles.contactIconWrap}>
-              <Text style={styles.contactIcon}>💬</Text>
+              <ChatCircleDots size={26} color="#5A5650" weight="regular" />
             </View>
             <View style={styles.contactInfo}>
               <Text style={styles.contactLabel}>Live chat</Text>
@@ -557,7 +563,7 @@ export default function SupportScreen({ navigation }) {
             activeOpacity={0.85}
           >
             <View style={styles.contactIconWrap}>
-              <Text style={styles.contactIcon}>🌐</Text>
+              <GlobeSimple size={26} color="#5A5650" weight="regular" />
             </View>
             <View style={styles.contactInfo}>
               <Text style={styles.contactLabel}>Website</Text>
@@ -623,18 +629,14 @@ const styles = StyleSheet.create({
 
   scroll: {
     paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingTop: 0,
   },
 
   // Hero
   hero: {
     alignItems: "center",
-    paddingVertical: 20,
+    paddingBottom: 20,
     marginBottom: 16,
-  },
-  heroEmoji: {
-    fontSize: 36,
-    marginBottom: 8,
   },
   heroTitle: {
     fontSize: 22,
@@ -665,7 +667,6 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     shadowColor:"#6A4A28", shadowOffset:{width:0,height:3}, shadowOpacity:0.14, shadowRadius:8, elevation:4,
   },
-  searchIcon:  { fontSize: 14, color: "#5A5650" },
   searchInput: {
     flex: 1,
     fontSize: 16,
@@ -721,7 +722,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#2F5D50",
     borderColor: "#2F5D50",
   },
-  chipEmoji: { fontSize: 13 },
   chipLabel: {
     fontSize: 14,
     color: "#5A5650",
@@ -748,7 +748,6 @@ const styles = StyleSheet.create({
     paddingVertical: 32,
     paddingHorizontal: 24,
   },
-  emptyEmoji: { fontSize: 28, marginBottom: 8 },
   emptyTitle: {
     fontSize: 16,
     fontWeight: "500",
@@ -786,7 +785,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     flexShrink: 0,
   },
-  contactIcon: { fontSize: 20 },
   contactInfo: { flex: 1 },
   contactLabel: {
     fontSize: 14,
