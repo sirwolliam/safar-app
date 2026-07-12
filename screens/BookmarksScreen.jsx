@@ -16,6 +16,7 @@ import {
   getMediaBookmarks, setMediaBookmarked,
 } from "../bookmarkStore";
 import { MEDIA } from "./MediaScreen";
+import { useFocusEffect } from "@react-navigation/native";
 import { useAccessibility } from "../AccessibilityContext";
 import {
   CaretLeft, Plus, BookmarkSimple, SquaresFour, List,
@@ -269,80 +270,81 @@ export default function BookmarksScreen({ navigation }) {
   const [showEditModal, setShowEditModal] = useState(false);
   const [searchText, setSearchText] = useState("");
 
-  // ── Load + migrate bookmarks ─────────────────────────────────────────────────
-  useEffect(() => {
-    let cancelled = false;
+  // ── Load + sync bookmarks on every focus ──────────────────────────────────────
+  useFocusEffect(
+    React.useCallback(() => {
+      let cancelled = false;
 
-    const load = async () => {
-      // Try v2 first
-      const v2Raw = await AsyncStorage.getItem(V2_KEY).catch(() => null);
-      if (v2Raw) {
-        const v2 = JSON.parse(v2Raw);
-        if (v2.length > 0) {
-          if (!cancelled) setBookmarks(v2);
-          return;
+      const load = async () => {
+        const [duaList, mediaList, v2Raw] = await Promise.all([
+          getDuaBookmarks(),
+          getMediaBookmarks(),
+          AsyncStorage.getItem(V2_KEY).catch(() => null),
+        ]);
+
+        const prevV2 = v2Raw ? JSON.parse(v2Raw) : [];
+
+        // Index previous V2 entries by id to recover user edits (title, subtitle, note)
+        const prevById = {};
+        for (const entry of prevV2) {
+          prevById[entry.id] = entry;
         }
-      }
 
-      // Migrate from old keys
-      const [duaList, mediaList, linksRaw] = await Promise.all([
-        getDuaBookmarks(),
-        getMediaBookmarks(),
-        AsyncStorage.getItem(LINKS_KEY).catch(() => null),
-      ]);
-      const linkList = linksRaw ? JSON.parse(linksRaw) : [];
+        const duaBMs = duaList.map(({ id, addedAt }) => {
+          const dua = DUAS.find(d => d.id === id);
+          if (!dua) return null;
+          const bmId = "bm-dua-" + id;
+          const prev = prevById[bmId];
+          const freshTitle    = dua.title;
+          const freshSubtitle = dua.arabic || "";
+          return {
+            id: bmId,
+            type: "dua",
+            title:    (prev && prev.title    !== freshTitle)    ? prev.title    : freshTitle,
+            subtitle: (prev && prev.subtitle !== freshSubtitle) ? prev.subtitle : freshSubtitle,
+            addedAt,
+            url: null,
+            duaId: id,
+            note: prev?.note,
+          };
+        }).filter(Boolean);
 
-      const duaBMs = duaList.map(({ id, addedAt }) => {
-        const dua = DUAS.find(d => d.id === id);
-        return dua ? {
-          id: "bm-dua-" + id,
-          type: "dua",
-          title: dua.title,
-          subtitle: dua.arabic || "",
-          addedAt,
-          url: null,
-          duaId: id,
-        } : null;
-      }).filter(Boolean);
+        const mediaBMs = mediaList.map(({ id, addedAt }) => {
+          const m = MEDIA.find(x => x.id === id);
+          if (!m) return null;
+          const bmId = "bm-media-" + id;
+          const prev = prevById[bmId];
+          const freshTitle    = m.title;
+          const freshSubtitle = m.desc || "";
+          return {
+            id: bmId,
+            type: m.type,
+            title:    (prev && prev.title    !== freshTitle)    ? prev.title    : freshTitle,
+            subtitle: (prev && prev.subtitle !== freshSubtitle) ? prev.subtitle : freshSubtitle,
+            addedAt,
+            url: m.url,
+            duaId: null,
+            note: prev?.note,
+          };
+        }).filter(Boolean);
 
-      const mediaBMs = mediaList.map(({ id, addedAt }) => {
-        const m = MEDIA.find(x => x.id === id);
-        return m ? {
-          id: "bm-media-" + id,
-          type: m.type,
-          title: m.title,
-          subtitle: m.desc || "",
-          addedAt,
-          url: m.url,
-          duaId: null,
-        } : null;
-      }).filter(Boolean);
+        // Link bookmarks live only in V2 — preserve them as-is
+        const linkBMs = prevV2.filter(b => b.type === "link");
 
-      const linkBMs = linkList.map(l => ({
-        id: l.id,
-        type: "link",
-        title: l.title,
-        subtitle: l.note || l.url,
-        addedAt: l.addedAt,
-        url: l.url,
-        duaId: null,
-      }));
+        const merged = [...duaBMs, ...mediaBMs, ...linkBMs].sort((a, b) => {
+          if (!a.addedAt) return 1;
+          if (!b.addedAt) return -1;
+          return b.addedAt.localeCompare(a.addedAt);
+        });
 
-      const merged = [...duaBMs, ...mediaBMs, ...linkBMs].sort((a, b) => {
-        if (!a.addedAt) return 1;
-        if (!b.addedAt) return -1;
-        return b.addedAt.localeCompare(a.addedAt);
-      });
-
-      if (!cancelled) setBookmarks(merged);
-      if (merged.length > 0) {
+        if (!cancelled) setBookmarks(merged);
         AsyncStorage.setItem(V2_KEY, JSON.stringify(merged)).catch(() => {});
-      }
-    };
+      };
 
-    load();
-    return () => { cancelled = true; };
-  }, []);
+      load();
+      return () => { cancelled = true; };
+    }, [])
+  );
 
   // ── Filtered list ─────────────────────────────────────────────────────────────
   const filtered = useMemo(() => {
