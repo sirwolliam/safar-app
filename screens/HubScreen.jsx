@@ -20,7 +20,7 @@ import {
 import {
   BookOpen, Compass, MapPin, Sparkle, Books,
   Moon, ArrowsClockwise, PersonSimpleWalk, Heartbeat,
-  ClipboardText, ListChecks, AddressBook, CurrencyDollar, Printer,
+  ClipboardText, ListChecks, AddressBook, CurrencyDollar, Printer, CalendarBlank,
   UsersThree, ShareNetwork, UserCircle,
   CaretRight, CaretLeft,
 } from "phosphor-react-native";
@@ -57,7 +57,8 @@ export const HUBS = {
     blurb: "Get everything ready \u2014 documents, packing, contacts, money.",
     bg: "#1A202E", circleA: "#203050", circleB: "#101828",
     items: [
-      { Icon: ClipboardText,  label: "My Board",   sub: "Your trip at a glance",          nav:"tab", tab:"Journey", screen:"MyBoard" },
+      { Icon: ClipboardText,  label: "My Board",   sub: "Your trip at a glance",            nav:"tab",   tab:"Journey", screen:"MyBoard" },
+      { Icon: CalendarBlank,  label: "Calendar",   sub: "Track dates, rites and reminders", nav:"stack", target:"Calendar" },
       { Icon: ListChecks,     label: "Checklist",  sub: "Pack and prepare, nothing missed", nav:"stack", target:"PracticeLearn" },
       { Icon: AddressBook,    label: "My Contacts", sub: "Hotel, group leader, agent",      nav:"tab", tab:"Journey", screen:"MyContacts" },
       { Icon: CurrencyDollar, label: "Currency",   sub: "Live exchange rates",             nav:"tab", tab:"Prepare", screen:"CurrencyConverter" },

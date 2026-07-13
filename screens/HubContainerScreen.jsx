@@ -17,7 +17,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   CaretLeft, CaretRight, ArrowSquareOut,
   ListChecks, Compass, ShoppingBag, AddressBook,
-  PlayCircle, Link, BookmarkSimple, NotePencil, CurrencyDollar,
+  PlayCircle, Link, BookmarkSimple, NotePencil, CurrencyDollar, CalendarBlank,
   BookOpen, Cube, MapPin, Books,
   PersonSimpleRun, HandsPraying, Sparkle,
   UsersThree, ShareNetwork, Bell, ShareFat,
@@ -49,6 +49,7 @@ const PILLAR_CONFIG = {
     hasHeroCard:       true,
     rows: [
       { key: "expect",    Icon: Compass,        label: "What to Expect",     sub: "Crowds, climate, what it really feels like", nav: "stack", target: "WhatToExpect"      },
+      { key: "calendar",  Icon: CalendarBlank,  label: "Calendar",           sub: "Track dates, rites and reminders",           nav: "stack", target: "Calendar"           },
       { key: "checklist", Icon: ListChecks,     label: "Checklist",          sub: "Pack and prepare, nothing missed",           soon: true                                },
       { key: "shop",      Icon: ShoppingBag,    label: "Shop",               sub: "Essentials for your journey",                nav: "stack", target: "Shop"              },
       { key: "contacts",  Icon: AddressBook,    label: "Contacts",           sub: "Hotel, group leader, agent",                 nav: "tab",   tab: "Journey", screen: "MyContacts" },

@@ -11,13 +11,14 @@ import { LinearGradient } from "expo-linear-gradient";
 import {
   Wrench, Heartbeat, Clock, Compass, CurrencyDollar,
   ArrowsClockwise, PersonSimpleWalk, PlayCircle,
-  NotePencil, BookmarkSimple, CaretRight,
+  NotePencil, BookmarkSimple, CaretRight, CalendarBlank,
 } from "phosphor-react-native";
 
 const SERIF = "SourceSerif4-Regular";
 
 const TOOLS = [
   { id: "dhikr",     label: "Dhikr Counter",           sub: "Count your remembrance",                      Icon: Heartbeat,        screen: "Dhikr"            },
+  { id: "calendar",  label: "Calendar",                sub: "Your pilgrimage dates and reminders",          Icon: CalendarBlank,    screen: "Calendar"         },
   { id: "prayer",    label: "Prayer Times",             sub: "Today’s schedule and the next prayer",   Icon: Clock,            screen: "PrayerTimes"      },
   { id: "qibla",     label: "Qibla",                   sub: "Find the direction of the Kaʿbah",        Icon: Compass,          screen: "Qibla"            },
   { id: "currency",  label: "Currency",                 sub: "Live exchange rates for your trip",           Icon: CurrencyDollar,   screen: "CurrencyConverter"},

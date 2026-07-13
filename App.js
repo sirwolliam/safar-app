@@ -57,6 +57,7 @@ import LearnHubScreen      from "./screens/LearnHubScreen";
 import PracticeHubScreen   from "./screens/PracticeHubScreen";
 import ConnectHubScreen    from "./screens/ConnectHubScreen";
 import HubContainerScreen  from "./screens/HubContainerScreen";
+import CalendarScreen      from "./screens/CalendarScreen";
 
 // ── Context ───────────────────────────────────────────────────────────────────
 import { AccessibilityProvider } from "./AccessibilityContext";
@@ -312,6 +313,7 @@ export default function App() {
           <Stack.Screen name="PilgrimageDuas"     component={PilgrimageDuasScreen} />
           <Stack.Screen name="SafarAssist"        component={SafarAssistScreen}    />
           <Stack.Screen name="SacredPlaces"       component={SacredPlacesScreen}   />
+          <Stack.Screen name="Calendar"           component={CalendarScreen}        />
         </Stack.Navigator>
         <ToastHost />
       </NavigationContainer>

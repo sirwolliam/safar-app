@@ -8,6 +8,7 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { colors, spacing, radius, typography, shadows } from "../theme";
 import Svg, { Path, Circle } from "react-native-svg";
+import { CalendarBlank, UsersThree, AddressBook } from "phosphor-react-native";
 
 if (Platform.OS === "android" ? UIManager.setLayoutAnimationEnabledExperimental : null) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -783,6 +784,9 @@ export default function JourneyScreen({ navigation }) {
           <TouchableOpacity style={jn.compactCard}
             onPress={() => navigation?.navigate?.("Groups")}
             activeOpacity={0.88}>
+            <View style={jn.compactIconWrap}>
+              <UsersThree size={22} color="#2F5D50" weight="regular" />
+            </View>
             <Text style={jn.compactTitle}>My Groups</Text>
             <Text style={jn.compactSub}>{"Share milestones\nand updates"}</Text>
           </TouchableOpacity>
@@ -790,10 +794,26 @@ export default function JourneyScreen({ navigation }) {
           <TouchableOpacity style={jn.compactCard}
             onPress={() => navigation?.navigate?.("MyContacts")}
             activeOpacity={0.88}>
+            <View style={jn.compactIconWrap}>
+              <AddressBook size={22} color="#2F5D50" weight="regular" />
+            </View>
             <Text style={jn.compactTitle}>My Contacts</Text>
             <Text style={jn.compactSub}>{"Save your\nimportant contacts"}</Text>
           </TouchableOpacity>
 
+        </View>
+
+        {/* ── 6. Calendar — full-width compact card ── */}
+        <View style={jn.compactRow}>
+          <TouchableOpacity style={jn.compactCard}
+            onPress={() => navigation?.navigate?.("Calendar")}
+            activeOpacity={0.88}>
+            <View style={jn.compactIconWrap}>
+              <CalendarBlank size={22} color="#2F5D50" weight="regular" />
+            </View>
+            <Text style={jn.compactTitle}>Calendar</Text>
+            <Text style={jn.compactSub}>Dates, rites and reminders for your journey</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={{ height:spacing(5) }} />
@@ -897,6 +917,7 @@ const jn = StyleSheet.create({
   // ── 5. Compact image cards: Groups + Contacts ─────────────────────────────────
   compactRow:      { flexDirection:"row", gap:spacing(1.25), marginBottom:spacing(1.5) },
   compactCard:     { flex:1, justifyContent:"flex-end", backgroundColor:colors.card, borderRadius:radius.lg, borderWidth:1, borderColor:colors.border, padding:spacing(2), height:149, ...shadows.card },
+  compactIconWrap: { marginBottom:8 },
   compactTitle:    { fontFamily:SERIF, fontSize:17, color:colors.text, fontWeight:"500", marginBottom:4 },
   compactSub:      { fontSize:14, color:colors.subtext, lineHeight:18 },
   compactArrow:    { fontSize:22, color:colors.border },
