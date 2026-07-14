@@ -49,7 +49,7 @@ const PILLAR_CONFIG = {
     hasHeroCard:       true,
     rows: [
       { key: "expect",    Icon: Compass,        label: "What to Expect",     sub: "Crowds, climate, what it really feels like", nav: "stack", target: "WhatToExpect"      },
-      { key: "calendar",  Icon: CalendarBlank,  label: "Calendar",           sub: "Track dates, rites and reminders",           nav: "stack", target: "Calendar"           },
+      { key: "calendar",  Icon: CalendarBlank,  label: "Calendar",           sub: "Track dates, rites and reminders",           nav: "tab",   tab: "Home", screen: "Calendar" },
       { key: "checklist", Icon: ListChecks,     label: "Checklist",          sub: "Pack and prepare, nothing missed",           soon: true                                },
       { key: "shop",      Icon: ShoppingBag,    label: "Shop",               sub: "Essentials for your journey",                nav: "stack", target: "Shop"              },
       { key: "contacts",  Icon: AddressBook,    label: "Contacts",           sub: "Hotel, group leader, agent",                 nav: "tab",   tab: "Journey", screen: "MyContacts" },

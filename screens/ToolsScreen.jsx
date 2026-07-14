@@ -71,7 +71,7 @@ export default function ToolsScreen({ navigation }) {
               key={tool.id}
               style={idx < TOOLS.length - 1 ? [s.row, s.rowBorder] : s.row}
               activeOpacity={0.75}
-              onPress={() => navigation.navigate(tool.screen)}
+              onPress={() => tool.screen === "Calendar" ? navigation?.getParent?.()?.navigate?.("Home", { screen: "Calendar" }) : navigation.navigate(tool.screen)}
             >
               <View style={s.rowIconBox}>
                 <tool.Icon size={24} color="#E8D4A0" weight="regular" />

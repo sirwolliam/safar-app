@@ -190,6 +190,7 @@ function HomeNavigator() {
       <HomeStack.Screen name="Notes"         component={NotesScreen}        />
       <HomeStack.Screen name="Settings"      component={SettingsScreen}     />
       <HomeStack.Screen name="Notifications" component={NotificationsScreen} />
+      <HomeStack.Screen name="Calendar"      component={CalendarScreen}      />
     </HomeStack.Navigator>
   );
 }
@@ -313,7 +314,6 @@ export default function App() {
           <Stack.Screen name="PilgrimageDuas"     component={PilgrimageDuasScreen} />
           <Stack.Screen name="SafarAssist"        component={SafarAssistScreen}    />
           <Stack.Screen name="SacredPlaces"       component={SacredPlacesScreen}   />
-          <Stack.Screen name="Calendar"           component={CalendarScreen}        />
         </Stack.Navigator>
         <ToastHost />
       </NavigationContainer>

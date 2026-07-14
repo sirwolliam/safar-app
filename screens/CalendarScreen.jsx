@@ -12,7 +12,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
 import {
   CaretLeft, CaretRight, Plus, X, Trash,
-  ShareNetwork, CalendarBlank, Note,
+  ShareNetwork, CalendarBlank, Note, MapPin,
   SuitcaseRolling, HandsPraying, UsersThree, Heart, BellSimple,
 } from "phosphor-react-native";
 
@@ -109,12 +109,12 @@ async function seedDemoEntriesIfEmpty() {
   const y = now.getFullYear();
   const m = String(now.getMonth() + 1).padStart(2, "0");
   const demo = [
-    { id: uid(), date: `${y}-${m}-03`, title: "Hotel Check-in",      description: "Makkah, Jabal Omar",                                 category: "travel",    createdAt: new Date().toISOString() },
-    { id: uid(), date: `${y}-${m}-09`, title: "Day of Arafah",       description: "Stand in prayer from Dhuhr to Maghrib",              category: "rites",     createdAt: new Date().toISOString() },
-    { id: uid(), date: `${y}-${m}-12`, title: "Group Meeting Point",  description: "Mina, tent block 12, 5:30 PM",                      category: "group",     createdAt: new Date().toISOString() },
-    { id: uid(), date: `${y}-${m}-12`, title: "Visit Masjid Nabawi", description: "Evening visit for Maghrib and Isha prayers",          category: "personal",  createdAt: new Date().toISOString() },
-    { id: uid(), date: `${y}-${m}-15`, title: "Call Family",         description: "Let them know we've arrived safely",                  category: "personal",  createdAt: new Date().toISOString() },
-    { id: uid(), date: `${y}-${m}-22`, title: "Visa Document Check", description: "Confirm all documents are in order before departure", category: "reminders", createdAt: new Date().toISOString() },
+    { id: uid(), date: `${y}-${m}-03`, title: "Hotel Check-in",      description: "Makkah, Jabal Omar",                                 category: "travel",    location: "Jabal Omar, Makkah",  createdAt: new Date().toISOString() },
+    { id: uid(), date: `${y}-${m}-09`, title: "Day of Arafah",       description: "Stand in prayer from Dhuhr to Maghrib",              category: "rites",     location: "Mount Arafat",         createdAt: new Date().toISOString() },
+    { id: uid(), date: `${y}-${m}-12`, title: "Group Meeting Point",  description: "Mina, tent block 12, 5:30 PM",                      category: "group",     location: "Mina, Tent Block 12",  createdAt: new Date().toISOString() },
+    { id: uid(), date: `${y}-${m}-12`, title: "Visit Masjid Nabawi", description: "Evening visit for Maghrib and Isha prayers",          category: "personal",  location: "Madinah",              createdAt: new Date().toISOString() },
+    { id: uid(), date: `${y}-${m}-15`, title: "Call Family",         description: "Let them know we've arrived safely",                  category: "personal",  location: "",                     createdAt: new Date().toISOString() },
+    { id: uid(), date: `${y}-${m}-22`, title: "Visa Document Check", description: "Confirm all documents are in order before departure", category: "reminders", location: "",                     createdAt: new Date().toISOString() },
   ];
   await saveEntries(demo);
 }
@@ -163,6 +163,12 @@ function EntryCard({ entry, onEdit, onDelete, onShare }) {
         {entry.description ? (
           <Text style={ec.desc} numberOfLines={3}>{entry.description}</Text>
         ) : null}
+        {entry.location ? (
+          <View style={ec.locRow}>
+            <MapPin size={12} color="#8A7D6A" weight="regular" />
+            <Text style={ec.locText}>{entry.location}</Text>
+          </View>
+        ) : null}
       </View>
       </View>
     </View>
@@ -181,6 +187,8 @@ const ec = StyleSheet.create({
   actionBtn:{ width: 28, height: 28, alignItems: "center", justifyContent: "center" },
   title:    { fontSize: 15, fontWeight: "600", color: "#1A1410", lineHeight: 21, marginBottom: 3 },
   desc:     { fontSize: 13, color: "#5C534A", lineHeight: 19 },
+  locRow:   { flexDirection: "row", alignItems: "center", gap: 4, marginTop: 6 },
+  locText:  { fontSize: 12, color: "#8A7D6A" },
 });
 
 // ── Main Screen ───────────────────────────────────────────────────────────────
@@ -199,6 +207,7 @@ export default function CalendarScreen({ navigation }) {
   const [modalTitle, setModalTitle] = useState("");
   const [modalDesc, setModalDesc] = useState("");
   const [modalCategory, setModalCategory] = useState("personal");
+  const [modalLocation, setModalLocation] = useState("");
 
   // Animations
   const slideAnim = useRef(new Animated.Value(500)).current;
@@ -248,11 +257,13 @@ export default function CalendarScreen({ navigation }) {
       setModalTitle(entry.title);
       setModalDesc(entry.description ?? "");
       setModalCategory(entry.category ?? "personal");
+      setModalLocation(entry.location ?? "");
     } else {
       setEditingId(null);
       setModalTitle("");
       setModalDesc("");
       setModalCategory("personal");
+      setModalLocation("");
     }
     setShowModal(true);
   }, []);
@@ -286,7 +297,7 @@ export default function CalendarScreen({ navigation }) {
     if (editingId) {
       updated = entries.map(e =>
         e.id === editingId
-          ? { ...e, title, description: modalDesc.trim(), category: modalCategory }
+          ? { ...e, title, description: modalDesc.trim(), category: modalCategory, location: modalLocation.trim() }
           : e
       );
     } else {
@@ -296,6 +307,7 @@ export default function CalendarScreen({ navigation }) {
         title,
         description: modalDesc.trim(),
         category: modalCategory,
+        location: modalLocation.trim(),
         createdAt: new Date().toISOString(),
       };
       updated = [...entries, newEntry];
@@ -304,7 +316,7 @@ export default function CalendarScreen({ navigation }) {
     updated.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
     setEntries(updated);
     await saveEntries(updated);
-  }, [modalTitle, modalDesc, modalCategory, editingId, entries, selectedDate]);
+  }, [modalTitle, modalDesc, modalCategory, modalLocation, editingId, entries, selectedDate]);
 
   const deleteEntry = useCallback((id) => {
     Alert.alert("Delete entry?", "This cannot be undone.", [
@@ -468,6 +480,7 @@ export default function CalendarScreen({ navigation }) {
                 monthEntries.map(entry => {
                   const cat = getCategoryById(entry.category);
                   const dayNum = Number(entry.date.split("-")[2]);
+                  const dayName = formatDayHeading(entry.date).split(",")[0].slice(0, 3);
                   return (
                     <TouchableOpacity
                       key={entry.id}
@@ -475,7 +488,10 @@ export default function CalendarScreen({ navigation }) {
                       onPress={() => setSelectedDate(entry.date)}
                       activeOpacity={0.75}
                     >
-                      <Text style={[s.monthListDay, { color: cat.color }]}>{dayNum}</Text>
+                      <View style={s.monthListDayWrap}>
+                        <Text style={[s.monthListDayName, { color: cat.color }]}>{dayName}</Text>
+                        <Text style={[s.monthListDay, { color: cat.color, textAlign: "center" }]}>{dayNum}</Text>
+                      </View>
                       <Text style={s.monthListTitle} numberOfLines={1}>{entry.title}</Text>
                       <View style={s.monthListMeta}>
                         <View style={[s.monthListDot, { backgroundColor: cat.color }]} />
@@ -550,6 +566,17 @@ export default function CalendarScreen({ navigation }) {
                   returnKeyType="next"
                 />
 
+                {/* Location */}
+                <Text style={s.inputLabel}>Location (optional)</Text>
+                <TextInput
+                  style={s.titleInput}
+                  placeholder="e.g. Masjid al-Haram, Makkah"
+                  placeholderTextColor="#B0A090"
+                  value={modalLocation}
+                  onChangeText={setModalLocation}
+                  returnKeyType="next"
+                />
+
                 {/* Category */}
                 <Text style={s.inputLabel}>Category</Text>
                 <ScrollView
@@ -567,7 +594,7 @@ export default function CalendarScreen({ navigation }) {
                       activeOpacity={0.8}
                     >
                       <cat.Icon
-                        size={14}
+                        size={20}
                         color={modalCategory === cat.id ? "#FDFAF4" : "#5C534A"}
                         weight={modalCategory === cat.id ? "fill" : "regular"}
                       />
@@ -594,6 +621,7 @@ export default function CalendarScreen({ navigation }) {
                 <TouchableOpacity
                   style={modalTitle.trim() ? s.saveBtn : s.saveBtnDisabled}
                   onPress={async () => { await commitEntry(); closeModal(); }}
+                  disabled={!modalTitle.trim()}
                   activeOpacity={0.85}
                 >
                   <Text style={s.saveBtnText}>{editingId ? "Save changes" : "Add to calendar"}</Text>
@@ -607,7 +635,9 @@ export default function CalendarScreen({ navigation }) {
                       setModalTitle("");
                       setModalDesc("");
                       setModalCategory("personal");
+                      setModalLocation("");
                     }}
+                    disabled={!modalTitle.trim()}
                     activeOpacity={0.85}
                   >
                     <Text style={s.addMoreBtnText}>Add more events</Text>
@@ -640,7 +670,7 @@ export default function CalendarScreen({ navigation }) {
 
 // ── Styles ────────────────────────────────────────────────────────────────────
 const s = StyleSheet.create({
-  safe:          { flex: 1, backgroundColor: "#DDD5C0" },
+  safe:          { flex: 1, backgroundColor: "#F5F0E8" },
 
   // Header
   header:        { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 16, paddingVertical: 12, backgroundColor: "#3A3545" },
@@ -703,14 +733,16 @@ const s = StyleSheet.create({
 
   // Category chips
   catRow:        { flexDirection: "row", gap: 8, paddingBottom: 4 },
-  catChip:       { flexDirection: "row", alignItems: "center", gap: 5, paddingHorizontal: 12, paddingVertical: 7, borderRadius: 20 },
-  catChipOff:    { flexDirection: "row", alignItems: "center", gap: 5, paddingHorizontal: 12, paddingVertical: 7, borderRadius: 20, backgroundColor: "#F0EBE1", borderWidth: 1, borderColor: "#DDD5C0" },
-  catChipTextOn: { fontSize: 13, fontWeight: "600", color: "#FDFAF4" },
-  catChipTextOff:{ fontSize: 13, fontWeight: "500", color: "#5C534A" },
+  catChip:       { flexDirection: "row", alignItems: "center", gap: 5, paddingHorizontal: 20, paddingVertical: 14, borderRadius: 20 },
+  catChipOff:    { flexDirection: "row", alignItems: "center", gap: 5, paddingHorizontal: 20, paddingVertical: 14, borderRadius: 20, backgroundColor: "#F0EBE1", borderWidth: 1, borderColor: "#DDD5C0" },
+  catChipTextOn: { fontSize: 17, fontWeight: "600", color: "#FDFAF4" },
+  catChipTextOff:{ fontSize: 17, fontWeight: "500", color: "#5C534A" },
 
   // This month list
   monthListEmpty:{ fontSize: 14, color: "#8A7D6A", marginBottom: 8 },
   monthListRow:  { flexDirection: "row", alignItems: "center", backgroundColor: "#FDFAF4", borderWidth: 1, borderColor: "#DDD5C0", borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12, marginBottom: 8, shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 4, elevation: 2 },
+  monthListDayWrap: { width: 34, alignItems: "center" },
+  monthListDayName: { fontSize: 10, fontWeight: "600", textAlign: "center" },
   monthListDay:  { fontSize: 16, fontWeight: "700", width: 28 },
   monthListTitle:{ flex: 1, fontSize: 14, fontWeight: "600", color: "#1A1410" },
   monthListMeta: { flexDirection: "row", alignItems: "center", gap: 5 },
