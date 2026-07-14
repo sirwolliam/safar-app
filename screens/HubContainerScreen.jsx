@@ -50,7 +50,7 @@ const PILLAR_CONFIG = {
     rows: [
       { key: "expect",    Icon: Compass,        label: "What to Expect",     sub: "Crowds, climate, what it really feels like", nav: "stack", target: "WhatToExpect"      },
       { key: "calendar",  Icon: CalendarBlank,  label: "Calendar",           sub: "Track dates, rites and reminders",           nav: "tab",   tab: "Home", screen: "Calendar" },
-      { key: "checklist", Icon: ListChecks,     label: "Checklist",          sub: "Pack and prepare, nothing missed",           soon: true                                },
+      { key: "checklist", Icon: ListChecks,     label: "Checklist",          sub: "Pack and prepare, nothing missed",           nav: "stack", target: "Checklists"         },
       { key: "shop",      Icon: ShoppingBag,    label: "Shop",               sub: "Essentials for your journey",                nav: "stack", target: "Shop"              },
       { key: "contacts",  Icon: AddressBook,    label: "Contacts",           sub: "Hotel, group leader, agent",                 nav: "tab",   tab: "Journey", screen: "MyContacts" },
       { key: "media",     Icon: PlayCircle,     label: "Media",              sub: "Videos, articles and podcasts",              nav: "stack", target: "Media"             },
@@ -358,11 +358,10 @@ export default function HubContainerScreen({ navigation, route }) {
         ) : null}
 
         {/* List card */}
-        <View style={styles.card}>
-          {rows.map((item, idx) => (
+          {rows.map((item) => (
             <TouchableOpacity
               key={item.key}
-              style={idx < rows.length - 1 ? [styles.row, styles.rowBorder] : styles.row}
+              style={styles.row}
               activeOpacity={item.soon ? 1 : 0.75}
               disabled={item.soon}
               onPress={() => goRow(item, navigation)}
@@ -385,7 +384,6 @@ export default function HubContainerScreen({ navigation, route }) {
               )}
             </TouchableOpacity>
           ))}
-        </View>
         <View style={styles.bottomSpacer} />
       </ScrollView>
     </View>
@@ -426,9 +424,7 @@ const styles = StyleSheet.create({
   heroCardSub:   { fontSize: 13, color: "rgba(255,255,255,0.72)", lineHeight: 19 },
   heroCta:       { fontSize: 14, fontWeight: "600", color: "#C8A96A", marginTop: 12 },
   // List card
-  card:          { backgroundColor: "#FDFAF4", borderRadius: 20, overflow: "hidden", paddingBottom: 8, marginHorizontal: 16, shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 8, elevation: 3 },
-  row:           { flexDirection: "row", alignItems: "center", paddingHorizontal: 18, paddingVertical: 16, backgroundColor: "#FDFAF4" },
-  rowBorder:     { borderBottomWidth: 1, borderBottomColor: "#EDE4D4" },
+  row:           { flexDirection: "row", alignItems: "center", paddingHorizontal: 18, paddingVertical: 16, backgroundColor: "#FDFAF4", borderRadius: 16, marginHorizontal: 16, marginBottom: 12, borderWidth: 1, borderColor: "#EDE4D4", shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 8, elevation: 3 },
   rowIcon:       { width: 52, height: 52, borderRadius: 14, alignItems: "center", justifyContent: "center", marginRight: 16 },
   rowIconDim:    { opacity: 0.4 },
   rowInfo:       { flex: 1 },

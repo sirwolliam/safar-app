@@ -369,10 +369,13 @@ export default function MyDuasScreen({ navigation }) {
                 </TouchableOpacity>
               </View>
 
-              {HAJJ_ROWS.map((item, idx) => (
+            </View>
+
+            <View style={styles.rowsWrap}>
+              {HAJJ_ROWS.map((item) => (
                 <TouchableOpacity
                   key={item.key}
-                  style={idx < HAJJ_ROWS.length - 1 ? [styles.row, styles.rowBorder] : styles.row}
+                  style={styles.row}
                   activeOpacity={0.75}
                   onPress={() => navigation.navigate("PilgrimageDuas", { mode: item.mode })}
                 >
@@ -386,7 +389,6 @@ export default function MyDuasScreen({ navigation }) {
                   <CaretRight size={16} color="#B0A090" weight="bold" />
                 </TouchableOpacity>
               ))}
-
             </View>
 
             {/* Themes / Library */}
@@ -710,8 +712,8 @@ const styles = StyleSheet.create({
   sectionSub:     { fontSize: 13, color: "#8A7D6A", lineHeight: 19 },
 
   // ── List rows
-  row:            { flexDirection: "row", alignItems: "center", paddingHorizontal: 20, paddingVertical: 14, minHeight: 88, backgroundColor: "#FDF7EE" },
-  rowBorder:      { borderBottomWidth: 1, borderBottomColor: "#EDE4D4" },
+  rowsWrap:       { paddingTop: 12 },
+  row:            { flexDirection: "row", alignItems: "center", paddingHorizontal: 20, paddingVertical: 14, minHeight: 88, backgroundColor: "#FDF7EE", borderRadius: 16, marginHorizontal: 16, marginBottom: 12, borderWidth: 1, borderColor: "#EDE4D4", shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 8, elevation: 3 },
   rowIcon:        { width: 52, height: 52, borderRadius: 14, backgroundColor: "#243020", alignItems: "center", justifyContent: "center", marginRight: 14 },
   rowThumb:       { width: 72, height: 72, borderRadius: 14, overflow: "hidden", marginRight: 14 },
   rowThumbImg:    { width: "100%", height: "100%" },

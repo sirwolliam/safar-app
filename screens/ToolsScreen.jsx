@@ -65,11 +65,10 @@ export default function ToolsScreen({ navigation }) {
         contentContainerStyle={s.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={s.card}>
-          {TOOLS.map((tool, idx) => (
+          {TOOLS.map((tool) => (
             <TouchableOpacity
               key={tool.id}
-              style={idx < TOOLS.length - 1 ? [s.row, s.rowBorder] : s.row}
+              style={s.row}
               activeOpacity={0.75}
               onPress={() => tool.screen === "Calendar" ? navigation?.getParent?.()?.navigate?.("Home", { screen: "Calendar" }) : navigation.navigate(tool.screen)}
             >
@@ -83,7 +82,6 @@ export default function ToolsScreen({ navigation }) {
               <CaretRight size={18} color="#C8BFB2" weight="bold" />
             </TouchableOpacity>
           ))}
-        </View>
         <View style={s.bottomPad} />
       </ScrollView>
     </View>
@@ -101,10 +99,8 @@ const s = StyleSheet.create({
   title:        { fontFamily: SERIF, fontSize: 38, color: "#FFFFFF", fontWeight: "600" },
   subtitle:     { fontSize: 15, color: "rgba(255,255,255,0.82)", lineHeight: 22, maxWidth: "88%" },
   scroll:       { flex: 1 },
-  scrollContent:{ paddingTop: 0 },
-  card:         { backgroundColor: "#FDFAF4", borderRadius: 20, marginHorizontal: 16, marginTop: 12, paddingBottom: 8, shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 8, elevation: 3 },
-  row:          { flexDirection: "row", alignItems: "center", paddingHorizontal: 18, paddingVertical: 16 },
-  rowBorder:    { borderBottomWidth: 1, borderBottomColor: "#EDE4D4" },
+  scrollContent:{ paddingTop: 12 },
+  row:          { flexDirection: "row", alignItems: "center", paddingHorizontal: 18, paddingVertical: 16, backgroundColor: "#FDFAF4", borderRadius: 16, marginHorizontal: 16, marginBottom: 12, borderWidth: 1, borderColor: "#EDE4D4", shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 8, elevation: 3 },
   rowIconBox:   { width: 52, height: 52, borderRadius: 14, backgroundColor: "#3A2F1E", alignItems: "center", justifyContent: "center", marginRight: 16 },
   rowInfo:      { flex: 1 },
   rowLabel:     { fontSize: 19, color: "#1C1A14", marginBottom: 3 },

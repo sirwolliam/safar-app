@@ -28,7 +28,7 @@ import DuaDetailScreen     from "./screens/DuaDetailScreen";
 import CurrencyScreen      from "./screens/CurrencyScreen";
 import PrintOfflineScreen  from "./screens/PrintOfflineScreen";
 import GroupsScreen        from "./screens/GroupsScreen";
-import HubScreen           from "./screens/HubScreen";
+
 import TawafScreen         from "./screens/TawafScreen";
 import SaiyScreen          from "./screens/SaiyScreen";
 import DhikrScreen         from "./screens/DhikrScreen";
@@ -52,13 +52,12 @@ import PilgrimageDuasScreen from "./screens/PilgrimageDuasScreen";
 import SafarAssistScreen   from "./screens/SafarAssistScreen";
 import SacredPlacesScreen  from "./screens/SacredPlacesScreen";
 import NotificationsScreen from "./screens/NotificationsScreen";
-import PlanHubScreen       from "./screens/PlanHubScreen";
-import LearnHubScreen      from "./screens/LearnHubScreen";
-import PracticeHubScreen   from "./screens/PracticeHubScreen";
-import ConnectHubScreen    from "./screens/ConnectHubScreen";
+
 import HubContainerScreen  from "./screens/HubContainerScreen";
-import CalendarScreen      from "./screens/CalendarScreen";
-import PillarIntroScreen  from "./screens/PillarIntroScreen";
+import CalendarScreen         from "./screens/CalendarScreen";
+import PillarIntroScreen     from "./screens/PillarIntroScreen";
+import ChecklistsScreen      from "./screens/ChecklistsScreen";
+import ChecklistDetailScreen from "./screens/ChecklistDetailScreen";
 
 // ── Context ───────────────────────────────────────────────────────────────────
 import { AccessibilityProvider } from "./AccessibilityContext";
@@ -175,11 +174,7 @@ function HomeNavigator() {
   return (
     <HomeStack.Navigator screenOptions={{ headerShown: false, animation: "none" }}>
       <HomeStack.Screen name="HomeMain"      component={HomeScreen}         />
-      <HomeStack.Screen name="Hub"           component={HubScreen}          />
-      <HomeStack.Screen name="PlanHub"       component={PlanHubScreen}      />
-      <HomeStack.Screen name="LearnHub"      component={LearnHubScreen}     />
-      <HomeStack.Screen name="PracticeHub"   component={PracticeHubScreen}  />
-      <HomeStack.Screen name="ConnectHub"    component={ConnectHubScreen}   />
+
       <HomeStack.Screen name="HubContainer" component={HubContainerScreen}  />
       <HomeStack.Screen name="UmrahGuide"    component={UmrahGuideScreen}   />
       <HomeStack.Screen name="HajjGuide"     component={HajjGuideScreen}    />
@@ -191,7 +186,9 @@ function HomeNavigator() {
       <HomeStack.Screen name="Notes"         component={NotesScreen}        />
       <HomeStack.Screen name="Settings"      component={SettingsScreen}     />
       <HomeStack.Screen name="Notifications" component={NotificationsScreen} />
-      <HomeStack.Screen name="Calendar"      component={CalendarScreen}      />
+      <HomeStack.Screen name="Calendar"         component={CalendarScreen}         />
+      <HomeStack.Screen name="Checklists"       component={ChecklistsScreen}       />
+      <HomeStack.Screen name="ChecklistDetail"  component={ChecklistDetailScreen}  />
     </HomeStack.Navigator>
   );
 }
