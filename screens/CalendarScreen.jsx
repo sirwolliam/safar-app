@@ -492,6 +492,7 @@ export default function CalendarScreen({ navigation }) {
                         <Text style={[s.monthListDayName, { color: cat.color }]}>{dayName}</Text>
                         <Text style={[s.monthListDay, { color: cat.color, textAlign: "center" }]}>{dayNum}</Text>
                       </View>
+                      <View style={s.monthListDivider} />
                       <Text style={s.monthListTitle} numberOfLines={1}>{entry.title}</Text>
                       <View style={s.monthListMeta}>
                         <View style={[s.monthListDot, { backgroundColor: cat.color }]} />
@@ -673,7 +674,7 @@ const s = StyleSheet.create({
   safe:          { flex: 1, backgroundColor: "#F5F0E8" },
 
   // Header
-  header:        { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 16, paddingVertical: 12, backgroundColor: "#3A3545" },
+  header:        { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 16, paddingVertical: 27, backgroundColor: "#3A3545" },
   headerBtn:     { width: 36, height: 36, borderRadius: 18, backgroundColor: "#FDFAF4", borderWidth: 1, borderColor: "#D4D0CA", alignItems: "center", justifyContent: "center" },
   headerTitle:   { fontFamily: SERIF, fontSize: 22, color: "#FDFAF4" },
 
@@ -744,7 +745,8 @@ const s = StyleSheet.create({
   monthListDayWrap: { width: 34, alignItems: "center" },
   monthListDayName: { fontSize: 10, fontWeight: "600", textAlign: "center" },
   monthListDay:  { fontSize: 16, fontWeight: "700", width: 28 },
-  monthListTitle:{ flex: 1, fontSize: 14, fontWeight: "600", color: "#1A1410" },
+  monthListTitle:{ flex: 1, fontSize: 18, fontWeight: "600", color: "#1A1410", marginLeft: 12 },
+  monthListDivider: { width: 1, backgroundColor: "#E0D8CC", marginVertical: 14, marginHorizontal: 12 },
   monthListMeta: { flexDirection: "row", alignItems: "center", gap: 5 },
   monthListDot:  { width: 6, height: 6, borderRadius: 3 },
   monthListCat:  { fontSize: 11, color: "#8A7D6A" },

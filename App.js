@@ -58,6 +58,7 @@ import PracticeHubScreen   from "./screens/PracticeHubScreen";
 import ConnectHubScreen    from "./screens/ConnectHubScreen";
 import HubContainerScreen  from "./screens/HubContainerScreen";
 import CalendarScreen      from "./screens/CalendarScreen";
+import PillarIntroScreen  from "./screens/PillarIntroScreen";
 
 // ── Context ───────────────────────────────────────────────────────────────────
 import { AccessibilityProvider } from "./AccessibilityContext";
@@ -303,6 +304,7 @@ export default function App() {
           initialRouteName={onboarded === "yes" ? "MainTabs" : "Onboarding"}
         >
           <Stack.Screen name="Onboarding"     component={OnboardingFlow}      />
+          <Stack.Screen name="PillarIntro"   component={PillarIntroScreen}   options={{ gestureEnabled: false }} />
           <Stack.Screen name="MainTabs"      component={MainTabs}            />
           {/* ── Full-screen focused task screens — no tab bar ── */}
           {/* Users are mid-task: reciting, counting, learning, printing */}

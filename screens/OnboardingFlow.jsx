@@ -1437,8 +1437,8 @@ export default function OnboardingFlow({ navigation }) {
 
   const handleComplete = useCallback(async () => {
     await AsyncStorage.setItem(K.onboarded, "true");
-    navigation.replace("MainTabs");
-  }, [navigation]);
+    navigation.replace("PillarIntro", { userName });
+  }, [navigation, userName]);
 
   // Step routing
   switch (step) {
