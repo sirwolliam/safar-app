@@ -57,7 +57,8 @@ import HubContainerScreen  from "./screens/HubContainerScreen";
 import CalendarScreen         from "./screens/CalendarScreen";
 import PillarIntroScreen     from "./screens/PillarIntroScreen";
 import ChecklistsScreen      from "./screens/ChecklistsScreen";
-import ChecklistDetailScreen from "./screens/ChecklistDetailScreen";
+import ChecklistDetailScreen      from "./screens/ChecklistDetailScreen";
+import OfficialResourcesScreen   from "./screens/OfficialResourcesScreen";
 
 // ── Context ───────────────────────────────────────────────────────────────────
 import { AccessibilityProvider } from "./AccessibilityContext";
@@ -188,7 +189,8 @@ function HomeNavigator() {
       <HomeStack.Screen name="Notifications" component={NotificationsScreen} />
       <HomeStack.Screen name="Calendar"         component={CalendarScreen}         />
       <HomeStack.Screen name="Checklists"       component={ChecklistsScreen}       />
-      <HomeStack.Screen name="ChecklistDetail"  component={ChecklistDetailScreen}  />
+      <HomeStack.Screen name="ChecklistDetail"        component={ChecklistDetailScreen}       />
+      <HomeStack.Screen name="OfficialResourcesScreen" component={OfficialResourcesScreen} />
     </HomeStack.Navigator>
   );
 }

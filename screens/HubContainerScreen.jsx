@@ -54,7 +54,7 @@ const PILLAR_CONFIG = {
       { key: "shop",      Icon: ShoppingBag,    label: "Shop",               sub: "Essentials for your journey",                nav: "stack", target: "Shop"              },
       { key: "contacts",  Icon: AddressBook,    label: "Contacts",           sub: "Hotel, group leader, agent",                 nav: "tab",   tab: "Journey", screen: "MyContacts" },
       { key: "media",     Icon: PlayCircle,     label: "Media",              sub: "Videos, articles and podcasts",              nav: "stack", target: "Media"             },
-      { key: "resources", Icon: Link,           label: "Official Resources", sub: "Government and authority links",             soon: true                                },
+      { key: "resources", Icon: Link,           label: "Official Resources", sub: "Government and authority links",             nav: "stack", target: "OfficialResourcesScreen" },
       { key: "bookmarks", Icon: BookmarkSimple, label: "Bookmarks",          sub: "Your saved content",                         nav: "tab",   tab: "Prepare", screen: "Bookmarks" },
       { key: "notes",     Icon: NotePencil,     label: "Notes",              sub: "Reflections and intentions",                 nav: "stack", target: "Notes"             },
       { key: "currency",  Icon: CurrencyDollar, label: "Currency",           sub: "Live exchange rates",                        nav: "stack", target: "CurrencyConverter" },
