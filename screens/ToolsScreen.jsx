@@ -7,6 +7,7 @@ import {
   View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, StatusBar,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+
 import { LinearGradient } from "expo-linear-gradient";
 import {
   Wrench, Heartbeat, Clock, Compass, CurrencyDollar,
@@ -70,7 +71,15 @@ export default function ToolsScreen({ navigation }) {
               key={tool.id}
               style={s.row}
               activeOpacity={0.75}
-              onPress={() => tool.screen === "Calendar" ? navigation?.getParent?.()?.navigate?.("Home", { screen: "Calendar" }) : navigation.navigate(tool.screen)}
+              onPress={() => {
+                if (tool.screen === "Calendar") {
+                  navigation?.getParent?.()?.navigate?.("Home", { screen: "Calendar" });
+                } else if (tool.screen === "Bookmarks") {
+                  navigation?.getParent?.()?.navigate?.("Prepare", { screen: "Bookmarks", params: { returnToTab: "Tools" } });
+                } else {
+                  navigation.navigate(tool.screen);
+                }
+              }}
             >
               <View style={s.rowIconBox}>
                 <tool.Icon size={24} color="#E8D4A0" weight="regular" />

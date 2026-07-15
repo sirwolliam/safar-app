@@ -251,7 +251,6 @@ function ToolsNavigator() {
       <ToolsStack.Screen name="Dhikr"             component={DhikrScreen}        />
       <ToolsStack.Screen name="PracticeLearn"     component={PracticeLearnScreen}/>
       <ToolsStack.Screen name="Notes"             component={NotesScreen}        />
-      <ToolsStack.Screen name="Bookmarks"         component={BookmarksScreen}    />
     </ToolsStack.Navigator>
   );
 }

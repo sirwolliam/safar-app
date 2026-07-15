@@ -256,7 +256,7 @@ function EditBookmarkModal({ visible, item, onSave, onClose }) {
 }
 
 // ── Main screen ───────────────────────────────────────────────────────────────
-export default function BookmarksScreen({ navigation }) {
+export default function BookmarksScreen({ navigation, route }) {
   const { colors } = useAccessibility();
   const s = useMemo(() => createStyles(colors), [colors]);
 
@@ -482,7 +482,14 @@ export default function BookmarksScreen({ navigation }) {
       <View style={s.header}>
         <TouchableOpacity
           style={s.backBtn}
-          onPress={() => navigation.goBack()}
+          onPress={() => {
+                const returnToTab = route?.params?.returnToTab;
+                if (returnToTab) {
+                  navigation?.getParent?.()?.navigate?.(returnToTab);
+                } else {
+                  navigation.goBack();
+                }
+              }}
           activeOpacity={0.8}
         >
           <CaretLeft size={20} color={colors.text} weight="bold" />
