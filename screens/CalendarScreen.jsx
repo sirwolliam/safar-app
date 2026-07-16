@@ -508,10 +508,12 @@ export default function CalendarScreen({ navigation }) {
                         <Text style={[s.monthListDay, { color: cat.color, textAlign: "center" }]}>{dayNum}</Text>
                       </View>
                       <View style={s.monthListDivider} />
-                      <Text style={s.monthListTitle} numberOfLines={1}>{entry.title}</Text>
-                      <View style={s.monthListMeta}>
-                        <View style={[s.monthListDot, { backgroundColor: cat.color }]} />
-                        <Text style={s.monthListCat}>{cat.label}</Text>
+                      <View style={s.monthListMain}>
+                        <Text style={s.monthListTitle} numberOfLines={1}>{entry.title}</Text>
+                        <View style={s.monthListMeta}>
+                          <View style={[s.monthListDot, { backgroundColor: cat.color }]} />
+                          <Text style={s.monthListCat}>{cat.label}</Text>
+                        </View>
                       </View>
                     </TouchableOpacity>
                   );
@@ -689,7 +691,7 @@ const s = StyleSheet.create({
   safe:          { flex: 1, backgroundColor: "#F5F0E8" },
 
   // Header
-  header:        { backgroundColor: "#3A3545", minHeight: 160, position: "relative", overflow: "hidden", paddingHorizontal: 16, paddingBottom: 20 },
+  header:        { backgroundColor: "#4A5C48", minHeight: 160, position: "relative", overflow: "hidden", paddingHorizontal: 16, paddingBottom: 20 },
   headerTopRow:  { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   headerBtn:     { width: 36, height: 36, borderRadius: 18, backgroundColor: "#FDFAF4", borderWidth: 1, borderColor: "#D4D0CA", alignItems: "center", justifyContent: "center" },
   headerTitle:   { fontFamily: SERIF, fontSize: 38, color: "#FDFAF4", textAlign: "center", marginTop: 12 },
@@ -761,9 +763,10 @@ const s = StyleSheet.create({
   monthListDayWrap: { width: 34, alignItems: "center" },
   monthListDayName: { fontSize: 10, fontWeight: "600", textAlign: "center" },
   monthListDay:  { fontSize: 16, fontWeight: "700", width: 28 },
-  monthListTitle:{ flex: 1, fontSize: 18, fontWeight: "600", color: "#1A1410", marginLeft: 12 },
-  monthListDivider: { width: 1, backgroundColor: "#E0D8CC", marginVertical: 14, marginHorizontal: 12 },
-  monthListMeta: { flexDirection: "row", alignItems: "center", gap: 5 },
+  monthListMain: { flex: 1, marginLeft: 12 },
+  monthListTitle:{ fontSize: 18, fontWeight: "600", color: "#1A1410" },
+  monthListDivider: { width: 1, backgroundColor: "#E0D8CC", marginVertical: 2, marginHorizontal: 12, alignSelf: "stretch" },
+  monthListMeta: { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 4 },
   monthListDot:  { width: 6, height: 6, borderRadius: 3 },
   monthListCat:  { fontSize: 11, color: "#8A7D6A" },
 
