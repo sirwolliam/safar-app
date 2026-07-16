@@ -4,11 +4,14 @@
  */
 import React, { useState, useEffect, useMemo } from "react";
 import {
-  SafeAreaView, View, Text, ScrollView, TouchableOpacity,
-  TextInput, StyleSheet, Modal, KeyboardAvoidingView, Platform, Alert,
+  View, Text, ScrollView, TouchableOpacity,
+  TextInput, StyleSheet, Modal, KeyboardAvoidingView, Platform, Alert, Dimensions,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAccessibility } from "../AccessibilityContext";
+import HeaderPatternBg from "../HeaderPatternBg";
+import SafarAssistCard from "../SafarAssistCard";
 import {
   CaretLeft, NotePencil, Plus,
   MagnifyingGlass, SquaresFour, List, CaretRight,
@@ -194,6 +197,8 @@ const nm = StyleSheet.create({
 export default function NotesScreen({ navigation }) {
   const { colors } = useAccessibility();
   const s = useMemo(() => createStyles(colors), [colors]);
+  const SW = Dimensions.get("window").width;
+  const insets = useSafeAreaInsets();
 
   const [notes, setNotes] = useState([
     {
@@ -289,16 +294,26 @@ export default function NotesScreen({ navigation }) {
 
   // ── Render ────────────────────────────────────────────────────────────────────
   return (
-    <SafeAreaView style={s.safe}>
+    <View style={s.safe}>
       {/* ── Header ── */}
       <View style={s.header}>
-        <TouchableOpacity
-          style={s.backBtn}
-          onPress={() => navigation?.goBack?.()}
-          activeOpacity={0.8}
-        >
-          <CaretLeft size={20} color={colors.text} weight="bold" />
-        </TouchableOpacity>
+        <HeaderPatternBg width={SW} />
+        <View style={[s.headerTopRow, { paddingTop: insets.top + 12 }]}>
+          <TouchableOpacity
+            style={s.backBtn}
+            onPress={() => navigation?.goBack?.()}
+            activeOpacity={0.8}
+          >
+            <CaretLeft size={20} color={colors.text} weight="bold" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={s.addBtn}
+            onPress={() => { setEditing(null); setShowModal(true); }}
+            activeOpacity={0.85}
+          >
+            <Plus size={20} color="#FFFFFF" weight="bold" />
+          </TouchableOpacity>
+        </View>
 
         <View style={s.headerCenter}>
           <View style={s.headerTitleRow}>
@@ -307,14 +322,6 @@ export default function NotesScreen({ navigation }) {
           </View>
           <Text style={s.headerSub}>Intentions, reflections, and reminders.</Text>
         </View>
-
-        <TouchableOpacity
-          style={s.addBtn}
-          onPress={() => { setEditing(null); setShowModal(true); }}
-          activeOpacity={0.85}
-        >
-          <Plus size={20} color="#FFFFFF" weight="bold" />
-        </TouchableOpacity>
       </View>
 
       {/* ── Search + Grid/List toggle ── */}
@@ -359,6 +366,12 @@ export default function NotesScreen({ navigation }) {
         contentContainerStyle={s.scroll}
         showsVerticalScrollIndicator={false}
       >
+        <SafarAssistCard
+          title="Import with Safar Assist"
+          subtitle="Bring in your notes from Apple Notes, Google Docs, or anywhere else"
+          tagline="Speak it, scan it, or upload it"
+          onPress={() => navigation.navigate("SafarAssist")}
+        />
         {notes.length === 0 ? (
           <View style={s.empty}>
             <NotePencil size={48} color="#DDD5C0" weight="thin" />
@@ -469,7 +482,7 @@ export default function NotesScreen({ navigation }) {
         onSave={handleSave}
         onClose={() => { setShowModal(false); setEditing(null); }}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -478,12 +491,17 @@ const createStyles = (colors) => StyleSheet.create({
   safe: { flex: 1, backgroundColor: "#F5F0E8" },
 
   header: {
+    backgroundColor: colors.background,
+    minHeight: 160,
+    position: "relative",
+    overflow: "hidden",
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+  },
+  headerTopRow: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 12,
-    backgroundColor: "#F5F0E8",
+    justifyContent: "space-between",
   },
   backBtn: {
     width: 36,
@@ -496,8 +514,8 @@ const createStyles = (colors) => StyleSheet.create({
     justifyContent: "center",
   },
   headerCenter: {
-    flex: 1,
     alignItems: "center",
+    marginTop: 16,
   },
   headerTitleRow: {
     flexDirection: "row",
@@ -506,7 +524,7 @@ const createStyles = (colors) => StyleSheet.create({
   },
   headerTitle: {
     fontFamily: "SourceSerif4-Regular",
-    fontSize: 28,
+    fontSize: 38,
     color: colors.text,
     fontWeight: "400",
   },

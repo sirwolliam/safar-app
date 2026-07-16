@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import {
-  SafeAreaView, View, Text, ScrollView, TouchableOpacity, StyleSheet,
+  View, Text, ScrollView, TouchableOpacity, StyleSheet, Dimensions,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 import { CaretLeft, Check } from "phosphor-react-native";
 import { CHECKLIST_ITEMS, isItemChecked, toggleItemChecked } from "../checklistStore";
+import HeaderPatternBg from "../HeaderPatternBg";
 
 const SERIF = "SourceSerif4-Regular";
 
@@ -16,6 +18,8 @@ const CATEGORY_COLORS = {
 };
 
 export default function ChecklistDetailScreen({ navigation, route }) {
+  const SW = Dimensions.get("window").width;
+  const insets = useSafeAreaInsets();
   const [activeCategoryId, setActiveCategoryId] = useState(route?.params?.categoryId);
   const category = CHECKLIST_ITEMS[activeCategoryId];
 
@@ -39,11 +43,11 @@ export default function ChecklistDetailScreen({ navigation, route }) {
 
   if (!category) {
     return (
-      <SafeAreaView style={s.safe}>
+      <View style={s.safe}>
         <View style={s.notFound}>
           <Text style={s.notFoundText}>Checklist not found</Text>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
@@ -96,17 +100,19 @@ export default function ChecklistDetailScreen({ navigation, route }) {
   }
 
   return (
-    <SafeAreaView style={s.safe}>
+    <View style={s.safe}>
       <View style={s.header}>
-        <TouchableOpacity
-          style={s.backBtn}
-          onPress={() => navigation.goBack()}
-          activeOpacity={0.8}
-        >
-          <CaretLeft size={20} color="#1A1712" weight="bold" />
-        </TouchableOpacity>
+        <HeaderPatternBg width={SW} />
+        <View style={[s.headerTopRow, { paddingTop: insets.top + 12 }]}>
+          <TouchableOpacity
+            style={s.backBtn}
+            onPress={() => navigation.goBack()}
+            activeOpacity={0.8}
+          >
+            <CaretLeft size={20} color="#1A1712" weight="bold" />
+          </TouchableOpacity>
+        </View>
         <Text style={s.headerTitle}>{category.title}</Text>
-        <View style={s.headerSpacer} />
       </View>
 
       <View style={s.pillsWrap}>
@@ -139,16 +145,16 @@ export default function ChecklistDetailScreen({ navigation, route }) {
 
         <View style={s.bottomSpacer} />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const s = StyleSheet.create({
   safe:            { flex: 1, backgroundColor: "#F5F0E8" },
-  header:          { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 16, paddingVertical: 12, backgroundColor: "#F5F0E8" },
+  header:          { backgroundColor: "#F5F0E8", minHeight: 140, position: "relative", overflow: "hidden", paddingHorizontal: 16, paddingBottom: 16 },
+  headerTopRow:    { flexDirection: "row", alignItems: "center" },
   backBtn:         { width: 36, height: 36, borderRadius: 18, backgroundColor: "#FDFAF4", borderWidth: 1, borderColor: "#D4D0CA", alignItems: "center", justifyContent: "center" },
-  headerTitle:     { fontFamily: SERIF, fontSize: 22, color: "#1A1410", flex: 1, textAlign: "center" },
-  headerSpacer:    { width: 36 },
+  headerTitle:     { fontFamily: SERIF, fontSize: 38, color: "#1A1410", textAlign: "center", marginTop: 16 },
   scroll:          { flex: 1 },
   scrollContent:   { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 32 },
   summary:         { fontSize: 14, color: "#5C534A", marginBottom: 14 },

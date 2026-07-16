@@ -4,10 +4,11 @@
  */
 import React, { useState, useEffect, useMemo } from "react";
 import {
-  SafeAreaView, View, Text, ScrollView, TouchableOpacity,
+  View, Text, ScrollView, TouchableOpacity,
   StyleSheet, Modal, TextInput, KeyboardAvoidingView,
-  Platform, Linking, Alert, Share, StatusBar,
+  Platform, Linking, Alert, Share, StatusBar, Dimensions,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
 import { DUAS } from "../dua-content";
@@ -18,6 +19,8 @@ import {
 import { MEDIA } from "./MediaScreen";
 import { useFocusEffect } from "@react-navigation/native";
 import { useAccessibility } from "../AccessibilityContext";
+import HeaderPatternBg from "../HeaderPatternBg";
+import SafarAssistCard from "../SafarAssistCard";
 import {
   CaretLeft, Plus, BookmarkSimple, SquaresFour, List,
   DotsThree, HandsPraying, Link, PlayCircle,
@@ -259,6 +262,8 @@ function EditBookmarkModal({ visible, item, onSave, onClose }) {
 export default function BookmarksScreen({ navigation, route }) {
   const { colors } = useAccessibility();
   const s = useMemo(() => createStyles(colors), [colors]);
+  const SW = Dimensions.get("window").width;
+  const insets = useSafeAreaInsets();
 
   const [bookmarks,     setBookmarks]     = useState([]);
   const [activeFilter,  setActiveFilter]  = useState("all");
@@ -475,25 +480,31 @@ export default function BookmarksScreen({ navigation, route }) {
 
   // ── Render ────────────────────────────────────────────────────────────────────
   return (
-    <SafeAreaView style={s.safe}>
+    <View style={s.safe}>
       <StatusBar barStyle="dark-content" />
 
       {/* ── Header ── */}
       <View style={s.header}>
-        <TouchableOpacity
-          style={s.backBtn}
-          onPress={() => {
-                const returnToTab = route?.params?.returnToTab;
-                if (returnToTab) {
-                  navigation?.getParent?.()?.navigate?.(returnToTab);
-                } else {
-                  navigation.goBack();
-                }
-              }}
-          activeOpacity={0.8}
-        >
-          <CaretLeft size={20} color={colors.text} weight="bold" />
-        </TouchableOpacity>
+        <HeaderPatternBg width={SW} />
+        <View style={[s.headerTopRow, { paddingTop: insets.top }]}>
+          <TouchableOpacity
+            style={s.backBtn}
+            onPress={() => {
+                  const returnToTab = route?.params?.returnToTab;
+                  if (returnToTab) {
+                    navigation?.getParent?.()?.navigate?.(returnToTab);
+                  } else {
+                    navigation.goBack();
+                  }
+                }}
+            activeOpacity={0.8}
+          >
+            <CaretLeft size={20} color={colors.text} weight="bold" />
+          </TouchableOpacity>
+          <TouchableOpacity style={s.addBtn} onPress={() => setShowAddModal(true)} activeOpacity={0.85}>
+            <Plus size={20} color="#FFFFFF" weight="bold" />
+          </TouchableOpacity>
+        </View>
 
         <View style={s.headerCenter}>
           <View style={s.headerTitleRow}>
@@ -502,10 +513,6 @@ export default function BookmarksScreen({ navigation, route }) {
           </View>
           <Text style={s.headerSub}>Save and organise what matters for your journey.</Text>
         </View>
-
-        <TouchableOpacity style={s.addBtn} onPress={() => setShowAddModal(true)} activeOpacity={0.85}>
-          <Plus size={20} color="#FFFFFF" weight="bold" />
-        </TouchableOpacity>
       </View>
 
       <ScrollView
@@ -513,6 +520,15 @@ export default function BookmarksScreen({ navigation, route }) {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
+
+      <View style={{ paddingHorizontal: 16, paddingTop: 12 }}>
+        <SafarAssistCard
+          title="Import with Safar Assist"
+          subtitle="Bring in your saved links and notes"
+          tagline="Speak it, scan it, or upload it"
+          onPress={() => navigation.navigate("SafarAssist")}
+        />
+      </View>
 
       {/* ── Filter pills ── */}
       <ScrollView
@@ -706,7 +722,7 @@ export default function BookmarksScreen({ navigation, route }) {
           setEditItem(null);
         }}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -715,14 +731,17 @@ const createStyles = (colors) => StyleSheet.create({
   safe: { flex: 1, backgroundColor: "#F5F0E8" },
 
   header: {
+    backgroundColor: colors.background,
+    minHeight: 190,
+    position: "relative",
+    overflow: "hidden",
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+  },
+  headerTopRow: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    backgroundColor: colors.background,
+    justifyContent: "space-between",
   },
   backBtn: {
     width: 36,
@@ -737,15 +756,17 @@ const createStyles = (colors) => StyleSheet.create({
   headerCenter: {
     flex: 1,
     alignItems: "center",
+    marginTop: 18,
   },
   headerTitleRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
+    marginBottom: 4,
   },
   headerTitle: {
     fontFamily: "SourceSerif4-Regular",
-    fontSize: 28,
+    fontSize: 38,
     color: colors.text,
     fontWeight: "400",
   },

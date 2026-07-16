@@ -5,10 +5,12 @@
  */
 import React, { useState, useEffect, useMemo } from "react";
 import {
-  SafeAreaView, View, Text, ScrollView, TouchableOpacity,
-  TextInput, StyleSheet, Alert,
+  View, Text, ScrollView, TouchableOpacity,
+  TextInput, StyleSheet, Alert, Dimensions,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAccessibility } from "../AccessibilityContext";
+import HeaderPatternBg from "../HeaderPatternBg";
 import { DUAS } from "../dua-content";
 import {
   getPracticeQueue, addToPractice, removeFromPractice,
@@ -56,6 +58,8 @@ const QUICK_SETS = [
 export default function PracticeLearnScreen({ navigation }) {
   const { colors } = useAccessibility();
   const s = useMemo(() => createStyles(colors), [colors]);
+  const SW = Dimensions.get("window").width;
+  const insets = useSafeAreaInsets();
 
   const [queue,       setQueue]       = useState([]);
   const [practiceIds, setPracticeIds] = useState(new Set());
@@ -158,17 +162,20 @@ export default function PracticeLearnScreen({ navigation }) {
   }, [stage, searchText]);
 
   return (
-    <SafeAreaView style={s.safe}>
+    <View style={s.safe}>
 
       {/* ── Header ── */}
       <View style={s.header}>
-        <TouchableOpacity
-          style={s.backBtn}
-          onPress={() => navigation?.goBack?.()}
-          activeOpacity={0.8}
-        >
-          <CaretLeft size={20} color={colors.text} weight="bold" />
-        </TouchableOpacity>
+        <HeaderPatternBg width={SW} />
+        <View style={[s.headerTopRow, { paddingTop: insets.top + 10 }]}>
+          <TouchableOpacity
+            style={s.backBtn}
+            onPress={() => navigation?.goBack?.()}
+            activeOpacity={0.8}
+          >
+            <CaretLeft size={20} color={colors.text} weight="bold" />
+          </TouchableOpacity>
+        </View>
         <View style={s.headerCenter}>
           <View style={s.headerTitleRow}>
             <ListChecks size={20} color="#C8A96A" weight="regular" />
@@ -178,7 +185,6 @@ export default function PracticeLearnScreen({ navigation }) {
             Build your practice queue and start learning
           </Text>
         </View>
-        <View style={{ width: 36 }} />
       </View>
 
       {/* ── Section tabs ── */}
@@ -423,7 +429,7 @@ export default function PracticeLearnScreen({ navigation }) {
 
         <View style={{ height: 32 }} />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -433,11 +439,12 @@ const createStyles = (colors) => StyleSheet.create({
   scroll: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 40 },
 
   // Header
-  header:         { flexDirection: "row", alignItems: "center", paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12, backgroundColor: "#EDE6D8" },
+  header:         { backgroundColor: "#EDE6D8", minHeight: 170, position: "relative", overflow: "hidden", paddingHorizontal: 16, paddingBottom: 12 },
+  headerTopRow:   { flexDirection: "row", alignItems: "center" },
   backBtn:        { width: 36, height: 36, borderRadius: 18, backgroundColor: "#FDFAF4", borderWidth: 1, borderColor: "#DDD5C0", alignItems: "center", justifyContent: "center" },
-  headerCenter:   { flex: 1, alignItems: "center" },
+  headerCenter:   { alignItems: "center", marginTop: 16 },
   headerTitleRow: { flexDirection: "row", alignItems: "center", gap: 8 },
-  headerTitle:    { fontFamily: SERIF, fontSize: 28, color: "#1C1A14", fontWeight: "400" },
+  headerTitle:    { fontFamily: SERIF, fontSize: 38, color: "#1C1A14", fontWeight: "400" },
   headerSub:      { fontSize: 12, color: "#5C534A", marginTop: 2, textAlign: "center" },
 
   // Section tabs — full-width hub style

@@ -6,11 +6,14 @@
  */
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import {
-  SafeAreaView, View, Text, ScrollView, TouchableOpacity,
+  View, Text, ScrollView, TouchableOpacity,
   StyleSheet, Modal, TextInput, KeyboardAvoidingView,
-  Platform, Animated, PanResponder, Linking, Alert,
+  Platform, Animated, PanResponder, Linking, Alert, Dimensions,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import HeaderPatternBg from "../HeaderPatternBg";
+import SafarAssistCard from "../SafarAssistCard";
 
 const SERIF        = "SourceSerif4-Regular";
 const CONTACTS_KEY = "safar_journey_contacts_v1";
@@ -351,6 +354,8 @@ const cm = StyleSheet.create({
 
 // ── Main screen ───────────────────────────────────────────────────────────────
 export default function MyContactsScreen({ navigation }) {
+  const SW = Dimensions.get("window").width;
+  const insets = useSafeAreaInsets();
   const [contacts,    setContacts]    = useState([]);
   const [showModal,   setShowModal]   = useState(false);
   const [editContact, setEditContact] = useState(null);
@@ -387,20 +392,23 @@ export default function MyContactsScreen({ navigation }) {
   }, [contacts, searchQuery]);
 
   return (
-    <SafeAreaView style={s.safe}>
+    <View style={s.safe}>
 
       {/* Header */}
       <View style={s.header}>
-        <TouchableOpacity style={s.backBtn} onPress={() => navigation?.goBack?.()} activeOpacity={0.8}>
-          <Text style={s.backArrow}>{"‹"}</Text>
-        </TouchableOpacity>
+        <HeaderPatternBg width={SW} />
+        <View style={[s.headerTopRow, { paddingTop: insets.top + 12 }]}>
+          <TouchableOpacity style={s.backBtn} onPress={() => navigation?.goBack?.()} activeOpacity={0.8}>
+            <Text style={s.backArrow}>{"‹"}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={s.addBtn} onPress={() => { setEditContact(null); setShowModal(true); }} activeOpacity={0.85}>
+            <Text style={s.addBtnText}>{"+"}</Text>
+          </TouchableOpacity>
+        </View>
         <View style={s.headerCenter}>
           <Text style={s.headerTitle}>My Contacts</Text>
           <Text style={s.headerSub}>Hotel, guide, driver & travel companions</Text>
         </View>
-        <TouchableOpacity style={s.addBtn} onPress={() => { setEditContact(null); setShowModal(true); }} activeOpacity={0.85}>
-          <Text style={s.addBtnText}>{"+"}</Text>
-        </TouchableOpacity>
       </View>
 
       {/* Search bar */}
@@ -464,6 +472,12 @@ export default function MyContactsScreen({ navigation }) {
         </View>
       ) : (
         <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
+          <SafarAssistCard
+            title="Import with Safar Assist"
+            subtitle="Bring in your contacts from your phone, Notes, or Google Docs"
+            tagline="Speak it, scan it, or upload it"
+            onPress={() => navigation.navigate("SafarAssist")}
+          />
           {filtered.map((contact, index) => (
             <ContactCard
               key={contact.id}
@@ -485,17 +499,18 @@ export default function MyContactsScreen({ navigation }) {
         onClose={() => { setShowModal(false); setEditContact(null); }}
       />
 
-    </SafeAreaView>
+    </View>
   );
 }
 
 const s = StyleSheet.create({
   safe:        { flex:1, backgroundColor:"#E8DDD0" },
-  header:      { flexDirection:"row", alignItems:"center", justifyContent:"space-between", paddingHorizontal:20, paddingTop:16, paddingBottom:14, backgroundColor:"#E8DDD0" },
+  header:      { backgroundColor:"#E8DDD0", minHeight:160, position:"relative", overflow:"hidden", paddingHorizontal:20, paddingBottom:16 },
+  headerTopRow:{ flexDirection:"row", alignItems:"center", justifyContent:"space-between" },
   backBtn:     { width:36, height:36, borderRadius:18, backgroundColor:"#F5EDE0", borderWidth:1, borderColor:"#C8BFB2", alignItems:"center", justifyContent:"center", shadowColor:"#4A2E10", shadowOffset:{width:0,height:2}, shadowOpacity:0.10, shadowRadius:4, elevation:2 },
   backArrow:   { fontSize:22, color:"#100E0A", lineHeight:26 },
-  headerCenter:{ flex:1, paddingHorizontal:12 },
-  headerTitle: { fontFamily:SERIF, fontSize:22, color:"#100E0A" },
+  headerCenter:{ alignItems:"center", marginTop:16 },
+  headerTitle: { fontFamily:SERIF, fontSize:38, color:"#100E0A" },
   headerSub:   { fontSize:12, color:"#3A3530", marginTop:1 },
   addBtn:      { width:36, height:36, borderRadius:18, backgroundColor:"#1E3D30", alignItems:"center", justifyContent:"center", shadowColor:"#4A2E10", shadowOffset:{width:0,height:3}, shadowOpacity:0.20, shadowRadius:10, elevation:5 },
   addBtnText:  { fontSize:22, color:"#fff", lineHeight:26 },

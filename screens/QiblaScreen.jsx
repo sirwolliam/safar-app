@@ -7,10 +7,12 @@
  */
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
-  SafeAreaView, View, Text, ScrollView, TouchableOpacity,
-  StyleSheet, TextInput, Animated, Easing,
+  View, Text, ScrollView, TouchableOpacity,
+  StyleSheet, TextInput, Animated, Easing, Dimensions,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import HeaderPatternBg from "../HeaderPatternBg";
 import Svg, { Circle, Line, Path, G, Text as SvgText, Defs, LinearGradient, Stop } from "react-native-svg";
 
 const SERIF = "SourceSerif4-Regular";
@@ -178,6 +180,8 @@ function CompassDial({ bearing }) {
 }
 
 export default function QiblaScreen({ navigation }) {
+  const SW = Dimensions.get("window").width;
+  const insets = useSafeAreaInsets();
   const [location,    setLocation]    = useState({ name: "Makkah", lat: 21.3891, lng: 39.8579 });
   const [showPicker,  setShowPicker]  = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -243,18 +247,20 @@ export default function QiblaScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={s.safe}>
+    <View style={s.safe}>
 
       {/* Header */}
       <View style={s.header}>
-        <TouchableOpacity style={s.backBtn} onPress={() => navigation?.goBack?.()} activeOpacity={0.8}>
-          <Text style={s.backArrow}>{"‹"}</Text>
-        </TouchableOpacity>
+        <HeaderPatternBg width={SW} />
+        <View style={[s.headerTopRow, { paddingTop: insets.top + 10 }]}>
+          <TouchableOpacity style={s.backBtn} onPress={() => navigation?.goBack?.()} activeOpacity={0.8}>
+            <Text style={s.backArrow}>{"‹"}</Text>
+          </TouchableOpacity>
+        </View>
         <View style={s.headerCenter}>
           <Text style={s.headerTitle}>Qibla</Text>
           <Text style={s.headerSub}>Direction of the Ka'bah</Text>
         </View>
-        <View style={{ width:36 }} />
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
@@ -370,7 +376,7 @@ export default function QiblaScreen({ navigation }) {
 
         <View style={{ height:40 }} />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -378,11 +384,12 @@ const s = StyleSheet.create({
   safe:   { flex:1, backgroundColor:"#E8DDD0" },
   scroll: { paddingHorizontal:24, paddingTop:8 },
 
-  header:       { flexDirection:"row", alignItems:"center", paddingHorizontal:20, paddingVertical:14, backgroundColor:"#E8DDD0" },
+  header:       { backgroundColor:"#E8DDD0", minHeight:160, position:"relative", overflow:"hidden", paddingHorizontal:20, paddingBottom:14 },
+  headerTopRow: { flexDirection:"row", alignItems:"center" },
   backBtn:      { width:36, height:36, borderRadius:18, backgroundColor:"#FDFAF4", borderWidth:1, borderColor:"#C8BFB2", alignItems:"center", justifyContent:"center", shadowColor:"#4A2E10", shadowOffset:{width:0,height:2}, shadowOpacity:0.10, shadowRadius:4, elevation:2 },
   backArrow:    { fontSize:22, color:"#100E0A", lineHeight:26 },
-  headerCenter: { flex:1, alignItems:"center" },
-  headerTitle:  { fontFamily:SERIF, fontSize:22, color:"#100E0A", fontWeight:"400" },
+  headerCenter: { alignItems:"center", marginTop:16 },
+  headerTitle:  { fontFamily:SERIF, fontSize:38, color:"#100E0A", fontWeight:"400" },
   headerSub:    { fontSize:12, color:"#3A3530", fontWeight:"500", marginTop:1 },
 
   locationBar:    { flexDirection:"row", alignItems:"center", backgroundColor:"#FDFAF4", borderRadius:14, borderWidth:1, borderColor:"#C8BFB2", paddingHorizontal:16, paddingVertical:12, marginBottom:4, shadowColor:"#4A2E10", shadowOffset:{width:0,height:2}, shadowOpacity:0.14, shadowRadius:6, elevation:3 },

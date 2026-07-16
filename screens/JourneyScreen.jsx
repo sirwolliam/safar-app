@@ -9,6 +9,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { colors, spacing, radius, typography, shadows } from "../theme";
 import Svg, { Path, Circle } from "react-native-svg";
 import { CalendarBlank, UsersThree, AddressBook } from "phosphor-react-native";
+import SafarAssistCard from "../SafarAssistCard";
 
 if (Platform.OS === "android" ? UIManager.setLayoutAnimationEnabledExperimental : null) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -707,23 +708,12 @@ export default function JourneyScreen({ navigation }) {
         </TouchableOpacity>
 
         {/* ── 5. Safar Assist — AI import card ── */}
-        <TouchableOpacity
-          style={jn.assistCard}
+        <SafarAssistCard
+          title="Safar Assist"
+          subtitle="Add flights, hotels, contacts & group details in seconds"
+          tagline="Speak it, scan it, or upload it."
           onPress={() => navigation?.navigate?.("SafarAssist")}
-          activeOpacity={0.88}
-        >
-          <View style={jn.assistInner}>
-            <View style={jn.assistLeft}>
-              <View style={jn.assistDot} />
-              <View>
-                <Text style={jn.assistTitle}>Safar Assist</Text>
-                <Text style={jn.assistSub}>{"Add flights, hotels, contacts & group details in seconds"}</Text>
-              </View>
-            </View>
-            <Text style={jn.assistArrow}>{"›"}</Text>
-          </View>
-          <Text style={jn.assistTagline}>{"Speak it, scan it, or upload it."}</Text>
-        </TouchableOpacity>
+        />
 
         {/* ── 4. Sacred Places + What to Expect — real images ── */}
         <View style={jn.halfRow}>
@@ -859,14 +849,6 @@ const jn = StyleSheet.create({
   duaCardTitle:  { fontFamily:SERIF, fontSize:20, color:"#fff", fontWeight:"600", marginBottom:2 },
   duaCardSub:    { fontSize:12, color:"rgba(255,255,255,0.75)" },
 
-  assistCard:    { backgroundColor:"#fff", borderRadius:14, borderWidth:1, borderColor:"#EAE4DC", padding:16, marginBottom:spacing(1.5), shadowColor:"#1C1408", shadowOffset:{width:0,height:2}, shadowOpacity:0.08, shadowRadius:8, elevation:3 },
-  assistInner:   { flexDirection:"row", alignItems:"center", marginBottom:6 },
-  assistLeft:    { flex:1, flexDirection:"row", alignItems:"flex-start", gap:10 },
-  assistDot:     { width:10, height:10, borderRadius:5, backgroundColor:"#4A5C48", marginTop:4, flexShrink:0 },
-  assistTitle:   { fontFamily:SERIF, fontSize:17, color:"#1C1A14", fontWeight:"600", marginBottom:2 },
-  assistSub:     { fontSize:13, color:"#7A7060", lineHeight:18 },
-  assistArrow:   { fontSize:22, color:"#B8922A", marginLeft:8 },
-  assistTagline: { fontSize:12, color:"#4A5C48", fontWeight:"600", paddingLeft:20 },
   heroCardBg:        { flex:1 },
   heroCardScrim:     { ...StyleSheet.absoluteFillObject, backgroundColor:"rgba(10,8,4,0.52)" },
   heroCardContent:   { flex:1, justifyContent:"space-between", padding:spacing(2) },

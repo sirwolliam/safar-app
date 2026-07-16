@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import {
-  SafeAreaView, View, Text, ScrollView, TouchableOpacity, StyleSheet,
+  View, Text, ScrollView, TouchableOpacity, StyleSheet, Dimensions,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
-import { FileText, Package, HandsPraying, House, CaretRight, CaretLeft } from "phosphor-react-native";
+import { FileText, Package, HandsPraying, House, CaretRight, CaretLeft, Plus } from "phosphor-react-native";
 import { CHECKLIST_ITEMS, getAllCategoryProgress } from "../checklistStore";
+import HeaderPatternBg from "../HeaderPatternBg";
+import SafarAssistCard from "../SafarAssistCard";
 
 const SERIF = "SourceSerif4-Regular";
 
@@ -25,6 +28,8 @@ const CATEGORY_COLORS = {
 };
 
 export default function ChecklistsScreen({ navigation }) {
+  const SW = Dimensions.get("window").width;
+  const insets = useSafeAreaInsets();
   const [progress, setProgress] = useState({});
 
   useFocusEffect(
@@ -40,17 +45,20 @@ export default function ChecklistsScreen({ navigation }) {
   );
 
   return (
-    <SafeAreaView style={s.safe}>
+    <View style={s.safe}>
       <View style={s.header}>
-        <TouchableOpacity
-          style={s.backBtn}
-          onPress={() => navigation.goBack()}
-          activeOpacity={0.8}
-        >
-          <CaretLeft size={20} color="#1A1712" weight="bold" />
-        </TouchableOpacity>
+        <HeaderPatternBg width={SW} />
+        <View style={[s.headerTopRow, { paddingTop: insets.top + 12 }]}>
+          <TouchableOpacity
+            style={s.backBtn}
+            onPress={() => navigation.goBack()}
+            activeOpacity={0.8}
+          >
+            <CaretLeft size={20} color="#1A1712" weight="bold" />
+          </TouchableOpacity>
+        </View>
         <Text style={s.headerTitle}>Checklists</Text>
-        <View style={s.headerSpacer} />
+        <Text style={s.headerSubhead}>Your checklists are organized into helpful categories, so you can plan and stay organized every step of the way.</Text>
       </View>
 
       <ScrollView
@@ -58,6 +66,14 @@ export default function ChecklistsScreen({ navigation }) {
         contentContainerStyle={s.scrollContent}
         showsVerticalScrollIndicator={false}
       >
+        <View style={{ marginHorizontal: 16 }}>
+          <SafarAssistCard
+            title="Import with Safar Assist"
+            subtitle="Bring in your checklist from Notes, Reminders, or Google Docs"
+            tagline="Speak it, scan it, or upload it"
+            onPress={() => navigation.navigate("SafarAssist")}
+          />
+        </View>
         {CATEGORY_ORDER.map((categoryId) => {
           const category = CHECKLIST_ITEMS[categoryId];
           const Icon = CATEGORY_ICONS[categoryId];
@@ -83,17 +99,29 @@ export default function ChecklistsScreen({ navigation }) {
             </TouchableOpacity>
           );
         })}
+        <TouchableOpacity style={s.customCard} onPress={() => {}} activeOpacity={0.75}>
+          <View style={[s.iconBox, { backgroundColor: "#C8A96A" }]}>
+            <Plus size={24} color="#4A3410" weight="bold" />
+          </View>
+          <View style={s.rowInfo}>
+            <Text style={s.rowLabel}>Create your own checklist</Text>
+            <Text style={s.progressText}>Build a custom list for anything else</Text>
+          </View>
+          <CaretRight size={18} color="#C8BFB2" weight="bold" />
+        </TouchableOpacity>
         <View style={s.bottomSpacer} />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const s = StyleSheet.create({
   safe:         { flex: 1, backgroundColor: "#F5F0E8" },
-  header:       { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 16, paddingVertical: 12, backgroundColor: "#F5F0E8" },
+  header:       { backgroundColor: "#F5F0E8", minHeight: 190, position: "relative", overflow: "hidden", paddingHorizontal: 16, paddingBottom: 20 },
+  headerTopRow: { flexDirection: "row", alignItems: "center" },
   backBtn:      { width: 36, height: 36, borderRadius: 18, backgroundColor: "#FDFAF4", borderWidth: 1, borderColor: "#D4D0CA", alignItems: "center", justifyContent: "center" },
-  headerTitle:  { fontFamily: SERIF, fontSize: 22, color: "#1A1410" },
+  headerTitle:  { fontFamily: SERIF, fontSize: 38, color: "#1A1410", textAlign: "center", marginTop: 16 },
+  headerSubhead:{ fontSize: 13, color: "#5C534A", textAlign: "center", marginTop: 6, paddingHorizontal: 24, lineHeight: 18 },
   headerSpacer: { width: 36 },
   scroll:       { flex: 1 },
   scrollContent:{ paddingTop: 12, paddingBottom: 24 },
@@ -103,5 +131,6 @@ const s = StyleSheet.create({
   rowLabel:     { fontSize: 17, color: "#1A1410", marginBottom: 4 },
   progressText: { fontSize: 13, color: "#5C534A" },
   progressDone: { color: "#4A5C48" },
+  customCard:   { flexDirection: "row", alignItems: "center", backgroundColor: "#F3E9D2", borderRadius: 16, borderWidth: 1, borderColor: "#DDD5C0", padding: 16, marginHorizontal: 16, marginBottom: 12, shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 8, elevation: 3 },
   bottomSpacer: { height: 20 },
 });

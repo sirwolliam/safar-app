@@ -6,10 +6,12 @@
  */
 import React, { useState, useEffect, useCallback } from "react";
 import {
-  SafeAreaView, View, Text, Alert, ScrollView, TouchableOpacity,
-  StyleSheet, TextInput, ActivityIndicator, Platform,
+  View, Text, Alert, ScrollView, TouchableOpacity,
+  StyleSheet, TextInput, ActivityIndicator, Platform, Dimensions,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import HeaderPatternBg from "../HeaderPatternBg";
 let Notifications;
 try { Notifications = require("expo-notifications"); } catch (_) {}
 
@@ -72,6 +74,8 @@ function minutesUntil(timeStr) {
 }
 
 export default function PrayerTimesScreen({ navigation }) {
+  const SW = Dimensions.get("window").width;
+  const insets = useSafeAreaInsets();
   const [times,        setTimes]        = useState(null);
   const [loading,      setLoading]      = useState(true);
   const [error,        setError]        = useState(null);
@@ -143,26 +147,29 @@ export default function PrayerTimesScreen({ navigation }) {
   );
 
   return (
-    <SafeAreaView style={s.safe}>
+    <View style={s.safe}>
 
       {/* Header */}
       <View style={s.header}>
-        <TouchableOpacity style={s.backBtn} onPress={() => navigation?.goBack?.()} activeOpacity={0.8}>
-          <Text style={s.backArrow}>{"‹"}</Text>
-        </TouchableOpacity>
-        <View style={s.headerCenter}>
-          <View style={s.headerRow}>
-          <Text style={s.headerTitle}>Prayer Times</Text>
-          <TouchableOpacity style={notifyEnabled ? [s.notifyBtn, s.notifyBtnOn] : s.notifyBtn}
-            onPress={toggleNotifications} activeOpacity={0.85}>
-            <Text style={s.notifyBtnTxt}>{notifyEnabled ? "🔔 On" : "🔕 Notify"}</Text>
+        <HeaderPatternBg width={SW} />
+        <View style={[s.headerTopRow, { paddingTop: insets.top + 10 }]}>
+          <TouchableOpacity style={s.backBtn} onPress={() => navigation?.goBack?.()} activeOpacity={0.8}>
+            <Text style={s.backArrow}>{"‹"}</Text>
           </TouchableOpacity>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+            <TouchableOpacity style={notifyEnabled ? [s.notifyBtn, s.notifyBtnOn] : s.notifyBtn}
+              onPress={toggleNotifications} activeOpacity={0.85}>
+              <Text style={s.notifyBtnTxt}>{notifyEnabled ? "🔔 On" : "🔕 Notify"}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={s.refreshBtn} onPress={() => fetchTimes(location)} activeOpacity={0.8}>
+              <Text style={s.refreshIcon}>↺</Text>
+            </TouchableOpacity>
+          </View>
         </View>
+        <View style={s.headerCenter}>
+          <Text style={s.headerTitle}>Prayer Times</Text>
           <Text style={s.headerSub}>{dayLabel}</Text>
         </View>
-        <TouchableOpacity style={s.refreshBtn} onPress={() => fetchTimes(location)} activeOpacity={0.8}>
-          <Text style={s.refreshIcon}>↺</Text>
-        </TouchableOpacity>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
@@ -274,7 +281,7 @@ export default function PrayerTimesScreen({ navigation }) {
 
         <View style={{ height: 40 }} />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -283,12 +290,13 @@ const s = StyleSheet.create({
   scroll: { paddingHorizontal:20, paddingTop:2 },
 
   // Header
-  header:       { flexDirection:"row", alignItems:"center", paddingHorizontal:20, paddingVertical:10, backgroundColor:"#E8DDD0" },
+  header:       { backgroundColor:"#E8DDD0", minHeight:170, position:"relative", overflow:"hidden", paddingHorizontal:20, paddingBottom:14 },
+  headerTopRow: { flexDirection:"row", alignItems:"center", justifyContent:"space-between" },
   backBtn:      { width:36, height:36, borderRadius:18, backgroundColor:"#F5EDE0", borderWidth:1, borderColor:"#C8BFB2", alignItems:"center", justifyContent:"center", shadowColor:"#4A2E10", shadowOffset:{width:0,height:2}, shadowOpacity:0.10, shadowRadius:4, elevation:2 },
   backArrow:    { fontSize:22, color:"#100E0A", lineHeight:26 },
-  headerCenter: { flex:1, alignItems:"center" },
+  headerCenter: { alignItems:"center", marginTop:16 },
   headerRow:    { flexDirection:"row", alignItems:"center", justifyContent:"space-between" },
-  headerTitle:  { fontFamily:SERIF, fontSize:22, color:"#100E0A", fontWeight:"400" },
+  headerTitle:  { fontFamily:SERIF, fontSize:38, color:"#100E0A", fontWeight:"400" },
   notifyBtn:    { backgroundColor:"#F5EDE0", borderRadius:20, borderWidth:1, borderColor:"#C8BFB2", paddingHorizontal:12, paddingVertical:6 },
   notifyBtnOn:  { backgroundColor:"#1E3D30", borderColor:"#1E3D30" },
   notifyBtnTxt: { fontSize:13, color:"#1E3D30", fontWeight:"600" },

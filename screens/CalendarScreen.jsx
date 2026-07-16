@@ -4,12 +4,15 @@
  */
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import {
-  SafeAreaView, View, Text, ScrollView, TouchableOpacity,
+  View, Text, ScrollView, TouchableOpacity,
   StyleSheet, Modal, Animated, TextInput,
-  KeyboardAvoidingView, Platform, Share, Alert,
+  KeyboardAvoidingView, Platform, Share, Alert, Dimensions,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
+import SafarAssistCard from "../SafarAssistCard";
+import HeaderPatternBg from "../HeaderPatternBg";
 import {
   CaretLeft, CaretRight, Plus, X, Trash,
   ShareNetwork, CalendarBlank, Note, MapPin,
@@ -193,6 +196,8 @@ const ec = StyleSheet.create({
 
 // ── Main Screen ───────────────────────────────────────────────────────────────
 export default function CalendarScreen({ navigation }) {
+  const SW = Dimensions.get("window").width;
+  const insets = useSafeAreaInsets();
   const today = todayStr();
   const todayDate = new Date();
 
@@ -348,27 +353,30 @@ export default function CalendarScreen({ navigation }) {
   const dayEntries = entries.filter(e => e.date === selectedDate);
 
   return (
-    <SafeAreaView style={s.safe}>
+    <View style={s.safe}>
 
       {/* Header */}
       <View style={s.header}>
-        <TouchableOpacity
-          style={s.headerBtn}
-          onPress={() => navigation?.goBack?.()}
-          hitSlop={{ top: 12, bottom: 12, left: 12, right: 24 }}
-          activeOpacity={0.8}
-        >
-          <CaretLeft size={20} color="#1A1712" weight="bold" />
-        </TouchableOpacity>
+        <HeaderPatternBg width={SW} />
+        <View style={[s.headerTopRow, { paddingTop: insets.top + 10 }]}>
+          <TouchableOpacity
+            style={s.headerBtn}
+            onPress={() => navigation?.goBack?.()}
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 24 }}
+            activeOpacity={0.8}
+          >
+            <CaretLeft size={20} color="#1A1712" weight="bold" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={s.headerBtn}
+            onPress={() => openModal(null)}
+            hitSlop={{ top: 12, bottom: 12, left: 24, right: 12 }}
+            activeOpacity={0.8}
+          >
+            <Plus size={20} color="#1A1712" weight="bold" />
+          </TouchableOpacity>
+        </View>
         <Text style={s.headerTitle}>Calendar</Text>
-        <TouchableOpacity
-          style={s.headerBtn}
-          onPress={() => openModal(null)}
-          hitSlop={{ top: 12, bottom: 12, left: 24, right: 12 }}
-          activeOpacity={0.8}
-        >
-          <Plus size={20} color="#1A1712" weight="bold" />
-        </TouchableOpacity>
       </View>
 
       <ScrollView
@@ -462,6 +470,13 @@ export default function CalendarScreen({ navigation }) {
             </TouchableOpacity>
           </View>
         )}
+
+        <SafarAssistCard
+          title="Import with Safar Assist"
+          subtitle="Bring in your dates and itinerary"
+          tagline="Speak it, scan it, or upload it"
+          onPress={() => navigation.navigate("SafarAssist")}
+        />
 
         {/* This month section */}
         {(() => {
@@ -665,7 +680,7 @@ export default function CalendarScreen({ navigation }) {
         </View>
       </Modal>
 
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -674,9 +689,10 @@ const s = StyleSheet.create({
   safe:          { flex: 1, backgroundColor: "#F5F0E8" },
 
   // Header
-  header:        { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 16, paddingVertical: 27, backgroundColor: "#3A3545" },
+  header:        { backgroundColor: "#3A3545", minHeight: 160, position: "relative", overflow: "hidden", paddingHorizontal: 16, paddingBottom: 20 },
+  headerTopRow:  { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   headerBtn:     { width: 36, height: 36, borderRadius: 18, backgroundColor: "#FDFAF4", borderWidth: 1, borderColor: "#D4D0CA", alignItems: "center", justifyContent: "center" },
-  headerTitle:   { fontFamily: SERIF, fontSize: 22, color: "#FDFAF4" },
+  headerTitle:   { fontFamily: SERIF, fontSize: 38, color: "#FDFAF4", textAlign: "center", marginTop: 12 },
 
   // Scroll
   scroll:        { flex: 1 },
