@@ -311,7 +311,7 @@ export default function NotesScreen({ navigation }) {
             onPress={() => { setEditing(null); setShowModal(true); }}
             activeOpacity={0.85}
           >
-            <Plus size={20} color="#FFFFFF" weight="bold" />
+            <Plus size={20} color="#1A1410" weight="bold" />
           </TouchableOpacity>
         </View>
 
@@ -491,7 +491,7 @@ const createStyles = (colors) => StyleSheet.create({
   safe: { flex: 1, backgroundColor: "#F5F0E8" },
 
   header: {
-    backgroundColor: colors.background,
+    backgroundColor: "#4A5C48",
     minHeight: 160,
     position: "relative",
     overflow: "hidden",
@@ -508,8 +508,6 @@ const createStyles = (colors) => StyleSheet.create({
     height: 36,
     borderRadius: 18,
     backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.border,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -525,12 +523,12 @@ const createStyles = (colors) => StyleSheet.create({
   headerTitle: {
     fontFamily: "SourceSerif4-Regular",
     fontSize: 38,
-    color: colors.text,
+    color: "#FDFAF4",
     fontWeight: "400",
   },
   headerSub: {
-    fontSize: 12,
-    color: colors.subtext,
+    fontSize: 15,
+    color: "#FDFAF4",
     marginTop: 2,
     textAlign: "center",
   },
@@ -538,7 +536,7 @@ const createStyles = (colors) => StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#4A5C48",
+    backgroundColor: "#FDFAF4",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -547,7 +545,7 @@ const createStyles = (colors) => StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginHorizontal: 16,
-    marginTop: 4,
+    marginTop: 14,
     marginBottom: 8,
     backgroundColor: "#FDFAF4",
     borderRadius: 12,

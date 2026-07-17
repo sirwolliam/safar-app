@@ -384,13 +384,13 @@ const s = StyleSheet.create({
   safe:   { flex:1, backgroundColor:"#E8DDD0" },
   scroll: { paddingHorizontal:24, paddingTop:8 },
 
-  header:       { backgroundColor:"#E8DDD0", minHeight:160, position:"relative", overflow:"hidden", paddingHorizontal:20, paddingBottom:14 },
+  header:       { backgroundColor:"#4A5C48", minHeight:160, position:"relative", overflow:"hidden", paddingHorizontal:20, paddingBottom:14 },
   headerTopRow: { flexDirection:"row", alignItems:"center" },
-  backBtn:      { width:36, height:36, borderRadius:18, backgroundColor:"#FDFAF4", borderWidth:1, borderColor:"#C8BFB2", alignItems:"center", justifyContent:"center", shadowColor:"#4A2E10", shadowOffset:{width:0,height:2}, shadowOpacity:0.10, shadowRadius:4, elevation:2 },
+  backBtn:      { width:36, height:36, borderRadius:18, backgroundColor:"#FDFAF4", alignItems:"center", justifyContent:"center", shadowColor:"#4A2E10", shadowOffset:{width:0,height:2}, shadowOpacity:0.10, shadowRadius:4, elevation:2 },
   backArrow:    { fontSize:22, color:"#100E0A", lineHeight:26 },
   headerCenter: { alignItems:"center", marginTop:16 },
-  headerTitle:  { fontFamily:SERIF, fontSize:38, color:"#100E0A", fontWeight:"400" },
-  headerSub:    { fontSize:12, color:"#3A3530", fontWeight:"500", marginTop:1 },
+  headerTitle:  { fontFamily:SERIF, fontSize:38, color:"#FDFAF4", fontWeight:"400" },
+  headerSub:    { fontSize:15, color:"#FDFAF4", fontWeight:"500", marginTop:1 },
 
   locationBar:    { flexDirection:"row", alignItems:"center", backgroundColor:"#FDFAF4", borderRadius:14, borderWidth:1, borderColor:"#C8BFB2", paddingHorizontal:16, paddingVertical:12, marginBottom:4, shadowColor:"#4A2E10", shadowOffset:{width:0,height:2}, shadowOpacity:0.14, shadowRadius:6, elevation:3 },
   locationIcon:   { fontSize:18, marginRight:10 },

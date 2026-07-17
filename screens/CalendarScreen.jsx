@@ -195,7 +195,7 @@ const ec = StyleSheet.create({
 });
 
 // ── Main Screen ───────────────────────────────────────────────────────────────
-export default function CalendarScreen({ navigation }) {
+export default function CalendarScreen({ navigation, route }) {
   const SW = Dimensions.get("window").width;
   const insets = useSafeAreaInsets();
   const today = todayStr();
@@ -361,7 +361,14 @@ export default function CalendarScreen({ navigation }) {
         <View style={[s.headerTopRow, { paddingTop: insets.top + 10 }]}>
           <TouchableOpacity
             style={s.headerBtn}
-            onPress={() => navigation?.goBack?.()}
+            onPress={() => {
+              const returnToTab = route?.params?.returnToTab;
+              if (returnToTab) {
+                navigation?.getParent?.()?.navigate?.(returnToTab);
+              } else {
+                navigation?.goBack?.();
+              }
+            }}
             hitSlop={{ top: 12, bottom: 12, left: 12, right: 24 }}
             activeOpacity={0.8}
           >

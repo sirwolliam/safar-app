@@ -502,7 +502,7 @@ export default function BookmarksScreen({ navigation, route }) {
             <CaretLeft size={20} color={colors.text} weight="bold" />
           </TouchableOpacity>
           <TouchableOpacity style={s.addBtn} onPress={() => setShowAddModal(true)} activeOpacity={0.85}>
-            <Plus size={20} color="#FFFFFF" weight="bold" />
+            <Plus size={20} color="#1A1410" weight="bold" />
           </TouchableOpacity>
         </View>
 
@@ -731,7 +731,7 @@ const createStyles = (colors) => StyleSheet.create({
   safe: { flex: 1, backgroundColor: "#F5F0E8" },
 
   header: {
-    backgroundColor: colors.background,
+    backgroundColor: "#4A5C48",
     minHeight: 190,
     position: "relative",
     overflow: "hidden",
@@ -748,8 +748,6 @@ const createStyles = (colors) => StyleSheet.create({
     height: 36,
     borderRadius: 18,
     backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.border,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -767,20 +765,20 @@ const createStyles = (colors) => StyleSheet.create({
   headerTitle: {
     fontFamily: "SourceSerif4-Regular",
     fontSize: 38,
-    color: colors.text,
+    color: "#FDFAF4",
     fontWeight: "400",
   },
   headerSub: {
-    fontSize: 12,
-    color: colors.subtext,
-    marginTop: 2,
+    fontSize: 14,
+    color: "#FDFAF4",
+    marginTop: -8,
     textAlign: "center",
   },
   addBtn: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#4A5C48",
+    backgroundColor: "#FDFAF4",
     alignItems: "center",
     justifyContent: "center",
   },

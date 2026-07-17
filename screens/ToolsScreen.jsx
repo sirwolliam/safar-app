@@ -73,9 +73,9 @@ export default function ToolsScreen({ navigation }) {
               activeOpacity={0.75}
               onPress={() => {
                 if (tool.screen === "Calendar") {
-                  navigation?.getParent?.()?.navigate?.("Home", { screen: "Calendar" });
+                  navigation?.getParent?.()?.navigate?.("Home", { screen: "Calendar", initial: false, params: { returnToTab: "Tools" } });
                 } else if (tool.screen === "Bookmarks") {
-                  navigation?.getParent?.()?.navigate?.("Prepare", { screen: "Bookmarks", params: { returnToTab: "Tools" } });
+                  navigation?.getParent?.()?.navigate?.("Prepare", { screen: "Bookmarks", initial: false, params: { returnToTab: "Tools" } });
                 } else {
                   navigation.navigate(tool.screen);
                 }

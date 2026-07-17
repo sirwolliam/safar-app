@@ -252,10 +252,10 @@ export default function CurrencyScreen({ navigation }) {
 
 const s = StyleSheet.create({
   root:             { flex: 1, backgroundColor: "#F5F0E8" },
-  header:           { position: "relative", overflow: "hidden", minHeight: 140, paddingHorizontal: 16, paddingBottom: 16 },
+  header:           { backgroundColor: "#4A5C48", position: "relative", overflow: "hidden", minHeight: 140, paddingHorizontal: 16, paddingBottom: 16 },
   headerTopRow:     { flexDirection: "row", alignItems: "center", justifyContent: "space-between", position: "relative", zIndex: 2 },
-  chipBtn:          { width: 36, height: 36, borderRadius: 18, backgroundColor: "#FDFAF4", alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: "#DDD5C0" },
-  pageTitle:        { fontFamily: SERIF, fontSize: 38, color: "#1A1410", textAlign: "center", marginTop: 8, position: "relative", zIndex: 2 },
+  chipBtn:          { width: 36, height: 36, borderRadius: 18, backgroundColor: "#FDFAF4", alignItems: "center", justifyContent: "center" },
+  pageTitle:        { fontFamily: SERIF, fontSize: 38, color: "#FDFAF4", textAlign: "center", marginTop: 8, position: "relative", zIndex: 2 },
   intro:            { fontSize: 14, color: "#5C534A", lineHeight: 20, textAlign: "center", paddingHorizontal: 24, marginTop: 10, marginBottom: 16 },
   scroll:           { flex: 1 },
   scrollContent:    { paddingBottom: 24 },
