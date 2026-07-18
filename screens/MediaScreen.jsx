@@ -513,10 +513,14 @@ export default function MediaScreen({ navigation, route }) {
 
         {/* ── Page title ── */}
         <View style={s.pageHeader}>
+          <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8} style={s.headerBackBtn}>
+            <CaretLeft size={20} color="#1A1410" weight="bold" />
+          </TouchableOpacity>
           <View style={s.pageTitleRow}>
             <PlayCircle size={28} color="#C8A96A" weight="regular" />
             <Text style={s.pageTitle}>Media</Text>
           </View>
+          <Text style={s.pageTagline}>Videos, podcasts, and articles</Text>
           <Text style={s.pageSub}>
             Curated content to inspire, prepare and guide your journey.
           </Text>
@@ -578,15 +582,6 @@ export default function MediaScreen({ navigation, route }) {
               );
             }}
           />
-
-          {/* Back button — floats above carousel */}
-          <TouchableOpacity
-            style={[s.backBtn, { top: 16 }]}
-            onPress={() => navigation.goBack()}
-            activeOpacity={0.8}
-          >
-            <CaretLeft size={18} color="#FFFFFF" weight="bold" />
-          </TouchableOpacity>
 
           {/* Dot indicators */}
           <View style={s.heroDots}>
@@ -843,14 +838,17 @@ const s = StyleSheet.create({
   scrollContent: { paddingBottom: 32 },
 
   // Page header
-  pageHeader:      { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 16, backgroundColor: BG },
-  pageTitleRow:    { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 2 },
+  pageHeader:      { paddingHorizontal: 20, paddingTop: 6, paddingBottom: 16, backgroundColor: BG },
+  pageTitleRow:    { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 2 },
   pageTitle:       { fontFamily: SERIF, fontSize: 34, color: TEXT, fontWeight: "400", lineHeight: 40 },
   pageSub:         { fontSize: 13, color: TEXT, lineHeight: 19, marginTop: 4 },
   pageDisclosure:  { fontSize: 11, color: MUTED, marginTop: 2, lineHeight: 16 },
 
+  // Page header back button
+  headerBackBtn:  { width: 36, height: 36, borderRadius: 18, backgroundColor: "#FDFAF4", borderWidth: 1, borderColor: "#EDE4D4", alignItems: "center", justifyContent: "center", marginBottom: 6 },
+  pageTagline:    { fontSize: 18, fontWeight: "600", color: TEXT, textAlign: "center", marginTop: 4, marginBottom: 6 },
+
   // Hero carousel
-  backBtn:        { position: "absolute", left: 16, width: 36, height: 36, borderRadius: 18, backgroundColor: "rgba(0,0,0,0.35)", borderWidth: 1, borderColor: "rgba(255,255,255,0.20)", alignItems: "center", justifyContent: "center" },
   slideBadge:     { position: "absolute", flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: "rgba(0,0,0,0.50)", borderRadius: 50, paddingHorizontal: 14, paddingVertical: 7 },
   slideBadgeText: { fontSize: 13, color: "#FFFFFF", fontWeight: "500", letterSpacing: 0.5 },
   slideContent:   { position: "absolute", bottom: 32, left: 16, right: 16 },

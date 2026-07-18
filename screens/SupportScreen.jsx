@@ -11,6 +11,8 @@ import {
   LayoutAnimation,
   Platform,
   UIManager,
+  StatusBar,
+  Dimensions,
 } from "react-native";
 import { colors, spacing, radius, typography, shadows } from "../theme";
 import {
@@ -19,10 +21,15 @@ import {
   ChatCircleDots, GlobeSimple,
 } from "phosphor-react-native";
 import { KaabahIcon } from "../KaabahIcon";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import HeaderPatternBg from "../HeaderPatternBg";
 
 if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
+
+const SERIF = "SourceSerif4-Regular";
+const SW = Dimensions.get("window").width;
 
 // ─── Content ──────────────────────────────────────────────────────────────────
 
@@ -364,6 +371,7 @@ export default function SupportScreen({ navigation }) {
   const [searchQuery, setSearchQuery]   = useState("");
   const [openFaqId,   setOpenFaqId]     = useState(null);
   const [activeSection, setActiveSection] = useState("app");
+  const insets = useSafeAreaInsets();
 
   const toggleFaq = (id) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -383,18 +391,22 @@ export default function SupportScreen({ navigation }) {
   const isSearching = searchQuery.trim().length > 1;
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <View style={styles.safe}>
+      <StatusBar barStyle="light-content" />
 
       {/* ── Header ── */}
       <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.iconBtn}
-          onPress={() => navigation?.goBack?.()}
-        >
-          <CaretLeft size={20} color="#1A1712" weight="bold" />
-        </TouchableOpacity>
-        <Text style={styles.title}>Help & Support</Text>
-        <View style={{ width:36 }} />
+        <HeaderPatternBg width={SW} />
+        <View style={[styles.headerTopRow, { paddingTop: insets.top + 8 }]}>
+          <TouchableOpacity
+            style={styles.chipBtn}
+            onPress={() => navigation?.goBack?.()}
+          >
+            <CaretLeft size={20} color="#1A1410" weight="bold" />
+          </TouchableOpacity>
+          <View style={{ width: 36 }} />
+        </View>
+        <Text style={styles.pageTitle}>Help & Support</Text>
       </View>
 
       <ScrollView
@@ -584,7 +596,7 @@ export default function SupportScreen({ navigation }) {
 
         <View style={{ height: 32 }} />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -596,28 +608,10 @@ const styles = StyleSheet.create({
   },
 
   // Header
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: "#3A3545",
-  },
-  iconBtn: {
-    width: 36, height: 36,
-    borderRadius: 18,
-    backgroundColor: "#FDFAF4",
-    borderWidth: 1,
-    borderColor: "#D4D0CA",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  title: {
-    fontFamily: "SourceSerif4-Regular",
-    fontSize: 22,
-    color: "#FDFAF4",
-  },
+  header:       { position: "relative", overflow: "hidden", minHeight: 140, paddingHorizontal: 16, paddingBottom: 16, backgroundColor: "#4A5C48" },
+  headerTopRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", position: "relative", zIndex: 2 },
+  chipBtn:      { width: 36, height: 36, borderRadius: 18, backgroundColor: "#FDFAF4", alignItems: "center", justifyContent: "center" },
+  pageTitle:    { fontFamily: SERIF, fontSize: 38, color: "#FDFAF4", textAlign: "center", marginTop: 8, position: "relative", zIndex: 2 },
 
   scroll: {
     paddingHorizontal: 20,

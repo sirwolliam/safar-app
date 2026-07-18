@@ -1748,7 +1748,7 @@ const s = StyleSheet.create({
     marginBottom: 4,
   },
   gridEyebrowGold: {
-    fontSize: 9,
+    fontSize: 13,
     color: "#C8A96A",
     fontWeight: "700",
     textTransform: "uppercase",
@@ -1790,7 +1790,7 @@ const s = StyleSheet.create({
     padding: 14,
   },
   solidCardEyebrow: {
-    fontSize: 9,
+    fontSize: 13,
     color: "#C8A96A",
     fontWeight: "700",
     textTransform: "uppercase",

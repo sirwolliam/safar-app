@@ -5,14 +5,17 @@
 import React, { useState, useMemo } from "react";
 import {
   SafeAreaView, View, Text, ScrollView, TouchableOpacity,
-  StyleSheet, Switch, Alert, Modal,
+  StyleSheet, Switch, Alert, Modal, StatusBar, Dimensions,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { colors, spacing, radius, shadows, typography } from "../theme";
 import { useAccessibility } from "../AccessibilityContext";
 import { CaretLeft, Info, CaretRight } from "phosphor-react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import HeaderPatternBg from "../HeaderPatternBg";
 
 const SERIF = "SourceSerif4-Regular";
+const SW = Dimensions.get("window").width;
 
 const ABOUT_CONTENT = "Safar is your companion for every step of your sacred Hajj or Umrah journey.\n\nBuild a personalised step-by-step plan, pin your hotel, guide and travel group, practice the most important duʿāʾs, and carry the guidance of scholars in your pocket.\n\nShare milestones with fellow pilgrims, track your progress through every ibadah, and arrive prepared, calm and confident.\n\nMay Allah accept your journey. آمين";
 
@@ -85,6 +88,7 @@ const sr = StyleSheet.create({
 
 export default function SettingsScreen({ navigation }) {
   const { colors, largeText, highContrast, reduceMotion, toggle } = useAccessibility();
+  const insets = useSafeAreaInsets();
   const s = useMemo(() => createStyles(colors), [colors]);
 
   const [notif, setNotif] = useState(true);
@@ -111,18 +115,22 @@ export default function SettingsScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={s.safe}>
+    <View style={s.safe}>
+      <StatusBar barStyle="light-content" />
       <View style={s.header}>
-        <TouchableOpacity
-          style={s.backBtn}
-          onPress={() => navigation?.goBack?.()}
-          hitSlop={{ top:12, bottom:12, left:12, right:24 }}
-          activeOpacity={0.8}
-        >
-          <CaretLeft size={20} color="#1A1712" weight="bold" />
-        </TouchableOpacity>
-        <Text style={s.headerTitle}>Settings</Text>
-        <View style={{ width:30 }} />
+        <HeaderPatternBg width={SW} />
+        <View style={[s.headerTopRow, { paddingTop: insets.top + 8 }]}>
+          <TouchableOpacity
+            style={s.chipBtn}
+            onPress={() => navigation?.goBack?.()}
+            hitSlop={{ top:12, bottom:12, left:12, right:24 }}
+            activeOpacity={0.8}
+          >
+            <CaretLeft size={20} color="#1A1410" weight="bold" />
+          </TouchableOpacity>
+          <View style={{ width: 36 }} />
+        </View>
+        <Text style={s.pageTitle}>Settings</Text>
       </View>
 
       <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
@@ -214,15 +222,16 @@ export default function SettingsScreen({ navigation }) {
       </ScrollView>
 
       <AboutSafarModal visible={showAbout} onClose={() => setShowAbout(false)} />
-    </SafeAreaView>
+    </View>
   );
 }
 
 const createStyles = (colors) => StyleSheet.create({
   safe:   { flex:1, backgroundColor:"#E8DDD0" },
-  header: { flexDirection:"row", alignItems:"center", justifyContent:"space-between", paddingHorizontal:20, paddingTop:16, paddingBottom:12, backgroundColor:"#3A3545" },
-  backBtn:     { width:36, height:36, borderRadius:18, backgroundColor:"#FDFAF4", borderWidth:1, borderColor:"#D4D0CA", alignItems:"center", justifyContent:"center" },
-  headerTitle: { fontFamily:SERIF, fontSize:22, color:"#FDFAF4" },
+  header:       { position: "relative", overflow: "hidden", minHeight: 140, paddingHorizontal: 16, paddingBottom: 16, backgroundColor: "#4A5C48" },
+  headerTopRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", position: "relative", zIndex: 2 },
+  chipBtn:      { width: 36, height: 36, borderRadius: 18, backgroundColor: "#FDFAF4", alignItems: "center", justifyContent: "center" },
+  pageTitle:    { fontFamily: SERIF, fontSize: 38, color: "#FDFAF4", textAlign: "center", marginTop: 8, position: "relative", zIndex: 2 },
   scroll:       { paddingHorizontal:20, paddingTop:16 },
   sectionLabel: { fontSize:10, fontWeight:"700", letterSpacing:1.5, color:"#3A3530", marginBottom:8, marginTop:16 },
   card:         { backgroundColor:colors.card, borderRadius:radius.lg, borderWidth:1, borderColor:"#C8BFB2", overflow:"hidden", ...shadows.card, marginBottom:4 },

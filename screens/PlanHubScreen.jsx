@@ -312,7 +312,7 @@ const styles = StyleSheet.create({
   heroPad:       { paddingHorizontal: 20, paddingVertical: 14, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   heroLeft:      { flex: 1, marginRight: 16 },
   heroRight:     { alignItems: "center", justifyContent: "center" },
-  heroEyebrow:   { fontSize: 10, fontWeight: "700", letterSpacing: 1.2, color: "#C8A96A", marginBottom: 6 },
+  heroEyebrow:   { fontSize: 13, fontWeight: "700", letterSpacing: 1.2, color: "#C8A96A", marginBottom: 6 },
   heroBigNum:    { fontFamily: "SourceSerif4-Regular", fontSize: 42, color: "#FFFFFF", lineHeight: 44 },
   heroDaysSmall: { fontSize: 11, color: "rgba(255,255,255,0.7)", textAlign: "center", marginTop: 2 },
   heroCardTitle: { fontFamily: "SourceSerif4-Regular", fontSize: 20, color: "#FFFFFF", marginBottom: 6 },

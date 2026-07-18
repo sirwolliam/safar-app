@@ -593,42 +593,45 @@ export default function ProfileScreen({ navigation }) {
               <Text style={s.eyebrow}>SHOP</Text>
 
               {/* Shop banner card */}
-              <TouchableOpacity
-                style={s.shopBanner}
-                onPress={() => navigation?.navigate?.("Shop")}
-                activeOpacity={0.9}
-              >
-                <ImageBackground
-                  source={require("../assets/shop/shop-banner.jpg")}
-                  style={s.shopBannerBg}
-                  imageStyle={{ borderRadius: 16 }}
-                  resizeMode="cover"
-                >
-                  <LinearGradient
-                    colors={["rgba(10,8,4,0.18)", "rgba(10,8,4,0.72)"]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 0, y: 1 }}
-                    style={s.shopBannerGradient}
+              <View style={s.shopSection}>
+                <View style={s.shopSectionClip}>
+                  <TouchableOpacity
+                    style={s.shopBanner}
+                    onPress={() => navigation?.navigate?.("Shop")}
+                    activeOpacity={0.9}
                   >
-                    <View style={s.shopBannerBadge}>
-                      <Text style={s.shopBannerBadgeTxt}>THE SAFAR SHOP</Text>
-                    </View>
-                    <View style={s.shopBannerBottom}>
-                      <Text style={s.shopBannerTitle}>
-                        Everything you need for the journey
-                      </Text>
-                      <Text style={s.shopBannerSub}>
-                        Curated essentials — ihram, sandals, sun
-                        protection and more
-                      </Text>
-                      <Text style={s.shopBannerCta}>Browse all ↗</Text>
-                    </View>
-                  </LinearGradient>
-                </ImageBackground>
-              </TouchableOpacity>
+                    <ImageBackground
+                      source={require("../assets/shop/shop-banner.jpg")}
+                      style={s.shopBannerBg}
+                      resizeMode="cover"
+                    >
+                      <LinearGradient
+                        colors={["rgba(10,8,4,0.18)", "rgba(10,8,4,0.72)"]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 0, y: 1 }}
+                        style={s.shopBannerGradient}
+                      >
+                        <View style={s.shopBannerBadge}>
+                          <Text style={s.shopBannerBadgeTxt}>THE SAFAR SHOP</Text>
+                        </View>
+                        <View style={s.shopBannerBottom}>
+                          <Text style={s.shopBannerTitle}>
+                            Everything you need for the journey
+                          </Text>
+                          <Text style={s.shopBannerSub}>
+                            Curated essentials — ihram, sandals, sun
+                            protection and more
+                          </Text>
+                          <Text style={s.shopBannerCta}>Browse all ↗</Text>
+                        </View>
+                      </LinearGradient>
+                    </ImageBackground>
+                  </TouchableOpacity>
 
-              <View style={s.affiliateCard}>
-                <AffiliateCard styles={s} items={AFFILIATE_ITEMS} />
+                  <View style={s.affiliateCard}>
+                    <AffiliateCard styles={s} items={AFFILIATE_ITEMS} />
+                  </View>
+                </View>
               </View>
             </View>
 
@@ -955,10 +958,10 @@ const s = StyleSheet.create({
 
   // Eyebrow section labels
   eyebrow: {
-    fontSize: 10,
+    fontSize: 13,
     fontWeight: "700",
     letterSpacing: 1.2,
-    color: "#C8A96A",
+    color: "#B08F52",
     marginHorizontal: 16,
     marginTop: 24,
     marginBottom: 10,
@@ -1000,23 +1003,13 @@ const s = StyleSheet.create({
 
   // Shop banner
   shopBanner: {
-    marginHorizontal: 16,
-    marginBottom: 12,
-    borderRadius: 16,
-    overflow: "hidden",
     height: 155,
-    shadowColor: "#2A1F0E",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.22,
-    shadowRadius: 10,
-    elevation: 5,
   },
   shopBannerBg: {
     flex: 1,
   },
   shopBannerGradient: {
     flex: 1,
-    borderRadius: 16,
     padding: 16,
     justifyContent: "space-between",
   },
@@ -1057,19 +1050,13 @@ const s = StyleSheet.create({
     marginTop: 4,
   },
 
+  // Shop section wrapper + clip
+  shopSection: { marginHorizontal: 16, marginBottom: 12, borderRadius: 16, backgroundColor: "#FDFAF4", shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.14, shadowRadius: 10, elevation: 4 },
+  shopSectionClip: { borderRadius: 16, overflow: "hidden" },
+
   // Affiliate card wrapper (Zone 3)
   affiliateCard: {
-    backgroundColor: "#FDFAF4",
-    borderRadius: 16,
-    marginHorizontal: 16,
-    paddingTop: 16,
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-    shadowColor: "#2A1F0E",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
+    padding: 16,
   },
   affiliateDisclosure: { fontSize: 12, color: "#8A7D6A", fontStyle: "italic", marginTop: 10, lineHeight: 16 },
   affiliateGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
