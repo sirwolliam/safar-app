@@ -68,7 +68,7 @@ const PILLAR_CONFIG = {
     iconBg:            "#2D4F32",
     Icon:              BookOpen,
     title:             "Learn",
-    subtitle:          "Understand the rites before you go — step by step, at your pace.",
+    subtitle:          "Understand every step before you go — at your own pace.",
     hasHeroCard:       false,
     rows: [
       { key: "umrah",  Icon: Compass,  label: "Umrah Guide",     sub: "Every step of ʿUmrah, in order",            nav: "stack", target: "UmrahGuide"  },
@@ -86,7 +86,7 @@ const PILLAR_CONFIG = {
     iconBg:            "#4E3414",
     Icon:              PersonSimpleRun,
     title:             "Practice",
-    subtitle:          "Rehearse the rites and keep your remembrance — calm, guided, hands-free.",
+    subtitle:          "Rehearse each step and keep your remembrance — calm, guided, hands-free.",
     hasHeroCard:       false,
     rows: [
       { key: "umrahduas", Icon: HandsPraying, label: "Umrah Duʿās",  sub: "Supplications for every step of ʿUmrah", nav: "stack", target: "PilgrimageDuas", params: { mode: "umrah" } },

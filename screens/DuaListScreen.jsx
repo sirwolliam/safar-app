@@ -56,7 +56,7 @@ const STAGE_META = {
   },
   "Mina": {
     image:   require("../assets/06_mina_gradient.jpg"),
-    context: "At Min\u0101 \u2014 stoning the Jamar\u0101t and completing the rites",
+    context: "At Min\u0101 \u2014 stoning the Jamar\u0101t on the final days of \u1e24ajj",
     siteId:  "mina",
   },
   "Kaaba": {

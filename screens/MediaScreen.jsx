@@ -98,7 +98,7 @@ export const MEDIA = [
     level:"all",
     title:"Hajj & Umrah Guidance",
     source:"SeekersGuidance.org", duration:"6 min read",
-    desc:"Scholarly guidance on Hajj and Umrah rites across madhabs.",
+    desc:"Scholarly guidance on Hajj and Umrah across madhabs.",
     url:"https://seekersguidance.org",
     image:require("../assets/medina.png"),
     label:"ARTICLE",

@@ -122,7 +122,7 @@ export default function PracticeHubScreen({ navigation }) {
             <Text style={styles.headerTitle}>Practice</Text>
           </View>
           <Text style={styles.headerSub}>
-            Rehearse the rites and keep your remembrance — calm, guided, hands-free.
+            Rehearse each step and keep your remembrance — calm, guided, hands-free.
           </Text>
         </View>
       </View>

@@ -113,7 +113,7 @@ const GENERAL_SECTIONS = [
   {
     id: "practices", title: "Worship Guidance & Schools of Thought", Icon: BookOpen,
     items: [
-      { text: "The four main schools (Hanafi, Maliki, Shafi'i, Hanbali) have minor differences in the performance of rites.", type: "scholarly" },
+      { text: "The four main schools (Hanafi, Maliki, Shafi'i, Hanbali) have minor differences in how these are performed.", type: "scholarly" },
       { text: "Opinions differ on where to enter Ihram (e.g. at the Miqat vs at the airport) — follow your madhab.", type: "scholarly" },
       { text: "If uncertain about any act, consult a qualified scholar before your journey.", type: "scholarly" },
       { text: "Shaving (halq) is preferable for men after Umrah; trimming (taqsir) is the minimum.", type: "scholarly" },

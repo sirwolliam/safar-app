@@ -16,6 +16,7 @@ import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 import Svg, { Path, Defs, LinearGradient as SvgGrad, Stop, Mask, Rect, Polygon } from "react-native-svg";
 import { PATTERN_PATH } from "./headerPatternPath";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import PillarList from "../PillarList";
 import { LinearGradient } from "expo-linear-gradient";
 import {
   MapTrifold, BookOpenText, HandsPraying, CompassRose,
@@ -159,20 +160,26 @@ const DAILY_DUA = {
 function AboutModal({ visible, onClose }) {
   return (
     <Modal visible={visible} transparent animationType="fade">
-      <TouchableOpacity style={ab.overlay} activeOpacity={1} onPress={onClose}>
-        <View style={ab.card} onStartShouldSetResponder={() => true}>
-          <Text style={ab.title}>What is Safar?</Text>
-          <Text style={ab.body}>
-            {"Safar is your companion for every step of your sacred Hajj or Umrah journey.\n\n"}
-            {"Build a personalised step-by-step plan, pin your hotel, guide and travel group, practice the most important du\u02bf\u0101\u02bes, and carry the guidance of scholars in your pocket.\n\n"}
-            {"Share milestones with fellow pilgrims, track your progress through every ibadah, and arrive prepared, calm and confident.\n\n"}
-            {"May Allah accept your journey. \u0622\u0645\u064a\u0646"}
-          </Text>
+      <View style={ab.overlay}>
+        <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={onClose} />
+        <View style={ab.card}>
+          <ScrollView contentContainerStyle={ab.scrollContent} showsVerticalScrollIndicator={false}>
+            <Text style={ab.title}>What is Safar?</Text>
+            <Text style={ab.body}>
+              {"Safar is your companion for every step of your sacred Hajj or Umrah journey.\n\n"}
+              {"Build a personalised step-by-step plan, pin your hotel, guide and travel group, practice the most important du\u02bf\u0101\u02bes, and carry the guidance of scholars in your pocket.\n\n"}
+              {"Share milestones with fellow pilgrims, track your progress through every ibadah, and arrive prepared, calm and confident.\n\n"}
+              {"May Allah accept your journey. \u0622\u0645\u064a\u0646"}
+            </Text>
+            <OrnamentDivider />
+            <Text style={ab.intro}>{"Here’s how we’ve organized Safar to help you prepare with confidence."}</Text>
+            <PillarList showFooterNote />
+          </ScrollView>
           <TouchableOpacity style={ab.btn} onPress={onClose}>
             <Text style={ab.btnText}>Close</Text>
           </TouchableOpacity>
         </View>
-      </TouchableOpacity>
+      </View>
     </Modal>
   );
 }
@@ -195,7 +202,11 @@ const ab = StyleSheet.create({
     shadowOpacity: 0.20,
     shadowRadius: 24,
     elevation: 12,
+    maxHeight: SH * 0.85,
+    overflow: "hidden",
   },
+  scrollContent: { paddingBottom: 4 },
+  intro: { fontSize: 15, color: "#8A7D6A", lineHeight: 22, marginBottom: 16 },
   title: {
     fontSize: 22,
     fontWeight: "600",
@@ -206,7 +217,6 @@ const ab = StyleSheet.create({
     fontSize: 15,
     color: "#3A3530",
     lineHeight: 24,
-    marginBottom: 22,
   },
   btn: {
     backgroundColor: "#4A5C48",
@@ -214,6 +224,7 @@ const ab = StyleSheet.create({
     paddingHorizontal: 32,
     paddingVertical: 11,
     alignSelf: "flex-start",
+    marginTop: 20,
   },
   btnText: {
     color: "#FDFAF4",

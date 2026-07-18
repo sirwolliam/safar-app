@@ -122,7 +122,7 @@ export default function LearnHubScreen({ navigation }) {
             <Text style={styles.headerTitle}>Learn</Text>
           </View>
           <Text style={styles.headerSub}>
-            Understand the rites before you go — step by step, at your pace.
+            Understand every step before you go — at your own pace.
           </Text>
         </View>
       </View>

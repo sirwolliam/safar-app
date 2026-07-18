@@ -31,7 +31,7 @@ import {
 export const HUBS = {
   learn: {
     title: "Learn",
-    blurb: "Understand the rites before you go \u2014 step by step, at your pace.",
+    blurb: "Understand every step before you go \u2014 at your own pace.",
     bg: "#1C2B1E", circleA: "#2F5D50", circleB: "#1E3D34",
     items: [
       { Icon: Compass,  label: "Umrah Guide",    sub: "Every step of \u02bfUmrah, in order",        nav:"stack", target:"UmrahGuide" },
@@ -43,7 +43,7 @@ export const HUBS = {
   },
   practice: {
     title: "Practice",
-    blurb: "Rehearse the rites and keep your remembrance \u2014 calm, guided, hands-free.",
+    blurb: "Rehearse each step and keep your remembrance \u2014 calm, guided, hands-free.",
     bg: "#2A1F0E", circleA: "#5D4A20", circleB: "#3D3010",
     items: [
       { Icon: Moon,             label: "Focus Mode",            sub: "A quiet space for worship",            soon: true },

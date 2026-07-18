@@ -32,7 +32,7 @@ const MONTH_NAMES = [
 
 const CATEGORIES = [
   { id: "travel",    label: "Travel",    color: "#2E4560", Icon: SuitcaseRolling },
-  { id: "rites",     label: "Rites",     color: "#C8A96A", Icon: HandsPraying   },
+  { id: "worship",     label: "Acts of Worship",     color: "#C8A96A", Icon: HandsPraying   },
   { id: "group",     label: "Group",     color: "#3D2240", Icon: UsersThree     },
   { id: "personal",  label: "Personal",  color: "#4A5C48", Icon: Heart          },
   { id: "reminders", label: "Reminders", color: "#3A2F1E", Icon: BellSimple     },
@@ -113,7 +113,7 @@ async function seedDemoEntriesIfEmpty() {
   const m = String(now.getMonth() + 1).padStart(2, "0");
   const demo = [
     { id: uid(), date: `${y}-${m}-03`, title: "Hotel Check-in",      description: "Makkah, Jabal Omar",                                 category: "travel",    location: "Jabal Omar, Makkah",  createdAt: new Date().toISOString() },
-    { id: uid(), date: `${y}-${m}-09`, title: "Day of Arafah",       description: "Stand in prayer from Dhuhr to Maghrib",              category: "rites",     location: "Mount Arafat",         createdAt: new Date().toISOString() },
+    { id: uid(), date: `${y}-${m}-09`, title: "Day of Arafah",       description: "Stand in prayer from Dhuhr to Maghrib",              category: "worship",     location: "Mount Arafat",         createdAt: new Date().toISOString() },
     { id: uid(), date: `${y}-${m}-12`, title: "Group Meeting Point",  description: "Mina, tent block 12, 5:30 PM",                      category: "group",     location: "Mina, Tent Block 12",  createdAt: new Date().toISOString() },
     { id: uid(), date: `${y}-${m}-12`, title: "Visit Masjid Nabawi", description: "Evening visit for Maghrib and Isha prayers",          category: "personal",  location: "Madinah",              createdAt: new Date().toISOString() },
     { id: uid(), date: `${y}-${m}-15`, title: "Call Family",         description: "Let them know we've arrived safely",                  category: "personal",  location: "",                     createdAt: new Date().toISOString() },

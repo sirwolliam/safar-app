@@ -33,7 +33,7 @@ export default function GuidesHubScreen({ navigation }) {
 
       <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
         <Text style={s.intro}>
-          {"Choose your pilgrimage for a full, step-by-step guide \u2014 each rite explained in order, with du\u02bf\u0101s and tips."}
+          {"Choose your pilgrimage for a full, step-by-step guide \u2014 each part explained in order, with du\u02bf\u0101s and tips."}
         </Text>
 
         {/* Umrah */}

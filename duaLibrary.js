@@ -6,7 +6,7 @@
  * and established scholarly works (al-Adhkar of al-Nawawi, Hisn al-Muslim).
  *
  * Categories:
- *   hajj_umrah   — Duas specific to Hajj and Umrah rites
+ *   hajj_umrah   — Duas specific to Hajj and Umrah
  *   quran        — Duas taken directly from the Quran
  *   prayer_salah — Duas related to Salah and worship
  *   gratitude    — Praise, thanks and shukr

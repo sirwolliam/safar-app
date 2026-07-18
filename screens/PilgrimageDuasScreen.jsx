@@ -80,7 +80,7 @@ const STAGE_META = {
     image:       require("../assets/mina.jpg"),
     emoji:       "\u26AA",
     displayName: "Stoning at Min\u0101",
-    description: "At Min\u0101, we stone the Jamar\u0101t and complete the rites of \u1e24ajj. Say \u2018All\u0101hu Akbar\u2019 with each stone thrown and seek Allah\u2019s acceptance.",
+    description: "At Min\u0101, we stone the Jamar\u0101t as we complete \u1e24ajj. Say \u2018All\u0101hu Akbar\u2019 with each stone thrown and seek Allah\u2019s acceptance.",
   },
   "Farewell": {
     image:       require("../assets/tawaf2.jpg"),

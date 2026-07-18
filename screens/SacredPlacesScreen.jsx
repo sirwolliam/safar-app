@@ -46,7 +46,7 @@ const MADINAH_INFO = {
     note: "guidance",
   },
   nabawi: {
-    detail: "The Prophet's Mosque (Masjid al-Nabawī) was originally built by the Prophet ﷺ himself after the Hijrah in 622 CE. Today it is one of the largest mosques in the world. Visiting it is highly recommended — the Prophet ﷺ said: 'A prayer in this mosque of mine is better than a thousand prayers elsewhere except al-Masjid al-Ḥarām.' (Ṣaḥīḥ Muslim · 1394). It is not part of the obligatory Hajj or Umrah rites.",
+    detail: "The Prophet's Mosque (Masjid al-Nabawī) was originally built by the Prophet ﷺ himself after the Hijrah in 622 CE. Today it is one of the largest mosques in the world. Visiting it is highly recommended — the Prophet ﷺ said: 'A prayer in this mosque of mine is better than a thousand prayers elsewhere except al-Masjid al-Ḥarām.' (Ṣaḥīḥ Muslim · 1394). It is not part of what is required in Hajj or Umrah.",
     note: "guidance",
   },
 };
@@ -326,7 +326,7 @@ export default function SacredPlacesScreen({ navigation }) {
         {city === "Madinah" && (
           <View style={s.madinahNote}>
             <Text style={s.madinahNoteText}>
-              Visiting Madinah is not part of the Hajj or Umrah rites, but is a beloved and highly recommended practice. The sites below are outside Masjid al-Ḥarām.
+              Visiting Madinah is not part of Hajj or Umrah, but is a beloved and highly recommended practice. The sites below are outside Masjid al-Ḥarām.
             </Text>
           </View>
         )}
