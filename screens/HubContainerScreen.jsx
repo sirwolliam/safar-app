@@ -14,6 +14,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import SafarAssistCard from "../SafarAssistCard";
 import {
   CaretLeft, CaretRight, ArrowSquareOut,
   ListChecks, Compass, ShoppingBag, AddressBook,
@@ -308,7 +309,7 @@ export default function HubContainerScreen({ navigation, route }) {
               onPress={() => navigation.navigate("SafarAssist")}
             >
               <LinearGradient
-                colors={["#1A202E", "#101828"]}
+                colors={["#3A4F3A", "#2A3E2A"]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.heroGradient}
@@ -317,7 +318,10 @@ export default function HubContainerScreen({ navigation, route }) {
                   <View style={styles.heroPad}>
                     <View style={styles.heroLeft}>
                       <Text style={styles.heroEyebrow}>YOUR JOURNEY BEGINS SOON</Text>
-                      <Text style={styles.heroCta}>Review details →</Text>
+                      <View style={{ flexDirection: "row", alignItems: "center", gap: 6, marginTop: 12 }}>
+                        <Sparkle size={14} color="#C8A96A" weight="fill" />
+                        <Text style={[styles.heroCta, { marginTop: 0 }]}>{"Review details →"}</Text>
+                      </View>
                     </View>
                     <View style={styles.heroRight}>
                       <Text style={styles.heroBigNum}>
@@ -333,7 +337,10 @@ export default function HubContainerScreen({ navigation, route }) {
                       <Text style={styles.heroCardTitle}>
                         Trip details saved — add your dates
                       </Text>
-                      <Text style={styles.heroCta}>Review details →</Text>
+                      <View style={{ flexDirection: "row", alignItems: "center", gap: 6, marginTop: 12 }}>
+                        <Sparkle size={14} color="#C8A96A" weight="fill" />
+                        <Text style={[styles.heroCta, { marginTop: 0 }]}>{"Review details →"}</Text>
+                      </View>
                     </View>
                     <View style={styles.heroRight} />
                   </View>
@@ -347,7 +354,10 @@ export default function HubContainerScreen({ navigation, route }) {
                       <Text style={styles.heroCardSub}>
                         Import your travel details — we do the rest.
                       </Text>
-                      <Text style={styles.heroCta}>Import details  →</Text>
+                      <View style={{ flexDirection: "row", alignItems: "center", gap: 6, marginTop: 12 }}>
+                        <Sparkle size={14} color="#C8A96A" weight="fill" />
+                        <Text style={[styles.heroCta, { marginTop: 0 }]}>{"Import details →"}</Text>
+                      </View>
                     </View>
                     <View style={styles.heroRight} />
                   </View>
@@ -384,6 +394,16 @@ export default function HubContainerScreen({ navigation, route }) {
               )}
             </TouchableOpacity>
           ))}
+        {(activePillar === "plan" || activePillar === "connect") && (
+          <View style={{ marginHorizontal: 16 }}>
+            <SafarAssistCard
+              title="Import with Safar Assist"
+              subtitle={activePillar === "plan" ? "Bring in your calendar, checklists, contacts, and documents" : "Import your group details and travel contacts"}
+              tagline="Speak it, scan it, or upload it"
+              onPress={() => navigation.navigate("SafarAssist")}
+            />
+          </View>
+        )}
         <View style={styles.bottomSpacer} />
       </ScrollView>
     </View>
@@ -412,15 +432,15 @@ const styles = StyleSheet.create({
   scroll:        { flex: 1 },
   scrollContent: { paddingTop: 10, paddingHorizontal: 0 },
   // Hero card
-  heroCard:      { borderRadius: 16, marginHorizontal: 18, marginTop: 0, marginBottom: 16, overflow: "hidden" },
+  heroCard:      { borderRadius: 16, marginHorizontal: 16, marginTop: 0, marginBottom: 16, overflow: "hidden", shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.12, shadowRadius: 10, elevation: 4 },
   heroGradient:  { borderRadius: 16 },
   heroPad:       { paddingHorizontal: 20, paddingVertical: 14, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   heroLeft:      { flex: 1, marginRight: 16 },
   heroRight:     { alignItems: "center", justifyContent: "center" },
   heroEyebrow:   { fontSize: 13, fontWeight: "700", letterSpacing: 1.2, color: "#C8A96A", marginBottom: 6 },
   heroBigNum:    { fontSize: 42, color: "#FFFFFF", lineHeight: 44 },
-  heroDaysSmall: { fontSize: 11, color: "rgba(255,255,255,0.7)", textAlign: "center", marginTop: 2 },
-  heroCardTitle: { fontSize: 20, color: "#FFFFFF", marginBottom: 6 },
+  heroDaysSmall: { fontSize: 13, color: "rgba(255,255,255,0.7)", textAlign: "center", marginTop: 2 },
+  heroCardTitle: { fontFamily: "SourceSerif4-Regular", fontSize: 20, color: "#FFFFFF", marginBottom: 6 },
   heroCardSub:   { fontSize: 13, color: "rgba(255,255,255,0.72)", lineHeight: 19 },
   heroCta:       { fontSize: 14, fontWeight: "600", color: "#C8A96A", marginTop: 12 },
   // List card

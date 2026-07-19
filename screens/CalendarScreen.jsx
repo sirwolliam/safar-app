@@ -735,8 +735,8 @@ const s = StyleSheet.create({
   entriesSection: { },
 
   // Empty state
-  empty:         { alignItems: "center", paddingVertical: 36, backgroundColor: "#FDFAF4", borderRadius: 16, borderWidth: 1, borderColor: "#DDD5C0" },
-  emptyText:     { fontSize: 14, color: "#8A7D6A", marginTop: 12, marginBottom: 16 },
+  empty:         { alignItems: "center", paddingVertical: 16, marginBottom: 12, backgroundColor: "#FDFAF4", borderRadius: 16, borderWidth: 1, borderColor: "#DDD5C0" },
+  emptyText:     { fontSize: 14, color: "#8A7D6A", marginTop: 6, marginBottom: 8 },
   emptyBtn:      { flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: "#4A5C48", borderRadius: 20, paddingHorizontal: 18, paddingVertical: 9 },
   emptyBtnText:  { fontSize: 13, fontWeight: "600", color: "#FDFAF4" },
 
