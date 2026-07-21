@@ -14,8 +14,10 @@ import HeaderPatternBg from "../HeaderPatternBg";
 import SafarAssistCard from "../SafarAssistCard";
 import {
   CaretLeft, NotePencil, Plus,
-  MagnifyingGlass, SquaresFour, List, CaretRight,
+  MagnifyingGlass, SquaresFour, List, CaretRight, Microphone, Trash,
 } from "phosphor-react-native";
+
+let SR; try { SR = require("expo-speech-recognition"); } catch (_) {}
 
 const SERIF       = "SourceSerif4-Regular";
 const STORAGE_KEY = "safar_notes_v2";
@@ -81,6 +83,14 @@ function NoteModal({ note, visible, onSave, onClose }) {
     });
   };
 
+  const startVoice = async () => {
+    if (!SR) { Alert.alert("Not available", "Voice input requires a development build. You can type your note instead."); return; }
+    try {
+      const result = await SR.ExpoSpeechRecognitionModule?.startListeningAsync?.({ lang: "en-US", interimResults: false });
+      if (result?.value) { setText(prev => prev ? prev + " " + result.value : result.value); }
+    } catch (_) { Alert.alert("Could not start voice input", "Please try again or type your note."); }
+  };
+
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <KeyboardAvoidingView
@@ -94,10 +104,12 @@ function NoteModal({ note, visible, onSave, onClose }) {
                 <Text style={nm.cancel}>Cancel</Text>
               </TouchableOpacity>
               <Text style={nm.sheetTitle}>{note?.id ? "Edit note" : "New note"}</Text>
-              <TouchableOpacity onPress={handleSave}>
-                <Text style={nm.save}>Save</Text>
-              </TouchableOpacity>
             </View>
+
+            <TouchableOpacity style={nm.voiceRow} onPress={startVoice} activeOpacity={0.8}>
+              <Microphone size={18} color="#4A5C48" weight="regular" />
+              <Text style={nm.voiceRowText}>Speak your note</Text>
+            </TouchableOpacity>
 
             <TextInput
               style={nm.titleInput}
@@ -171,6 +183,12 @@ function NoteModal({ note, visible, onSave, onClose }) {
               multiline
               autoFocus={!note?.id}
             />
+
+            <View style={nm.stickyFooter}>
+              <TouchableOpacity style={nm.saveBtn} onPress={handleSave} activeOpacity={0.88}>
+                <Text style={nm.saveBtnText}>Save Note</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </KeyboardAvoidingView>
@@ -184,7 +202,11 @@ const nm = StyleSheet.create({
   sheetHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 16 },
   cancel:      { fontSize: 16, color: "#5A5650" },
   sheetTitle:  { fontFamily: SERIF, fontSize: 16, color: "#100E0A" },
-  save:        { fontSize: 16, color: "#1E3D30", fontWeight: "600" },
+  voiceRow:     { flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: "#EBF2EE", borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, marginBottom: 14 },
+  voiceRowText: { fontSize: 14, color: "#4A5C48", fontWeight: "600" },
+  stickyFooter: { paddingTop: 12, borderTopWidth: 1, borderTopColor: "#E0D8CC" },
+  saveBtn:      { backgroundColor: "#4A5C48", borderRadius: 14, paddingVertical: 16, alignItems: "center", justifyContent: "center" },
+  saveBtnText:  { fontSize: 16, fontWeight: "700", color: "#FFFFFF" },
   titleInput:  { fontSize: 18, fontFamily: SERIF, color: "#100E0A", borderBottomWidth: 1, borderBottomColor: "#C8BFB2", paddingBottom: 10, marginBottom: 12 },
   tagRow:      { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 12 },
   tagPill:     { paddingHorizontal: 12, paddingVertical: 5, borderRadius: 50, borderWidth: 1.5 },
@@ -306,12 +328,9 @@ export default function NotesScreen({ navigation }) {
           >
             <CaretLeft size={20} color={colors.text} weight="bold" />
           </TouchableOpacity>
-          <TouchableOpacity
-            style={s.addBtn}
-            onPress={() => { setEditing(null); setShowModal(true); }}
-            activeOpacity={0.85}
-          >
-            <Plus size={20} color="#1A1410" weight="bold" />
+          <TouchableOpacity style={s.addPill} onPress={() => { setEditing(null); setShowModal(true); }} activeOpacity={0.85}>
+            <Plus size={16} color="#1A1410" weight="bold" />
+            <Text style={s.addPillText}>Add note</Text>
           </TouchableOpacity>
         </View>
 
@@ -320,7 +339,7 @@ export default function NotesScreen({ navigation }) {
             <NotePencil size={20} color="#C8A96A" weight="regular" />
             <Text style={s.headerTitle}>Notes</Text>
           </View>
-          <Text style={s.headerSub}>Intentions, reflections, and reminders.</Text>
+          <Text style={s.headerSub}>{"Record or journal your intentions, reflections, and reminders."}</Text>
         </View>
       </View>
 
@@ -423,6 +442,7 @@ export default function NotesScreen({ navigation }) {
                     {note.tag ? note.tag + " · " : ""}{formatDate(note.createdAt)}
                   </Text>
                 </View>
+                <TouchableOpacity onPress={() => Alert.alert("Delete note?", "This cannot be undone.", [{ text: "Cancel", style: "cancel" }, { text: "Delete", style: "destructive", onPress: () => handleDelete(note.id) }])} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} activeOpacity={0.7} style={{ paddingLeft: 8 }}><Trash size={16} color="#C8BFB2" weight="regular" /></TouchableOpacity>
               </TouchableOpacity>
             );
           }
@@ -468,6 +488,7 @@ export default function NotesScreen({ navigation }) {
                     </View>
                   ) : null}
                   <Text style={s.cardDate}>{formatDate(note.createdAt)}</Text>
+                  <TouchableOpacity style={{ marginLeft: "auto" }} onPress={() => Alert.alert("Delete note?", "This cannot be undone.", [{ text: "Cancel", style: "cancel" }, { text: "Delete", style: "destructive", onPress: () => handleDelete(note.id) }])} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} activeOpacity={0.7}><Trash size={16} color="#C8BFB2" weight="regular" /></TouchableOpacity>
                 </View>
               </View>
             </TouchableOpacity>
@@ -532,14 +553,8 @@ const createStyles = (colors) => StyleSheet.create({
     marginTop: 2,
     textAlign: "center",
   },
-  addBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#FDFAF4",
-    alignItems: "center",
-    justifyContent: "center",
-  },
+  addPill: { flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: "#FDFAF4", borderRadius: 22, paddingHorizontal: 14, paddingVertical: 8 },
+  addPillText: { fontSize: 14, fontWeight: "600", color: "#1A1410" },
 
   controlBar: {
     flexDirection: "row",

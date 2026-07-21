@@ -353,7 +353,7 @@ const cm = StyleSheet.create({
 });
 
 // ── Main screen ───────────────────────────────────────────────────────────────
-export default function MyContactsScreen({ navigation }) {
+export default function MyContactsScreen({ navigation, route }) {
   const SW = Dimensions.get("window").width;
   const insets = useSafeAreaInsets();
   const [contacts,    setContacts]    = useState([]);
@@ -398,7 +398,7 @@ export default function MyContactsScreen({ navigation }) {
       <View style={s.header}>
         <HeaderPatternBg width={SW} />
         <View style={[s.headerTopRow, { paddingTop: insets.top + 12 }]}>
-          <TouchableOpacity style={s.backBtn} onPress={() => navigation?.goBack?.()} activeOpacity={0.8}>
+          <TouchableOpacity style={s.backBtn} onPress={() => { const returnToTab = route?.params?.returnToTab; if (returnToTab) { navigation?.getParent?.()?.navigate?.(returnToTab); } else { navigation?.goBack?.(); } }} activeOpacity={0.8}>
             <Text style={s.backArrow}>{"‹"}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={s.addBtn} onPress={() => { setEditContact(null); setShowModal(true); }} activeOpacity={0.85}>

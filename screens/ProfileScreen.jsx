@@ -12,10 +12,10 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   ListChecks, BookmarkSimple, NotePencil, Compass, Headphones,
-  BookOpen, PlayCircle, DownloadSimple, Gear, Question, Info,
+  BookOpen, PlayCircle, Gear, Question, Info,
   ArrowSquareOut, MagnifyingGlass, CaretRight,
   Wrench, ShoppingBag, Buildings, MapTrifold, Mosque,
-  CurrencyCircleDollar, PencilSimple,
+  CurrencyCircleDollar, PencilSimple, PushPin,
 } from "phosphor-react-native";
 import { getAffiliateUrl } from "../utils/affiliateLinks";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -61,7 +61,7 @@ const TOOLS = [
   { id: "prayer",    Icon: Mosque,               title: "Prayer Times",       sub: "Daily salah times for your city",  screen: "PrayerTimes"       },
   { id: "qibla",     Icon: Compass,              title: "Qibla Finder",       sub: "Direction of the Ka'bah",          screen: "Qibla"             },
   { id: "currency",  Icon: CurrencyCircleDollar, title: "Currency Converter", sub: "SAR to your home currency",        screen: "CurrencyConverter" },
-  { id: "bookmark",  Icon: BookmarkSimple,        title: "Bookmarks",          sub: "Your saved duas",                 screen: "Bookmarks"         },
+  { id: "board",     Icon: PushPin,               title: "My Board",           sub: "Notes, checklists, and saved content", screen: "MyBoard"      },
   { id: "notes",     Icon: NotePencil,           title: "Notes",              sub: "Personal reflections",             screen: "Notes"             },
 ];
 
@@ -539,19 +539,19 @@ export default function ProfileScreen({ navigation }) {
 
               <View style={s.tileGrid}>
                 <TouchableOpacity
-                  style={[s.tile, { backgroundColor: "rgba(58,53,69,0.90)" }]}
-                  onPress={() => navigation?.navigate?.("Bookmarks")}
+                  style={[s.tile, { backgroundColor: "rgba(58,53,69,0.82)" }]}
+                  onPress={() => navigation?.getParent?.()?.navigate?.("Journey", { screen: "MyBoard", initial: false, params: { returnToTab: "Prepare" } })}
                   activeOpacity={0.85}
                 >
-                  <BookmarkSimple size={28} color="#C8A96A" weight="regular" />
+                  <PushPin size={28} color="#C8A96A" weight="regular" />
                   <View>
-                    <Text style={s.tileLabel}>Bookmarks</Text>
+                    <Text style={s.tileLabel}>My Board</Text>
                     <Text style={s.tileSub}>Saved content</Text>
                   </View>
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={[s.tile, { backgroundColor: "rgba(58,53,69,0.78)" }]}
+                  style={[s.tile, { backgroundColor: "rgba(58,53,69,0.82)" }]}
                   onPress={() => navigation?.navigate?.("Notes")}
                   activeOpacity={0.85}
                 >
@@ -563,7 +563,7 @@ export default function ProfileScreen({ navigation }) {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={[s.tile, { backgroundColor: "rgba(58,53,69,0.68)" }]}
+                  style={[s.tile, { backgroundColor: "rgba(58,53,69,0.82)" }]}
                   onPress={() => navigation?.navigate?.("WhatToExpect")}
                   activeOpacity={0.85}
                 >
@@ -575,7 +575,7 @@ export default function ProfileScreen({ navigation }) {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={[s.tile, { backgroundColor: "rgba(58,53,69,0.58)" }]}
+                  style={[s.tile, { backgroundColor: "rgba(58,53,69,0.82)" }]}
                   onPress={() => navigation?.navigate?.("PracticeLearn")}
                   activeOpacity={0.85}
                 >
@@ -655,7 +655,7 @@ export default function ProfileScreen({ navigation }) {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={[s.row, s.rowBorder]}
+                  style={s.row}
                   onPress={() => navigation?.navigate?.("Media")}
                   activeOpacity={0.75}
                 >
@@ -665,21 +665,6 @@ export default function ProfileScreen({ navigation }) {
                   <View style={s.rowInfo}>
                     <Text style={s.rowLabel}>Media & Videos</Text>
                     <Text style={s.rowSub}>Hajj guides, podcasts, lectures</Text>
-                  </View>
-                  <CaretRight size={18} color="#C8BFB2" weight="bold" />
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={s.row}
-                  onPress={() => navigation?.navigate?.("PrintOffline")}
-                  activeOpacity={0.75}
-                >
-                  <View style={s.rowIconBox}>
-                    <DownloadSimple size={24} color="#C8A96A" weight="regular" />
-                  </View>
-                  <View style={s.rowInfo}>
-                    <Text style={s.rowLabel}>Save for Offline</Text>
-                    <Text style={s.rowSub}>Access guides without internet</Text>
                   </View>
                   <CaretRight size={18} color="#C8BFB2" weight="bold" />
                 </TouchableOpacity>

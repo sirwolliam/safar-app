@@ -842,7 +842,7 @@ const s = StyleSheet.create({
   scroll: { paddingHorizontal: 20, paddingTop: 16 },
 
   // Section headers
-  sectionTitle: { fontFamily: SERIF, fontSize: 20, color: "#1A1410", fontWeight: "600", marginBottom: 4, marginTop: 12 },
+  sectionTitle: { fontFamily: SERIF, fontSize: 20, color: "#1A1410", fontWeight: "600", marginBottom: 4, marginTop: 12, textAlign: "center" },
   sectionSub:   { fontSize: 14, color: "#5C534A", lineHeight: 20, marginBottom: 16 },
 
   // Feature cards (grid)

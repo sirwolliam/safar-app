@@ -42,20 +42,20 @@ const HERO_SLIDES = [
     image: require("../assets/kaaba_mixed.png"),
     scrim: "rgba(8,20,12,0.28)",
     tag: "WELCOME TO SAFAR",
-    headline: null,
-    sub: "Plan, prepare and perform with confidence",
+    headline: "Your companion for Hajj and Umrah",
+    sub: "Step-by-step guides, duas, smart checklists, and tools to help – one app for every step of Hajj and Umrah.",
     cta: "Learn more",
     ctaIsAbout: true,
     ctaScreen: null,
-    showGreeting: true,
+    showGreeting: false,
   },
   {
     id: "media",
     image: require("../assets/hero-media.png"),
     scrim: "rgba(12,8,4,0.55)",
     tag: "CURATED MEDIA",
-    headline: "Learn with confidence",
-    sub: "Handpicked videos, podcasts, and articles to prepare, learn, and travel with confidence",
+    headline: "Educate. Prepare. Be ready.",
+    sub: "Scholarly guides, travel tips, and inspirational content to help you before, during, and after your journey.",
     cta: "Explore Media",
     ctaIsAbout: false,
     ctaScreen: "Media",
@@ -65,10 +65,10 @@ const HERO_SLIDES = [
     id: "duas",
     image: require("../assets/hero_duas.jpg"),
     scrim: "rgba(8,16,12,0.26)",
-    tag: "DU\u02bfĀS & WORSHIP",
-    headline: "Every Du\u02bfa\u02be, Every Moment",
-    sub: "Authenticated, practiced and always with you",
-    cta: "View du\u02bfa\u02bes",
+    tag: "DUAS & WORSHIP",
+    headline: "Duas for Every Moment",
+    sub: "A growing library of verified duas for every occasion — with audio so you can learn and practice before you go.",
+    cta: "View duas",
     ctaIsAbout: false,
     ctaScreen: "Duas",
     showGreeting: false,
@@ -300,7 +300,7 @@ export default function HomeScreen({ navigation }) {
         heroRef.current?.scrollToIndex({ index: next, animated: true });
         return next;
       });
-    }, 5000);
+    }, 12000);
     return () => clearInterval(heroTimer.current);
   }, []);
 
@@ -389,21 +389,6 @@ export default function HomeScreen({ navigation }) {
 
         {/* Very light scrim — keeps photo bright */}
         <View style={[StyleSheet.absoluteFill, { backgroundColor:"rgba(0,0,0,0.08)" }]} />
-
-        {/* Top left — salam + user name */}
-        <View style={[s.heroTopLeft, { top: insets.top + 12 }]}>
-          <Text style={s.heroSalam}>{"As-sal\u0101mu \u02bfalaykum"}</Text>
-          <Text style={s.heroUserName}>{displayName}</Text>
-        </View>
-
-        {/* Top right — days badge */}
-        <View style={[s.daysBadge, { top: insets.top + 12 }]}>
-          <Text style={s.daysNum}>{daysAway !== null ? daysAway : "--"}</Text>
-          <View style={s.daysLabelWrap}>
-            <Text style={s.daysLabel}>days</Text>
-            <Text style={s.daysLabel}>to go</Text>
-          </View>
-        </View>
 
         {/* Floating panel */}
         <View style={s.heroPanel}>
@@ -517,6 +502,18 @@ export default function HomeScreen({ navigation }) {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 52 }}
       >
+
+        {/* ── TOP BAR ── */}
+        <View style={[s.topBar, { paddingTop: insets.top + 12 }]}>
+          <View style={s.topBarLeft}>
+            <Text style={s.topBarSalam}>{"As-salāmu ʿalaykum"}</Text>
+            <Text style={s.topBarName}>{displayName}</Text>
+          </View>
+          <View style={s.topBarRight}>
+            <Text style={s.topBarDaysNum}>{daysAway !== null ? daysAway : "--"}</Text>
+            <Text style={s.topBarDaysLabel}>{" days to go"}</Text>
+          </View>
+        </View>
 
         {/* ── HERO CAROUSEL ── */}
         <FlatList
@@ -718,7 +715,7 @@ export default function HomeScreen({ navigation }) {
             </View>
             <TouchableOpacity
               style={s.cardCornerBtn}
-              onPress={() => navigation?.navigate?.("HubContainer", { pillar: "plan" })}
+              onPress={() => navigation?.getParent?.()?.navigate?.("Journey", { params: { returnToTab: "Home" } })}
               activeOpacity={0.85}
             >
               <ArrowRight size={16} color="#FFFFFF" weight="regular" />
@@ -728,15 +725,15 @@ export default function HomeScreen({ navigation }) {
           {/* Quick links row */}
           <View style={s.journeyLinks}>
             {[
-              { label:"Board",     screen:"MyBoard"     },
-              { label:"Checklist", screen:"WhatToExpect"},
-              { label:"Contacts",  screen:"MyContacts"  },
-              { label:"Groups",    screen:"Groups"      },
+              { label:"Board",     onPress: () => navigation?.getParent?.()?.navigate?.("Journey", { screen: "MyBoard",    initial: false, params: { returnToTab: "Home" } }) },
+              { label:"Checklist", onPress: () => navigation?.navigate?.("Checklists") },
+              { label:"Contacts",  onPress: () => navigation?.getParent?.()?.navigate?.("Journey", { screen: "MyContacts", initial: false, params: { returnToTab: "Home" } }) },
+              { label:"Groups",    onPress: () => navigation?.navigate?.("Groups") },
             ].map((item, i, arr) => (
               <React.Fragment key={item.label}>
                 <TouchableOpacity
                   style={s.journeyLink}
-                  onPress={() => navigation?.navigate?.(item.screen)}
+                  onPress={item.onPress}
                   activeOpacity={0.75}
                 >
                   <Text style={s.journeyLinkTxt}>{item.label}</Text>
@@ -970,7 +967,7 @@ const s = StyleSheet.create({
     paddingHorizontal: 18,
   },
   heroTag: {
-    fontSize:      10,
+    fontSize:      12,
     color:         "rgba(200,169,106,0.90)",
     fontWeight:    "700",
     letterSpacing: 1.5,
@@ -1748,7 +1745,7 @@ const s = StyleSheet.create({
     marginBottom: 4,
   },
   gridEyebrowGold: {
-    fontSize: 13,
+    fontSize: 15,
     color: "#C8A96A",
     fontWeight: "700",
     textTransform: "uppercase",
@@ -1790,7 +1787,7 @@ const s = StyleSheet.create({
     padding: 14,
   },
   solidCardEyebrow: {
-    fontSize: 13,
+    fontSize: 15,
     color: "#C8A96A",
     fontWeight: "700",
     textTransform: "uppercase",
@@ -2031,4 +2028,13 @@ const s = StyleSheet.create({
   footnoteBold: {
     fontWeight: "600",
   },
+
+  // ── Top bar (parchment greeting + countdown above hero) ───────────────────
+  topBar:         { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", backgroundColor: "#F5F0E8", paddingHorizontal: 20, paddingBottom: 11 },
+  topBarLeft:     { flex: 1 },
+  topBarSalam:    { fontSize: 14, color: "#8A7D6A", fontWeight: "500", lineHeight: 18 },
+  topBarName:     { fontFamily: "SourceSerif4-Regular", fontSize: 20, color: "#1A1410", fontWeight: "600", lineHeight: 25, marginTop: 5 },
+  topBarRight:    { flexDirection: "row", alignItems: "baseline", paddingTop: 2 },
+  topBarDaysNum:  { fontSize: 20, color: "#1A1410", fontWeight: "700", lineHeight: 22 },
+  topBarDaysLabel:{ fontSize: 13, color: "#8A7D6A", fontWeight: "500", lineHeight: 18 },
 });
