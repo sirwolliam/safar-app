@@ -895,7 +895,7 @@ const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: "#F5F0E8" },
 
   // Header
-  header: { height: 260, overflow: "hidden", backgroundColor: "#3A3545" },
+  header: { height: 170, overflow: "hidden", backgroundColor: "#3A3545" },
   headerImg: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, width: "100%", height: "100%" },
   gradient: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
   headerContent: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, justifyContent: "flex-end", paddingHorizontal: 20, paddingBottom: 22 },
@@ -954,7 +954,7 @@ const s = StyleSheet.create({
 
   // Tile grid (Zone 1)
   tileGrid: { flexDirection: "row", flexWrap: "wrap", paddingHorizontal: 16, gap: 10 },
-  tile: { width: "47%", flexGrow: 1, height: 110, borderRadius: 16, overflow: "hidden", padding: 16, justifyContent: "space-between" },
+  tile: { width: "47%", flexGrow: 1, height: 90, borderRadius: 16, overflow: "hidden", padding: 12, justifyContent: "space-between" },
   tileLabel: { fontSize: 15, fontWeight: "600", color: "#FFFFFF" },
   tileSub: { fontSize: 12, color: "rgba(255,255,255,0.72)", marginTop: 2 },
 
