@@ -233,13 +233,13 @@ export async function isMediaBookmarked(id) {
   return isBookmarkedOnBoard("media", id);
 }
 
-export async function setMediaBookmarked(id, value) {
-  if (value) return addBookmarkCard("media", id, { sourceTitle: id });
+export async function setMediaBookmarked(id, value, extraFields = {}) {
+  if (value) return addBookmarkCard("media", id, { sourceTitle: id, ...extraFields });
   return removeBookmarkCard("media", id);
 }
 
-export async function toggleMediaBookmark(id) {
-  return toggleBookmarkCard("media", id, { sourceTitle: id });
+export async function toggleMediaBookmark(id, extraFields = {}) {
+  return toggleBookmarkCard("media", id, { sourceTitle: extraFields.sourceTitle || id, ...extraFields });
 }
 
 // ── Board CRUD exports (used by MyBoardScreen) ───────────────────────────────

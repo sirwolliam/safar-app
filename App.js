@@ -21,7 +21,7 @@ import ProfileScreen from "./screens/ProfileScreen";
 // ── Stack screens (pushed on top) ─────────────────────────────────────────────
 import SupportScreen       from "./screens/SupportScreen";
 import SettingsScreen      from "./screens/SettingsScreen";
-import BookmarksScreen     from "./screens/BookmarksScreen";
+import { runBookmarkMigration } from "./bookmarkStore";
 import NotesScreen         from "./screens/NotesScreen";
 import PracticeLearnScreen from "./screens/PracticeLearnScreen";
 import DuaDetailScreen     from "./screens/DuaDetailScreen";
@@ -217,7 +217,6 @@ function PrepareNavigator() {
   return (
     <PrepareStack.Navigator screenOptions={{ headerShown:false }}>
       <PrepareStack.Screen name="PrepareMain"       component={ProfileScreen}       />
-      <PrepareStack.Screen name="Bookmarks"         component={BookmarksScreen}     />
       <PrepareStack.Screen name="Notes"             component={NotesScreen}         />
       <PrepareStack.Screen name="CurrencyConverter" component={CurrencyScreen}      />
       <PrepareStack.Screen name="Support"           component={SupportScreen}       />
@@ -283,6 +282,7 @@ export default function App() {
       .then((val) => setOnboarded(val === "true" ? "yes" : "no"))
       .catch(() => setOnboarded("no"));
   }, []);
+  React.useEffect(() => { runBookmarkMigration(); }, []);
 
   // Wait for both fonts and the flag before rendering, so we never flash
   // the wrong screen.

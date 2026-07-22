@@ -18,7 +18,7 @@ import SafarAssistCard from "../SafarAssistCard";
 import {
   CaretLeft, CaretRight, ArrowSquareOut,
   ListChecks, Compass, ShoppingBag, AddressBook,
-  PlayCircle, Link, BookmarkSimple, NotePencil, CurrencyDollar, CalendarBlank,
+  PlayCircle, Link, BookmarkSimple, NotePencil, CurrencyDollar, CalendarBlank, PushPin,
   BookOpen, Cube, MapPin, Books,
   PersonSimpleRun, HandsPraying, Sparkle,
   UsersThree, ShareNetwork, Bell, ShareFat,
@@ -56,7 +56,7 @@ const PILLAR_CONFIG = {
       { key: "contacts",  Icon: AddressBook,    label: "Contacts",           sub: "Hotel, group leader, agent",                 nav: "tab",   tab: "Journey", screen: "MyContacts" },
       { key: "media",     Icon: PlayCircle,     label: "Media",              sub: "Videos, articles and podcasts",              nav: "stack", target: "Media"             },
       { key: "resources", Icon: Link,           label: "Official Resources", sub: "Government and authority links",             nav: "stack", target: "OfficialResourcesScreen" },
-      { key: "bookmarks", Icon: BookmarkSimple, label: "Bookmarks",          sub: "Your saved content",                         nav: "tab",   tab: "Prepare", screen: "Bookmarks", screenParams: { returnToTab: "Home" } },
+      { key: "board",     Icon: PushPin,        label: "My Board",           sub: "Notes, checklists, and saved content",        nav: "tab",   tab: "Journey", screen: "MyBoard" },
       { key: "notes",     Icon: NotePencil,     label: "Notes",              sub: "Reflections and intentions",                 nav: "stack", target: "Notes"             },
       { key: "currency",  Icon: CurrencyDollar, label: "Currency",           sub: "Live exchange rates",                        nav: "stack", target: "CurrencyConverter" },
     ],

@@ -12,7 +12,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import {
   Wrench, Heartbeat, Clock, Compass, CurrencyDollar,
   ArrowsClockwise, PersonSimpleWalk, PlayCircle,
-  NotePencil, BookmarkSimple, CaretRight, CalendarBlank,
+  NotePencil, BookmarkSimple, PushPin, CaretRight, CalendarBlank,
 } from "phosphor-react-native";
 
 const SERIF = "SourceSerif4-Regular";
@@ -27,7 +27,7 @@ const TOOLS = [
   { id: "saiy",      label: "Saʿy Tracker",        sub: "Ṣafā to Marwah, seven times",       Icon: PersonSimpleWalk, screen: "Saiy"             },
   { id: "practice",  label: "Audio Practice",           sub: "Listen and rehearse before you go",           Icon: PlayCircle,       screen: "PracticeLearn"    },
   { id: "notes",     label: "Notes",                   sub: "Reflections and intentions",                  Icon: NotePencil,       screen: "Notes"            },
-  { id: "bookmarks", label: "Bookmarks",               sub: "Your saved content",                          Icon: BookmarkSimple,   screen: "Bookmarks"        },
+  { id: "board",     label: "My Board",                sub: "Notes, checklists, and saved content",         Icon: PushPin,          screen: "MyBoard"          },
 ];
 
 export default function ToolsScreen({ navigation }) {
@@ -74,8 +74,8 @@ export default function ToolsScreen({ navigation }) {
               onPress={() => {
                 if (tool.screen === "Calendar") {
                   navigation?.getParent?.()?.navigate?.("Home", { screen: "Calendar", initial: false, params: { returnToTab: "Tools" } });
-                } else if (tool.screen === "Bookmarks") {
-                  navigation?.getParent?.()?.navigate?.("Prepare", { screen: "Bookmarks", initial: false, params: { returnToTab: "Tools" } });
+                } else if (tool.screen === "MyBoard") {
+                  navigation?.getParent?.()?.navigate?.("Journey", { screen: "MyBoard", initial: false, params: { returnToTab: "Tools" } });
                 } else {
                   navigation.navigate(tool.screen);
                 }

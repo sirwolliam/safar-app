@@ -302,7 +302,7 @@ function VideoCard({ item, bookmarked, onToggleBookmark }) {
         </View>
         <TouchableOpacity
           style={vc.bookmark}
-          onPress={() => onToggleBookmark?.(item.id)}
+          onPress={() => onToggleBookmark?.(item.id, item.type, item.url, item.title)}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
           <BookmarkSimple
@@ -357,7 +357,7 @@ function PodcastCard({ item, bookmarked, onToggleBookmark }) {
         </View>
         <TouchableOpacity
           style={pc.bookmark}
-          onPress={() => onToggleBookmark?.(item.id)}
+          onPress={() => onToggleBookmark?.(item.id, item.type, item.url, item.title)}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
           <BookmarkSimple
@@ -415,7 +415,7 @@ function ArticleCard({ item, bookmarked, onToggleBookmark }) {
             <Text style={arc.dur}>{item.duration}</Text>
           </View>
           <TouchableOpacity
-            onPress={() => onToggleBookmark?.(item.id)}
+            onPress={() => onToggleBookmark?.(item.id, item.type, item.url, item.title)}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
             <BookmarkSimple
@@ -470,13 +470,13 @@ export default function MediaScreen({ navigation, route }) {
     return () => clearInterval(timer);
   }, []);
 
-  const handleToggleBookmark = (id) => {
+  const handleToggleBookmark = (id, itemType, itemUrl, itemTitle) => {
     const was = bookmarkedIds.includes(id);
     setBookmarkedIds(prev => was
       ? prev.filter(x => x !== id)
       : [...prev, id]
     );
-    toggleMediaBookmark(id).then(newState => {
+    toggleMediaBookmark(id, { sourceCategory: itemType || "link", sourceUrl: itemUrl || null, sourceTitle: itemTitle || id }).then(newState => {
       setBookmarkedIds(prev => {
         const has = prev.includes(id);
         if (newState && !has) return [...prev, id];
@@ -665,7 +665,7 @@ export default function MediaScreen({ navigation, route }) {
                         <Text style={s.resultSource}>{item.source}</Text>
                       </View>
                       <TouchableOpacity
-                        onPress={() => handleToggleBookmark(item.id)}
+                        onPress={() => handleToggleBookmark(item.id, item.type, item.url, item.title)}
                         hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                       >
                         <BookmarkSimple
