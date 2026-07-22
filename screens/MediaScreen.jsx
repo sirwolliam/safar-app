@@ -484,9 +484,9 @@ export default function MediaScreen({ navigation, route }) {
         return prev;
       });
       if (newState) {
-        showToast("Bookmark added", {
+        showToast("Saved to My Board", {
           actionLabel: "View",
-          onAction: () => navigation.navigate("Tools", { screen: "Bookmarks" }),
+          onAction: () => navigation?.getParent?.()?.navigate?.("Journey", { screen: "MyBoard", initial: false }),
         });
       }
     });
