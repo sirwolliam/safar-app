@@ -11,16 +11,16 @@ import {
   Dimensions, StatusBar, Switch,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   CaretLeft, CaretRight, Plus, PushPin,
   NotePencil, ListChecks, HandsPraying, LinkSimple,
   Sparkle, Trash, PencilSimple, Check, SortDescending,
+  BookmarkSimple,
 } from "phosphor-react-native";
 import HeaderPatternBg from "../HeaderPatternBg";
+import { getBoardCards, addBoardCard, updateBoardCard, deleteBoardCard, toggleBoardPin, invalidateBoardCache } from "../bookmarkStore";
 
 const SERIF = "SourceSerif4-Regular";
-const BOARD_KEY = "safar_journey_board_v1";
 const { width: SW } = Dimensions.get("window");
 
 // ── Card types with Phosphor icons and unified parchment palette ─────────────
@@ -28,7 +28,8 @@ const CARD_TYPES = [
   { key: "note",      label: "Note",      Icon: NotePencil,   iconColor: "#66572E", hint: "Write a note or intention" },
   { key: "checklist", label: "Checklist", Icon: ListChecks,   iconColor: "#4A5C48", hint: "Add items to prepare" },
   { key: "dua",       label: "Dua",       Icon: HandsPraying, iconColor: "#C8A96A", hint: "Save a dua" },
-  { key: "link",      label: "Link",      Icon: LinkSimple,   iconColor: "#445870", hint: "Paste a URL or resource" },
+  { key: "link",      label: "Link",      Icon: LinkSimple,      iconColor: "#445870", hint: "Paste a URL or resource" },
+  { key: "bookmark",  label: "Saved",     Icon: BookmarkSimple,  iconColor: "#4A5C48", hint: "Saved from the app" },
 ];
 
 const TYPE_MAP = Object.fromEntries(CARD_TYPES.map(t => [t.key, t]));
@@ -152,6 +153,16 @@ function CardFace({ card, onToggle, onPin }) {
       {card.title ? <Text style={cf.cardTitle} numberOfLines={2}>{card.title}</Text> : null}
       {card.url ? <Text style={cf.linkUrl} numberOfLines={1}>{card.url.replace("https://", "")}</Text> : null}
     </TouchableOpacity>
+  );
+
+  if (card.type === "bookmark") return (
+    <View style={cf.card}>
+      {header}
+      {card.sourceTitle ? <Text style={cf.cardTitle} numberOfLines={2}>{card.sourceTitle}</Text> : null}
+      {card.sourceArabic ? <Text style={cf.arabic} numberOfLines={3}>{card.sourceArabic}</Text> : null}
+      {card.sourceTranslation ? <Text style={cf.translation} numberOfLines={3}>{card.sourceTranslation}</Text> : null}
+      {card.sourceType === "media" ? <Text style={cf.linkUrl} numberOfLines={1}>Saved from Media</Text> : null}
+    </View>
   );
 
   return null;
@@ -298,9 +309,9 @@ function AddEditModal({ visible, editCard, onSave, onClose }) {
               <View style={{ width: 50 }} />
             </View>
 
-            {/* Type selector — compact pills */}
+            {/* Type selector — compact pills (bookmark excluded; created from other screens) */}
             <View style={am.typePills}>
-              {CARD_TYPES.map(t => {
+              {CARD_TYPES.filter(t => t.key !== "bookmark").map(t => {
                 const active = cardType === t.key;
                 const IconComp = t.Icon;
                 return (
@@ -468,27 +479,28 @@ export default function MyBoardScreen({ navigation, route }) {
   const [sortOrder, setSortOrder] = useState("newest");
 
   useEffect(() => {
-    AsyncStorage.getItem(BOARD_KEY)
-      .then(v => { if (v) setCards(JSON.parse(v)); })
-      .catch(() => {});
+    getBoardCards().then(list => setCards(list)).catch(() => {});
   }, []);
 
-  const save = useCallback(list => {
+  const save = useCallback(async (list) => {
     setCards(list);
-    AsyncStorage.setItem(BOARD_KEY, JSON.stringify(list)).catch(() => {});
+    invalidateBoardCache();
   }, []);
 
-  const addCard = card => { save([card, ...cards]); setShowModal(false); };
-  const updateCard = card => { save(cards.map(c => c.id === card.id ? card : c)); setEditCard(null); setShowModal(false); };
-  const deleteCard = id => save(cards.filter(c => c.id !== id));
+  const addCard = async (card) => { const updated = await addBoardCard(card); setCards(updated); invalidateBoardCache(); setShowModal(false); };
+  const updateCard = async (card) => { const updated = await updateBoardCard(card); setCards(updated); invalidateBoardCache(); setEditCard(null); setShowModal(false); };
+  const deleteCard = async (id) => { const updated = await deleteBoardCard(id); setCards(updated); invalidateBoardCache(); };
 
-  const toggleItem = (cardId, itemIdx) => save(cards.map(c => {
-    if (c.id !== cardId) return c;
-    const updatedItems = (c.items || []).map((it, i) => i === itemIdx ? { ...it, done: !it.done } : it);
-    return { ...c, items: updatedItems };
-  }));
+  const toggleItem = async (cardId, itemIdx) => {
+    const card = cards.find(c => c.id === cardId);
+    if (!card) return;
+    const updatedItems = (card.items || []).map((it, i) => i === itemIdx ? { ...it, done: !it.done } : it);
+    const updated = await updateBoardCard({ ...card, items: updatedItems });
+    setCards(updated);
+    invalidateBoardCache();
+  };
 
-  const togglePin = (id) => save(cards.map(c => c.id === id ? { ...c, pinned: !c.pinned } : c));
+  const togglePin = async (id) => { const updated = await toggleBoardPin(id); setCards(updated); invalidateBoardCache(); };
 
   const openAdd = () => { setEditCard(null); setShowModal(true); };
   const openEdit = (card) => { setEditCard(card); setShowModal(true); };
