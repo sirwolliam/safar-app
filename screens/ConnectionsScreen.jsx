@@ -1,25 +1,55 @@
 /**
  * ConnectionsScreen.jsx — Safar
- * Your Safar address book — people you've connected with.
+ * Your Safar address book — people you've connected with on the app.
  * Connections are built when someone accepts your invite.
- * Used as a picker when adding members to groups.
+ * Used as a picker when adding members to a Group.
+ *
+ * Rebuilt 2026-07-23 to match MyContactsScreen's visual language: literal
+ * hex (was theme./useAccessibility() tokens — the exact pattern the TDD
+ * flags as the root cause of past crashes), real Ornate header, Phosphor
+ * icons instead of emoji, card-per-row instead of one flat list-in-a-card.
+ *
+ * Back button now checks returnToTab the same way MyContactsScreen does —
+ * it previously always called goBack() unconditionally, which is half of
+ * the reported "back button lands on the wrong screen" bug. The other half
+ * is on ConnectHubScreen's side (it doesn't pass returnToTab on its
+ * cross-tab navigate calls) — pending a fresh copy of that file + App.js
+ * to fix without guessing the tab name.
+ *
+ * Coding rules: StyleSheet.create at module level, literal hex only.
+ * No && in style arrays — ternaries only.
  */
 import React, { useState, useEffect, useMemo } from "react";
 import {
-  SafeAreaView, View, Text, ScrollView, TouchableOpacity,
-  TextInput, StyleSheet, ActivityIndicator, Alert,
+  View, Text, ScrollView, TouchableOpacity,
+  TextInput, StyleSheet, ActivityIndicator, Alert, Dimensions,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import HeaderPatternBg from "../HeaderPatternBg";
+import {
+  CaretLeft, MagnifyingGlass, X, UsersThree,
+} from "phosphor-react-native";
 import {
   getCurrentUser, findUserByEmail, sendConnectionRequest,
   subscribeToConnections,
 } from "../firebase";
-import { colors, spacing, radius, shadows, typography } from "../theme";
-import { useAccessibility } from "../AccessibilityContext";
 
 const SERIF = "SourceSerif4-Regular";
+const { width: SW } = Dimensions.get("window");
 
-// ── Avatar component — initials or icon ──────────────────────────────────────
+// ── Palette (literal hex — never theme tokens) ─────────────────────────────
+const PAGE_BG    = "#F5F0E8";
+const CARD_BG    = "#FDFAF4";
+const TEXT       = "#1A1410";
+const TEXT_SEC   = "#8A7D6A";
+const TEXT_MUTED = "#5C534A";
+const BORDER     = "#DDD5C0";
+const DIVIDER    = "#EDE4D4";
+const SAGE       = "#4A5C48";
 
+// ── Avatar component — initials, deterministic color from name ────────────────
+// Exported and reused by GroupDetailScreen's milestone cards — keep the
+// nameToColor logic exactly as-is so avatars stay consistent across screens.
 export function UserAvatar({ name, emoji, size = 44, style }) {
   const initials = name
     ? name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()
@@ -35,7 +65,6 @@ export function UserAvatar({ name, emoji, size = 44, style }) {
   );
 }
 
-// Deterministic colour from name
 function nameToColor(name = "") {
   const palette = ["#4A7A60","#6B5B7A","#7A5B4A","#4A6B7A","#7A6B4A","#5B7A4A"];
   let hash = 0;
@@ -49,57 +78,51 @@ const av = StyleSheet.create({
 });
 
 // ── Connection row ────────────────────────────────────────────────────────────
-
-function ConnectionRow({ conn, onPress, actionLabel, actionStyle }) {
+function ConnectionRow({ conn, onPress, actionLabel }) {
   return (
-    <TouchableOpacity style={cr.row} onPress={onPress} activeOpacity={0.85}>
-      <UserAvatar name={conn.displayName} emoji={conn.avatarEmoji} size={46} />
+    <TouchableOpacity style={cr.card} onPress={onPress} activeOpacity={actionLabel ? 0.85 : 1}>
+      <UserAvatar name={conn.displayName} emoji={conn.avatarEmoji} size={48} />
       <View style={cr.info}>
         <Text style={cr.name}>{conn.displayName}</Text>
         <Text style={cr.email}>{conn.email ?? ""}</Text>
       </View>
-      {actionLabel && (
-        <TouchableOpacity style={[cr.actionBtn, actionStyle]} onPress={onPress}>
+      {actionLabel ? (
+        <View style={cr.actionBtn}>
           <Text style={cr.actionText}>{actionLabel}</Text>
-        </TouchableOpacity>
-      )}
+        </View>
+      ) : null}
     </TouchableOpacity>
   );
 }
 
 const cr = StyleSheet.create({
-  row: {
-    flexDirection: "row", alignItems: "center", gap: spacing(1.5),
-    paddingVertical: spacing(1.5), borderBottomWidth: 1, borderBottomColor: "#D4D0CA",
+  card: {
+    flexDirection:"row", alignItems:"center", gap:12, backgroundColor:CARD_BG,
+    borderRadius:14, borderWidth:1, borderColor:BORDER, padding:14, marginBottom:10,
+    shadowColor:"#2A1F0E", shadowOffset:{width:0,height:2}, shadowOpacity:0.08, shadowRadius:8, elevation:3,
   },
-  info: { flex: 1 },
-  name: { fontFamily: SERIF, fontSize: 16, color: "#1A1712" },
-  email: { fontSize: 12, color: "#5A5650", marginTop: 2 },
-  actionBtn: {
-    paddingHorizontal: spacing(1.5), paddingVertical: spacing(0.75),
-    borderRadius: 999, backgroundColor: "#4A5C48",
-  },
-  actionText: { fontSize: 12, color: "#fff", fontWeight: "600" },
+  info: { flex:1 },
+  name: { fontSize:17, fontWeight:"700", color:TEXT, marginBottom:2 },
+  email: { fontSize:13, color:TEXT_MUTED },
+  actionBtn: { paddingHorizontal:14, paddingVertical:8, borderRadius:999, backgroundColor:SAGE },
+  actionText: { fontSize:13, color:"#fff", fontWeight:"600" },
 });
 
 // ── Main screen ───────────────────────────────────────────────────────────────
-
 export default function ConnectionsScreen({ navigation, route }) {
-  const { colors } = useAccessibility();
-  const s = useMemo(() => createStyles(colors), [colors]);
+  const insets = useSafeAreaInsets();
   // mode: "manage" (view/add connections) | "pick" (select for group)
   const mode      = route?.params?.mode ?? "manage";
-  const groupId   = route?.params?.groupId;
   const groupName = route?.params?.groupName;
-  const onSelect  = route?.params?.onSelect;
 
   const currentUser = getCurrentUser();
   const [connections, setConnections] = useState([]);
-  const [query,       setQuery]       = useState("");
-  const [inviteEmail, setInviteEmail] = useState("");
-  const [searching,   setSearching]   = useState(false);
-  const [sendingTo,   setSendingTo]   = useState(null);
-  const [successMsg,  setSuccessMsg]  = useState("");
+  const [query,        setQuery]        = useState("");
+  const [searchFocused,setSearchFocused]= useState(false);
+  const [inviteEmail,  setInviteEmail]  = useState("");
+  const [searching,    setSearching]    = useState(false);
+  const [sendingTo,    setSendingTo]    = useState(null);
+  const [successMsg,   setSuccessMsg]   = useState("");
 
   useEffect(() => {
     if (!currentUser) return;
@@ -110,6 +133,10 @@ export default function ConnectionsScreen({ navigation, route }) {
     c.displayName?.toLowerCase().includes(query.toLowerCase()) ||
     c.email?.toLowerCase().includes(query.toLowerCase())
   );
+
+  const shareInviteLink = () => {
+    Alert.alert("Invite link", "Invite link sharing will be available in the next update.");
+  };
 
   const handleInvite = async () => {
     if (!inviteEmail.trim()) return;
@@ -138,7 +165,7 @@ export default function ConnectionsScreen({ navigation, route }) {
       }
       setSendingTo(found.uid);
       await sendConnectionRequest(currentUser.uid, found.uid, found.displayName);
-      setSuccessMsg(`Invitation sent to ${found.displayName} ✓`);
+      setSuccessMsg(`Invitation sent to ${found.displayName}`);
       setInviteEmail("");
       setTimeout(() => setSuccessMsg(""), 3000);
     } catch (e) {
@@ -149,60 +176,75 @@ export default function ConnectionsScreen({ navigation, route }) {
     }
   };
 
-  const shareInviteLink = () => {
-    // In production: use expo-sharing + deep link
-    Alert.alert("Invite link", "Invite link sharing will be available in the next update.");
-  };
-
   return (
-    <SafeAreaView style={s.safe}>
+    <View style={s.root}>
+      {/* ── Sage Ornate Header ── */}
       <View style={s.header}>
-        <TouchableOpacity onPress={() => navigation?.goBack?.()} hitSlop={{ top: 12, bottom: 12, left: 12, right: 24 }} accessibilityLabel="Go back" accessibilityRole="button">
-          <Text style={s.back}>←</Text>
-        </TouchableOpacity>
-        <Text style={s.headerTitle}>
-          {mode === "pick" ? `Add to ${groupName}` : "Connections"}
-        </Text>
-        <View style={{ width: 30 }} />
+        <HeaderPatternBg width={SW} />
+        <View style={[s.headerTopRow, { paddingTop: insets.top + 10 }]}>
+          <TouchableOpacity
+            style={s.backBtn}
+            onPress={() => {
+              const returnToTab = route?.params?.returnToTab;
+              if (returnToTab) navigation?.getParent?.()?.navigate?.(returnToTab);
+              else navigation?.goBack?.();
+            }}
+            hitSlop={{ top:12, bottom:12, left:12, right:24 }}
+            activeOpacity={0.8}
+          >
+            <CaretLeft size={18} color="#1A1712" weight="bold" />
+          </TouchableOpacity>
+        </View>
+        <View style={s.headerCenter}>
+          <Text style={s.headerTitle}>{mode === "pick" ? `Add to ${groupName}` : "Connections"}</Text>
+          <Text style={s.headerSub}>
+            {mode === "pick" ? "Choose someone to add" : "People you've connected with on Safar"}
+          </Text>
+        </View>
       </View>
 
       {/* Search bar */}
-      <View style={s.searchBar}>
-        <Text style={s.searchIcon}>🔍</Text>
-        <TextInput
-          style={s.searchInput}
-          placeholder="Search connections..."
-          placeholderTextColor={colors.subtext}
-          value={query}
-          onChangeText={setQuery}
-        />
+      <View style={s.searchWrap}>
+        <View style={searchFocused ? [s.searchBar, s.searchBarFocused] : s.searchBar}>
+          <MagnifyingGlass size={16} color={TEXT_MUTED} weight="regular" />
+          <TextInput
+            style={s.searchInput}
+            placeholder="Search connections…"
+            placeholderTextColor={TEXT_MUTED}
+            value={query}
+            onChangeText={setQuery}
+            onFocus={() => setSearchFocused(true)}
+            onBlur={() => setSearchFocused(false)}
+          />
+          {query.length > 0 ? (
+            <TouchableOpacity onPress={() => setQuery("")} hitSlop={{ top:8, bottom:8, left:8, right:8 }}>
+              <X size={14} color={TEXT_MUTED} weight="bold" />
+            </TouchableOpacity>
+          ) : null}
+        </View>
       </View>
 
       <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
-
-        {/* Connections list */}
         {filtered.length > 0 ? (
           <View style={s.section}>
             <Text style={s.sectionLabel}>YOUR CONNECTIONS</Text>
-            <View style={s.card}>
-              {filtered.map((conn, i) => (
-                <ConnectionRow
-                  key={conn.uid}
-                  conn={conn}
-                  actionLabel={mode === "pick" ? "Add" : undefined}
-                  onPress={() => {
-                    if (mode === "pick") {
-                      route?.params?.onSelect?.(conn);
-                      navigation?.goBack?.();
-                    }
-                  }}
-                />
-              ))}
-            </View>
+            {filtered.map((conn) => (
+              <ConnectionRow
+                key={conn.uid}
+                conn={conn}
+                actionLabel={mode === "pick" ? "Add" : undefined}
+                onPress={() => {
+                  if (mode === "pick") {
+                    route?.params?.onSelect?.(conn);
+                    navigation?.goBack?.();
+                  }
+                }}
+              />
+            ))}
           </View>
         ) : (
-          <View style={s.emptyConnections}>
-            <Text style={s.emptyIcon}>🤝</Text>
+          <View style={s.empty}>
+            <UsersThree size={40} color={BORDER} weight="thin" />
             <Text style={s.emptyTitle}>No connections yet</Text>
             <Text style={s.emptyBody}>
               Invite someone by email below. Once they accept, they'll appear here and you can add them to any group instantly.
@@ -221,7 +263,7 @@ export default function ConnectionsScreen({ navigation, route }) {
               <TextInput
                 style={s.inviteInput}
                 placeholder="their@email.com"
-                placeholderTextColor={colors.subtext}
+                placeholderTextColor={TEXT_MUTED}
                 value={inviteEmail}
                 onChangeText={setInviteEmail}
                 keyboardType="email-address"
@@ -229,7 +271,7 @@ export default function ConnectionsScreen({ navigation, route }) {
                 autoCorrect={false}
               />
               <TouchableOpacity
-                style={s.inviteBtn}
+                style={inviteEmail.trim() ? s.inviteBtn : [s.inviteBtn, s.inviteBtnDim]}
                 onPress={handleInvite}
                 disabled={searching || !inviteEmail.trim()}
                 activeOpacity={0.88}
@@ -244,75 +286,44 @@ export default function ConnectionsScreen({ navigation, route }) {
           </View>
         </View>
 
-        <View style={{ height: spacing(4) }} />
+        <View style={{ height:40 }} />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
-const createStyles = (colors) => StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.background },
-  header: {
-    flexDirection: "row", alignItems: "center", justifyContent: "space-between",
-    paddingHorizontal: spacing(2.5), paddingTop: spacing(2), paddingBottom: spacing(1.5),
-    borderBottomWidth: 1, borderBottomColor: colors.border,
-  },
-  back: { fontSize: 22, color: colors.text },
-  headerTitle: { fontFamily: SERIF, fontSize: 22, color: colors.text },
+const s = StyleSheet.create({
+  root: { flex:1, backgroundColor:PAGE_BG },
 
-  searchBar: {
-    flexDirection: "row", alignItems: "center", gap: spacing(1),
-    backgroundColor: colors.card, borderRadius: radius.pill,
-    paddingHorizontal: spacing(2), paddingVertical: spacing(1.25),
-    marginHorizontal: spacing(2.5), marginVertical: spacing(1.25),
-    borderWidth: 1, borderColor: colors.border, ...shadows.card,
-  },
-  searchIcon: { fontSize: 14 },
-  searchInput: { flex: 1, fontSize: typography.body, color: colors.text, padding: 0 },
+  header:      { backgroundColor:SAGE, minHeight:150, position:"relative", overflow:"hidden", paddingHorizontal:20, paddingBottom:16 },
+  headerTopRow:{ flexDirection:"row", alignItems:"center" },
+  backBtn:     { width:36, height:36, borderRadius:18, backgroundColor:CARD_BG, borderWidth:1, borderColor:"#D4D0CA", alignItems:"center", justifyContent:"center" },
+  headerCenter:{ alignItems:"center", marginTop:14 },
+  headerTitle: { fontFamily:SERIF, fontSize:32, color:CARD_BG, textAlign:"center" },
+  headerSub:   { fontSize:13, color:"rgba(255,255,255,0.75)", marginTop:2, textAlign:"center" },
 
-  scroll: { paddingHorizontal: spacing(2.5) },
-  section: { marginBottom: spacing(2) },
-  sectionLabel: {
-    fontSize: 10, fontWeight: "700", letterSpacing: 1.5, color: colors.subtext,
-    marginBottom: spacing(1),
-  },
-  card: {
-    backgroundColor: colors.card, borderRadius: radius.lg, borderWidth: 1,
-    borderColor: colors.border, paddingHorizontal: spacing(2), ...shadows.card,
-  },
+  searchWrap:   { paddingHorizontal:20, paddingTop:16, paddingBottom:8 },
+  searchBar:    { flexDirection:"row", alignItems:"center", gap:10, backgroundColor:CARD_BG, borderRadius:14, borderWidth:1, borderColor:BORDER, paddingHorizontal:14, paddingVertical:11, shadowColor:"#2A1F0E", shadowOffset:{width:0,height:2}, shadowOpacity:0.08, shadowRadius:8, elevation:3 },
+  searchBarFocused: { borderColor:SAGE },
+  searchInput:  { flex:1, fontSize:16, color:TEXT, padding:0 },
 
-  emptyConnections: {
-    alignItems: "center", paddingVertical: spacing(4), paddingHorizontal: spacing(2),
-    marginBottom: spacing(2),
-  },
-  emptyIcon: { fontSize: 44, marginBottom: spacing(1.5) },
-  emptyTitle: { fontFamily: SERIF, fontSize: 20, color: colors.text, marginBottom: spacing(1) },
-  emptyBody: {
-    fontSize: typography.small, color: colors.subtext, textAlign: "center", lineHeight: 20,
-  },
+  scroll:  { paddingHorizontal:20, paddingTop:8 },
+  section: { marginBottom:20 },
+  sectionLabel: { fontSize:10, fontWeight:"700", letterSpacing:1.5, color:TEXT_SEC, marginBottom:10 },
+
+  empty:       { alignItems:"center", paddingVertical:32, paddingHorizontal:16, marginBottom:8 },
+  emptyTitle:  { fontFamily:SERIF, fontSize:19, color:TEXT, marginTop:12, marginBottom:8 },
+  emptyBody:   { fontSize:14, color:TEXT_MUTED, textAlign:"center", lineHeight:20 },
 
   inviteCard: {
-    backgroundColor: colors.card, borderRadius: radius.lg, borderWidth: 1,
-    borderColor: colors.border, padding: spacing(2), ...shadows.card,
+    backgroundColor:CARD_BG, borderRadius:16, borderWidth:1, borderColor:BORDER, padding:16,
+    shadowColor:"#2A1F0E", shadowOffset:{width:0,height:2}, shadowOpacity:0.08, shadowRadius:8, elevation:3,
   },
-  inviteHint: {
-    fontSize: typography.tiny, color: colors.subtext, lineHeight: 18, marginBottom: spacing(1.5),
-  },
-  inviteRow: { flexDirection: "row", gap: spacing(1) },
-  inviteInput: {
-    flex: 1, backgroundColor: colors.background, borderRadius: radius.md,
-    borderWidth: 1, borderColor: colors.border,
-    paddingHorizontal: spacing(1.75), paddingVertical: spacing(1.25),
-    fontSize: typography.body, color: colors.text,
-    ...shadows.card,},
-  inviteBtn: {
-    backgroundColor: colors.primary, borderRadius: radius.md,
-    paddingHorizontal: spacing(2), paddingVertical: spacing(1.25),
-    alignItems: "center", justifyContent: "center", ...shadows.button,
-  },
-  inviteBtnText: { color: "#fff", fontWeight: "600", fontSize: typography.small },
-  successMsg: {
-    fontSize: typography.small, color: colors.primary,
-    fontWeight: "500", marginTop: spacing(1), textAlign: "center",
-  },
+  inviteHint: { fontSize:12, color:TEXT_MUTED, lineHeight:18, marginBottom:14 },
+  inviteRow:  { flexDirection:"row", gap:10 },
+  inviteInput: { flex:1, backgroundColor:PAGE_BG, borderRadius:10, borderWidth:1, borderColor:BORDER, paddingHorizontal:14, paddingVertical:12, fontSize:15, color:TEXT },
+  inviteBtn:  { backgroundColor:SAGE, borderRadius:10, paddingHorizontal:18, alignItems:"center", justifyContent:"center" },
+  inviteBtnDim: { opacity:0.4 },
+  inviteBtnText: { color:"#fff", fontWeight:"600", fontSize:14 },
+  successMsg: { fontSize:13, color:SAGE, fontWeight:"500", marginTop:10, textAlign:"center" },
 });

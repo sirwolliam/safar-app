@@ -1,450 +1,168 @@
 /**
  * GroupsScreen.jsx — Safar
- * Single StyleSheet inside useMemo. Clean uniform milestone cards.
- * All conditional styles use ternary, not &&.
+ * Groups list — calm card list, one row per group with member count and
+ * latest milestone preview. Tap a group to open GroupDetailScreen.
+ *
+ * Rebuilt 2026-07-23: separated from the old single-screen tabs+feed layout
+ * (which is now GroupDetailScreen's job). No per-group color — one
+ * consistent style, per design decision this session.
+ *
+ * Coding rules: StyleSheet.create at module level, literal hex only.
+ * No && in style arrays — ternaries only. Phosphor icons used here
+ * (CaretLeft, CaretRight, Plus, UsersThree) are already proven elsewhere
+ * in this codebase (ConnectHubScreen.jsx).
  */
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
-  SafeAreaView, View, Text, ScrollView, FlatList,
-  TouchableOpacity, TextInput, StyleSheet, Modal,
-  ActivityIndicator, KeyboardAvoidingView, Platform,
-  Alert, Animated, PanResponder, Linking, Share, Image,
-  Clipboard,
+  View, Text, Image, ScrollView, TouchableOpacity, TextInput, StyleSheet,
+  Modal, ActivityIndicator, KeyboardAvoidingView, Platform, Alert, Dimensions,
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useFocusEffect } from "@react-navigation/native";
+import { CaretLeft, CaretRight, Plus, UsersThree } from "phosphor-react-native";
+import HeaderPatternBg from "../HeaderPatternBg";
 import {
-  createGroup, subscribeToUserGroups, subscribeToGroupMilestones,
-  postMilestone, postMilestoneWithPhoto, getCurrentUser,
-  generateInviteCode, joinGroupByCode,
+  getCurrentUser, subscribeToUserGroups, createGroup, joinGroupByCode,
 } from "../firebase";
-import { UserAvatar } from "./ConnectionsScreen";
-import Svg, { Path, Circle } from "react-native-svg";
-import { colors as TC, spacing, radius, typography } from "../theme";
-import { useAccessibility } from "../AccessibilityContext";
-import {
-  Copy, ShareNetwork, QrCode, ImageSquare, X,
-  LinkSimple, Camera,
-} from "phosphor-react-native";
+import { getAllGroupMeta } from "../groupMetaStore";
 
 const SERIF = "SourceSerif4-Regular";
-const MAX_CHARS = 280;
+const { width: SW } = Dimensions.get("window");
 
-const PALETTE = ["#4A7A60","#6B5B7A","#7A5B4A","#4A6B7A","#7A6B4A","#5B7A4A"];
-function nameColor(name) {
-  let h = 0;
-  for (let i = 0; i < (name||"").length; i++) h = name.charCodeAt(i) + ((h<<5)-h);
-  return PALETTE[Math.abs(h) % PALETTE.length];
-}
+// ── Palette (literal hex — never theme tokens) ─────────────────────────────
+const PAGE_BG    = "#F5F0E8";
+const CARD_BG    = "#FDFAF4";
+const TEXT       = "#1A1410";
+const TEXT_SEC   = "#8A7D6A";
+const TEXT_MUTED = "#5C534A";
+const BORDER     = "#DDD5C0";
+const DIVIDER    = "#EDE4D4";
+const SAGE       = "#4A5C48";
+const CONNECT    = "#584260"; // Connect pillar identity color — used for the
+                               // solid default group-icon box, same convention
+                               // Tools uses its own pillar color for row icons
 
-const GROUP_COLORS = [
-  { key:"green",  value:"#1E3D30" },
-  { key:"teal",   value:"#2A6B70" },
-  { key:"slate",  value:"#4A5B7A" },
-  { key:"warm",   value:"#7A5B4A" },
-  { key:"purple", value:"#6B5B7A" },
-  { key:"gold",   value:"#8A7030" },
+// ── Demo data — shown until real Firebase groups exist. firebase.js is
+// currently fully stubbed (subscribeToUserGroups always returns []), so
+// this is what every user sees today, not just an empty-state fallback.
+// Two groups here on purpose: one you own, one you were added to, so the
+// My Groups / Shared with Me toggle actually has something to filter. ──────
+const EX_MILESTONES = [
+  { author: "Ahmed Al-Rashid", text: "Completed Tawaf al-Qudum, alhamdulillah", time: "2h ago" },
+  { author: "Fatima Hassan",   text: "Making dua at Maqam Ibrahim right now", time: "4h ago" },
+  { author: "Maryam Khan",     text: "First time seeing the Kaaba. Subhanallah.", time: "6h ago" },
+];
+const INIT_GROUPS = [
+  { id: "ex1", name: "Our Pilgrimage Family", memberUids: ["u1","u2","u3","u4"], isExample: true, ownerUid: "u4" },
+  { id: "ex2", name: "Riyadh Travel Group",   memberUids: ["u2","u4","u5","u6"], isExample: true, ownerUid: "u2" },
 ];
 
-function GroupIcon({ size=22, color="#fff" }) {
+// ── Group avatar — icon (default), initials, or a chosen photo. Mirrors
+// GroupDetailScreen's GroupAvatar; duplicated rather than shared since it's
+// ~15 lines and both files already read from the same groupMetaStore. ────────
+function GroupAvatar({ meta, name, size = 48 }) {
+  if (meta?.avatarMode === "photo" && meta?.photoUri) {
+    return <Image source={{ uri: meta.photoUri }} style={{ width: size, height: size, borderRadius: size / 2 }} />;
+  }
+  if (meta?.avatarMode === "initials") {
+    const initials = (name || "").trim().split(/\s+/).slice(0, 2).map(w => w[0]?.toUpperCase()).join("") || "S";
+    return (
+      <View style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: "#C8A96A", alignItems: "center", justifyContent: "center" }}>
+        <Text style={{ fontSize: size * 0.38, fontWeight: "700", color: "#FFFFFF" }}>{initials}</Text>
+      </View>
+    );
+  }
   return (
-    <Svg width={size} height={size*0.8} viewBox="0 0 24 20">
-      <Circle cx={5}  cy={5}  r={3}   fill={color} opacity={0.7}/>
-      <Path d="M0 18 C0 14 2.5 12 5 12 C6.2 12 7.3 12.5 8.1 13.3 C6.8 14.5 6 16.2 6 18 Z" fill={color} opacity={0.7}/>
-      <Circle cx={19} cy={5}  r={3}   fill={color} opacity={0.7}/>
-      <Path d="M24 18 C24 14 21.5 12 19 12 C17.8 12 16.7 12.5 15.9 13.3 C17.2 14.5 18 16.2 18 18 Z" fill={color} opacity={0.7}/>
-      <Circle cx={12} cy={4}  r={3.5} fill={color}/>
-      <Path d="M5.5 18 C5.5 13.8 8.5 11 12 11 C15.5 11 18.5 13.8 18.5 18 Z" fill={color}/>
-    </Svg>
+    <View style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: CONNECT, alignItems: "center", justifyContent: "center" }}>
+      <UsersThree size={size * 0.46} color="#C8A96A" weight="regular" />
+    </View>
   );
 }
 
-const INIT_GROUPS = [
-  { id:"ex1", name:"Our Pilgrimage Family", memberUids:["u1","u2","u3","u4"], isExample:true, colorKey:"green" },
-];
-const EXAMPLE_NOTICE = "Sample group shown. Create your own group.";
-const EX_MEMBERS = {
-  u1:{ uid:"u1", displayName:"Fatima Hassan" },
-  u2:{ uid:"u2", displayName:"Ahmed Al-Rashid" },
-  u3:{ uid:"u3", displayName:"Maryam Khan" },
-  u4:{ uid:"u4", displayName:"You", avatarEmoji:"\uD83C\uDF3F" },
-  u5:{ uid:"u5", displayName:"Zainab Ali" },
-  u6:{ uid:"u6", displayName:"Noor Ibrahim" },
-  u7:{ uid:"u7", displayName:"Tariq Hassan" },
-  u8:{ uid:"u8", displayName:"Omar Siddiq" },
-};
-const INIT_MILESTONES = {
-  ex1:[
-    { id:"m1", author:"Ahmed Al-Rashid", uid:"u2", text:"Completed Tawaf al-Qudum, alhamdulillah \uD83D\uDD4B", time:"2h ago", ameen:["u3","u4"], count:2, link:null },
-    { id:"m2", author:"Fatima Hassan",   uid:"u1", text:"Making dua at Maqam Ibrahim right now \uD83E\uDD32", time:"4h ago", ameen:["u2"], count:1, link:"https://sunnah.com/bukhari:1613", linkTitle:"Dua for Tawaf" },
-    { id:"m3", author:"Maryam Khan",     uid:"u3", text:"First time seeing the Kaaba. Subhanallah.", time:"6h ago", ameen:["u1","u2","u4"], count:3, link:null },
-  ],
-  ex2:[
-    { id:"m4", author:"Zainab Ali",   uid:"u5", text:"Completed Sa\u02bfy \u2014 alhamdulillah \uD83C\uDF3F", time:"1h ago", ameen:["u3","u4","u6"], count:3, link:null },
-    { id:"m5", author:"Noor Ibrahim", uid:"u6", text:"Drank Zamzam water for the first time \uD83D\uDCA7", time:"3h ago", ameen:["u5"], count:1, link:null },
-  ],
-  ex3:[
-    { id:"m6", author:"Tariq Hassan", uid:"u7", text:"Arrived in Makkah safely. Ya Allah \uD83D\uDD4B", time:"5h ago", ameen:["u2","u4","u8"], count:3, link:null },
-    { id:"m7", author:"Omar Siddiq",  uid:"u8", text:"Entered Ihram at the Miqat. Labbayk All\u0101humma labbayk.", time:"8h ago", ameen:["u7"], count:1, link:null },
-  ],
-};
-
-// ── Milestone row — clean white card, coloured left border per author ─────────
-function MilestoneRow({ item, myUid, onAmeen, onDelete, s }) {
-  const tx = useRef(new Animated.Value(0)).current;
-  const [busy, setBusy] = useState(false);
-  const hasAmeen = item.ameen?.includes(myUid);
-  const uc = nameColor(item.author);
-
-  const pan = useRef(PanResponder.create({
-    onStartShouldSetPanResponder: (_,gs) => Math.abs(gs.dx) > 10,
-    onMoveShouldSetPanResponder:  (_,gs) => Math.abs(gs.dx) > 10 && Math.abs(gs.dx) > Math.abs(gs.dy),
-    onPanResponderMove:    (_,gs) => tx.setValue(Math.max(-110, Math.min(0, gs.dx))),
-    onPanResponderRelease: (_,gs) => {
-      Animated.spring(tx, { toValue: gs.dx < -55 ? -90 : 0, useNativeDriver:true }).start();
-    },
-  })).current;
-
-  const reset = () => Animated.spring(tx, { toValue:0, useNativeDriver:true }).start();
-
+// ── Group card ──────────────────────────────────────────────────────────────
+function GroupCard({ group, meta, name, memberCount, latest, onPress }) {
   return (
-    <View style={s.msWrap}>
-      <View style={s.msBack}>
-        <TouchableOpacity style={s.msBackBtn} onPress={() =>
-          Alert.alert("Delete","Remove this milestone?",[
-            { text:"Cancel", style:"cancel", onPress:reset },
-            { text:"Delete", style:"destructive", onPress:() => onDelete(item.id) },
-          ])}>
-          <Text style={{ fontSize:18 }}>{"\uD83D\uDDD1\uFE0F"}</Text>
-          <Text style={s.msBackTxt}>Delete</Text>
-        </TouchableOpacity>
+    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.8}>
+      <View style={styles.cardIcon}>
+        <GroupAvatar meta={meta} name={name} size={48} />
       </View>
-      <Animated.View
-        style={[s.msCard, { borderLeftWidth:3, borderLeftColor:uc, transform:[{translateX:tx}] }]}
-        {...pan.panHandlers}>
-        <View style={s.msTop}>
-          <UserAvatar name={item.author} size={34} />
-          <View style={{ flex:1 }}>
-            <Text style={s.msName}>{item.author}{item.uid===myUid ? " (you)" : ""}</Text>
-            <Text style={s.msTime}>{item.time}</Text>
-          </View>
-        </View>
-        <Text style={s.msText}>{item.text}</Text>
-        {item.photoUri ? (
-          <Image source={{ uri:item.photoUri }} style={s.msPhoto} resizeMode="cover"/>
-        ) : null}
-        {item.link ? (
-          <TouchableOpacity style={s.msLink} onPress={() => Linking.openURL(item.link)} activeOpacity={0.85}>
-            <Text style={{ fontSize:13 }}>{"\uD83D\uDD17"}</Text>
-            <Text style={s.msLinkTxt} numberOfLines={1}>{item.linkTitle || item.link.replace("https://","")}</Text>
-            <Text style={s.msLinkArrow}>{"\u2197"}</Text>
-          </TouchableOpacity>
-        ) : null}
-        <View style={s.msFooter}>
-          <TouchableOpacity
-            style={hasAmeen ? s.msBtnOn : s.msBtn}
-            onPress={async () => {
-              if (hasAmeen || busy) return;
-              setBusy(true);
-              await new Promise(r => setTimeout(r,300));
-              onAmeen(item.id);
-              setBusy(false);
-            }}
-            disabled={hasAmeen || busy} activeOpacity={0.8}>
-            {busy
-              ? <ActivityIndicator size="small" color={hasAmeen ? "#fff" : "#1E3D30"}/>
-              : <><Text style={{ fontSize:13 }}>{"\uD83E\uDD32"}</Text><Text style={hasAmeen ? s.msBtnTxtOn : s.msBtnTxt}>{hasAmeen ? "\u0100meen" : "Say \u0100meen"}</Text></>
-            }
-          </TouchableOpacity>
-          {item.count > 0 ? <Text style={s.msCount}>{item.count} \u0100meen</Text> : null}
-          <TouchableOpacity
-            style={s.msBtn}
-            onPress={async () => {
-              try {
-                await Share.share({ message: `${item.author} shared:\n${item.text}\n\nShared via Safar` });
-              } catch (_) {}
-            }}
-            activeOpacity={0.8}
-          >
-            <ShareNetwork size={14} color="#5C534A" weight="regular" />
-          </TouchableOpacity>
-        </View>
-      </Animated.View>
-    </View>
+      <View style={styles.cardInfo}>
+        <Text style={styles.cardName} numberOfLines={1}>{name}</Text>
+        {latest ? (
+          <Text style={styles.cardPreview} numberOfLines={1}>
+            {latest.author.split(" ")[0]}: {latest.text}
+          </Text>
+        ) : (
+          <Text style={styles.cardPreviewEmpty}>No milestones yet</Text>
+        )}
+        <Text style={styles.cardMeta}>
+          {memberCount} member{memberCount === 1 ? "" : "s"}{latest ? `  ·  ${latest.time}` : ""}
+        </Text>
+      </View>
+      <CaretRight size={18} color={BORDER} weight="bold" />
+    </TouchableOpacity>
   );
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function GroupsScreen({ navigation }) {
-  const { colors: AC } = useAccessibility();
-  const C = AC ?? TC;
-
-  const s = useMemo(() => StyleSheet.create({
-
-  exampleNotice:    { backgroundColor:"#EEE4CB", borderRadius:12, borderWidth:1, borderColor:"#DDD0A8", padding:14, marginHorizontal:20, marginBottom:12 },
-  exampleNoticeTxt: { fontSize:14, color:"#6B5020", fontWeight:"500", lineHeight:20 },    safe:        { flex:1, backgroundColor:"#E8DDD0" },
-    header:      { flexDirection:"row", alignItems:"center", justifyContent:"space-between", paddingHorizontal:20, paddingTop:16, paddingBottom:12, borderBottomWidth:1, borderBottomColor:"#C8BFB2" },
-    back:        { fontSize:22, color:"#100E0A" },
-    title:       { fontFamily:SERIF, fontSize:22, color:"#100E0A" },
-    newBtn:      { backgroundColor:"#1E3D30", borderRadius:999, paddingHorizontal:14, paddingVertical:7 },
-    newBtnTxt:   { fontSize:14, color:"#fff", fontWeight:"600" },
-    tabsWrap:    { borderBottomWidth:1, borderBottomColor:"#C8BFB2" },
-    tabsContent: { paddingHorizontal:20, paddingVertical:12, gap:10 },
-    tab:         { backgroundColor:"#F5EDE0", borderRadius:16, borderWidth:1.5, borderColor:"#C8BFB2", paddingHorizontal:16, paddingVertical:12 },
-    tabIconRow:  { flexDirection:"row", alignItems:"center", gap:8 },
-    tabIconWrap: { width:28, height:28, borderRadius:14, backgroundColor:"#C8BFB2", alignItems:"center", justifyContent:"center" },
-    tabName:     { fontFamily:SERIF, fontSize:14, color:"#100E0A", marginBottom:1 },
-    tabCount:    { fontSize:12, color:"#5C534A" },
-    scroll:      { paddingHorizontal:20, paddingTop:16 },
-    banner:      { backgroundColor:"#EEE4CB", borderRadius:10, borderWidth:1, borderColor:"#DDD0A8", padding:14, marginBottom:16 },
-    bannerTxt:   { fontSize:14, color:"#6B5020", marginBottom:4 },
-    bannerCta:   { fontSize:14, color:"#1E3D30", fontWeight:"500" },
-    membersBox:  { borderRadius:16, borderWidth:1.5, padding:14, marginBottom:16 },
-    membersHead: { flexDirection:"row", alignItems:"center", justifyContent:"space-between", marginBottom:10 },
-    membersTtl:  { fontFamily:SERIF, fontSize:14, fontWeight:"600" },
-    editGrpBtn:  { fontSize:14, fontWeight:"500" },
-    memberRow:   { gap:12, paddingBottom:4 },
-    memberWrap:  { alignItems:"center", gap:4, width:60 },
-    memberName:  { fontSize:12, color:"#100E0A", textAlign:"center" },
-    memberHint:  { fontSize:10, color:"#C8BFB2" },
-    addTile:     { width:50, height:50, borderRadius:25, borderWidth:1.5, alignItems:"center", justifyContent:"center", marginTop:4 },
-    addTileTxt:  { fontSize:24, lineHeight:28 },
-    feedHeader:  { flexDirection:"row", alignItems:"center", justifyContent:"space-between", marginBottom:12 },
-    feedTitle:   { fontFamily:SERIF, fontSize:18, color:"#100E0A" },
-    shareBtn:    { borderRadius:999, paddingHorizontal:14, paddingVertical:7 },
-    shareBtnTxt: { fontSize:14, color:"#fff", fontWeight:"600" },
-    empty:       { alignItems:"center", paddingVertical:32 },
-    emptyEmoji:  { fontSize:36, marginBottom:12 },
-    shareHint:    { fontSize:12, color:"#5C534A", fontWeight:"500", marginHorizontal:20, marginBottom:8, fontStyle:"italic" },
-  emptyTxt:    { fontSize:16, color:"#5C534A", textAlign:"center", lineHeight:22 },
-    // milestone — clean white card, left border accent per author
-    msWrap:      { marginBottom:8, borderRadius:10, overflow:"hidden" },
-    msBack:      { position:"absolute", right:0, top:0, bottom:0, width:90, backgroundColor:"#D94F4F", borderRadius:10, alignItems:"center", justifyContent:"center" },
-    msBackBtn:   { alignItems:"center", gap:4, width:"100%", height:"100%", justifyContent:"center" },
-    msBackTxt:   { fontSize:11, color:"#fff", fontWeight:"600" },
-    msCard:      { borderRadius:10, borderWidth:1, borderColor:"#C8BFB2", backgroundColor:"#F5EDE0", padding:16 },
-    msTop:       { flexDirection:"row", alignItems:"center", gap:10, marginBottom:8 },
-    msName:      { fontFamily:SERIF, fontSize:14, fontWeight:"500", color:"#100E0A" },
-    msTime:      { fontSize:12, color:"#5C534A" },
-    msText:      { fontSize:16, color:"#100E0A", lineHeight:22, marginBottom:10 },
-    msLink:      { flexDirection:"row", alignItems:"center", gap:6, backgroundColor:"#E8DDD0", borderRadius:6, borderWidth:1, borderColor:"#C8BFB2", padding:8, marginBottom:10 },
-    msLinkTxt:   { flex:1, fontSize:12, color:"#1E3D30" },
-    msLinkArrow: { fontSize:12, color:"#1E3D30" },
-    msFooter:    { flexDirection:"row", alignItems:"center", justifyContent:"space-between" },
-    msBtn:       { flexDirection:"row", alignItems:"center", gap:6, paddingHorizontal:12, paddingVertical:6, borderRadius:999, borderWidth:1, borderColor:"#C8BFB2" },
-    msBtnOn:     { flexDirection:"row", alignItems:"center", gap:6, paddingHorizontal:12, paddingVertical:6, borderRadius:999, backgroundColor:"#1E3D30" },
-    msBtnTxt:    { fontSize:14, color:"#1E3D30" },
-    msBtnTxtOn:  { fontSize:14, color:"#fff", fontWeight:"500" },
-    msCount:     { fontSize:12, color:"#5C534A" },
-    // modals
-    overlay:     { flex:1, backgroundColor:"rgba(0,0,0,0.4)", justifyContent:"flex-end" },
-    sheet:       { backgroundColor:"#C8DDD4", borderTopLeftRadius:24, borderTopRightRadius:24, padding:20, paddingBottom:32 },
-    handle:      { width:36, height:4, borderRadius:2, backgroundColor:"rgba(47,93,80,0.3)", alignSelf:"center", marginBottom:12 },
-    mTitle:      { fontFamily:SERIF, fontSize:20, color:"#100E0A", marginBottom:4 },
-    mSub:        { fontSize:14, color:"#5C534A", marginBottom:12 },
-    mInput:      { backgroundColor:"#F5EDE0", borderRadius:10, borderWidth:1, borderColor:"#C8BFB2", padding:14, fontSize:16, color:"#100E0A", minHeight:88, textAlignVertical:"top", marginBottom:4 },
-    mInputSm:    { backgroundColor:"#F5EDE0", borderRadius:10, borderWidth:1, borderColor:"#C8BFB2", padding:14, fontSize:16, color:"#100E0A", minHeight:52, marginBottom:4 },
-    mCharCount:  { fontSize:12, color:"#5C534A", textAlign:"right", marginBottom:10 },
-    attachRow:   { flexDirection:"row", alignItems:"center", gap:8, marginBottom:8 },
-    attachLbl:   { fontSize:12, color:"#5C534A" },
-    attachBtn:   { paddingHorizontal:10, paddingVertical:4, borderRadius:999, borderWidth:1, borderColor:"#C8BFB2", backgroundColor:"#F5EDE0" },
-    attachTxt:   { fontSize:14, color:"#5C534A" },
-    attachTxtOn: { fontSize:14, color:"#1E3D30", fontWeight:"600" },
-    linkBox:     { gap:6, marginBottom:8 },
-    linkIn:      { backgroundColor:"#F5EDE0", borderRadius:6, borderWidth:1, borderColor:"#C8BFB2", paddingHorizontal:12, paddingVertical:8, fontSize:14, color:"#100E0A" },
-    clrLbl:      { fontSize:10, fontWeight:"700", letterSpacing:1.5, color:"#5C534A", marginBottom:6, marginTop:4 },
-    clrRow:      { flexDirection:"row", gap:8, marginBottom:16 },
-    clrSwatch:   { width:32, height:32, borderRadius:16, alignItems:"center", justifyContent:"center" },
-    clrSwatchOn: { borderWidth:2.5, borderColor:"#100E0A" },
-    clrCheck:    { fontSize:14, color:"#fff", fontWeight:"700" },
-    btnRow:      { flexDirection:"row", gap:10 },
-    cancelBtn:   { flex:1, borderRadius:10, borderWidth:1, borderColor:"#C8BFB2", paddingVertical:14, alignItems:"center", backgroundColor:"#F5EDE0" },
-    cancelTxt:   { fontSize:16, color:"#100E0A" },
-    submitBtn:   { flex:1, borderRadius:10, backgroundColor:"#1E3D30", paddingVertical:14, alignItems:"center" },
-    submitDim:   { opacity:0.4 },
-    submitTxt:   { fontSize:16, color:"#fff", fontWeight:"600" },
-    delBtn:      { marginTop:16, alignItems:"center", paddingVertical:12 },
-    delTxt:      { fontSize:16, color:"#E05252", fontWeight:"500" },
-    mshRow:      { flexDirection:"row", alignItems:"center", gap:12, marginBottom:16, marginTop:4 },
-    mshName:     { fontFamily:SERIF, fontSize:18, color:"#100E0A" },
-    mshSub:      { fontSize:14, color:"#5C534A" },
-    divider:     { height:1, backgroundColor:"#C8BFB2", marginBottom:12 },
-    secLbl:      { fontSize:10, fontWeight:"700", letterSpacing:1.5, color:"#5C534A", marginBottom:8 },
-    optRow:      { flexDirection:"row", alignItems:"center", gap:12, paddingVertical:12, borderBottomWidth:1, borderBottomColor:"#C8BFB2" },
-    optIcon:     { width:32, height:32, borderRadius:16, backgroundColor:"rgba(47,93,80,0.1)", alignItems:"center", justifyContent:"center" },
-    optTxt:      { flex:1, fontFamily:SERIF, fontSize:16, color:"#100E0A" },
-    optPlus:     { fontSize:20, color:"#1E3D30" },
-    removeRow:   { paddingVertical:16, alignItems:"center" },
-    removeTxt:   { fontSize:16, color:"#E05252", fontWeight:"500" },
-    cancelRow:   { paddingVertical:12, alignItems:"center" },
-    cancelRowTxt:{ fontSize:16, color:"#5C534A" },
-
-    // Invite button in members header
-    inviteBtn:    { flexDirection:"row", alignItems:"center", gap:5, paddingHorizontal:10, paddingVertical:5, borderRadius:50, borderWidth:1 },
-    inviteBtnTxt: { fontSize:12, fontWeight:"600" },
-
-    // Invite code display
-    codeBox:      { backgroundColor:"#F5EDE0", borderRadius:14, borderWidth:1.5, borderColor:"#C8BFB2", paddingVertical:20, paddingHorizontal:24, alignItems:"center", marginBottom:16 },
-    codeText:     { fontFamily:SERIF, fontSize:36, color:"#1E3D30", letterSpacing:6, fontWeight:"400" },
-
-    // Join code input
-    codeInput:    { fontFamily:SERIF, fontSize:24, textAlign:"center", letterSpacing:6, color:"#1E3D30" },
-    joinError:    { fontSize:13, color:"#D94F4F", textAlign:"center", marginBottom:10, marginTop:-4 },
-
-    // Photo in post modal
-    photoPreviewWrap:{ marginBottom:10, borderRadius:10, overflow:"hidden", position:"relative" },
-    photoPreview:    { width:"100%", height:160, borderRadius:10 },
-    photoRemove:     { position:"absolute", top:8, right:8, width:28, height:28, borderRadius:14, backgroundColor:"rgba(0,0,0,0.55)", alignItems:"center", justifyContent:"center" },
-
-    // Photo in milestone card
-    msPhoto:      { width:"100%", height:180, borderRadius:8, marginBottom:10 },
-  }), [C]);
-
+  const insets = useSafeAreaInsets();
   const currentUser = getCurrentUser();
-  const myUid = currentUser?.uid ?? "u4";
-  const [realGroups,     setRealGroups]     = useState([]);
-  const [activeId,       setActiveId]       = useState("ex1");
-  const shareMilestone = async (text, author) => {
-    try {
-      await Share.share({
-        message: text + "\n\n— shared via Safar | My Hajj & Umrah companion",
-        title: "Milestone from " + author,
-      });
-    } catch (_) {}
-  };
 
-    const [exGroups,       setExGroups]       = useState(INIT_GROUPS);
-  const [exMilestones,   setExMilestones]   = useState(INIT_MILESTONES);
-  const [realMilestones, setRealMilestones] = useState([]);
-  const [removedUids,    setRemovedUids]    = useState([]);
-  const [showPost,       setShowPost]       = useState(false);
-  const [showNew,        setShowNew]        = useState(false);
-  const [showEdit,       setShowEdit]       = useState(false);
-  const [showInvite,     setShowInvite]     = useState(false);
-  const [showJoin,       setShowJoin]       = useState(false);
-  const [inviteCode,     setInviteCode]     = useState("");
-  const [joinCode,       setJoinCode]       = useState("");
-  const [joinLoading,    setJoinLoading]    = useState(false);
-  const [joinError,      setJoinError]      = useState("");
-  const [codeCopied,     setCodeCopied]     = useState(false);
-  const [postText,       setPostText]       = useState("");
-  const [postLink,       setPostLink]       = useState("");
-  const [postLinkTitle,  setPostLinkTitle]  = useState("");
-  const [postPhoto,      setPostPhoto]      = useState(null);
-  const [showLink,       setShowLink]       = useState(false);
-  const [newName,        setNewName]        = useState("");
-  const [newColor,       setNewColor]       = useState("green");
-  const [editName,       setEditName]       = useState("");
-  const [editColor,      setEditColor]      = useState("green");
-  const [posting,        setPosting]        = useState(false);
-  const [selMember,      setSelMember]      = useState(null);
-  const [showMSheet,     setShowMSheet]     = useState(false);
-  const init = useRef(false);
+  const [realGroups, setRealGroups] = useState([]);
+  const [exGroups,   setExGroups]   = useState(INIT_GROUPS);
+  const [metaMap,    setMetaMap]    = useState({});
+  const [filter,     setFilter]     = useState("mine"); // "mine" | "shared"
+  const [showAdd,    setShowAdd]    = useState(false);
+  const [showCreate, setShowCreate] = useState(false);
+  const [showJoin,   setShowJoin]   = useState(false);
+  const [newName,    setNewName]    = useState("");
+  const [joinCode,   setJoinCode]   = useState("");
+  const [joinLoading,setJoinLoading]= useState(false);
+  const [joinError,  setJoinError]  = useState("");
+  const [creating,   setCreating]   = useState(false);
 
   useEffect(() => {
     if (!currentUser?.uid) return;
-    return subscribeToUserGroups(currentUser.uid, g => {
-      setRealGroups(g);
-      if (!init.current && g.length > 0) { setActiveId(g[0].id); init.current = true; }
-    });
+    return subscribeToUserGroups(currentUser.uid, setRealGroups);
   }, [currentUser?.uid]);
 
-  useEffect(() => {
-    if (!activeId || activeId.startsWith("ex")) return;
-    setRealMilestones([]);
-    return subscribeToGroupMilestones(activeId, setRealMilestones);
-  }, [activeId]);
+  useFocusEffect(
+    useCallback(() => {
+      let active = true;
+      getAllGroupMeta().then(m => { if (active) setMetaMap(m); });
+      return () => { active = false; };
+    }, [])
+  );
 
-  const usingEx    = realGroups.length === 0;
-  const allGroups  = usingEx ? exGroups : realGroups;
-  const activeG    = allGroups.find(g => g.id===activeId) ?? allGroups[0];
-  const isEx       = !!activeG?.isExample;
-  const accent     = GROUP_COLORS.find(g => g.key===(activeG?.colorKey??"green"))?.value ?? "#1E3D30";
-  const members    = isEx ? (activeG?.memberUids??[]).filter(u=>!removedUids.includes(u)).map(u=>EX_MEMBERS[u]).filter(Boolean) : [];
-  const milestones = isEx ? (exMilestones[activeId]??[]) : realMilestones;
+  const usingEx = realGroups.length === 0;
+  const allGroups = usingEx ? exGroups : realGroups;
+  const groups = allGroups.filter(g =>
+    filter === "mine" ? g.ownerUid === (currentUser?.uid ?? "u4") : g.ownerUid !== (currentUser?.uid ?? "u4")
+  );
 
-  const doAmeen  = id => setExMilestones(p => ({ ...p, [activeId]:(p[activeId]??[]).map(m => m.id===id ? {...m,ameen:[...m.ameen,myUid],count:m.count+1} : m) }));
-  const doDelete = id => setExMilestones(p => ({ ...p, [activeId]:(p[activeId]??[]).filter(m => m.id!==id) }));
-
-  const doPost = async () => {
-    if (!postText.trim() || posting) return;
-    setPosting(true);
-    const lnk  = postLink.trim() ? (postLink.startsWith("http") ? postLink.trim() : "https://"+postLink.trim()) : null;
-    const ltxt = postLinkTitle.trim() || lnk;
-    if (isEx) {
-      setExMilestones(p => ({ ...p, [activeId]:[{
-        id:`m${Date.now()}`, author:"You", uid:myUid,
-        text:postText.trim(), time:"just now",
-        ameen:[], count:0, link:lnk, linkTitle:ltxt,
-        photoUri:postPhoto ?? null,
-      }, ...(p[activeId]??[])] }));
-    } else {
-      await postMilestoneWithPhoto(currentUser.uid, currentUser.displayName, activeId, postText.trim(), postPhoto).catch(()=>{});
-    }
-    setPostText(""); setPostLink(""); setPostLinkTitle(""); setShowLink(false);
-    setPostPhoto(null); setShowPost(false); setPosting(false);
-  };
+  const memberCountFor = (g) => (g.memberUids ?? g.members ?? []).length;
+  // Real groups don't have a fetched "latest milestone" on the list screen
+  // yet — that would mean subscribing per group here, which is wasteful.
+  // Shows once a group has actually been opened and posted to, or once
+  // real Firebase is wired with a proper "latest milestone" query.
+  const latestFor = (g) => (g.id === "ex1" ? EX_MILESTONES[0] : null);
 
   const doCreate = async () => {
-    if (!newName.trim()) return;
+    if (!newName.trim() || creating) return;
+    setCreating(true);
     if (usingEx) {
-      const g = { id:`local_${Date.now()}`, name:newName.trim(), memberUids:["u4"], isExample:false, colorKey:newColor };
-      setExGroups(p => [...p, g]); setExMilestones(p => ({ ...p, [g.id]:[] })); setActiveId(g.id);
+      const g = { id: `local_${Date.now()}`, name: newName.trim(), memberUids: ["u4"], isExample: false, ownerUid: currentUser?.uid ?? "u4" };
+      setExGroups(p => [...p, g]);
     } else {
-      await createGroup(currentUser?.uid??"local", newName.trim()).catch(()=>{});
+      await createGroup(currentUser?.uid ?? "local", newName.trim()).catch(() => {});
     }
-    setNewName(""); setNewColor("green"); setShowNew(false);
+    setNewName("");
+    setCreating(false);
+    setShowCreate(false);
   };
 
-  const doSaveEdit = () => {
-    if (!editName.trim()) return;
-    setExGroups(p => p.map(g => g.id===activeId ? {...g,name:editName.trim(),colorKey:editColor} : g));
-    setShowEdit(false);
-  };
-
-  const doDeleteGroup = () => Alert.alert("Delete group","Delete "+activeG?.name+"? Cannot be undone.",[
-    { text:"Cancel", style:"cancel" },
-    { text:"Delete", style:"destructive", onPress:() => {
-      setExGroups(p => { const n=p.filter(g=>g.id!==activeId); setActiveId(n[0]?.id??"ex1"); return n; });
-      setShowEdit(false);
-    }},
-  ]);
-
-  // ── Invite code ──────────────────────────────────────────────────────────────
-  const doGenerateCode = async () => {
-    try {
-      const code = await generateInviteCode(activeId);
-      // Store code on the group object locally
-      setExGroups(p => p.map(g => g.id===activeId ? {...g, inviteCode:code} : g));
-      setInviteCode(code);
-      setShowInvite(true);
-    } catch(e) {
-      Alert.alert("Error", "Could not generate invite code. Please try again.");
-    }
-  };
-
-  const doShowInvite = () => {
-    const existing = activeG?.inviteCode;
-    if (existing) { setInviteCode(existing); setShowInvite(true); }
-    else doGenerateCode();
-  };
-
-  const doCopyCode = () => {
-    Clipboard.setString(inviteCode);
-    setCodeCopied(true);
-    setTimeout(() => setCodeCopied(false), 2000);
-  };
-
-  const doShareCode = async () => {
-    try {
-      await Share.share({
-        message: `Join my Safar pilgrimage group!\n\nGroup: ${activeG?.name}\nInvite code: ${inviteCode}\n\nDownload Safar and enter this code to join.`,
-        title: `Join ${activeG?.name} on Safar`,
-      });
-    } catch(_) {}
-  };
-
-  // ── Join group ───────────────────────────────────────────────────────────────
-  const doJoinGroup = async () => {
+  const doJoin = async () => {
     if (!joinCode.trim() || joinLoading) return;
     setJoinLoading(true);
     setJoinError("");
@@ -453,375 +171,224 @@ export default function GroupsScreen({ navigation }) {
       setJoinCode("");
       setShowJoin(false);
       Alert.alert("Joined!", `You've joined "${result.name}". Welcome to the group.`);
-    } catch(e) {
+    } catch (e) {
       setJoinError(e.message ?? "Code not found. Check and try again.");
     } finally {
       setJoinLoading(false);
     }
   };
 
-  // ── Photo picker ─────────────────────────────────────────────────────────────
-  const doPickPhoto = async () => {
-    // expo-image-picker — requires dev build
-    try {
-      const ImagePicker = require("expo-image-picker");
-      const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (!perm.granted) {
-        Alert.alert("Permission needed", "Allow photo access to share images with your group.");
-        return;
-      }
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true, aspect:[4,3], quality:0.8,
-      });
-      if (!result.canceled && result.assets?.[0]) {
-        setPostPhoto(result.assets[0].uri);
-      }
-    } catch(_) {
-      // expo-image-picker not available in Expo Go
-      Alert.alert("Coming soon", "Photo sharing will be available in the full app release.");
-    }
-  };
-
   return (
-    <SafeAreaView style={s.safe}>
-      <View style={s.header}>
-        <TouchableOpacity onPress={() => navigation?.goBack?.()} hitSlop={{top:12,bottom:12,left:12,right:24}}>
-          <Text style={s.back}>{"\u2190"}</Text>
-        </TouchableOpacity>
-        <Text style={s.title}>Groups</Text>
-        <View style={{ flexDirection:"row", gap:8 }}>
-          <TouchableOpacity style={[s.newBtn, { backgroundColor:"transparent", borderWidth:1, borderColor:"#1E3D30" }]} onPress={() => setShowJoin(true)}>
-            <Text style={[s.newBtnTxt, { color:"#1E3D30" }]}>Join</Text>
+    <View style={styles.root}>
+      {/* ── Sage Ornate Header — matches CalendarScreen's real implementation ── */}
+      <View style={styles.header}>
+        <HeaderPatternBg width={SW} />
+        <View style={[styles.headerTopRow, { paddingTop: insets.top + 10 }]}>
+          <TouchableOpacity style={styles.headerBtn} onPress={() => navigation?.goBack?.()} hitSlop={{ top:12, bottom:12, left:12, right:24 }} activeOpacity={0.8}>
+            <CaretLeft size={20} color="#1A1712" weight="bold" />
           </TouchableOpacity>
-          <TouchableOpacity style={s.newBtn} onPress={() => setShowNew(true)}>
-            <Text style={s.newBtnTxt}>+ New</Text>
+          <TouchableOpacity style={styles.headerBtn} onPress={() => setShowAdd(true)} hitSlop={{ top:12, bottom:12, left:24, right:12 }} activeOpacity={0.8}>
+            <Plus size={20} color="#1A1712" weight="bold" />
           </TouchableOpacity>
         </View>
+        <Text style={styles.headerTitle}>Groups</Text>
       </View>
 
-      <View style={s.tabsWrap}>
-        <FlatList horizontal data={allGroups} keyExtractor={g=>g.id}
-          showsHorizontalScrollIndicator={false} contentContainerStyle={s.tabsContent}
-          renderItem={({item:g}) => {
-            const on = g.id===activeG?.id;
-            const ac = GROUP_COLORS.find(x=>x.key===(g.colorKey??"green"))?.value ?? "#1E3D30";
-            return (
-              <TouchableOpacity
-                style={on ? [s.tab,{borderColor:ac,backgroundColor:ac+"12"}] : s.tab}
-                onPress={() => setActiveId(g.id)} activeOpacity={0.85}>
-                <View style={s.tabIconRow}>
-                  <View style={on ? [s.tabIconWrap,{backgroundColor:ac}] : s.tabIconWrap}>
-                    <GroupIcon size={16} color={on?"#fff":ac}/>
-                  </View>
-                  <View>
-                    <Text style={on ? [s.tabName,{color:ac}] : s.tabName}>{g.name}</Text>
-                    <Text style={s.tabCount}>{(g.memberUids??g.members??[]).length} members</Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            );
-          }}
-        />
+      {/* ── My Groups / Shared with Me ── */}
+      <View style={styles.filterRow}>
+        <TouchableOpacity
+          style={filter === "mine" ? [styles.filterPill, styles.filterPillActive] : styles.filterPill}
+          onPress={() => setFilter("mine")}
+          activeOpacity={0.8}
+        >
+          <Text style={filter === "mine" ? [styles.filterTxt, styles.filterTxtActive] : styles.filterTxt}>My Groups</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={filter === "shared" ? [styles.filterPill, styles.filterPillActive] : styles.filterPill}
+          onPress={() => setFilter("shared")}
+          activeOpacity={0.8}
+        >
+          <Text style={filter === "shared" ? [styles.filterTxt, styles.filterTxtActive] : styles.filterTxt}>Shared with Me</Text>
+        </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
-        {isEx ? (
-          <View style={s.banner}>
-            <Text style={s.bannerTxt}>{"\u2736"}  Example group \u2014 see how milestones work.</Text>
-            <TouchableOpacity onLongPress={() => shareMilestone(item.text, item.author)} onPress={() => setShowNew(true)}>
-              <Text style={s.bannerCta}>Create your own group {"\u2192"}</Text>
-            </TouchableOpacity>
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        {usingEx ? (
+          <View style={styles.notice}>
+            <Text style={styles.noticeTxt}>Sample groups shown. Create your own to get started.</Text>
           </View>
         ) : null}
 
-        <View style={[s.membersBox,{borderColor:accent+"40"}]}>
-          <View style={s.membersHead}>
-            <Text style={[s.membersTtl,{color:accent}]}>Members</Text>
-            <View style={{ flexDirection:"row", gap:10 }}>
-              <TouchableOpacity
-                style={[s.inviteBtn, { borderColor:accent }]}
-                onPress={doShowInvite} activeOpacity={0.8}>
-                <ShareNetwork size={13} color={accent} weight="regular"/>
-                <Text style={[s.inviteBtnTxt, { color:accent }]}>Invite</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => { setEditName(activeG?.name??""); setEditColor(activeG?.colorKey??"green"); setShowEdit(true); }} activeOpacity={0.8}>
-                <Text style={[s.editGrpBtn,{color:accent}]}>{"\u22EF"} Edit</Text>
-              </TouchableOpacity>
-            </View>
+        {groups.length === 0 ? (
+          <View style={styles.emptyFilter}>
+            <Text style={styles.emptyFilterTxt}>
+              {filter === "mine" ? "You haven't created any groups yet." : "No groups have been shared with you yet."}
+            </Text>
           </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.memberRow}>
-            {members.map(m => (
-              <TouchableOpacity key={m.uid} style={s.memberWrap}
-                onPress={() => { if (m.uid!==myUid) { setSelMember(m); setShowMSheet(true); } }}
-                activeOpacity={m.uid===myUid?1:0.75}>
-                <UserAvatar name={m.displayName} emoji={m.avatarEmoji} size={50}/>
-                <Text style={s.memberName} numberOfLines={1}>{m.displayName.split(" ")[0]}</Text>
-                {m.uid!==myUid ? <Text style={s.memberHint}>tap</Text> : null}
-              </TouchableOpacity>
-            ))}
-            <TouchableOpacity style={[s.addTile,{borderColor:accent+"50",backgroundColor:accent+"08"}]}
-              onPress={() => navigation?.navigate?.("Connections",{mode:"pick",groupId:activeId,groupName:activeG?.name})}>
-              <Text style={[s.addTileTxt,{color:accent}]}>+</Text>
-            </TouchableOpacity>
-          </ScrollView>
-        </View>
+        ) : null}
 
-        <View style={s.feedHeader}>
-          <Text style={s.feedTitle}>Milestones</Text>
-          <TouchableOpacity style={[s.shareBtn,{backgroundColor:accent}]} onPress={() => setShowPost(true)}>
-            <Text style={s.shareBtnTxt}>+ Share</Text>
-          </TouchableOpacity>
-        </View>
+        {groups.map(g => (
+          <GroupCard
+            key={g.id}
+            group={g}
+            meta={metaMap[g.id]}
+            name={metaMap[g.id]?.name ?? g.name}
+            memberCount={memberCountFor(g)}
+            latest={latestFor(g)}
+            onPress={() => navigation?.navigate?.("GroupDetail", { group: g, allGroups })}
+          />
+        ))}
 
-        {milestones.length > 0
-          ? milestones.map(m => <MilestoneRow key={m.id} item={m} myUid={myUid} s={s} onAmeen={doAmeen} onDelete={doDelete}/>)
-          : <View style={s.empty}><Text style={s.emptyEmoji}>{"\uD83C\uDF3F"}</Text><Text style={s.emptyTxt}>{"No milestones yet.\nBe the first to share one."}</Text></View>
-        }
-        <View style={{height:80}}/>
+        <View style={{ height: 40 }} />
       </ScrollView>
 
-      {/* Post modal */}
-      <Modal visible={showPost} transparent animationType="slide">
-        <KeyboardAvoidingView style={{flex:1}} behavior={Platform.OS==="ios"?"padding":"height"}>
-          <TouchableOpacity style={s.overlay} activeOpacity={1} onPress={() => { setShowPost(false); setPostText(""); setPostLink(""); setShowLink(false); }}>
-            <View style={s.sheet} onStartShouldSetResponder={() => true}>
-              <View style={s.handle}/>
-              <Text style={s.mTitle}>Share a milestone</Text>
-              <Text style={s.mSub}>Sharing with {activeG?.name}</Text>
-              <TextInput style={s.mInput} placeholder={"e.g. Completed Tawaf \uD83D\uDD4B"}
-                placeholderTextColor={"#5C534A"} value={postText}
-                onChangeText={t=>setPostText(t.slice(0,MAX_CHARS))} multiline maxLength={MAX_CHARS} autoFocus/>
-              <Text style={s.mCharCount}>{postText.length} / {MAX_CHARS}</Text>
-
-              {/* Photo preview */}
-              {postPhoto ? (
-                <View style={s.photoPreviewWrap}>
-                  <Image source={{ uri:postPhoto }} style={s.photoPreview} resizeMode="cover"/>
-                  <TouchableOpacity style={s.photoRemove} onPress={() => setPostPhoto(null)} hitSlop={{top:8,bottom:8,left:8,right:8}}>
-                    <X size={14} color="#fff" weight="bold"/>
-                  </TouchableOpacity>
-                </View>
-              ) : null}
-
-              <View style={s.attachRow}>
-                <Text style={s.attachLbl}>Add:</Text>
-                <TouchableOpacity style={s.attachBtn} onPress={doPickPhoto} activeOpacity={0.8}>
-                  <ImageSquare size={14} color={postPhoto ? "#1E3D30" : "#5C534A"} weight={postPhoto?"fill":"regular"}/>
-                  <Text style={postPhoto ? s.attachTxtOn : s.attachTxt}>Photo</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={s.attachBtn} onPress={() => setShowLink(v=>!v)} activeOpacity={0.8}>
-                  <LinkSimple size={14} color={showLink ? "#1E3D30" : "#5C534A"} weight={showLink?"fill":"regular"}/>
-                  <Text style={showLink ? s.attachTxtOn : s.attachTxt}>Link</Text>
-                </TouchableOpacity>
-              </View>
-              {showLink ? (
-                <View style={s.linkBox}>
-                  <TextInput style={s.linkIn} placeholder="https://..." placeholderTextColor={"#5C534A"}
-                    value={postLink} onChangeText={setPostLink} keyboardType="url" autoCapitalize="none" autoCorrect={false}/>
-                  <TextInput style={s.linkIn} placeholder="Link title (optional)" placeholderTextColor={"#5C534A"}
-                    value={postLinkTitle} onChangeText={setPostLinkTitle}/>
-                </View>
-              ) : null}
-              <View style={s.btnRow}>
-                <TouchableOpacity style={s.cancelBtn} onPress={() => { setShowPost(false); setPostText(""); setPostLink(""); setShowLink(false); }}>
-                  <Text style={s.cancelTxt}>Cancel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={(!postText.trim()||posting) ? [s.submitBtn,s.submitDim] : s.submitBtn} onPress={doPost} disabled={posting||!postText.trim()}>
-                  {posting ? <ActivityIndicator color="#fff" size="small"/> : <Text style={s.submitTxt}>Share</Text>}
-                </TouchableOpacity>
-              </View>
-            </View>
-          </TouchableOpacity>
-        </KeyboardAvoidingView>
-      </Modal>
-
-      {/* New group modal */}
-      <Modal visible={showNew} transparent animationType="slide">
-        <KeyboardAvoidingView style={{flex:1}} behavior={Platform.OS==="ios"?"padding":"height"}>
-          <TouchableOpacity style={s.overlay} activeOpacity={1} onPress={() => { setShowNew(false); setNewName(""); }}>
-            <View style={s.sheet} onStartShouldSetResponder={() => true}>
-              <View style={s.handle}/>
-              <Text style={s.mTitle}>New group</Text>
-              <TextInput style={s.mInputSm} placeholder="e.g. Family Hajj 2026" placeholderTextColor={"#5C534A"}
-                value={newName} onChangeText={setNewName} autoFocus returnKeyType="done"/>
-              <Text style={s.clrLbl}>Group colour</Text>
-              <View style={s.clrRow}>
-                {GROUP_COLORS.map(c => (
-                  <TouchableOpacity key={c.key}
-                    style={newColor===c.key ? [s.clrSwatch,{backgroundColor:c.value},s.clrSwatchOn] : [s.clrSwatch,{backgroundColor:c.value}]}
-                    onPress={() => setNewColor(c.key)} activeOpacity={0.8}>
-                    {newColor===c.key ? <Text style={s.clrCheck}>{"✓"}</Text> : null}
-                  </TouchableOpacity>
-                ))}
-              </View>
-              <View style={s.btnRow}>
-                <TouchableOpacity style={s.cancelBtn} onPress={() => { setShowNew(false); setNewName(""); }}>
-                  <Text style={s.cancelTxt}>Cancel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={!newName.trim() ? [s.submitBtn,s.submitDim] : s.submitBtn} onPress={doCreate} disabled={!newName.trim()}>
-                  <Text style={s.submitTxt}>Create</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </TouchableOpacity>
-        </KeyboardAvoidingView>
-      </Modal>
-
-      {/* Edit group modal */}
-      <Modal visible={showEdit} transparent animationType="slide">
-        <KeyboardAvoidingView style={{flex:1}} behavior={Platform.OS==="ios"?"padding":"height"}>
-          <TouchableOpacity style={s.overlay} activeOpacity={1} onPress={() => setShowEdit(false)}>
-            <View style={s.sheet} onStartShouldSetResponder={() => true}>
-              <View style={s.handle}/>
-              <Text style={s.mTitle}>Edit group</Text>
-              <TextInput style={s.mInputSm} placeholder="Group name" placeholderTextColor={"#5C534A"}
-                value={editName} onChangeText={setEditName} autoFocus returnKeyType="done"/>
-              <Text style={s.clrLbl}>Group colour</Text>
-              <View style={s.clrRow}>
-                {GROUP_COLORS.map(c => (
-                  <TouchableOpacity key={c.key}
-                    style={editColor===c.key ? [s.clrSwatch,{backgroundColor:c.value},s.clrSwatchOn] : [s.clrSwatch,{backgroundColor:c.value}]}
-                    onPress={() => setEditColor(c.key)} activeOpacity={0.8}>
-                    {editColor===c.key ? <Text style={s.clrCheck}>{"✓"}</Text> : null}
-                  </TouchableOpacity>
-                ))}
-              </View>
-              <View style={s.btnRow}>
-                <TouchableOpacity style={s.cancelBtn} onPress={() => setShowEdit(false)}>
-                  <Text style={s.cancelTxt}>Cancel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={!editName.trim() ? [s.submitBtn,s.submitDim] : s.submitBtn} onPress={doSaveEdit} disabled={!editName.trim()}>
-                  <Text style={s.submitTxt}>Save</Text>
-                </TouchableOpacity>
-              </View>
-              <TouchableOpacity style={s.delBtn} onPress={doDeleteGroup}>
-                <Text style={s.delTxt}>Delete this group</Text>
-              </TouchableOpacity>
-            </View>
-          </TouchableOpacity>
-        </KeyboardAvoidingView>
-      </Modal>
-
-      {/* Member sheet */}
-      <Modal visible={showMSheet} transparent animationType="slide">
-        <TouchableOpacity style={s.overlay} activeOpacity={1} onPress={() => { setShowMSheet(false); setSelMember(null); }}>
-          <View style={s.sheet} onStartShouldSetResponder={() => true}>
-            <View style={s.handle}/>
-            <View style={s.mshRow}>
-              <UserAvatar name={selMember?.displayName} size={52}/>
-              <View>
-                <Text style={s.mshName}>{selMember?.displayName}</Text>
-                <Text style={s.mshSub}>Member of {activeG?.name}</Text>
-              </View>
-            </View>
-            <View style={s.divider}/>
-            <Text style={s.secLbl}>ADD TO ANOTHER GROUP</Text>
-            {allGroups.filter(g=>g.id!==activeId).map(g => (
-              <TouchableOpacity key={g.id} style={s.optRow}
-                onPress={() => { setShowMSheet(false); setSelMember(null); }} activeOpacity={0.85}>
-                <View style={s.optIcon}><GroupIcon size={16} color={"#1E3D30"}/></View>
-                <Text style={s.optTxt}>{g.name}</Text>
-                <Text style={s.optPlus}>+</Text>
-              </TouchableOpacity>
-            ))}
-            <View style={s.divider}/>
-            <TouchableOpacity style={s.removeRow} onPress={() => {
-              setShowMSheet(false);
-              if (isEx) setRemovedUids(p=>[...p,selMember.uid]);
-              setSelMember(null);
-            }}>
-              <Text style={s.removeTxt}>Remove from {activeG?.name}</Text>
+      {/* Add action sheet — Create or Join */}
+      <Modal visible={showAdd} transparent animationType="fade">
+        <View style={styles.overlay}>
+          <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={() => setShowAdd(false)} />
+          <View style={styles.addSheet}>
+            <TouchableOpacity style={styles.addOption} onPress={() => { setShowAdd(false); setShowCreate(true); }} activeOpacity={0.8}>
+              <Text style={styles.addOptionTxt}>Create a group</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={s.cancelRow} onPress={() => { setShowMSheet(false); setSelMember(null); }}>
-              <Text style={s.cancelRowTxt}>Cancel</Text>
+            <View style={styles.addDivider} />
+            <TouchableOpacity style={styles.addOption} onPress={() => { setShowAdd(false); setShowJoin(true); }} activeOpacity={0.8}>
+              <Text style={styles.addOptionTxt}>Join with a code</Text>
             </TouchableOpacity>
           </View>
-        </TouchableOpacity>
-      </Modal>
-      {/* ── Invite Code modal ── */}
-      <Modal visible={showInvite} transparent animationType="slide">
-        <TouchableOpacity style={s.overlay} activeOpacity={1} onPress={() => setShowInvite(false)}>
-          <View style={s.sheet} onStartShouldSetResponder={() => true}>
-            <View style={s.handle}/>
-            <Text style={s.mTitle}>Invite to {activeG?.name}</Text>
-            <Text style={s.mSub}>Share this code with anyone you want to invite. It stays active until you delete the group.</Text>
-
-            {/* Code display */}
-            <View style={s.codeBox}>
-              <Text style={s.codeText}>{inviteCode}</Text>
-            </View>
-
-            {/* Action buttons */}
-            <View style={s.btnRow}>
-              <TouchableOpacity style={[s.cancelBtn, { flex:1 }]} onPress={doCopyCode} activeOpacity={0.85}>
-                <View style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
-                  <Copy size={16} color={codeCopied ? "#1E3D30" : "#5C534A"} weight="regular"/>
-                  <Text style={[s.cancelTxt, codeCopied && { color:"#1E3D30", fontWeight:"600" }]}>
-                    {codeCopied ? "Copied!" : "Copy code"}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity style={[s.submitBtn, { flex:1 }]} onPress={doShareCode} activeOpacity={0.85}>
-                <View style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
-                  <ShareNetwork size={16} color="#fff" weight="regular"/>
-                  <Text style={s.submitTxt}>Share</Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-
-            <TouchableOpacity style={{ marginTop:16, alignItems:"center", paddingVertical:10 }} onPress={() => setShowInvite(false)}>
-              <Text style={s.cancelRowTxt}>Done</Text>
-            </TouchableOpacity>
-          </View>
-        </TouchableOpacity>
+        </View>
       </Modal>
 
-      {/* ── Join Group modal ── */}
-      <Modal visible={showJoin} transparent animationType="slide">
-        <KeyboardAvoidingView style={{flex:1}} behavior={Platform.OS==="ios"?"padding":"height"}>
-          <TouchableOpacity style={s.overlay} activeOpacity={1} onPress={() => { setShowJoin(false); setJoinCode(""); setJoinError(""); }}>
-            <View style={s.sheet} onStartShouldSetResponder={() => true}>
-              <View style={s.handle}/>
-              <Text style={s.mTitle}>Join a group</Text>
-              <Text style={s.mSub}>Enter the 6-character invite code shared with you.</Text>
-
+      {/* Create group modal */}
+      <Modal visible={showCreate} transparent animationType="slide">
+        <KeyboardAvoidingView style={{ flex:1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+          <View style={styles.backdrop}>
+            <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={() => { setShowCreate(false); setNewName(""); }} />
+            <View style={styles.sheet}>
+              <View style={styles.handle} />
+              <Text style={styles.mTitle}>New group</Text>
               <TextInput
-                style={[s.mInputSm, s.codeInput, joinError ? { borderColor:"#D94F4F" } : null]}
+                style={styles.input}
+                placeholder="e.g. Family Hajj 2026"
+                placeholderTextColor={TEXT_MUTED}
+                value={newName}
+                onChangeText={setNewName}
+                autoFocus
+                returnKeyType="done"
+              />
+              <View style={styles.btnRow}>
+                <TouchableOpacity style={styles.cancelBtn} onPress={() => { setShowCreate(false); setNewName(""); }}>
+                  <Text style={styles.cancelTxt}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={(!newName.trim() || creating) ? [styles.submitBtn, styles.submitDim] : styles.submitBtn}
+                  onPress={doCreate}
+                  disabled={!newName.trim() || creating}
+                >
+                  {creating ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.submitTxt}>Create</Text>}
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
+
+      {/* Join group modal */}
+      <Modal visible={showJoin} transparent animationType="slide">
+        <KeyboardAvoidingView style={{ flex:1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+          <View style={styles.backdrop}>
+            <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={() => { setShowJoin(false); setJoinCode(""); setJoinError(""); }} />
+            <View style={styles.sheet}>
+              <View style={styles.handle} />
+              <Text style={styles.mTitle}>Join a group</Text>
+              <Text style={styles.mSub}>Enter the 6-character invite code shared with you.</Text>
+              <TextInput
+                style={joinError ? [styles.input, styles.codeInput, styles.inputError] : [styles.input, styles.codeInput]}
                 placeholder="e.g. A4BK7R"
-                placeholderTextColor="#5C534A"
+                placeholderTextColor={TEXT_MUTED}
                 value={joinCode}
-                onChangeText={t => { setJoinCode(t.toUpperCase().slice(0,6)); setJoinError(""); }}
+                onChangeText={t => { setJoinCode(t.toUpperCase().slice(0, 6)); setJoinError(""); }}
                 autoCapitalize="characters"
                 autoCorrect={false}
                 maxLength={6}
                 autoFocus
                 returnKeyType="join"
-                onSubmitEditing={doJoinGroup}
+                onSubmitEditing={doJoin}
               />
-
-              {joinError ? <Text style={s.joinError}>{joinError}</Text> : null}
-
-              <View style={s.btnRow}>
-                <TouchableOpacity style={s.cancelBtn} onPress={() => { setShowJoin(false); setJoinCode(""); setJoinError(""); }}>
-                  <Text style={s.cancelTxt}>Cancel</Text>
+              {joinError ? <Text style={styles.joinError}>{joinError}</Text> : null}
+              <View style={styles.btnRow}>
+                <TouchableOpacity style={styles.cancelBtn} onPress={() => { setShowJoin(false); setJoinCode(""); setJoinError(""); }}>
+                  <Text style={styles.cancelTxt}>Cancel</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={(!joinCode.trim()||joinLoading) ? [s.submitBtn,s.submitDim] : s.submitBtn}
-                  onPress={doJoinGroup}
-                  disabled={!joinCode.trim()||joinLoading}
+                  style={(!joinCode.trim() || joinLoading) ? [styles.submitBtn, styles.submitDim] : styles.submitBtn}
+                  onPress={doJoin}
+                  disabled={!joinCode.trim() || joinLoading}
                 >
-                  {joinLoading
-                    ? <ActivityIndicator color="#fff" size="small"/>
-                    : <Text style={s.submitTxt}>Join group</Text>
-                  }
+                  {joinLoading ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.submitTxt}>Join group</Text>}
                 </TouchableOpacity>
               </View>
             </View>
-          </TouchableOpacity>
+          </View>
         </KeyboardAvoidingView>
       </Modal>
-
-    </SafeAreaView>
+    </View>
   );
 }
+
+// ── Styles ────────────────────────────────────────────────────────────────────
+const styles = StyleSheet.create({
+  root: { flex:1, backgroundColor:PAGE_BG },
+
+  header: { backgroundColor:SAGE, minHeight:160, position:"relative", overflow:"hidden", paddingHorizontal:16, paddingBottom:20 },
+  headerTopRow: { flexDirection:"row", alignItems:"center", justifyContent:"space-between" },
+  headerBtn: { width:36, height:36, borderRadius:18, backgroundColor:CARD_BG, borderWidth:1, borderColor:"#D4D0CA", alignItems:"center", justifyContent:"center" },
+  headerTitle: { fontFamily:SERIF, fontSize:38, color:CARD_BG, textAlign:"center", marginTop:12 },
+
+  filterRow: { flexDirection:"row", gap:8, backgroundColor:PAGE_BG, paddingHorizontal:16, paddingTop:16, paddingBottom:4 },
+  filterPill: { flex:1, alignItems:"center", paddingVertical:10, borderRadius:20, backgroundColor:CARD_BG, borderWidth:1, borderColor:BORDER },
+  filterPillActive: { backgroundColor:SAGE, borderColor:SAGE },
+  filterTxt: { fontSize:14, fontWeight:"600", color:TEXT_MUTED },
+  filterTxtActive: { color:"#FFFFFF" },
+
+  scroll: { paddingHorizontal:16, paddingTop:16 },
+
+  notice: { backgroundColor:"#EEE4CB", borderRadius:12, borderWidth:1, borderColor:"#DDD0A8", padding:14, marginBottom:12 },
+  noticeTxt: { fontSize:13, color:"#6B5020", fontWeight:"500", lineHeight:19 },
+
+  emptyFilter: { alignItems:"center", paddingVertical:36 },
+  emptyFilterTxt: { fontSize:15, color:TEXT_MUTED, textAlign:"center" },
+
+  card: {
+    flexDirection:"row", alignItems:"center", backgroundColor:CARD_BG, borderRadius:16,
+    borderWidth:1, borderColor:BORDER, padding:14, marginBottom:10,
+    shadowColor:"#2A1F0E", shadowOffset:{ width:0, height:2 }, shadowOpacity:0.08, shadowRadius:8, elevation:3,
+  },
+  cardIcon: { marginRight:14 },
+  cardInfo: { flex:1, marginRight:8 },
+  cardName: { fontSize:17, fontWeight:"700", color:TEXT, marginBottom:3 },
+  cardPreview: { fontSize:14, color:TEXT_MUTED, marginBottom:3 },
+  cardPreviewEmpty: { fontSize:14, color:TEXT_SEC, fontStyle:"italic", marginBottom:3 },
+  cardMeta: { fontSize:12, color:TEXT_SEC },
+
+  overlay: { flex:1, backgroundColor:"rgba(26,20,16,0.4)", justifyContent:"center", alignItems:"center" },
+  addSheet: { backgroundColor:CARD_BG, borderRadius:16, borderWidth:1, borderColor:BORDER, width:240, overflow:"hidden" },
+  addOption: { paddingVertical:16, alignItems:"center" },
+  addOptionTxt: { fontSize:16, color:TEXT, fontWeight:"500" },
+  addDivider: { height:1, backgroundColor:DIVIDER },
+
+  backdrop: { flex:1, backgroundColor:"rgba(26,20,16,0.4)", justifyContent:"flex-end" },
+  sheet: { backgroundColor:CARD_BG, borderTopLeftRadius:24, borderTopRightRadius:24, padding:20, paddingBottom:32 },
+  handle: { width:36, height:4, borderRadius:2, backgroundColor:BORDER, alignSelf:"center", marginBottom:16 },
+  mTitle: { fontFamily:SERIF, fontSize:20, color:TEXT, marginBottom:4 },
+  mSub: { fontSize:14, color:TEXT_MUTED, marginBottom:14 },
+  input: { backgroundColor:PAGE_BG, borderRadius:12, borderWidth:1, borderColor:BORDER, padding:14, fontSize:16, color:TEXT, marginBottom:16 },
+  codeInput: { fontFamily:SERIF, fontSize:22, textAlign:"center", letterSpacing:6 },
+  inputError: { borderColor:"#C24A4A" },
+  joinError: { fontSize:13, color:"#C24A4A", textAlign:"center", marginTop:-8, marginBottom:14 },
+  btnRow: { flexDirection:"row", gap:10 },
+  cancelBtn: { flex:1, borderRadius:12, borderWidth:1, borderColor:BORDER, paddingVertical:14, alignItems:"center", backgroundColor:PAGE_BG },
+  cancelTxt: { fontSize:16, color:TEXT },
+  submitBtn: { flex:1, borderRadius:12, backgroundColor:SAGE, paddingVertical:14, alignItems:"center" },
+  submitDim: { opacity:0.4 },
+  submitTxt: { fontSize:16, color:"#FFFFFF", fontWeight:"600" },
+});
