@@ -333,7 +333,7 @@ export default function GroupDetailScreen({ route, navigation }) {
     <View style={styles.root}>
       {/* ── Sage Solid Header ── */}
       <View style={[styles.header, { paddingTop: insets.top + 14 }]}>
-        <TouchableOpacity onPress={() => navigation?.goBack?.()} hitSlop={{ top:12, bottom:12, left:12, right:24 }}>
+        <TouchableOpacity onPress={() => { const returnToTab = route?.params?.returnToTab; if (returnToTab) { navigation?.getParent?.()?.navigate?.(returnToTab); } else { navigation?.goBack?.(); } }} hitSlop={{ top:12, bottom:12, left:12, right:24 }}>
           <CaretLeft size={20} color="#FFFFFF" weight="bold" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.headerCenter} onPress={() => setShowAvatar(true)} activeOpacity={0.85}>

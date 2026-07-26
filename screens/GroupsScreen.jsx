@@ -105,7 +105,7 @@ function GroupCard({ group, meta, name, memberCount, latest, onPress }) {
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────
-export default function GroupsScreen({ navigation }) {
+export default function GroupsScreen({ navigation, route }) {
   const insets = useSafeAreaInsets();
   const currentUser = getCurrentUser();
 
@@ -184,7 +184,7 @@ export default function GroupsScreen({ navigation }) {
       <View style={styles.header}>
         <HeaderPatternBg width={SW} />
         <View style={[styles.headerTopRow, { paddingTop: insets.top + 10 }]}>
-          <TouchableOpacity style={styles.headerBtn} onPress={() => navigation?.goBack?.()} hitSlop={{ top:12, bottom:12, left:12, right:24 }} activeOpacity={0.8}>
+          <TouchableOpacity style={styles.headerBtn} onPress={() => { const returnToTab = route?.params?.returnToTab; if (returnToTab) { navigation?.getParent?.()?.navigate?.(returnToTab); } else { navigation?.goBack?.(); } }} hitSlop={{ top:12, bottom:12, left:12, right:24 }} activeOpacity={0.8}>
             <CaretLeft size={20} color="#1A1712" weight="bold" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.headerBtn} onPress={() => setShowAdd(true)} hitSlop={{ top:12, bottom:12, left:24, right:12 }} activeOpacity={0.8}>

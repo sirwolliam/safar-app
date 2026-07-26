@@ -40,6 +40,8 @@ import WhatToExpectScreen  from "./screens/WhatToExpectScreen";
 import MyBoardScreen       from "./screens/MyBoardScreen";
 import DuaListScreen       from "./screens/DuaListScreen";
 import MyContactsScreen    from "./screens/MyContactsScreen";
+import MomentsScreen       from "./screens/MomentsScreen";
+import MomentCreatorScreen from "./screens/MomentCreatorScreen";
 import ProgressScreen      from "./screens/ProgressScreen";
 import OnboardingFlow      from "./screens/OnboardingFlow";
 import ToolsScreen         from "./screens/ToolsScreen";
@@ -206,9 +208,11 @@ function JourneyNavigator() {
       <JourneyStack.Screen name="GroupDetail" component={GroupDetailScreen}  />
       <JourneyStack.Screen name="Connections" component={ConnectionsScreen}  />
       <JourneyStack.Screen name="MyBoard"     component={MyBoardScreen}      />
-      <JourneyStack.Screen name="MyContacts"  component={MyContactsScreen}   />
-      <JourneyStack.Screen name="Tawaf"       component={TawafScreen}        />
-      <JourneyStack.Screen name="Saiy"        component={SaiyScreen}         />
+      <JourneyStack.Screen name="MyContacts"      component={MyContactsScreen}     />
+      <JourneyStack.Screen name="Moments"         component={MomentsScreen}         />
+      <JourneyStack.Screen name="MomentCreator"   component={MomentCreatorScreen}   />
+      <JourneyStack.Screen name="Tawaf"           component={TawafScreen}           />
+      <JourneyStack.Screen name="Saiy"            component={SaiyScreen}            />
     </JourneyStack.Navigator>
   );
 }

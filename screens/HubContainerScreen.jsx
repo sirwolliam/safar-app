@@ -21,7 +21,7 @@ import {
   PlayCircle, Link, BookmarkSimple, NotePencil, CurrencyDollar, CalendarBlank, PushPin,
   BookOpen, Cube, MapPin, Books,
   PersonSimpleRun, HandsPraying, Sparkle,
-  UsersThree, ShareNetwork, Bell, ShareFat,
+  UsersThree, ShareNetwork, ImageSquare, ShareFat,
 } from "phosphor-react-native";
 
 const SERIF = "SourceSerif4-Regular";
@@ -58,7 +58,7 @@ const PILLAR_CONFIG = {
       { key: "resources", Icon: Link,           label: "Official Resources", sub: "Government and authority links",             nav: "stack", target: "OfficialResourcesScreen" },
       { key: "board",     Icon: PushPin,        label: "My Board",           sub: "Notes, checklists, and saved content",        nav: "tab",   tab: "Journey", screen: "MyBoard" },
       { key: "notes",     Icon: NotePencil,     label: "Notes",              sub: "Reflections and intentions",                 nav: "stack", target: "Notes"             },
-      { key: "currency",  Icon: CurrencyDollar, label: "Currency",           sub: "Live exchange rates",                        nav: "stack", target: "CurrencyConverter" },
+      { key: "currency",  Icon: CurrencyDollar, label: "Currency",           sub: "Live exchange rates",                        nav: "tab",   tab: "Tools", screen: "CurrencyConverter" },
     ],
   },
   learn: {
@@ -111,7 +111,7 @@ const PILLAR_CONFIG = {
       { key: "groups",        Icon: UsersThree,   label: "Groups",        sub: "Coordinate with your travel group",         nav: "tab",   tab: "Journey", screen: "Groups"      },
       { key: "connections",   Icon: ShareNetwork, label: "Connections",   sub: "People on the journey with you",            nav: "tab",   tab: "Journey", screen: "Connections" },
       { key: "contacts",      Icon: AddressBook,  label: "My Contacts",   sub: "Hotel, guide, agent and key numbers",       nav: "tab",   tab: "Journey", screen: "MyContacts"  },
-      { key: "notifications", Icon: Bell,         label: "Notifications", sub: "Group invites and connection requests",     nav: "stack", target: "Notifications"               },
+      { key: "moments",       Icon: ImageSquare,  label: "Moments",       sub: "Share beautiful postcards and prayers",      nav: "tab",   tab: "Journey", screen: "Moments"   },
       { key: "share",         Icon: ShareFat,     label: "Share Safar",   sub: "Invite friends and family to join you",     nav: "share"                                        },
     ],
   },
@@ -147,7 +147,11 @@ function goRow(item, navigation) {
     return;
   }
   if (item.nav === "tab") {
-    navigation?.getParent?.()?.navigate?.(item.tab, { screen: item.screen, params: item.screenParams });
+    navigation?.getParent?.()?.navigate?.(item.tab, {
+      screen: item.screen,
+      initial: false,
+      params: { ...(item.screenParams ?? {}), returnToTab: "Home" },
+    });
     return;
   }
   if (item.params) {

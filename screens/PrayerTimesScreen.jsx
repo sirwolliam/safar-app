@@ -73,7 +73,7 @@ function minutesUntil(timeStr) {
   return diff;
 }
 
-export default function PrayerTimesScreen({ navigation }) {
+export default function PrayerTimesScreen({ navigation, route }) {
   const SW = Dimensions.get("window").width;
   const insets = useSafeAreaInsets();
   const [times,        setTimes]        = useState(null);
@@ -153,7 +153,7 @@ export default function PrayerTimesScreen({ navigation }) {
       <View style={s.header}>
         <HeaderPatternBg width={SW} />
         <View style={[s.headerTopRow, { paddingTop: insets.top + 10 }]}>
-          <TouchableOpacity style={s.backBtn} onPress={() => navigation?.goBack?.()} activeOpacity={0.8}>
+          <TouchableOpacity style={s.backBtn} onPress={() => { const returnToTab = route?.params?.returnToTab; if (returnToTab) { navigation?.getParent?.()?.navigate?.(returnToTab); } else { navigation?.goBack?.(); } }} activeOpacity={0.8}>
             <Text style={s.backArrow}>{"‹"}</Text>
           </TouchableOpacity>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>

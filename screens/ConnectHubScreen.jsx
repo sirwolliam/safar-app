@@ -13,7 +13,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   CaretLeft, CaretRight,
-  UsersThree, ShareNetwork, AddressBook, Bell, ShareFat, ArrowSquareOut,
+  UsersThree, ShareNetwork, AddressBook, ImageSquare, ShareFat, ArrowSquareOut,
 } from "phosphor-react-native";
 
 const HEADER_IMAGE = require("../assets/hub-headers/connect-header.png");
@@ -31,7 +31,7 @@ const ROWS = [
   { key: "groups",        Icon: UsersThree,   label: "Groups",        sub: "Coordinate with your travel group",     nav: "parent", tab: "Journey", screen: "Groups"      },
   { key: "connections",   Icon: ShareNetwork, label: "Connections",   sub: "People on the journey with you",        nav: "parent", tab: "Journey", screen: "Connections" },
   { key: "contacts",      Icon: AddressBook,  label: "My Contacts",   sub: "Hotel, guide, agent and key numbers",  nav: "parent", tab: "Journey", screen: "MyContacts"  },
-  { key: "notifications", Icon: Bell,         label: "Notifications", sub: "Group invites and connection requests", nav: "stack",  target: "Notifications"              },
+  { key: "moments",       Icon: ImageSquare,  label: "Moments",       sub: "Share beautiful postcards and prayers",  nav: "parent", tab: "Journey", screen: "Moments" },
   { key: "share",         Icon: ShareFat,     label: "Share Safar",   sub: "Invite friends and family to join you", nav: "share"                                        },
 ];
 

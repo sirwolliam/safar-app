@@ -6,7 +6,7 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   View, Text, Image, ImageBackground, ScrollView,
   TouchableOpacity, StyleSheet, Dimensions, Linking,
-  TextInput, Modal, StatusBar,
+  TextInput, Modal, StatusBar, Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -15,11 +15,14 @@ import {
   BookOpen, PlayCircle, Gear, Question, Info,
   ArrowSquareOut, MagnifyingGlass, CaretRight,
   Wrench, ShoppingBag, Buildings, MapTrifold, Mosque,
-  CurrencyCircleDollar, PencilSimple, PushPin,
+  CurrencyCircleDollar, PencilSimple, PushPin, Camera,
 } from "phosphor-react-native";
 import { getAffiliateUrl } from "../utils/affiliateLinks";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getCurrentUser } from "../firebase";
+
+let ImagePicker;
+try { ImagePicker = require("expo-image-picker"); } catch (_) {}
 
 const SERIF = "SourceSerif4-Regular";
 const { width: SW } = Dimensions.get("window");
@@ -226,6 +229,25 @@ export default function ProfileScreen({ navigation }) {
     setAvatarKey(key);
     setShowAvatarPicker(false);
     await AsyncStorage.setItem(AVATAR_KEY, key);
+  }
+
+  async function pickPhoto() {
+    if (!ImagePicker) {
+      Alert.alert("Not available", "Photo avatars require expo-image-picker.");
+      return;
+    }
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+      if (!result.canceled && result.assets?.[0]?.uri) {
+        const value = "photo::" + result.assets[0].uri;
+        setAvatarKey(value);
+        await AsyncStorage.setItem(AVATAR_KEY, value);
+      }
+    } catch (_) {}
   }
 
   async function saveProfile() {
@@ -477,12 +499,19 @@ export default function ProfileScreen({ navigation }) {
                     activeOpacity={0.85}
                   >
                     {avatarKey ? (
-                      <Image
-                        source={AVATARS.find(
-                          a => a.key === avatarKey)?.src}
-                        style={s.profileAvatarImg}
-                        resizeMode="cover"
-                      />
+                      avatarKey.startsWith("photo::") ? (
+                        <Image
+                          source={{ uri: avatarKey.slice(7) }}
+                          style={s.profileAvatarImg}
+                          resizeMode="cover"
+                        />
+                      ) : (
+                        <Image
+                          source={AVATARS.find(a => a.key === avatarKey)?.src}
+                          style={s.profileAvatarImg}
+                          resizeMode="cover"
+                        />
+                      )
                     ) : (
                       <Text style={s.profileInitials}>
                         {initials || "S"}
@@ -847,6 +876,25 @@ export default function ProfileScreen({ navigation }) {
 
               {/* 10 — Avatar grid */}
               <View style={s.pickerGrid}>
+                <TouchableOpacity
+                  style={avatarKey?.startsWith("photo::") ? [s.pickerPhotoTile, s.pickerItemActive] : s.pickerPhotoTile}
+                  onPress={pickPhoto}
+                  activeOpacity={0.75}
+                >
+                  {avatarKey?.startsWith("photo::") ? (
+                    <Image source={{ uri: avatarKey.slice(7) }} style={s.pickerItemImg} resizeMode="cover" />
+                  ) : (
+                    <>
+                      <Camera size={22} color="#8A7D6A" weight="regular" />
+                      <Text style={s.pickerPhotoLabel}>Use Photo</Text>
+                    </>
+                  )}
+                  {avatarKey?.startsWith("photo::") ? (
+                    <View style={s.pickerItemCheck}>
+                      <Text style={s.pickerCheckText}>✓</Text>
+                    </View>
+                  ) : null}
+                </TouchableOpacity>
                 {AVATARS.map((avatar) => (
                   <TouchableOpacity
                     key={avatar.key}
@@ -1282,6 +1330,25 @@ const s = StyleSheet.create({
     backgroundColor: "#4A5C48",
     alignItems: "center",
     justifyContent: "center",
+  },
+  pickerPhotoTile: {
+    width: "22%",
+    aspectRatio: 1,
+    borderRadius: 12,
+    overflow: "hidden",
+    borderWidth: 2,
+    borderColor: "#C8BFB2",
+    borderStyle: "dashed",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#F0EBE1",
+    gap: 4,
+  },
+  pickerPhotoLabel: {
+    fontSize: 9,
+    fontWeight: "600",
+    color: "#8A7D6A",
+    textAlign: "center",
   },
 
   // Edit sheet styles

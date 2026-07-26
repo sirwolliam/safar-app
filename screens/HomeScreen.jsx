@@ -755,15 +755,15 @@ export default function HomeScreen({ navigation }) {
         </View>
         <View style={s.gridWrap}>
           {[
-            { label: "Qibla",   Icon: Compass,      screen: "Qibla"        },
-            { label: "Prayer",  Icon: Clock,        screen: "PrayerTimes"  },
-            { label: "Dhikr",   Icon: Heartbeat,    screen: "Dhikr"        },
-            { label: "Notes",   Icon: NotePencil,   screen: "Notes"        },
-          ].map(({ label, Icon, screen }) => (
+            { label: "Qibla",   Icon: Compass,      onPress: () => navigation?.getParent?.()?.navigate?.("Tools", { screen: "Qibla",        initial: false, params: { returnToTab: "Home" } }) },
+            { label: "Prayer",  Icon: Clock,        onPress: () => navigation?.getParent?.()?.navigate?.("Tools", { screen: "PrayerTimes",   initial: false, params: { returnToTab: "Home" } }) },
+            { label: "Dhikr",   Icon: Heartbeat,    onPress: () => navigation?.getParent?.()?.navigate?.("Tools", { screen: "Dhikr",         initial: false, params: { returnToTab: "Home" } }) },
+            { label: "Notes",   Icon: NotePencil,   onPress: () => navigation?.navigate?.("Notes") },
+          ].map(({ label, Icon, onPress }) => (
             <TouchableOpacity
               key={label}
               style={s.gridCell}
-              onPress={() => navigation?.navigate?.(screen)}
+              onPress={onPress}
               activeOpacity={0.78}
             >
               <View style={s.gridIconWrap}>

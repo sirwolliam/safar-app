@@ -796,7 +796,7 @@ export default function JourneyScreen({ navigation }) {
         {/* ── 6. Calendar — full-width compact card ── */}
         <View style={jn.compactRow}>
           <TouchableOpacity style={jn.compactCard}
-            onPress={() => navigation?.getParent?.()?.navigate?.("Home", { screen: "Calendar" })}
+            onPress={() => navigation?.getParent?.()?.navigate?.("Home", { screen: "Calendar", initial: false, params: { returnToTab: "Journey" } })}
             activeOpacity={0.88}>
             <View style={jn.compactIconWrap}>
               <CalendarBlank size={22} color="#2F5D50" weight="regular" />

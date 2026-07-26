@@ -765,7 +765,7 @@ function GoalDropdown({ goal, onSelect }) {
 }
 
 // ── Screen ────────────────────────────────────────────────────────────────────
-export default function DhikrScreen({ navigation }) {
+export default function DhikrScreen({ navigation, route }) {
   const insets = useSafeAreaInsets();
   const [dhikr,      setDhikr]      = useState(DHIKRS[0]);
   const [count,      setCount]      = useState(0);
@@ -801,7 +801,7 @@ export default function DhikrScreen({ navigation }) {
       <View style={s.header}>
         {/* Back navigates to Tools tab root once registered
             in ToolsNavigator (see App.js tab restructure) */}
-        <TouchableOpacity style={s.hBtn} onPress={()=>navigation?.goBack?.()} activeOpacity={0.8}>
+        <TouchableOpacity style={s.hBtn} onPress={() => { const returnToTab = route?.params?.returnToTab; if (returnToTab) { navigation?.getParent?.()?.navigate?.(returnToTab); } else { navigation?.goBack?.(); } }} activeOpacity={0.8}>
           <ArrowLeft size={22} color={WHITE} weight="regular"/>
         </TouchableOpacity>
         <View style={s.hCenter}>
