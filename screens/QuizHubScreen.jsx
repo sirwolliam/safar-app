@@ -6,7 +6,7 @@
  */
 import React, { useState, useCallback } from "react";
 import {
-  View, Text, ScrollView, TouchableOpacity, StyleSheet, Dimensions, Image,
+  View, Text, ScrollView, TouchableOpacity, StyleSheet, Image,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
@@ -18,14 +18,12 @@ import { QUIZ_TOPICS } from "../quizData";
 import { getAllProgress } from "../quizStore";
 
 const SERIF = "SourceSerif4-Regular";
-const { width: SW } = Dimensions.get("window");
-// quiz-hub-header.png is 750×400 px → ratio 1.875:1
-const HUB_BANNER_H = SW / 1.875;
 
-const PAGE_BG = "#F5F0E8";
-const TEXT    = "#1A1410";
-const SAGE    = "#4A5C48";
-const GOLD    = "#C8A96A";
+const PAGE_BG    = "#F5F0E8";
+const TEXT       = "#1A1410";
+const TEXT_MUTED = "#5C534A";
+const SAGE       = "#4A5C48";
+const GOLD       = "#C8A96A";
 
 const TOPIC_COLORS = {
   "umrah-stages":  { bg: "#4A5C48", text: "#FFFFFF" },
@@ -51,11 +49,11 @@ export default function QuizHubScreen({ navigation, route }) {
   return (
     <View style={s.root}>
       {/* Full-bleed header — sits outside ScrollView so it bleeds edge to edge */}
-      <View style={[s.heroBanner, { height: HUB_BANNER_H }]}>
+      <View style={[s.heroBanner, { height: 250 }]}>
         <Image
           source={require("../assets/quiz/quiz-hub-header.png")}
           style={StyleSheet.absoluteFillObject}
-          resizeMode="contain"
+          resizeMode="cover"
         />
         <TouchableOpacity
           style={[s.heroBannerBack, { top: insets.top + 10 }]}
@@ -70,6 +68,9 @@ export default function QuizHubScreen({ navigation, route }) {
           <CaretLeft size={20} color="#FFFFFF" weight="bold" />
         </TouchableOpacity>
       </View>
+
+      <Text style={s.hubTitle}>Hajj and Umrah Quiz</Text>
+      <Text style={s.hubSub}>Test your knowledge before your journey</Text>
 
       <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
         {QUIZ_TOPICS.map(topic => {
@@ -120,6 +121,9 @@ const s = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.35)",
     alignItems: "center", justifyContent: "center",
   },
+
+  hubTitle: { fontFamily: SERIF, fontSize: 32, fontWeight: "700", color: TEXT, textAlign: "center", paddingHorizontal: 20, paddingTop: 8, paddingBottom: 4 },
+  hubSub: { fontSize: 15, color: TEXT_MUTED, textAlign: "center", marginTop: 5, paddingHorizontal: 20 },
 
   scroll: { paddingHorizontal: 20, paddingTop: 20 },
 

@@ -117,8 +117,9 @@ export default function QuizResultsScreen({ route, navigation }) {
           <Svg width={18} height={18} viewBox="0 0 18 18" style={{ alignSelf: "center", marginBottom: 10 }}>
             <Polygon points="9,1 11.12,6.88 17,9 11.12,11.12 9,17 6.88,11.12 1,9 6.88,6.88" fill="#B4842A" />
           </Svg>
-          <Text style={s.quoteTxt}>{"“"}Seeking knowledge is an obligation upon every Muslim.{"”"}</Text>
+          <Text style={s.quoteTxt}>{"“"}Whoever Allah wills good for, He grants him understanding of the religion.{"”"}</Text>
           <Text style={s.quoteAttr}>Prophet Muhammad (peace be upon him)</Text>
+          <Text style={s.quoteSource}>Sahih al-Bukhari 71, Sahih Muslim 1037</Text>
         </View>
 
         {/* Primary button */}
@@ -173,7 +174,9 @@ const s = StyleSheet.create({
   headerTitle: { fontFamily: SERIF, fontSize: 19, fontWeight: "700", color: "#FBF1E1" },
 
   ringWrap: {
-    alignItems: "center",
+    alignSelf: "center",
+    width: 140,
+    height: 140,
     marginTop: -70,
     zIndex: 10,
     elevation: 10,
@@ -215,6 +218,7 @@ const s = StyleSheet.create({
     color: "#4A3F30", textAlign: "center", marginBottom: 8,
   },
   quoteAttr: { fontSize: 11.5, color: "#8A7A63", textAlign: "center" },
+  quoteSource: { fontSize: 10.5, color: "#A8997E", textAlign: "center", marginTop: 3 },
 
   reviewBtn: {
     backgroundColor: "#163C2C",

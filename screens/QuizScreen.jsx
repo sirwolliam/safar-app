@@ -1,7 +1,7 @@
 /**
  * QuizScreen.jsx — Safar
- * Active quiz — full-bleed image header, one question at a time,
- * radio-style choices, and full-screen feedback overlays.
+ * Active quiz — full-bleed image header with overlapping topic title,
+ * star progress row, bold-letter choices, and full-screen feedback overlays.
  *
  * Correct: sage green full-screen with large checkmark
  * Wrong: warm muted tone (not harsh red) with explanation
@@ -12,13 +12,14 @@
  */
 import React, { useState, useRef } from "react";
 import {
-  View, Text, ScrollView, TouchableOpacity, StyleSheet, Dimensions, Modal, Image,
+  View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal, Image,
 } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Svg, { Polygon } from "react-native-svg";
 import { CaretLeft, CaretRight, CheckCircle, XCircle } from "phosphor-react-native";
 import { getTopicById } from "../quizData";
 
+// Reused from previous session — static require lookup keyed by topic id
 const TOPIC_IMAGES = {
   "umrah-stages":  require("../assets/quiz/quiz-umrah.png"),
   "hajj-stages":   require("../assets/quiz/quiz-hajj.png"),
@@ -26,10 +27,23 @@ const TOPIC_IMAGES = {
   "sacred-places": require("../assets/quiz/quiz-places.png"),
 };
 
+// Per-topic display text — two lines using literal \n.
+const TITLE_DISPLAY = {
+  "umrah-stages":  "Stages of\nUmrah",
+  "hajj-stages":   "Stages of\nHajj",
+  "key-duas":      "Key\nDuas",
+  "sacred-places": "Sacred\nPlaces",
+};
+
+// Per-topic title color. Light text for dark images (sacred-places, hajj-stages).
+const TITLE_COLORS = {
+  "umrah-stages":  "#4A5C48",
+  "hajj-stages":   "#FDFAF4",
+  "key-duas":      "#7A6B4A",
+  "sacred-places": "#FDFAF4",
+};
+
 const SERIF = "SourceSerif4-Regular";
-const { width: SW } = Dimensions.get("window");
-// quiz topic images are 670×280 px → ratio 2.393:1
-const QUESTION_HEADER_H = SW / 2.393;
 
 const PAGE_BG    = "#F5F0E8";
 const CARD_BG    = "#FDFAF4";
@@ -67,6 +81,12 @@ export default function QuizScreen({ route, navigation }) {
   const total = questions.length;
   const isCorrect = selected === q.correct;
 
+  const titleColor = TITLE_COLORS[topic.id] ?? TEXT;
+  // Light-text topics use a dark shadow; dark-text topics use a light shadow.
+  const titleShadowColor = (topic.id === "sacred-places" || topic.id === "hajj-stages")
+    ? "rgba(26,20,16,0.7)"
+    : "rgba(245,240,232,0.9)";
+
   const handleSelect = (idx) => {
     if (answered) return;
     setSelected(idx);
@@ -90,24 +110,10 @@ export default function QuizScreen({ route, navigation }) {
     }
   };
 
-  const choiceBorder = (idx) => {
-    if (!answered) return BORDER;
-    if (idx === q.correct) return SAGE;
-    if (idx === selected && !isCorrect) return "#C24A4A";
-    return BORDER;
-  };
-
-  const choiceRadio = (idx) => {
-    if (!answered) return s.radio;
-    if (idx === q.correct) return [s.radio, s.radioCorrect];
-    if (idx === selected && !isCorrect) return [s.radio, s.radioWrong];
-    return s.radio;
-  };
-
   return (
     <View style={s.root}>
-      {/* Full-bleed image header — replaces old text header + illustrationZone */}
-      <View style={[s.questionHeader, { height: QUESTION_HEADER_H }]}>
+      {/* Full-bleed image header — fixed 200px, no horizontal padding */}
+      <View style={s.imgHeader}>
         {TOPIC_IMAGES[topic.id] ? (
           <Image
             source={TOPIC_IMAGES[topic.id]}
@@ -117,10 +123,8 @@ export default function QuizScreen({ route, navigation }) {
         ) : (
           <View style={[StyleSheet.absoluteFillObject, { backgroundColor: SAGE }]} />
         )}
-        <LinearGradient
-          colors={["transparent", "rgba(20,14,8,0.80)"]}
-          style={StyleSheet.absoluteFillObject}
-        />
+
+        {/* Back button — overlaid top-left */}
         <TouchableOpacity
           style={[s.qHeaderBack, { top: insets.top + 10 }]}
           onPress={() => navigation?.goBack?.()}
@@ -128,39 +132,75 @@ export default function QuizScreen({ route, navigation }) {
         >
           <CaretLeft size={18} color="#FFFFFF" weight="bold" />
         </TouchableOpacity>
-        <View style={s.qHeaderBottom}>
-          <Text style={s.qHeaderTitle}>{topic.title}</Text>
-          {/* Decorative carets are visual bookends only — no onPress */}
-          <View style={s.qHeaderCountRow}>
-            <CaretLeft size={12} color="rgba(255,255,255,0.55)" weight="bold" />
-            <Text style={s.qHeaderCount}>Question {currentIdx + 1} of {total}</Text>
-            <CaretRight size={12} color="rgba(255,255,255,0.55)" weight="bold" />
-          </View>
+
+        {/* Question X of Y badge — overlaid top-right, carets are decorative only */}
+        <View style={[s.questionBadge, { top: insets.top + 10 }]}>
+          <CaretLeft size={10} color={GOLD} weight="bold" />
+          <Text style={s.questionBadgeTxt}>Question {currentIdx + 1} of {total}</Text>
+          <CaretRight size={10} color={GOLD} weight="bold" />
         </View>
       </View>
 
+      {/* Topic title — negative marginTop lets it straddle the image bottom edge */}
+      <Text
+        style={[
+          s.qTopicTitle,
+          { color: titleColor, textShadowColor: titleShadowColor },
+        ]}
+      >
+        {TITLE_DISPLAY[topic.id] ?? topic.title}
+      </Text>
+
       <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
+        {/* Star progress row — filled gold = done, outlined gold = current, muted = upcoming */}
+        <View style={s.starsRow}>
+          {questions.map((_, i) => (
+            <Svg key={i} width={14} height={14} viewBox="0 0 18 18">
+              <Polygon
+                points="9,1 11.12,6.88 17,9 11.12,11.12 9,17 6.88,11.12 1,9 6.88,6.88"
+                fill={i < currentIdx ? GOLD : "none"}
+                stroke={i < currentIdx ? "none" : i === currentIdx ? GOLD : BORDER}
+                strokeWidth={i === currentIdx ? "1.5" : "1"}
+              />
+            </Svg>
+          ))}
+        </View>
+
         <Text style={s.questionTxt}>{q.question}</Text>
 
         <View style={s.choicesWrap}>
-          {q.choices.map((choice, idx) => (
-            <TouchableOpacity
-              key={idx}
-              style={[s.choice, { borderColor: choiceBorder(idx) }]}
-              onPress={() => handleSelect(idx)}
-              activeOpacity={answered ? 1 : 0.85}
-              disabled={answered}
-            >
-              <View style={choiceRadio(idx)}>
-                {answered && idx === q.correct ? <View style={s.radioFillCorrect} /> : null}
-                {answered && idx === selected && !isCorrect ? <View style={s.radioFillWrong} /> : null}
-              </View>
-              <Text style={s.choiceLabel}>{String.fromCharCode(65 + idx)}.</Text>
-              <Text style={[s.choiceTxt, answered && idx !== q.correct && idx !== selected ? { opacity: 0.4 } : null]}>
-                {choice}
-              </Text>
-            </TouchableOpacity>
-          ))}
+          {q.choices.map((choice, idx) => {
+            const isThisCorrect    = answered && idx === q.correct;
+            const isThisWrong      = answered && idx === selected && !isCorrect;
+            const isThisUnselected = answered && idx !== q.correct && idx !== selected;
+            return (
+              <TouchableOpacity
+                key={idx}
+                style={[
+                  s.choice,
+                  isThisCorrect ? s.choiceCorrect : null,
+                  isThisWrong ? s.choiceWrong : null,
+                ]}
+                onPress={() => handleSelect(idx)}
+                activeOpacity={answered ? 1 : 0.85}
+                disabled={answered}
+              >
+                <View style={s.choiceLead}>
+                  {isThisCorrect
+                    ? <CheckCircle size={24} color="#2D6B35" weight="fill" />
+                    : isThisWrong
+                    ? <XCircle size={24} color="#A63828" weight="fill" />
+                    : <Text style={[s.choiceLabel, isThisUnselected ? { opacity: 0.4 } : null]}>
+                        {String.fromCharCode(65 + idx)}
+                      </Text>
+                  }
+                </View>
+                <Text style={[s.choiceTxt, isThisUnselected ? { opacity: 0.4 } : null]}>
+                  {choice}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
         </View>
 
         {answered && !showFeedback ? (
@@ -219,49 +259,62 @@ export default function QuizScreen({ route, navigation }) {
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: PAGE_BG },
 
-  questionHeader: { overflow: "hidden", position: "relative" },
+  imgHeader: { height: 250, overflow: "hidden", position: "relative" },
   qHeaderBack: {
     position: "absolute", left: 16,
     width: 36, height: 36, borderRadius: 18,
     backgroundColor: "rgba(0,0,0,0.35)",
     alignItems: "center", justifyContent: "center",
   },
-  qHeaderBottom: { position: "absolute", bottom: 14, left: 20, right: 20 },
-  qHeaderTitle: { fontSize: 22, fontWeight: "700", color: "#FFFFFF", marginBottom: 6 },
-  qHeaderCountRow: { flexDirection: "row", alignItems: "center", gap: 8 },
-  qHeaderCount: { fontSize: 14, color: "rgba(255,255,255,0.85)", fontWeight: "500" },
+  questionBadge: {
+    position: "absolute", right: 16,
+    flexDirection: "row", alignItems: "center", gap: 6,
+    backgroundColor: "rgba(0,0,0,0.35)",
+    borderRadius: 999, paddingHorizontal: 10, paddingVertical: 6,
+  },
+  questionBadgeTxt: { fontSize: 12, color: "#FFFFFF", fontWeight: "600" },
 
-  scroll: { paddingHorizontal: 20, paddingTop: 16 },
+  qTopicTitle: {
+    fontFamily: SERIF, fontSize: 34, fontWeight: "700", lineHeight: 36,
+    marginTop: -94, paddingHorizontal: 20, paddingBottom: 8,
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 6,
+  },
+
+  scroll: { paddingHorizontal: 20, paddingTop: 34 },
+
+  starsRow: {
+    flexDirection: "row", flexWrap: "wrap", justifyContent: "center",
+    gap: 8, marginTop: 6, marginBottom: 16,
+  },
 
   questionTxt: { fontFamily: SERIF, fontSize: 22, color: TEXT, lineHeight: 30, marginBottom: 24 },
 
   choicesWrap: { gap: 10 },
   choice: {
-    flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: CARD_BG,
-    borderRadius: 14, borderWidth: 1.5, padding: 16,
+    flexDirection: "row", alignItems: "center", gap: 14, backgroundColor: CARD_BG,
+    borderRadius: 14, borderWidth: 1.5, borderColor: BORDER, padding: 16,
   },
-  radio: { width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, borderColor: BORDER, alignItems: "center", justifyContent: "center" },
-  radioCorrect: { borderColor: SAGE },
-  radioWrong: { borderColor: "#C24A4A" },
-  radioFillCorrect: { width: 12, height: 12, borderRadius: 6, backgroundColor: SAGE },
-  radioFillWrong: { width: 12, height: 12, borderRadius: 6, backgroundColor: "#C24A4A" },
-  choiceLabel: { fontSize: 15, fontWeight: "600", color: TEXT_SEC, width: 20 },
-  choiceTxt: { flex: 1, fontSize: 16, color: TEXT, lineHeight: 22 },
+  choiceCorrect: { backgroundColor: "#E8F0E6" },
+  choiceWrong:   { backgroundColor: "#F5E0DC" },
+  choiceLead:    { width: 28, alignItems: "center" },
+  choiceLabel:   { fontFamily: SERIF, fontSize: 22, fontWeight: "700", color: TEXT },
+  choiceTxt:     { flex: 1, fontSize: 16, color: TEXT, lineHeight: 22 },
 
-  nextBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, backgroundColor: SAGE, borderRadius: 12, paddingVertical: 16, marginTop: 20 },
+  nextBtn:    { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, backgroundColor: SAGE, borderRadius: 12, paddingVertical: 16, marginTop: 20 },
   nextBtnTxt: { fontSize: 16, color: "#FFFFFF", fontWeight: "600" },
 
-  feedbackFull: { flex: 1 },
-  feedbackScroll: { alignItems: "center", paddingHorizontal: 28 },
-  feedbackIconWrap: { marginBottom: 16 },
-  feedbackTitle: { fontFamily: SERIF, fontSize: 36, color: "#FFFFFF", fontWeight: "700", textAlign: "center" },
-  feedbackSubtitle: { fontSize: 20, color: "#FFFFFF", fontWeight: "600", marginBottom: 24, textAlign: "center", opacity: 0.9 },
-  feedbackCard: { backgroundColor: "rgba(255,255,255,0.95)", borderRadius: 18, padding: 20, width: "100%", marginBottom: 28 },
-  feedbackCorrectRow: { marginBottom: 12, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: "#EDE4D4" },
-  feedbackCorrectLabel: { fontSize: 13, color: TEXT_MUTED, marginBottom: 4 },
-  feedbackCorrectAnswer: { fontFamily: SERIF, fontSize: 17, color: TEXT, fontWeight: "600" },
-  feedbackExpl: { fontSize: 15, color: TEXT_MUTED, lineHeight: 22 },
-  feedbackFooter: { paddingHorizontal: 28, paddingTop: 8 },
-  continueBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, backgroundColor: "#FFFFFF", borderRadius: 14, paddingVertical: 16, paddingHorizontal: 32, width: "100%" },
-  continueBtnTxt: { fontSize: 16, fontWeight: "700", color: TEXT },
+  feedbackFull:          { flex: 1 },
+  feedbackScroll:        { alignItems: "center", paddingHorizontal: 28 },
+  feedbackIconWrap:      { marginBottom: 16 },
+  feedbackTitle:         { fontFamily: SERIF, fontSize: 38, color: "#FFFFFF", fontWeight: "700", textAlign: "center" },
+  feedbackSubtitle:      { fontSize: 22, color: "#FFFFFF", fontWeight: "600", marginBottom: 24, textAlign: "center", opacity: 0.9 },
+  feedbackCard:          { backgroundColor: "rgba(255,255,255,0.95)", borderRadius: 18, padding: 20, width: "100%", marginBottom: 28 },
+  feedbackCorrectRow:    { marginBottom: 12, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: "#EDE4D4" },
+  feedbackCorrectLabel:  { fontSize: 15, color: TEXT_MUTED, marginBottom: 4 },
+  feedbackCorrectAnswer: { fontFamily: SERIF, fontSize: 19, color: TEXT, fontWeight: "600" },
+  feedbackExpl:          { fontSize: 17, color: TEXT_MUTED, lineHeight: 22 },
+  feedbackFooter:        { paddingHorizontal: 28, paddingTop: 8 },
+  continueBtn:           { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, backgroundColor: "#FFFFFF", borderRadius: 14, paddingVertical: 16, paddingHorizontal: 32, width: "100%" },
+  continueBtnTxt:        { fontSize: 16, fontWeight: "700", color: TEXT },
 });

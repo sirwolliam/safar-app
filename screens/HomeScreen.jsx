@@ -532,7 +532,7 @@ export default function HomeScreen({ navigation }) {
       >
 
         {/* ── TOP BAR ── */}
-        <View style={[s.topBar, { paddingTop: insets.top + 12 }]}>
+        <View style={[s.topBar, { paddingTop: insets.top + 8 }]}>
           <View style={s.topBarLeft}>
             <Text style={s.topBarSalam}>{"As-salāmu ʿalaykum"}</Text>
             <Text style={s.topBarName}>{displayName}</Text>
@@ -2070,10 +2070,10 @@ const s = StyleSheet.create({
   },
 
   // ── Top bar (parchment greeting + countdown above hero) ───────────────────
-  topBar:         { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", backgroundColor: "#F5F0E8", paddingHorizontal: 20, paddingBottom: 11 },
+  topBar:         { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", backgroundColor: "#F5F0E8", paddingHorizontal: 20, paddingBottom: 6 },
   topBarLeft:     { flex: 1 },
   topBarSalam:    { fontSize: 14, color: "#8A7D6A", fontWeight: "500", lineHeight: 18 },
-  topBarName:     { fontFamily: "SourceSerif4-Regular", fontSize: 20, color: "#1A1410", fontWeight: "600", lineHeight: 25, marginTop: 5 },
+  topBarName:     { fontFamily: "SourceSerif4-Regular", fontSize: 20, color: "#1A1410", fontWeight: "600", lineHeight: 25, marginTop: 2 },
   topBarRight:    { flexDirection: "row", alignItems: "baseline", paddingTop: 2 },
   topBarDaysNum:  { fontSize: 20, color: "#1A1410", fontWeight: "700", lineHeight: 22 },
   topBarDaysLabel:{ fontSize: 13, color: "#8A7D6A", fontWeight: "500", lineHeight: 18 },
