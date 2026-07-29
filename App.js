@@ -61,6 +61,9 @@ import PillarIntroScreen     from "./screens/PillarIntroScreen";
 import ChecklistsScreen      from "./screens/ChecklistsScreen";
 import ChecklistDetailScreen      from "./screens/ChecklistDetailScreen";
 import OfficialResourcesScreen   from "./screens/OfficialResourcesScreen";
+import QuizHubScreen             from "./screens/QuizHubScreen";
+import QuizScreen                from "./screens/QuizScreen";
+import QuizResultsScreen         from "./screens/QuizResultsScreen";
 
 // ── Context ───────────────────────────────────────────────────────────────────
 import { AccessibilityProvider } from "./AccessibilityContext";
@@ -193,6 +196,9 @@ function HomeNavigator() {
       <HomeStack.Screen name="Checklists"       component={ChecklistsScreen}       />
       <HomeStack.Screen name="ChecklistDetail"        component={ChecklistDetailScreen}       />
       <HomeStack.Screen name="OfficialResourcesScreen" component={OfficialResourcesScreen} />
+      <HomeStack.Screen name="QuizHub"     component={QuizHubScreen}     />
+      <HomeStack.Screen name="Quiz"        component={QuizScreen}        />
+      <HomeStack.Screen name="QuizResults" component={QuizResultsScreen} />
     </HomeStack.Navigator>
   );
 }

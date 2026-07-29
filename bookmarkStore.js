@@ -148,7 +148,7 @@ function findBookmarkCard(board, sourceType, sourceId) {
   );
 }
 
-async function isBookmarkedOnBoard(sourceType, sourceId) {
+export async function isBookmarkedOnBoard(sourceType, sourceId) {
   if (!sourceId) return false;
   const board = await readBoard();
   return !!findBookmarkCard(board, sourceType, sourceId);
@@ -179,7 +179,7 @@ async function removeBookmarkCard(sourceType, sourceId) {
   return writeBoard(filtered);
 }
 
-async function toggleBookmarkCard(sourceType, sourceId, extraFields = {}) {
+export async function toggleBookmarkCard(sourceType, sourceId, extraFields = {}) {
   const isBookmarked = await isBookmarkedOnBoard(sourceType, sourceId);
   if (isBookmarked) {
     await removeBookmarkCard(sourceType, sourceId);

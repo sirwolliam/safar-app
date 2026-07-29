@@ -17,6 +17,7 @@ import {
   Info, SuitcaseRolling, TShirt, Mosque, Heartbeat,
   Lock, ShieldCheck, BookOpen,
   Buildings, Bandaids, Heart, MapPin,
+  Siren, Pill, FirstAid, Hospital,
 } from "phosphor-react-native";
 
 const SERIF = "SourceSerif4-Regular";
@@ -51,7 +52,7 @@ const fn = StyleSheet.create({
 // ── General sections ──────────────────────────────────────────────────────────
 const GENERAL_SECTIONS = [
   {
-    id: "before", title: "Before You Go", Icon: SuitcaseRolling,
+    id: "before", title: "Before You Go", sub: "Visas, vaccines, documents and preparation.", Icon: SuitcaseRolling,
     items: [
       { text: "Apply for a Hajj or Umrah visa via the official Nusuk portal.", type: "official", link: "https://www.nusuk.sa" },
       { text: "Book accommodation early — hotels near the Haram fill up months in advance.", type: "guidance" },
@@ -61,7 +62,7 @@ const GENERAL_SECTIONS = [
     ],
   },
   {
-    id: "dress", title: "Dress & What to Bring", Icon: TShirt,
+    id: "dress", title: "Dress & What to Bring", sub: "Ihram clothing, shoes, weather and essentials.", Icon: TShirt,
     items: [
       { text: "Men in Ihram wear two unstitched white cloths. No stitched clothing, no headwear, no underwear.", type: "official" },
       { text: "Women should wear modest, loose-fitting clothing covering all except face and hands.", type: "scholarly" },
@@ -72,7 +73,7 @@ const GENERAL_SECTIONS = [
     ],
   },
   {
-    id: "onsite", title: "On Site — Masjid al-Haram", Icon: Mosque,
+    id: "onsite", title: "On Site — Masjid al-Haram", sub: "Crowds, Zamzam, security and navigation.", Icon: Mosque,
     items: [
       { text: "The Haram is open 24 hours. Crowds peak around the five daily prayer times.", type: "guidance" },
       { text: "Follow crowd management signs — the Saudi authorities actively manage pedestrian flow.", type: "official" },
@@ -82,7 +83,7 @@ const GENERAL_SECTIONS = [
     ],
   },
   {
-    id: "food", title: "Food, Drink & Sanitation", Icon: Heartbeat,
+    id: "food", title: "Food, Drink & Sanitation", sub: "Halal food, hydration and facilities.", Icon: Heartbeat,
     items: [
       { text: "All food sold near the Haram is halal — no special checking is required.", type: "guidance" },
       { text: "Drink water frequently, especially during Tawaf. Dehydration is a serious risk.", type: "guidance" },
@@ -91,7 +92,7 @@ const GENERAL_SECTIONS = [
     ],
   },
   {
-    id: "legal", title: "Legal & Conduct", Icon: Lock,
+    id: "legal", title: "Legal & Conduct", sub: "Saudi laws, customs and travel rules.", Icon: Lock,
     items: [
       { text: "Alcohol is strictly prohibited throughout Saudi Arabia.", type: "official" },
       { text: "Public display of affection is not permitted, even between married couples.", type: "official" },
@@ -101,7 +102,7 @@ const GENERAL_SECTIONS = [
     ],
   },
   {
-    id: "scams", title: "Common Scams & Safety", Icon: ShieldCheck,
+    id: "scams", title: "Common Scams & Safety", sub: "Unlicensed guides, transport and pickpocketing.", Icon: ShieldCheck,
     items: [
       { text: "Unlicensed 'guides' often approach pilgrims near the Haram — use only officially registered guides.", type: "guidance" },
       { text: "Currency exchange fraud is common. Use licensed exchange offices or bank ATMs only.", type: "guidance" },
@@ -111,7 +112,7 @@ const GENERAL_SECTIONS = [
     ],
   },
   {
-    id: "practices", title: "Worship Guidance & Schools of Thought", Icon: BookOpen,
+    id: "practices", title: "Worship Guidance & Schools of Thought", sub: "Madhab differences and scholarly advice.", Icon: BookOpen,
     items: [
       { text: "The four main schools (Hanafi, Maliki, Shafi'i, Hanbali) have minor differences in how these are performed.", type: "scholarly" },
       { text: "Opinions differ on where to enter Ihram (e.g. at the Miqat vs at the airport) — follow your madhab.", type: "scholarly" },
@@ -125,7 +126,7 @@ const GENERAL_SECTIONS = [
 // ── Health sections ───────────────────────────────────────────────────────────
 const HEALTH_SECTIONS = [
   {
-    id: "facilities", title: "Medical Facilities", Icon: Buildings,
+    id: "facilities", title: "Medical Facilities", sub: "Hospitals, clinics and on-site medical teams.", Icon: Hospital,
     items: [
       { text: "The Haram Authority operates a 24-hour medical centre inside Masjid al-Haram near Gate 79 (King Fahd Gate).", type: "official" },
       { text: "King Abdullah Medical City in Makkah is the main tertiary referral hospital for pilgrims.", type: "official" },
@@ -135,7 +136,7 @@ const HEALTH_SECTIONS = [
     ],
   },
   {
-    id: "emergency", title: "Emergency Numbers", Icon: Bandaids,
+    id: "emergency", title: "Emergency Numbers", sub: "Police, ambulance, fire and embassy contacts.", Icon: Siren, accentColor: "#C24A4A",
     items: [
       { text: "Saudi Emergency (Police): 999", type: "official" },
       { text: "Saudi Ambulance: 911", type: "official" },
@@ -145,7 +146,7 @@ const HEALTH_SECTIONS = [
     ],
   },
   {
-    id: "prevention", title: "Staying Healthy", Icon: Heart,
+    id: "prevention", title: "Staying Healthy", sub: "Vaccines, hydration, heatstroke and medication.", Icon: Heart,
     items: [
       { text: "Meningitis ACWY vaccine is mandatory. Seasonal flu vaccination is strongly recommended.", type: "official" },
       { text: "Drink at least 3–4 litres of water per day. Zamzam is freely available throughout the Haram.", type: "guidance" },
@@ -156,7 +157,7 @@ const HEALTH_SECTIONS = [
     ],
   },
   {
-    id: "pharmacy", title: "Finding Pharmacies", Icon: MapPin,
+    id: "pharmacy", title: "Finding Pharmacies", sub: "Nearby pharmacy chains and common medications.", Icon: Pill,
     items: [
       { text: "Al-Dawaa and Nahdi Medical are the two largest pharmacy chains near the Haram — branches within 200m.", type: "guidance" },
       { text: "Most pharmacies in Makkah are open 24 hours during the Hajj season.", type: "guidance" },
@@ -195,13 +196,15 @@ function AccordionSection({ section, colors }) {
     },
     iconBox: {
       width: 40, height: 40, borderRadius: 12,
-      backgroundColor: "#2D4F32",
+      backgroundColor: section.accentColor ?? "#2D4F32",
       alignItems: "center", justifyContent: "center",
     },
+    titleWrap: { flex: 1 },
     title: {
-      fontFamily: SERIF, fontSize: 16,
-      color: "#1C1A14", flex: 1,
+      fontSize: 19,
+      color: section.accentColor ?? "#1C1A14",
     },
+    titleSub: { fontSize: 13, color: "#8A7D6A", marginTop: 2 },
     body: {
       paddingHorizontal: 16, paddingBottom: 8,
       borderTopWidth: 1, borderTopColor: "#EDE4D4",
@@ -215,13 +218,13 @@ function AccordionSection({ section, colors }) {
       paddingHorizontal: 8, paddingVertical: 2,
       borderRadius: 50, marginBottom: 6,
     },
-    badgeText: { fontSize: 11, fontWeight: "700", letterSpacing: 0.5 },
-    itemText:  { fontSize: 14, color: "#1C1A14", lineHeight: 21 },
+    badgeText: { fontSize: 12, fontWeight: "700", letterSpacing: 0.5 },
+    itemText:  { fontSize: 15, color: "#1C1A14", lineHeight: 23 },
     link: {
-      fontSize: 13, color: "#2D4F32",
+      fontSize: 15, color: "#2D4F32",
       fontWeight: "600", marginTop: 6,
     },
-  }), []);
+  }), [section.accentColor]);
 
   return (
     <View style={ac.wrap}>
@@ -230,7 +233,10 @@ function AccordionSection({ section, colors }) {
           <View style={ac.iconBox}>
             <section.Icon size={22} color="#C8A96A" weight="regular" />
           </View>
-          <Text style={ac.title}>{section.title}</Text>
+          <View style={ac.titleWrap}>
+            <Text style={ac.title}>{section.title}</Text>
+            {section.sub ? <Text style={ac.titleSub}>{section.sub}</Text> : null}
+          </View>
         </View>
         <CaretDown
           size={16}
@@ -275,22 +281,22 @@ function NearbyLinks({ colors }) {
     {
       label: "Find nearest pharmacy in Makkah",
       url: "https://www.google.com/maps/search/pharmacy+near+Masjid+al-Haram,+Makkah",
-      Icon: MapPin,
+      Icon: Pill,
     },
     {
       label: "Find nearest hospital in Makkah",
       url: "https://www.google.com/maps/search/hospital+near+Masjid+al-Haram,+Makkah",
-      Icon: Buildings,
+      Icon: FirstAid,
     },
     {
       label: "Find nearest pharmacy in Madinah",
       url: "https://www.google.com/maps/search/pharmacy+near+Masjid+al-Nabawi,+Madinah",
-      Icon: MapPin,
+      Icon: Pill,
     },
     {
       label: "Find nearest hospital in Madinah",
       url: "https://www.google.com/maps/search/hospital+near+Masjid+al-Nabawi,+Madinah",
-      Icon: Buildings,
+      Icon: FirstAid,
     },
   ];
 
@@ -308,8 +314,7 @@ function NearbyLinks({ colors }) {
       borderBottomWidth: 1, borderBottomColor: "#EDE4D4",
     },
     titleText: {
-      fontSize: 11, fontWeight: "700", color: "#8A7A6A",
-      letterSpacing: 1,
+      fontSize: 14, fontWeight: "700", color: "#5C534A",
     },
     row: {
       flexDirection: "row", alignItems: "center", gap: 14,
@@ -317,18 +322,18 @@ function NearbyLinks({ colors }) {
     },
     rowBorder: { borderBottomWidth: 1, borderBottomColor: "#EDE4D4" },
     iconBox: {
-      width: 36, height: 36, borderRadius: 10,
+      width: 40, height: 40, borderRadius: 10,
       backgroundColor: "#2D4F32",
       alignItems: "center", justifyContent: "center",
     },
-    label: { flex: 1, fontSize: 14, color: "#1C1A14", fontWeight: "500" },
+    label: { flex: 1, fontSize: 19, color: "#1C1A14" },
     arrow: { fontSize: 14, color: "#8A7A6A" },
   }), []);
 
   return (
     <View style={nl.card}>
       <View style={nl.titleRow}>
-        <Text style={nl.titleText}>Find nearby — opens in Google Maps</Text>
+        <Text style={nl.titleText}>Find nearby (internet required)</Text>
       </View>
       {links.map((link, i) => (
         <TouchableOpacity
@@ -338,7 +343,7 @@ function NearbyLinks({ colors }) {
           activeOpacity={0.85}
         >
           <View style={nl.iconBox}>
-            <link.Icon size={18} color="#C8A96A" weight="regular" />
+            <link.Icon size={22} color="#C8A96A" weight="regular" />
           </View>
           <Text style={nl.label}>{link.label}</Text>
           <CaretRight size={16} color="#8A7A6A" weight="bold" />
@@ -462,7 +467,7 @@ export default function WhatToExpectScreen({ navigation }) {
             )}
           </Animated.View>
 
-          <ScholarlyFootnote />
+          {tab === "general" ? <ScholarlyFootnote /> : null}
 
           <View style={styles.disclaimer}>
             <Text style={styles.disclaimerText}>
@@ -504,7 +509,7 @@ const styles = StyleSheet.create({
   scroll:         { flex: 1 },
   scrollContent:  { paddingTop: 10 },
 
-  intro:          { fontSize: 13, color: "#5C534A", lineHeight: 19, paddingHorizontal: 16, marginBottom: 10, textAlign: "center" },
+  intro:          { fontSize: 15, color: "#1A1410", lineHeight: 19, paddingHorizontal: 16, marginBottom: 10, textAlign: "center" },
 
   disclaimer:     { marginHorizontal: 16, marginTop: 16, padding: 16, backgroundColor: "#FDFAF4", borderRadius: 12, borderWidth: 1, borderColor: "#EDE4D4" },
   disclaimerText: { fontSize: 12, color: "#5C534A", lineHeight: 18, marginBottom: 6 },

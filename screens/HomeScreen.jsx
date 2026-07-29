@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   View,
   Text,
@@ -13,10 +13,11 @@ import {
   StatusBar,
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { useFocusEffect } from "@react-navigation/native";
+import { toggleBookmarkCard, isBookmarkedOnBoard } from "../bookmarkStore";
 import Svg, { Path, Defs, LinearGradient as SvgGrad, Stop, Mask, Rect, Polygon } from "react-native-svg";
 import { PATTERN_PATH } from "./headerPatternPath";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import PillarList from "../PillarList";
 import { LinearGradient } from "expo-linear-gradient";
 import {
   MapTrifold, BookOpenText, HandsPraying, CompassRose,
@@ -53,8 +54,8 @@ const HERO_SLIDES = [
     id: "media",
     image: require("../assets/hero-media.png"),
     scrim: "rgba(12,8,4,0.55)",
-    tag: "CURATED MEDIA",
-    headline: "Educate. Prepare. Be ready.",
+    tag: "HELPFUL VIDEOS, PODCASTS, AND ARTICLES",
+    headline: "Learn. Prepare. Be ready.",
     sub: "Scholarly guides, travel tips, and inspirational content to help you before, during, and after your journey.",
     cta: "Explore Media",
     ctaIsAbout: false,
@@ -147,8 +148,9 @@ function getGregorianLabel() {
 
 // ── Today's du'ā ──────────────────────────────────────────────────────────────
 const DAILY_DUA = {
+  id: "hu12",
   arabic:
-    "\u0627\u0644\u0644\u0651\u064e\u0647\u064f\u0645\u0651\u064e \u0627\u062c\u0639\u0644\u0646\u0627 \u062d\u062c\u0651\u064b\u0627 \u0645\u0628\u0631\u0648\u0631\u064b\u0627 \u0648\u0633\u0639\u064a\u064b\u0627 \u0645\u0634\u0643\u0648\u0631\u064b\u0627 \u0648\u0630\u0646\u0628\u064b\u0627 \u0645\u063a\u0641\u0648\u0631\u064b\u0627",
+    "\u0627\u0644\u0644\u0651\u064e\u0647\u064f\u0645\u064e\u0651 \u0627\u062c\u0652\u0639\u064e\u0644\u0652\u0646\u064e\u0627 \u062d\u064e\u062c\u0651\u064b\u0627 \u0645\u064e\u0628\u0652\u0631\u064f\u0648\u0631\u064b\u0627 \u0648\u064e\u0633\u064e\u0639\u0652\u064a\u064b\u0627 \u0645\u064e\u0634\u0652\u0643\u064f\u0648\u0631\u064b\u0627 \u0648\u064e\u0630\u064e\u0646\u0652\u0628\u064b\u0627 \u0645\u064e\u063a\u0652\u0641\u064f\u0648\u0631\u064b\u0627",
   transliteration:
     "All\u0101humma-j\u02bfaln\u0101 \u1e25ajjan mabrūran wa sa\u02bfyan mash\u016bran wa dhanban maghf\u016bran",
   translation:
@@ -167,13 +169,28 @@ function AboutModal({ visible, onClose }) {
             <Text style={ab.title}>What is Safar?</Text>
             <Text style={ab.body}>
               {"Safar is your companion for every step of your sacred Hajj or Umrah journey.\n\n"}
-              {"Build a personalised step-by-step plan, pin your hotel, guide and travel group, practice the most important du\u02bf\u0101\u02bes, and carry the guidance of scholars in your pocket.\n\n"}
-              {"Share milestones with fellow pilgrims, track your progress through every ibadah, and arrive prepared, calm and confident.\n\n"}
+              {"Plan your journey, practise the essential du\u02bfa\u02bcs, and share every milestone with those you love.\n\n"}
               {"May Allah accept your journey. \u0622\u0645\u064a\u0646"}
             </Text>
-            <OrnamentDivider />
-            <Text style={ab.intro}>{"Here’s how we’ve organized Safar to help you prepare with confidence."}</Text>
-            <PillarList showFooterNote />
+            <Text style={ab.pillarsIntro}>{"Here is how Safar is organized to help you prepare for your Hajj or Umrah with confidence."}</Text>
+            <View style={ab.pillarsWrap}>
+              <View style={ab.pillarCard}>
+                <Text style={ab.pillarName}>Plan</Text>
+                <Text style={ab.pillarDesc}>Plan your dates, build checklists, and organize every detail before you go.</Text>
+              </View>
+              <View style={ab.pillarCard}>
+                <Text style={ab.pillarName}>Learn</Text>
+                <Text style={ab.pillarDesc}>Step-by-step guides, sacred places, and scholarly references for every stage.</Text>
+              </View>
+              <View style={ab.pillarCard}>
+                <Text style={ab.pillarName}>Practice</Text>
+                <Text style={ab.pillarDesc}>Rehearse your duas, test your knowledge, and listen to audio guides.</Text>
+              </View>
+              <View style={ab.pillarCard}>
+                <Text style={ab.pillarName}>Connect</Text>
+                <Text style={ab.pillarDesc}>Share milestones with your group, manage contacts, and send prayer postcards.</Text>
+              </View>
+            </View>
           </ScrollView>
           <TouchableOpacity style={ab.btn} onPress={onClose}>
             <Text style={ab.btnText}>Close</Text>
@@ -202,15 +219,21 @@ const ab = StyleSheet.create({
     shadowOpacity: 0.20,
     shadowRadius: 24,
     elevation: 12,
-    maxHeight: SH * 0.85,
+    maxHeight: SH * 0.72,
     overflow: "hidden",
   },
   scrollContent: { paddingBottom: 4 },
+  pillarsIntro: { fontSize: 14, color: "#8A7D6A", lineHeight: 21, marginBottom: 14, marginTop: 4 },
+  pillarsWrap: { marginTop: 16 },
+  pillarCard: { borderWidth: 1, borderColor: "#DDD5C0", borderRadius: 12, padding: 14, marginBottom: 8 },
+  pillarName: { fontSize: 17, fontWeight: "700", color: "#B08F52", marginBottom: 2 },
+  pillarDesc: { fontSize: 14, color: "#5C534A", lineHeight: 20 },
   intro: { fontSize: 15, color: "#8A7D6A", lineHeight: 22, marginBottom: 16 },
   title: {
-    fontSize: 22,
+    fontFamily: "SourceSerif4-Regular",
+    fontSize: 24,
     fontWeight: "600",
-    color: "#4A5C48",
+    color: "#1A1410",
     marginBottom: 14,
   },
   body: {
@@ -224,7 +247,7 @@ const ab = StyleSheet.create({
     paddingHorizontal: 32,
     paddingVertical: 11,
     alignSelf: "flex-start",
-    marginTop: 20,
+    marginTop: 14,
   },
   btnText: {
     color: "#FDFAF4",
@@ -283,6 +306,7 @@ export default function HomeScreen({ navigation }) {
   const [planStarted, setPlanStarted]       = useState(false);
   const [introDismissed, setIntroDismissed] = useState(false);
   const [lastDua, setLastDua]               = useState(null); // { title, stage, id, allDuas, currentIndex }
+  const [duaPinned, setDuaPinned]           = useState(false);
   const heroRef   = useRef(null);
   const heroTimer = useRef(null);
   const insets    = useSafeAreaInsets();
@@ -291,6 +315,10 @@ export default function HomeScreen({ navigation }) {
   // V2: Math.round(SH * 0.42)
   const HERO_H = Math.round(SH * 0.52);
   const displayName = userName || "Pilgrim";
+
+  useFocusEffect(useCallback(() => {
+    isBookmarkedOnBoard("dua", DAILY_DUA.id).then(setDuaPinned);
+  }, []));
 
   // Auto-advance hero every 5s
   useEffect(() => {
@@ -854,8 +882,20 @@ export default function HomeScreen({ navigation }) {
             >
               <Text style={s.duaBtnText}>Practice</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[s.duaBtn, s.duaBtnOutline]} activeOpacity={0.85}>
-              <Text style={s.duaBtnOutlineText}>Save</Text>
+            <TouchableOpacity
+              style={[s.duaBtn, s.duaBtnOutline]}
+              activeOpacity={0.85}
+              onPress={() => {
+                toggleBookmarkCard("dua", DAILY_DUA.id, {
+                  sourceTitle: "Dua for an Accepted Hajj",
+                  sourceArabic: DAILY_DUA.arabic,
+                  sourceTranslation: DAILY_DUA.translation,
+                }).then(setDuaPinned);
+              }}
+            >
+              <Text style={[s.duaBtnOutlineText, { fontSize: 18, color: duaPinned ? "#C8A96A" : "#D4D0CA" }]}>
+                {duaPinned ? "♥" : "♡"}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -867,7 +907,7 @@ export default function HomeScreen({ navigation }) {
           activeOpacity={0.7}
         >
           <Info size={15} color="#8A7D6A" weight="regular" />
-          <Text style={s.sourceLineTxt}>Du'ā sources</Text>
+          <Text style={s.sourceLineTxt}>Sources</Text>
         </TouchableOpacity>
         </View>
 
@@ -879,7 +919,7 @@ export default function HomeScreen({ navigation }) {
       <Modal visible={showSources} transparent animationType="fade">
         <TouchableOpacity style={s.sourcesOverlay} activeOpacity={1} onPress={() => setShowSources(false)}>
           <View style={s.sourcesSheet}>
-            <Text style={s.sourcesTitle}>Du'ā Sources</Text>
+            <Text style={s.sourcesTitle}>Sources</Text>
             <Text style={s.sourcesBody}>
               {"Du\u02bf\u0101\u02bes are drawn from \u1e62a\u1e25\u012b\u1e25 al-Bukh\u0101r\u012b, \u1e62a\u1e25\u012b\u1e25 Muslim, Sunan Ab\u012b D\u0101w\u016bd, Sunan al-Tirmidh\u012b, and established scholarly works. Practice and wording may differ across the four madhhabs (\u1e24anaf\u012b, M\u0101lik\u012b, Sh\u0101fi\u02bf\u012b, \u1e24anbal\u012b). Consult a qualified scholar for rulings specific to your school of thought."}
             </Text>

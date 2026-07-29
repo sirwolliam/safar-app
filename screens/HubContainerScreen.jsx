@@ -19,7 +19,7 @@ import {
   CaretLeft, CaretRight, ArrowSquareOut,
   ListChecks, Compass, ShoppingBag, AddressBook,
   PlayCircle, Link, BookmarkSimple, NotePencil, CurrencyDollar, CalendarBlank, PushPin,
-  BookOpen, Cube, MapPin, Books,
+  BookOpen, Cube, MapPin, Books, BookOpenText, Video,
   PersonSimpleRun, HandsPraying, Sparkle,
   UsersThree, ShareNetwork, ImageSquare, ShareFat,
 } from "phosphor-react-native";
@@ -90,11 +90,12 @@ const PILLAR_CONFIG = {
     subtitle:          "Rehearse each step and keep your remembrance — calm, guided, hands-free.",
     hasHeroCard:       false,
     rows: [
+      { key: "quiz",      Icon: BookOpenText, label: "Quiz",          sub: "Test your knowledge before your journey",     nav: "stack", target: "QuizHub"                                          },
       { key: "umrahduas", Icon: HandsPraying, label: "Umrah Duʿās",  sub: "Supplications for every step of ʿUmrah", nav: "stack", target: "PilgrimageDuas", params: { mode: "umrah" } },
       { key: "hajjduas",  Icon: Sparkle,      label: "Ḥajj Duʿās",   sub: "Supplications for every step of Ḥajj",  nav: "stack", target: "PilgrimageDuas", params: { mode: "hajj"  } },
       { key: "audio",     Icon: PlayCircle,   label: "Audio Practice",         sub: "Listen and rehearse before you go",           nav: "stack", target: "PracticeLearn"                            },
       { key: "dualib",    Icon: Books,        label: "Duʿā Library", sub: "Supplications for every moment",              nav: "tab",   tab: "Duas", screen: "MyDuas"                      },
-      { key: "media",     Icon: PlayCircle,   label: "Media",                  sub: "Videos and podcasts for your preparation",    nav: "stack", target: "Media"                                    },
+      { key: "media",     Icon: Video,        label: "Media",                  sub: "Videos and podcasts for your preparation",    nav: "stack", target: "Media"                                    },
     ],
   },
   connect: {
