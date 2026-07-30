@@ -314,7 +314,7 @@ export default function HubContainerScreen({ navigation, route }) {
               onPress={() => navigation.navigate("SafarAssist")}
             >
               <LinearGradient
-                colors={["#6B5024", "#4A3818"]}
+                colors={["#2E4560", "#1E3550"]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.heroGradient}
