@@ -314,7 +314,7 @@ export default function HubContainerScreen({ navigation, route }) {
               onPress={() => navigation.navigate("SafarAssist")}
             >
               <LinearGradient
-                colors={["#3A4F3A", "#2A3E2A"]}
+                colors={["#6B5024", "#4A3818"]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.heroGradient}
@@ -328,6 +328,7 @@ export default function HubContainerScreen({ navigation, route }) {
                         <Text style={[styles.heroCta, { marginTop: 0 }]}>{"Review details →"}</Text>
                       </View>
                     </View>
+                    <View style={styles.heroDivider} />
                     <View style={styles.heroRight}>
                       <Text style={styles.heroBigNum}>
                         {days !== null ? String(days) : "—"}
@@ -441,7 +442,8 @@ const styles = StyleSheet.create({
   heroGradient:  { borderRadius: 16 },
   heroPad:       { paddingHorizontal: 20, paddingVertical: 14, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   heroLeft:      { flex: 1, marginRight: 16 },
-  heroRight:     { alignItems: "center", justifyContent: "center" },
+  heroDivider:   { width: 1, backgroundColor: "rgba(255,255,255,0.3)", marginVertical: 8, alignSelf: "stretch" },
+  heroRight:     { alignItems: "center", justifyContent: "center", marginLeft: 16 },
   heroEyebrow:   { fontSize: 13, fontWeight: "700", letterSpacing: 1.2, color: "#C8A96A", marginBottom: 6 },
   heroBigNum:    { fontSize: 42, color: "#FFFFFF", lineHeight: 44 },
   heroDaysSmall: { fontSize: 13, color: "rgba(255,255,255,0.7)", textAlign: "center", marginTop: 2 },
