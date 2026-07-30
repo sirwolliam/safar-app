@@ -1,30 +1,20 @@
 /**
  * SacredPlacesScreen.jsx — Safar
  * Two cities: Makkah and Madinah
- * Full-bleed map · numbered pins · single stepper nav · fallback-safe card content
+ * Full-bleed photo hero · single stepper nav · fallback-safe card content
  */
 import React, { useState, useEffect, useMemo } from "react";
 import {
   SafeAreaView, View, Text, ScrollView, TouchableOpacity,
-  StyleSheet, Dimensions, Linking, Image,
+  StyleSheet, Linking, Image,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import Svg, { Circle, Path, G, Text as SvgText } from "react-native-svg";
 import { CaretLeft, CaretRight, HandsPraying, MapPin } from "phosphor-react-native";
 import { getDuaById } from "../dua-content";
 import { useAccessibility } from "../AccessibilityContext";
 
-const SERIF = "SourceSerif4-Regular";
-const { width: SW } = Dimensions.get("window");
-const MAP_H = 350;
-
-// SVG pin geometry (viewBox units)
-const PR = 9;   // circle radius
-const PT = 6;   // tail height below circle, tip is the location point
-const PW = 5;   // half-width of tail base
-
-// PIN_OFF has no colors-token equivalent — warm medium green kept hardcoded
-const PIN_OFF = "#4A7A60";
+const SERIF   = "SourceSerif4-Regular";
+const HERO_H  = 300;
 
 const VISITED_KEY = "safar_visited_sites_v1";
 
@@ -32,34 +22,34 @@ const VISITED_KEY = "safar_visited_sites_v1";
 const MAKKAH_SITES = [
   {
     id: "kaaba", name: "Al-Kaʿbah", arabic: "الكَعبَة",
-    sub: "The Most Sacred House", duas: 12, cx: 193, cy: 211,
+    sub: "The Most Sacred House", duas: 12,
     // photo: require("../assets/..."),
     // citation: "Qurʾan 2:125",
     // relatedDuas: [{ id: "...", title: "..." }],
   },
   {
     id: "hijr", name: "Hijr Ismāʿīl", arabic: "حِجر إِسماعيل",
-    sub: "Sanctuary of the Prophet Ismāʿīl ﷺ", duas: 4, cx: 190, cy: 188,
+    sub: "Sanctuary of the Prophet Ismāʿīl ﷺ", duas: 4,
     // photo, citation, relatedDuas
   },
   {
     id: "maqam", name: "Maqām Ibrāhīm", arabic: "مَقَامُ إبْرَاهِيم",
-    sub: "Station of Prophet Ibrāhīm", duas: 5, cx: 212, cy: 193,
+    sub: "Station of Prophet Ibrāhīm", duas: 5,
     // photo, citation, relatedDuas
   },
   {
     id: "zamzam", name: "Zamzam", arabic: "زَمْزَم",
-    sub: "The Blessed Well", duas: 4, cx: 210, cy: 225,
+    sub: "The Blessed Well", duas: 4,
     // photo, citation, relatedDuas
   },
   {
     id: "yemeni", name: "Yemeni Corner", arabic: "الرُكن اليَمانِي",
-    sub: "Second of the two blessed corners", duas: 3, cx: 181, cy: 228,
+    sub: "Second of the two blessed corners", duas: 3,
     // photo, citation, relatedDuas
   },
   {
     id: "safa", name: "Ṣafā & Marwah", arabic: "الصَّفَا وَالْمَرْوَة",
-    sub: "Place of Saʿy — 7 passes", duas: 8, cx: 176, cy: 290,
+    sub: "Place of Saʿy — 7 passes", duas: 8,
     // photo, citation, relatedDuas
   },
 ];
@@ -67,39 +57,38 @@ const MAKKAH_SITES = [
 const MADINAH_SITES = [
   {
     id: "nabawi", name: "Al-Masjid an-Nabawī", arabic: "المسجد النبوي",
-    sub: "The Prophet's Mosque", duas: 8, cx: 195, cy: 168, official: true,
+    sub: "The Prophet's Mosque", duas: 8, official: true,
     description: "Built by the Prophet ㏏ after the Hijrah in 622 CE. A prayer here equals 1,000 prayers elsewhere, except al-Masjid al-Ḥarām.",
     // photo, citation, relatedDuas
   },
   {
     id: "rawdah", name: "Al-Rawḍah al-Sharīfah", arabic: "الرَّوضَة الشَّريفَة",
     sub: "The Noble Garden — between the minbar and the grave of the Prophet ﷺ",
-    duas: 6, cx: 155, cy: 158, official: true,
+    duas: 6, official: true,
     description: "The area between the Prophet's ㏏ grave and his pulpit — a garden from the gardens of Paradise.",
     // photo, citation, relatedDuas
   },
   {
     id: "greendome", name: "The Green Dome", arabic: "القُبَّة الخَضرَاء",
-    sub: "Above the grave of the Prophet Muhammad ﷺ", duas: 4, cx: 168, cy: 182,
+    sub: "Above the grave of the Prophet Muhammad ﷺ", duas: 4,
     description: "The resting place of the Prophet Muhammad ㏏. Sending salām upon him here is among the most virtuous acts a visitor can perform.",
     // photo, citation, relatedDuas
   },
   {
     id: "baqi", name: "Jannat al-Baqīʿ", arabic: "جَنَّة البَقيع",
-    sub: "Historic cemetery — Companions and family of the Prophet ﷺ",
-    duas: 3, cx: 272, cy: 172,
+    sub: "Historic cemetery — Companions and family of the Prophet ﷺ", duas: 3,
     description: "The main cemetery of Madīnah where many Companions and family of the Prophet ㏏ are buried.",
     // photo, citation, relatedDuas
   },
   {
     id: "quba", name: "Masjid Qubāʾ", arabic: "مسجد قُبَاء",
-    sub: "First mosque built in Islam", duas: 3, cx: 145, cy: 248,
+    sub: "First mosque built in Islam", duas: 3,
     description: "The first mosque built in Islam. Two rakʿahs here equals the reward of an ʿUmrah.",
     // photo, citation, relatedDuas
   },
   {
     id: "suffah", name: "As-Ṣuffah", arabic: "الصُّفَّة",
-    sub: "Platform of the Companions of the Bench", duas: 2, cx: 222, cy: 248,
+    sub: "Platform of the Companions of the Bench", duas: 2,
     description: "The raised platform at the rear of the mosque where poor Companions lived and devoted themselves to learning from the Prophet ㏏.",
     // photo, citation, relatedDuas
   },
@@ -108,105 +97,26 @@ const MADINAH_SITES = [
 const MADINAH_INFO = {
   rawdah: {
     detail: "The Rawḍah (Garden of Paradise) is the area between the minbar and the grave of the Prophet Muhammad ﷺ. The Prophet ﷺ said: 'Between my house and my pulpit is a garden from the gardens of Paradise.' (Ṣaḥīḥ al-Bukhārī · 1196). Entry is managed and may require permits — check with the Masjid authorities.",
-    note: "official",
   },
   baqi: {
     detail: "Jannat al-Baqīʿ is the main Islamic cemetery in Madinah, containing the graves of many Companions (Ṣaḥābah), family members of the Prophet ﷺ, and early Muslims. The Prophet ﷺ regularly visited and prayed for those buried here. Visiting hours are limited and visiting etiquette should be followed.",
-    note: "guidance",
   },
   nabawi: {
     detail: "The Prophet's Mosque (Masjid al-Nabawī) was originally built by the Prophet ﷺ himself after the Hijrah in 622 CE. Today it is one of the largest mosques in the world. Visiting it is highly recommended — the Prophet ﷺ said: 'A prayer in this mosque of mine is better than a thousand prayers elsewhere except al-Masjid al-Ḥarām.' (Ṣaḥīḥ Muslim · 1394). It is not part of what is required in Hajj or Umrah.",
-    note: "guidance",
   },
 };
 
-// ── Numbered SVG pin ──────────────────────────────────────────────────────────
-// Pin tip sits at (cx, cy); circle body rises above; tail is the triangle between.
-function Pin({ site, index, isSelected, onPress, colors }) {
-  const { cx, cy } = site;
-  const fill  = isSelected ? colors.primary : PIN_OFF;
-  const bodyY = cy - PT - PR;
+// ── Full-bleed photo hero ─────────────────────────────────────────────────────
+function SiteHero({ site, colors, styles }) {
   return (
-    <G onPress={onPress}>
-      <Circle cx={cx} cy={bodyY} r={PR + PT + 6} fill="transparent" />
-      <Path
-        d={`M ${cx - PW} ${cy - PT} L ${cx + PW} ${cy - PT} L ${cx} ${cy} Z`}
-        fill={fill}
-      />
-      <Circle cx={cx} cy={bodyY} r={PR} fill={fill} />
-      {isSelected && (
-        <Circle cx={cx} cy={bodyY} r={PR + 2.5} fill="none" stroke="#fff" strokeWidth={1.5} />
+    <View style={styles.heroWrap}>
+      {site?.photo ? (
+        <Image source={site.photo} style={styles.heroImg} resizeMode="cover" />
+      ) : (
+        <View style={styles.heroFallback}>
+          <MapPin size={48} color={colors.primary} weight="duotone" />
+        </View>
       )}
-      <SvgText
-        x={cx}
-        y={bodyY}
-        textAnchor="middle"
-        dominantBaseline="central"
-        fill="#fff"
-        fontSize={6.5}
-        fontWeight="700"
-      >
-        {String(index + 1)}
-      </SvgText>
-    </G>
-  );
-}
-
-// ── Map components ────────────────────────────────────────────────────────────
-function MakkahMap({ selected, onSelect, colors }) {
-  return (
-    <View style={{ width: "100%", height: MAP_H }}>
-      <Image
-        source={require("../assets/kaaba_map.png")}
-        style={{ width: "100%", height: MAP_H }}
-        resizeMode="cover"
-      />
-      <Svg
-        style={{ position: "absolute", top: 0, left: 0 }}
-        width="100%"
-        height={MAP_H}
-        viewBox="80 60 240 290"
-      >
-        {MAKKAH_SITES.map((site, i) => (
-          <Pin
-            key={site.id}
-            site={site}
-            index={i}
-            isSelected={site.id === selected?.id}
-            onPress={() => onSelect(site)}
-            colors={colors}
-          />
-        ))}
-      </Svg>
-    </View>
-  );
-}
-
-function MacdinahMap({ selected, onSelect, colors }) {
-  return (
-    <View style={{ width: "100%", height: MAP_H }}>
-      <Image
-        source={require("../assets/medina.png")}
-        style={{ width: "140%", height: MAP_H * 1.4, marginLeft: "-20%", marginTop: -MAP_H * 0.15 }}
-        resizeMode="cover"
-      />
-      <Svg
-        style={{ position: "absolute", top: 0, left: 0 }}
-        width="100%"
-        height={MAP_H}
-        viewBox="80 75 240 210"
-      >
-        {MADINAH_SITES.map((site, i) => (
-          <Pin
-            key={site.id}
-            site={site}
-            index={i}
-            isSelected={site.id === selected?.id}
-            onPress={() => onSelect(site)}
-            colors={colors}
-          />
-        ))}
-      </Svg>
     </View>
   );
 }
@@ -239,7 +149,7 @@ const createLcStyles = (C) => StyleSheet.create({
 });
 
 // ── Site card ─────────────────────────────────────────────────────────────────
-function SiteCard({ site, sites, onSelect, onViewDuas, city, isVisited, onToggleVisited, navigation, styles, lcStyles, colors }) {
+function SiteCard({ site, sites, onSelect, onViewDuas, isVisited, onToggleVisited, navigation, styles, lcStyles, colors }) {
   if (!site) return null;
   const idx   = sites.findIndex(s => s.id === site.id);
   const extra = MADINAH_INFO[site.id];
@@ -296,26 +206,17 @@ function SiteCard({ site, sites, onSelect, onViewDuas, city, isVisited, onToggle
         <Text style={styles.arabic}>{site.arabic}</Text>
         <Text style={styles.sub}>{site.sub}</Text>
 
-        {/* ── 4. Photo or icon fallback ── */}
-        {site.photo ? (
-          <Image source={site.photo} style={styles.photo} resizeMode="cover" />
-        ) : (
-          <View style={styles.photoFallback}>
-            <MapPin size={36} color={colors.primary} weight="duotone" />
-          </View>
-        )}
-
-        {/* ── 5. Description / detail ── */}
+        {/* ── 4. Description / detail ── */}
         {extra?.detail ? (
           <Text style={styles.detail}>{extra.detail}</Text>
         ) : null}
 
-        {/* ── 6. Citation (omitted entirely when absent) ── */}
+        {/* ── 5. Citation (omitted entirely when absent) ── */}
         {site.citation ? (
           <Text style={styles.citation}>{site.citation}</Text>
         ) : null}
 
-        {/* ── 7. Duas section ── */}
+        {/* ── 6. Duas section ── */}
         {hasDuas ? (
           <View style={styles.relatedSection}>
             {site.relatedDuas.map(rd => {
@@ -355,7 +256,7 @@ function SiteCard({ site, sites, onSelect, onViewDuas, city, isVisited, onToggle
 const createScStyles = (C) => StyleSheet.create({
   card: {
     marginHorizontal: 20,
-    marginTop: -20,
+    marginTop: 0,
     backgroundColor: C.card,
     borderRadius: 16,
     borderWidth: 1,
@@ -392,30 +293,15 @@ const createScStyles = (C) => StyleSheet.create({
   visitedTxtOn: { fontSize: 12, color: "#fff", fontWeight: "600" },
   arabic:       { fontSize: 18, color: C.text, marginBottom: 2 },
   sub:          { fontSize: 14, color: C.text, marginBottom: 10 },
-  photo: {
-    width: "100%",
-    height: 160,
-    borderRadius: 10,
-    marginBottom: 12,
-  },
-  photoFallback: {
-    width: "100%",
-    height: 160,
-    borderRadius: 10,
-    marginBottom: 12,
-    backgroundColor: C.primary + "18",
-    alignItems: "center",
-    justifyContent: "center",
-  },
   detail:         { fontSize: 12, color: C.text, lineHeight: 18, marginBottom: 10, fontStyle: "italic" },
-  // citation color has no colors-token equivalent (distinctive sage green #5A8A72 — kept hardcoded)
+  // citation color #5A8A72 has no colors-token equivalent — kept hardcoded
   citation:       { fontSize: 11, color: "#5A8A72", fontWeight: "600", marginBottom: 10 },
   relatedSection: { marginTop: 8, borderTopWidth: 1, borderTopColor: C.border, paddingTop: 12 },
   duaRow:         { flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: C.border },
   duaRowTitle:    { flex: 1, fontSize: 14, color: C.primary, fontWeight: "500" },
   countRow:       { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingTop: 12, borderTopWidth: 1, borderTopColor: C.border, marginBottom: 16 },
   countLabel:     { fontSize: 14, color: C.text },
-  // countBadge background has no colors-token equivalent (light mint #E2EDE6 — kept hardcoded)
+  // countBadge background #E2EDE6 has no colors-token equivalent — kept hardcoded
   countBadge:     { backgroundColor: "#E2EDE6", paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999 },
   countValue:     { fontSize: 14, color: C.primary, fontWeight: "500" },
   btn:            { backgroundColor: C.primary, borderRadius: 10, paddingVertical: 14, alignItems: "center", shadowColor: "#4A2E10", shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.14, shadowRadius: 8, elevation: 4 },
@@ -512,20 +398,14 @@ export default function SacredPlacesScreen({ navigation }) {
 
       <ScrollView showsVerticalScrollIndicator={false}>
 
-        {/* ── Full-bleed map ── */}
-        <View style={s.mapWrap}>
-          {city === "Makkah"
-            ? <MakkahMap selected={selected} onSelect={setSelected} colors={colors} />
-            : <MacdinahMap selected={selected} onSelect={setSelected} colors={colors} />
-          }
-        </View>
+        {/* ── Full-bleed photo hero ── */}
+        <SiteHero site={selected} colors={colors} styles={s} />
 
-        {/* ── Card overlapping map bottom edge ── */}
+        {/* ── Site card (normal flow, no overlap) ── */}
         <SiteCard
           site={selected}
           sites={sites}
           onSelect={setSelected}
-          city={city}
           onViewDuas={(site) => navigation?.navigate?.("SiteDuas", { site, city })}
           isVisited={!!visited[selected?.id]}
           onToggleVisited={toggleVisited}
@@ -535,7 +415,7 @@ export default function SacredPlacesScreen({ navigation }) {
           colors={colors}
         />
 
-        {/* ── Madinah context note (below card) ── */}
+        {/* ── Madinah context note ── */}
         {city === "Madinah" ? (
           <View style={s.madinahNote}>
             <Text style={s.madinahNoteText}>
@@ -544,7 +424,7 @@ export default function SacredPlacesScreen({ navigation }) {
           </View>
         ) : null}
 
-        {/* ── All sites list (secondary, below map+card block) ── */}
+        {/* ── All sites list ── */}
         <View style={s.listSection}>
           <Text style={s.listTitle}>All sites</Text>
           {sites.map((site, i) => (
@@ -592,18 +472,20 @@ export default function SacredPlacesScreen({ navigation }) {
 }
 
 const createStyles = (C) => StyleSheet.create({
-  safe:          { flex: 1, backgroundColor: C.background },
-  header:        { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, paddingTop: 16, paddingBottom: 12 },
-  back:          { fontSize: 22, color: C.text },
-  headerTitle:   { fontFamily: SERIF, fontSize: 22, color: C.text },
+  safe:         { flex: 1, backgroundColor: C.background },
+  header:       { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, paddingTop: 16, paddingBottom: 12 },
+  back:         { fontSize: 22, color: C.text },
+  headerTitle:  { fontFamily: SERIF, fontSize: 22, color: C.text },
 
-  cityToggle:        { flexDirection: "row", marginHorizontal: 20, marginBottom: 8, backgroundColor: C.card, borderRadius: 999, padding: 3, borderWidth: 1, borderColor: C.border },
+  cityToggle:        { flexDirection: "row", marginHorizontal: 20, marginBottom: 12, backgroundColor: C.card, borderRadius: 999, padding: 3, borderWidth: 1, borderColor: C.border },
   cityOpt:           { flex: 1, paddingVertical: 10, borderRadius: 999, alignItems: "center" },
   cityOptActive:     { backgroundColor: C.primary },
   cityOptText:       { fontSize: 16, color: C.subtext },
   cityOptTextActive: { color: "#fff", fontWeight: "500" },
 
-  mapWrap: { overflow: "hidden" },
+  heroWrap:     { width: "100%", height: HERO_H, marginBottom: 16 },
+  heroImg:      { width: "100%", height: HERO_H },
+  heroFallback: { flex: 1, backgroundColor: C.primary + "18", alignItems: "center", justifyContent: "center" },
 
   // Warm amber note colors (#EEE4CB, #DDD0A8, #6B5020) have no colors-token equivalent — kept hardcoded
   madinahNote:     { marginHorizontal: 20, marginTop: 16, marginBottom: 4, backgroundColor: "#EEE4CB", borderRadius: 10, borderWidth: 1, borderColor: "#DDD0A8", padding: 14 },
