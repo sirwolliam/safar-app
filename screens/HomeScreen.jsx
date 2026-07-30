@@ -819,7 +819,7 @@ export default function HomeScreen({ navigation }) {
             {/* Full-width image — anchored right so subject shows on right side */}
             <Image
               source={require("../assets/continue.jpg")}
-              style={{ position:"absolute", right:0, top:0, bottom:0, width:350, height:104 }}
+              style={{ position:"absolute", right:0, top:0, bottom:0, width:350 }}
               resizeMode="cover"
             />
             {/* Gradient — left side solid dark, fades right */}
@@ -1438,7 +1438,7 @@ const s = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "rgba(184,146,42,0.16)",
+    backgroundColor: "#4A5C48",
     alignItems: "center",
     justifyContent: "center",
   },
