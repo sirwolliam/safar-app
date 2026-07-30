@@ -341,6 +341,7 @@ function EventsCard({ events, page, onPageChange, navigation }) {
           </View>
         ) : null}
       </View>
+      <View style={ec.sectionLine} />
 
       {/* Event rows */}
       <View style={ec.rows}>
@@ -399,9 +400,8 @@ const ec = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 14,
     paddingBottom: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#EDE4D4",
   },
+  sectionLine: { height: 1, backgroundColor: "#E0D8CC" },
   title: {
     fontFamily: SERIF,
     fontSize: 16,
@@ -409,7 +409,7 @@ const ec = StyleSheet.create({
     color: "#1A1712",
   },
   pageRow:  { flexDirection: "row", alignItems: "center", gap: 10 },
-  rows:     { paddingHorizontal: 12, paddingVertical: 8 },
+  rows:     { paddingHorizontal: 12, paddingVertical: 8, backgroundColor: "#F0EBE1" },
   row:      { flexDirection: "row", alignItems: "center", backgroundColor: "#FDFAF4", borderWidth: 1, borderColor: "#DDD5C0", borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12, marginBottom: 8, shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 4, elevation: 2 },
   rowLast:  { flexDirection: "row", alignItems: "center", backgroundColor: "#FDFAF4", borderWidth: 1, borderColor: "#DDD5C0", borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12, shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 4, elevation: 2 },
   dayWrap:  { width: 34, alignItems: "center" },
