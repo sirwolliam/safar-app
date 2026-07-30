@@ -354,7 +354,7 @@ function EventsCard({ events, page, onPageChange, navigation }) {
             <TouchableOpacity
               key={evt.id}
               style={idx < pageEvents.length - 1 ? ec.row : ec.rowLast}
-              onPress={() => navigation?.navigate?.("Calendar")}
+              onPress={() => navigation?.navigate?.("Calendar", { selectedDate: evt.date, returnToTab: "Home" })}
               activeOpacity={0.75}
             >
               <View style={ec.dayWrap}>

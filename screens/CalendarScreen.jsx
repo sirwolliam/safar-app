@@ -185,9 +185,11 @@ export default function CalendarScreen({ navigation, route }) {
   const todayDate = new Date();
 
   const [entries, setEntries] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(today);
-  const [currentYear, setCurrentYear] = useState(todayDate.getFullYear());
-  const [currentMonth, setCurrentMonth] = useState(todayDate.getMonth());
+  const initDate = route?.params?.selectedDate ?? today;
+  const [initY, initM] = initDate.split("-").map(Number);
+  const [selectedDate, setSelectedDate] = useState(initDate);
+  const [currentYear, setCurrentYear] = useState(initY);
+  const [currentMonth, setCurrentMonth] = useState(initM - 1);
 
   // Modal state
   const [showModal, setShowModal] = useState(false);
