@@ -4,7 +4,7 @@ import {
   ImageBackground, StyleSheet,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { colors, spacing, radius, shadows } from "../theme";
+import { colors, palette, spacing, radius, shadows } from "../theme";
 import { CalendarBlank, UsersThree, AddressBook } from "phosphor-react-native";
 import SafarAssistCard from "../SafarAssistCard";
 
@@ -278,7 +278,7 @@ export default function JourneyScreen({ navigation }) {
             onPress={() => navigation?.navigate?.("Groups")}
             activeOpacity={0.88}>
             <View style={jn.compactIconWrap}>
-              <UsersThree size={22} color="#2F5D50" weight="regular" />
+              <UsersThree size={22} color={colors.primary} weight="regular" />
             </View>
             <Text style={jn.compactTitle}>My Groups</Text>
             <Text style={jn.compactSub}>{"Share milestones\nand updates"}</Text>
@@ -288,7 +288,7 @@ export default function JourneyScreen({ navigation }) {
             onPress={() => navigation?.navigate?.("MyContacts")}
             activeOpacity={0.88}>
             <View style={jn.compactIconWrap}>
-              <AddressBook size={22} color="#2F5D50" weight="regular" />
+              <AddressBook size={22} color={colors.primary} weight="regular" />
             </View>
             <Text style={jn.compactTitle}>My Contacts</Text>
             <Text style={jn.compactSub}>{"Save your\nimportant contacts"}</Text>
@@ -302,7 +302,7 @@ export default function JourneyScreen({ navigation }) {
             onPress={() => navigation?.getParent?.()?.navigate?.("Home", { screen: "Calendar", initial: false, params: { returnToTab: "Journey" } })}
             activeOpacity={0.88}>
             <View style={jn.compactIconWrap}>
-              <CalendarBlank size={22} color="#2F5D50" weight="regular" />
+              <CalendarBlank size={22} color={colors.primary} weight="regular" />
             </View>
             <Text style={jn.compactTitle}>Calendar</Text>
             <Text style={jn.compactSub}>Dates, rites and reminders for your journey</Text>
@@ -326,7 +326,7 @@ const jn = StyleSheet.create({
   headerTitle:     { fontFamily:SERIF, fontSize:26, fontWeight:"400", color:colors.text },
   headerSub:       { fontSize:14, color:colors.subtext, fontWeight:"400", marginTop:2 },
   // Departure counter — top right
-  departureBadge:  { alignItems:"center", paddingHorizontal:spacing(1.5), paddingVertical:spacing(0.75), borderWidth:1, borderColor:"#C4A882", borderRadius:radius.md },
+  departureBadge:  { alignItems:"center", paddingHorizontal:spacing(1.5), paddingVertical:spacing(0.75), borderWidth:1, borderColor:palette.gold400, borderRadius:radius.md },
   departureDays:   { fontFamily:SERIF, fontSize:22, color:colors.text, fontWeight:"400", lineHeight:26 },
   departureLbl:    { fontSize:10, color:colors.subtext, textAlign:"center", lineHeight:13, letterSpacing:0.3 },
 
@@ -344,9 +344,9 @@ const jn = StyleSheet.create({
   heroCard:          { borderRadius:radius.xl, overflow:"hidden", marginBottom:spacing(1.5), height:260, ...shadows.card },
 
   // Du'ā card — full width, changes with mode toggle
-  duaCard:       { height:160, borderRadius:16, overflow:"hidden", marginBottom:spacing(1.5), shadowColor:"#1C1408", shadowOffset:{width:0,height:4}, shadowOpacity:0.16, shadowRadius:12, elevation:6 },
+  duaCard:       { height:160, borderRadius:16, overflow:"hidden", marginBottom:spacing(1.5), ...shadows.card },
   duaCardBg:     { flex:1, justifyContent:"flex-end" },
-  duaCardScrim:  { ...StyleSheet.absoluteFillObject, backgroundColor:"rgba(8,14,6,0.45)", borderRadius:16 },
+  duaCardScrim:  { ...StyleSheet.absoluteFillObject, backgroundColor:"rgba(10,8,4,0.45)", borderRadius:16 },
   duaCardContent:{ padding:16 },
   duaCardEyebrow:{ fontSize:9, color:"rgba(255,255,255,0.70)", fontWeight:"700", letterSpacing:1.5, textTransform:"uppercase", marginBottom:4 },
   duaCardTitle:  { fontFamily:SERIF, fontSize:20, color:"#fff", fontWeight:"600", marginBottom:2 },
