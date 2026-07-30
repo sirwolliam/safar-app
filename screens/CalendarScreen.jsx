@@ -105,23 +105,6 @@ async function saveEntries(entries) {
   } catch {}
 }
 
-async function seedDemoEntriesIfEmpty() {
-  const existing = await loadEntries();
-  if (existing.length > 0) return;
-  const now = new Date();
-  const y = now.getFullYear();
-  const m = String(now.getMonth() + 1).padStart(2, "0");
-  const demo = [
-    { id: uid(), date: `${y}-${m}-03`, title: "Hotel Check-in",      description: "Makkah, Jabal Omar",                                 category: "travel",    location: "Jabal Omar, Makkah",  createdAt: new Date().toISOString() },
-    { id: uid(), date: `${y}-${m}-09`, title: "Day of Arafah",       description: "Stand in prayer from Dhuhr to Maghrib",              category: "worship",     location: "Mount Arafat",         createdAt: new Date().toISOString() },
-    { id: uid(), date: `${y}-${m}-12`, title: "Group Meeting Point",  description: "Mina, tent block 12, 5:30 PM",                      category: "group",     location: "Mina, Tent Block 12",  createdAt: new Date().toISOString() },
-    { id: uid(), date: `${y}-${m}-12`, title: "Visit Masjid Nabawi", description: "Evening visit for Maghrib and Isha prayers",          category: "personal",  location: "Madinah",              createdAt: new Date().toISOString() },
-    { id: uid(), date: `${y}-${m}-15`, title: "Call Family",         description: "Let them know we've arrived safely",                  category: "personal",  location: "",                     createdAt: new Date().toISOString() },
-    { id: uid(), date: `${y}-${m}-22`, title: "Visa Document Check", description: "Confirm all documents are in order before departure", category: "reminders", location: "",                     createdAt: new Date().toISOString() },
-  ];
-  await saveEntries(demo);
-}
-
 // ── Sub-components ───────────────────────────────────────────────────────────
 function EntryCard({ entry, onEdit, onDelete, onShare }) {
   const cat = getCategoryById(entry.category);
@@ -223,7 +206,6 @@ export default function CalendarScreen({ navigation, route }) {
     React.useCallback(() => {
       let cancelled = false;
       const load = async () => {
-        await seedDemoEntriesIfEmpty();
         const data = await loadEntries();
         if (!cancelled) setEntries(data);
       };

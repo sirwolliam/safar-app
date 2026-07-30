@@ -12,7 +12,7 @@
  *   safar_departure_date_v1   — departure date ISO string
  *   safar_journey_contacts_v1 — contacts array
  *   safar_journey_board_v1    — board cards array
- *   safar_cal_entries_v1      — calendar entries object
+ *   safar_calendar_v1          — calendar entries (CalendarScreen's key)
  */
 
 import React, { useState, useRef } from "react";
@@ -45,7 +45,7 @@ const { width: SW } = Dimensions.get("window");
 const DEPARTURE_KEY = "safar_departure_date_v1";
 const CONTACTS_KEY  = "safar_journey_contacts_v1";
 const BOARD_KEY     = "safar_journey_board_v1";
-const CAL_KEY       = "safar_cal_entries_v1";
+const CAL_KEY       = "safar_calendar_v1";
 
 // ── Extraction prompt ─────────────────────────────────────────────────────────
 const SYSTEM_PROMPT = `You are a travel document parser for a Hajj and Umrah planning app called Safar.
@@ -450,22 +450,50 @@ export default function SafarAssistScreen({ navigation }) {
       };
       saves.push(AsyncStorage.setItem(BOARD_KEY, JSON.stringify([tripCard, ...currentBoard])));
 
-      // 4. Calendar entries — add hotel check-in/out and return date
-      const currentCal = JSON.parse(await AsyncStorage.getItem(CAL_KEY) ?? "{}");
-      const newCal = { ...currentCal };
+      // 4. Calendar entries — append to safar_calendar_v1 in CalendarScreen's shape
+      const existingCal = JSON.parse(await AsyncStorage.getItem(CAL_KEY) ?? "[]");
+      const calEntries = Array.isArray(existingCal) ? [...existingCal] : [];
 
-      const addCalEntry = (date, note) => {
-        if (!date || !note) return;
-        newCal[date] = [...(newCal[date] ?? []), note];
+      const mkCalEntry = (date, title, location) => {
+        if (!date || !title) return null;
+        return {
+          id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+          date,
+          title,
+          description: "",
+          category: "travel",
+          location: location ?? "",
+          createdAt: new Date().toISOString(),
+        };
       };
 
-      addCalEntry(extracted.departure?.date,  `Departure${extracted.departure?.flight ? " \u00b7 " + extracted.departure.flight : ""}`);
-      addCalEntry(extracted.return?.date,     `Return flight${extracted.return?.flight ? " \u00b7 " + extracted.return.flight : ""}`);
-      addCalEntry(extracted.hotel?.checkIn,   `Hotel check-in \u00b7 ${extracted.hotel?.name ?? ""}`);
-      addCalEntry(extracted.hotel?.checkOut,  `Hotel check-out \u00b7 ${extracted.hotel?.name ?? ""}`);
+      const calAdds = [
+        mkCalEntry(
+          extracted.departure?.date,
+          extracted.departure?.flight ? `Departure · ${extracted.departure.flight}` : "Departure",
+          extracted.departure?.from ?? "",
+        ),
+        mkCalEntry(
+          extracted.return?.date,
+          extracted.return?.flight ? `Return flight · ${extracted.return.flight}` : "Return flight",
+          "",
+        ),
+        mkCalEntry(
+          extracted.hotel?.checkIn,
+          extracted.hotel?.name ? `Hotel check-in · ${extracted.hotel.name}` : "Hotel check-in",
+          extracted.hotel?.city ?? "",
+        ),
+        mkCalEntry(
+          extracted.hotel?.checkOut,
+          extracted.hotel?.name ? `Hotel check-out · ${extracted.hotel.name}` : "Hotel check-out",
+          extracted.hotel?.city ?? "",
+        ),
+      ].filter(Boolean);
 
-      if (Object.keys(newCal).length > Object.keys(currentCal).length) {
-        saves.push(AsyncStorage.setItem(CAL_KEY, JSON.stringify(newCal)));
+      if (calAdds.length > 0) {
+        const merged = [...calEntries, ...calAdds]
+          .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+        saves.push(AsyncStorage.setItem(CAL_KEY, JSON.stringify(merged)));
       }
 
       await Promise.all(saves);
