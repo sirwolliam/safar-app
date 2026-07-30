@@ -322,24 +322,32 @@ function EventsCard({ events, page, onPageChange, navigation }) {
       {/* Header */}
       <View style={ec.header}>
         <Text style={ec.title}>{"Upcoming Events"}</Text>
-        {totalPages > 1 ? (
-          <View style={ec.pageRow}>
-            <TouchableOpacity
-              onPress={() => onPageChange(page - 1)}
-              disabled={page === 0}
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            >
-              <CaretLeft size={18} color={page === 0 ? "#C8BFB2" : "#5A4A38"} weight="bold" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => onPageChange(page + 1)}
-              disabled={page === totalPages - 1}
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            >
-              <CaretRight size={18} color={page === totalPages - 1 ? "#C8BFB2" : "#5A4A38"} weight="bold" />
-            </TouchableOpacity>
-          </View>
-        ) : null}
+        <View style={ec.headerRight}>
+          <TouchableOpacity
+            onPress={() => navigation?.navigate?.("Calendar", { returnToTab: "Home" })}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Text style={ec.viewCalLink}>View Calendar</Text>
+          </TouchableOpacity>
+          {totalPages > 1 ? (
+            <View style={ec.pageRow}>
+              <TouchableOpacity
+                onPress={() => onPageChange(page - 1)}
+                disabled={page === 0}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
+                <CaretLeft size={18} color={page === 0 ? "#C8BFB2" : "#5A4A38"} weight="bold" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => onPageChange(page + 1)}
+                disabled={page === totalPages - 1}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
+                <CaretRight size={18} color={page === totalPages - 1 ? "#C8BFB2" : "#5A4A38"} weight="bold" />
+              </TouchableOpacity>
+            </View>
+          ) : null}
+        </View>
       </View>
       <View style={ec.sectionLine} />
 
@@ -408,6 +416,8 @@ const ec = StyleSheet.create({
     fontWeight: "600",
     color: "#1A1712",
   },
+  headerRight: { flexDirection: "row", alignItems: "center", gap: 10 },
+  viewCalLink: { fontSize: 14, color: "#4A5C48", fontWeight: "600" },
   pageRow:  { flexDirection: "row", alignItems: "center", gap: 10 },
   rows:     { paddingHorizontal: 12, paddingVertical: 8, backgroundColor: "#F0EBE1" },
   row:      { flexDirection: "row", alignItems: "center", backgroundColor: "#FDFAF4", borderWidth: 1, borderColor: "#DDD5C0", borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12, marginBottom: 8, shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 4, elevation: 2 },
