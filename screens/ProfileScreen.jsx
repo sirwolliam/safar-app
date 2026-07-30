@@ -305,7 +305,7 @@ export default function ProfileScreen({ navigation }) {
             </View>
             <Text style={s.headerTitle}>Prepare</Text>
           </View>
-          <Text style={s.headerSub}>Everything you need before and during your journey</Text>
+          <Text style={s.headerSub} numberOfLines={1} adjustsFontSizeToFit>Everything you need before and during your journey</Text>
         </View>
       </View>
 
@@ -939,7 +939,7 @@ const s = StyleSheet.create({
   titleRow: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 6, marginTop: 8 },
   iconCircle: { width: 40, height: 40, borderRadius: 20, borderWidth: 1.5, borderColor: "#C8A96A", alignItems: "center", justifyContent: "center" },
   headerTitle: { fontFamily: SERIF, fontSize: 38, color: "#FDFAF4", fontWeight: "600" },
-  headerSub: { fontSize: 14, color: "rgba(255,255,255,0.82)", lineHeight: 20, maxWidth: "88%" },
+  headerSub: { fontSize: 14, color: "rgba(255,255,255,0.82)", lineHeight: 20 },
 
   // Search
   searchWrap: { paddingHorizontal: 16, paddingVertical: 10, backgroundColor: "#F5F0E8" },
