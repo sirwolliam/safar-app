@@ -23,8 +23,8 @@ import {
   MapTrifold, BookOpenText, HandsPraying, CompassRose,
   UsersThree, ShoppingBag, CheckSquare, Sparkle,
   ArrowRight, BookOpen, Moon, ListChecks, Users,
-  Clock, PlayCircle, Wrench, Note, Gear, Info,
-  SunHorizon, Compass, Heartbeat, NotePencil,
+  PlayCircle, Wrench, Note, Gear, Info,
+  SunHorizon, Compass, Heartbeat, NotePencil, CalendarBlank,
 } from "phosphor-react-native";
 
 const SERIF = "SourceSerif4-Regular";
@@ -784,7 +784,7 @@ export default function HomeScreen({ navigation }) {
         <View style={s.gridWrap}>
           {[
             { label: "Qibla",   Icon: Compass,      onPress: () => navigation?.getParent?.()?.navigate?.("Tools", { screen: "Qibla",        initial: false, params: { returnToTab: "Home" } }) },
-            { label: "Prayer",  Icon: Clock,        onPress: () => navigation?.getParent?.()?.navigate?.("Tools", { screen: "PrayerTimes",   initial: false, params: { returnToTab: "Home" } }) },
+            { label: "Calendar", Icon: CalendarBlank, onPress: () => navigation?.navigate?.("Calendar", { returnToTab: "Home" }) },
             { label: "Dhikr",   Icon: Heartbeat,    onPress: () => navigation?.getParent?.()?.navigate?.("Tools", { screen: "Dhikr",         initial: false, params: { returnToTab: "Home" } }) },
             { label: "Notes",   Icon: NotePencil,   onPress: () => navigation?.navigate?.("Notes") },
           ].map(({ label, Icon, onPress }) => (
