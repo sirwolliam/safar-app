@@ -807,6 +807,15 @@ export default function HomeScreen({ navigation }) {
 
         </View>
 
+        {upcomingEvents.length > 0 ? (
+          <EventsCard
+            events={upcomingEvents}
+            page={eventsPage}
+            onPageChange={setEventsPage}
+            navigation={navigation}
+          />
+        ) : null}
+
         {/* ══════════════════════════════════════════════════════════════════
             OPTION C CARD
             Before dismiss: intro text + contextual link
@@ -840,15 +849,6 @@ export default function HomeScreen({ navigation }) {
             </TouchableOpacity>
           </View>
         )}
-
-        {upcomingEvents.length > 0 ? (
-          <EventsCard
-            events={upcomingEvents}
-            page={eventsPage}
-            onPageChange={setEventsPage}
-            navigation={navigation}
-          />
-        ) : null}
 
         {/* ══════════════════════════════════════════════════════════════════
             MY JOURNEY CARD
