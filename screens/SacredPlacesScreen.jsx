@@ -9,7 +9,7 @@ import {
   StyleSheet, Linking, Image,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { CaretLeft, CaretRight, HandsPraying, MapPin } from "phosphor-react-native";
+import { CaretLeft, CaretRight, HandsPraying, MapPin, MapTrifold } from "phosphor-react-native";
 import { getDuaById } from "../dua-content";
 import { useAccessibility } from "../AccessibilityContext";
 
@@ -24,33 +24,34 @@ const MAKKAH_SITES = [
     id: "kaaba", name: "Al-Kaʿbah", arabic: "الكَعبَة",
     sub: "The Most Sacred House", duas: 12,
     // photo: require("../assets/..."),
+    // locatorMap: require("../assets/..."), markerPos: { x: 0.5, y: 0.5 },
     // citation: "Qurʾan 2:125",
     // relatedDuas: [{ id: "...", title: "..." }],
   },
   {
     id: "hijr", name: "Hijr Ismāʿīl", arabic: "حِجر إِسماعيل",
     sub: "Sanctuary of the Prophet Ismāʿīl ﷺ", duas: 4,
-    // photo, citation, relatedDuas
+    // photo, locatorMap, markerPos, citation, relatedDuas
   },
   {
     id: "maqam", name: "Maqām Ibrāhīm", arabic: "مَقَامُ إبْرَاهِيم",
     sub: "Station of Prophet Ibrāhīm", duas: 5,
-    // photo, citation, relatedDuas
+    // photo, locatorMap, markerPos, citation, relatedDuas
   },
   {
     id: "zamzam", name: "Zamzam", arabic: "زَمْزَم",
     sub: "The Blessed Well", duas: 4,
-    // photo, citation, relatedDuas
+    // photo, locatorMap, markerPos, citation, relatedDuas
   },
   {
     id: "yemeni", name: "Yemeni Corner", arabic: "الرُكن اليَمانِي",
     sub: "Second of the two blessed corners", duas: 3,
-    // photo, citation, relatedDuas
+    // photo, locatorMap, markerPos, citation, relatedDuas
   },
   {
     id: "safa", name: "Ṣafā & Marwah", arabic: "الصَّفَا وَالْمَرْوَة",
     sub: "Place of Saʿy — 7 passes", duas: 8,
-    // photo, citation, relatedDuas
+    // photo, locatorMap, markerPos, citation, relatedDuas
   },
 ];
 
@@ -59,38 +60,38 @@ const MADINAH_SITES = [
     id: "nabawi", name: "Al-Masjid an-Nabawī", arabic: "المسجد النبوي",
     sub: "The Prophet's Mosque", duas: 8, official: true,
     description: "Built by the Prophet ㏏ after the Hijrah in 622 CE. A prayer here equals 1,000 prayers elsewhere, except al-Masjid al-Ḥarām.",
-    // photo, citation, relatedDuas
+    // photo, locatorMap, markerPos, citation, relatedDuas
   },
   {
     id: "rawdah", name: "Al-Rawḍah al-Sharīfah", arabic: "الرَّوضَة الشَّريفَة",
     sub: "The Noble Garden — between the minbar and the grave of the Prophet ﷺ",
     duas: 6, official: true,
     description: "The area between the Prophet's ㏏ grave and his pulpit — a garden from the gardens of Paradise.",
-    // photo, citation, relatedDuas
+    // photo, locatorMap, markerPos, citation, relatedDuas
   },
   {
     id: "greendome", name: "The Green Dome", arabic: "القُبَّة الخَضرَاء",
     sub: "Above the grave of the Prophet Muhammad ﷺ", duas: 4,
     description: "The resting place of the Prophet Muhammad ㏏. Sending salām upon him here is among the most virtuous acts a visitor can perform.",
-    // photo, citation, relatedDuas
+    // photo, locatorMap, markerPos, citation, relatedDuas
   },
   {
     id: "baqi", name: "Jannat al-Baqīʿ", arabic: "جَنَّة البَقيع",
     sub: "Historic cemetery — Companions and family of the Prophet ﷺ", duas: 3,
     description: "The main cemetery of Madīnah where many Companions and family of the Prophet ㏏ are buried.",
-    // photo, citation, relatedDuas
+    // photo, locatorMap, markerPos, citation, relatedDuas
   },
   {
     id: "quba", name: "Masjid Qubāʾ", arabic: "مسجد قُبَاء",
     sub: "First mosque built in Islam", duas: 3,
     description: "The first mosque built in Islam. Two rakʿahs here equals the reward of an ʿUmrah.",
-    // photo, citation, relatedDuas
+    // photo, locatorMap, markerPos, citation, relatedDuas
   },
   {
     id: "suffah", name: "As-Ṣuffah", arabic: "الصُّفَّة",
     sub: "Platform of the Companions of the Bench", duas: 2,
     description: "The raised platform at the rear of the mosque where poor Companions lived and devoted themselves to learning from the Prophet ㏏.",
-    // photo, citation, relatedDuas
+    // photo, locatorMap, markerPos, citation, relatedDuas
   },
 ];
 
@@ -211,7 +212,24 @@ function SiteCard({ site, sites, onSelect, onViewDuas, isVisited, onToggleVisite
           <Text style={styles.detail}>{extra.detail}</Text>
         ) : null}
 
-        {/* ── 5. Citation (omitted entirely when absent) ── */}
+        {/* ── 5. Locator map thumbnail ── */}
+        {site.locatorMap ? (
+          <View style={styles.locator}>
+            <Image source={site.locatorMap} style={styles.locatorImg} resizeMode="cover" />
+            <View style={[styles.locatorPin, site.markerPos
+              ? { left: `${(site.markerPos.x * 100).toFixed(1)}%`, top: `${(site.markerPos.y * 100).toFixed(1)}%` }
+              : { left: "50%", top: "50%" }
+            ]}>
+              <MapPin size={12} color={colors.primary} weight="fill" />
+            </View>
+          </View>
+        ) : (
+          <View style={styles.locatorFallback}>
+            <MapTrifold size={24} color={colors.primary} weight="duotone" />
+          </View>
+        )}
+
+        {/* ── 6. Citation (omitted entirely when absent) ── */}
         {site.citation ? (
           <Text style={styles.citation}>{site.citation}</Text>
         ) : null}
@@ -296,6 +314,10 @@ const createScStyles = (C) => StyleSheet.create({
   detail:         { fontSize: 12, color: C.text, lineHeight: 18, marginBottom: 10, fontStyle: "italic" },
   // citation color #5A8A72 has no colors-token equivalent — kept hardcoded
   citation:       { fontSize: 11, color: "#5A8A72", fontWeight: "600", marginBottom: 10 },
+  locator:        { width: 120, height: 90, borderRadius: 8, overflow: "hidden", alignSelf: "flex-end", marginBottom: 10, marginTop: 4 },
+  locatorImg:     { width: 120, height: 90 },
+  locatorPin:     { position: "absolute", marginLeft: -6, marginTop: -12 },
+  locatorFallback:{ width: 120, height: 90, borderRadius: 8, backgroundColor: C.primary + "18", alignItems: "center", justifyContent: "center", alignSelf: "flex-end", marginBottom: 10, marginTop: 4 },
   relatedSection: { marginTop: 8, borderTopWidth: 1, borderTopColor: C.border, paddingTop: 12 },
   duaRow:         { flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: C.border },
   duaRowTitle:    { flex: 1, fontSize: 14, color: C.primary, fontWeight: "500" },
