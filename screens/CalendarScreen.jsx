@@ -345,7 +345,14 @@ export default function CalendarScreen({ navigation, route }) {
         <View style={[s.headerTopRow, { paddingTop: insets.top + 10 }]}>
           <TouchableOpacity
             style={s.headerBtn}
-            onPress={() => navigation?.goBack?.()}
+            onPress={() => {
+              const returnToTab = route?.params?.returnToTab;
+              if (returnToTab && returnToTab !== "Home") {
+                navigation?.getParent?.()?.navigate?.(returnToTab);
+              } else {
+                navigation?.goBack?.();
+              }
+            }}
             hitSlop={{ top: 12, bottom: 12, left: 12, right: 24 }}
             activeOpacity={0.8}
           >
