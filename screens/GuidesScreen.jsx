@@ -15,8 +15,9 @@ if (Platform.OS === "android" ? UIManager.setLayoutAnimationEnabledExperimental 
 }
 
 const SERIF = "SourceSerif4-Regular";
-const BOARD_KEY    = "safar_journey_board_v1";
-const CONTACTS_KEY = "safar_journey_contacts_v1";
+const BOARD_KEY      = "safar_journey_board_v1";
+const CONTACTS_KEY   = "safar_journey_contacts_v1";
+const DEPARTURE_KEY  = "safar_departure_date_v1";
 
 const CONTACT_COLORS = ["#4A7A60","#6B5B7A","#7A5B4A","#4A6B7A","#7A6B4A","#5B7A4A"];
 const CONTACT_ROLES  = ["Hotel","Guide","Driver","Travel Agent","Group Member","Family","Doctor","Emergency","Other"];
@@ -547,15 +548,18 @@ export default function GuidesScreen({ navigation }) {
   const [playerStep,     setPlayerStep]     = useState(null);
   const [duaIndex,       setDuaIndex]       = useState(0);
   const [boardCards,     setBoardCards]     = useState([]);
-  const departureDate = new Date("2025-11-15"); // placeholder — user sets this
+  const [depIso,         setDepIso]         = useState(null);
   const [contacts,       setContacts]       = useState([]);
 
   const steps = mode === "umrah" ? UMRAH_STEPS : HAJJ_STEPS;
-  const daysUntil = Math.max(0, Math.ceil((departureDate - new Date()) / (1000 * 60 * 60 * 24)));
+  const daysUntil = depIso
+    ? Math.max(0, Math.ceil((new Date(depIso) - new Date()) / (1000 * 60 * 60 * 24)))
+    : null;
 
   useEffect(() => {
     AsyncStorage.getItem(BOARD_KEY).then(v => { if (v) setBoardCards(JSON.parse(v)); }).catch(() => {});
     AsyncStorage.getItem(CONTACTS_KEY).then(v => { if (v) setContacts(JSON.parse(v)); }).catch(() => {});
+    AsyncStorage.getItem(DEPARTURE_KEY).then(v => { if (v) setDepIso(v); }).catch(() => {});
   }, []);
 
   const openStep  = step => { if (!step.duas?.length) return; setPlayerStep(step); setDuaIndex(0); setPlayerDua(step.duas[0]); };
@@ -585,7 +589,7 @@ export default function GuidesScreen({ navigation }) {
             <Text style={jn.headerSub}>Your step-by-step pilgrimage guide</Text>
           </View>
           <View style={jn.departureBadge}>
-            <Text style={jn.departureDays}>{daysUntil}</Text>
+            <Text style={jn.departureDays}>{daysUntil !== null ? daysUntil : "--"}</Text>
             <Text style={jn.departureLbl}>{"days\nto go"}</Text>
           </View>
         </View>

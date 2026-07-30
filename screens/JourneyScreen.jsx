@@ -9,7 +9,8 @@ import { CalendarBlank, UsersThree, AddressBook } from "phosphor-react-native";
 import SafarAssistCard from "../SafarAssistCard";
 
 const SERIF = "SourceSerif4-Regular";
-const BOARD_KEY = "safar_journey_board_v1";
+const BOARD_KEY      = "safar_journey_board_v1";
+const DEPARTURE_KEY  = "safar_departure_date_v1";
 
 // ── Steps data ────────────────────────────────────────────────────────────────
 const UMRAH_STEPS = [
@@ -64,13 +65,16 @@ const HAJJ_STEPS = [
 export default function JourneyScreen({ navigation }) {
   const [mode,       setMode]       = useState("umrah");
   const [boardCards, setBoardCards] = useState([]);
-  const departureDate = new Date("2025-11-15"); // placeholder — user sets this
+  const [depIso,     setDepIso]     = useState(null);
 
   const steps = mode === "umrah" ? UMRAH_STEPS : HAJJ_STEPS;
-  const daysUntil = Math.max(0, Math.ceil((departureDate - new Date()) / (1000 * 60 * 60 * 24)));
+  const daysUntil = depIso
+    ? Math.max(0, Math.ceil((new Date(depIso) - new Date()) / (1000 * 60 * 60 * 24)))
+    : null;
 
   useEffect(() => {
     AsyncStorage.getItem(BOARD_KEY).then(v => { if (v) setBoardCards(JSON.parse(v)); }).catch(() => {});
+    AsyncStorage.getItem(DEPARTURE_KEY).then(v => { if (v) setDepIso(v); }).catch(() => {});
   }, []);
 
   const completedCount = steps.filter(s => s.done).length;
@@ -89,7 +93,7 @@ export default function JourneyScreen({ navigation }) {
           <Text style={jn.headerSub}>Your step-by-step pilgrimage guide</Text>
         </View>
         <View style={jn.departureBadge}>
-          <Text style={jn.departureDays}>{daysUntil}</Text>
+          <Text style={jn.departureDays}>{daysUntil !== null ? daysUntil : "--"}</Text>
           <Text style={jn.departureLbl}>{"days\nto go"}</Text>
         </View>
       </View>

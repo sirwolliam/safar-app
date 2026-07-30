@@ -37,7 +37,7 @@
  *   safar_import_done_v1       "true" if import completed
  *   safar_journey_contacts_v1  JSON string — from AI import
  *   safar_journey_board_v1     JSON string — from AI import
- *   safar_cal_entries_v1       JSON string — from AI import
+ *   safar_calendar_v1          array of CalendarScreen entries — appended by AI import
  *
  * CRITICAL RULES:
  *   - StyleSheet.create() at module level only
@@ -119,7 +119,7 @@ const K = {
   importDone:  "safar_import_done_v1",
   contacts:    "safar_journey_contacts_v1",
   board:       "safar_journey_board_v1",
-  cal:         "safar_cal_entries_v1",
+  cal:         "safar_calendar_v1",
   checklist:   "safar_umrah_checklist_v1",
 };
 
@@ -580,13 +580,24 @@ async function saveExtractedData(extracted) {
     emergency:        extracted.emergency_contact  || null,
   };
   saves.push(AsyncStorage.setItem(K.contacts, JSON.stringify(contacts)));
-  const cal = {
-    departure:     extracted.departure_date  || null,
-    return:        extracted.return_date     || null,
-    hotelCheckin:  extracted.hotel_checkin   || null,
-    hotelCheckout: extracted.hotel_checkout  || null,
+  const existingCalRaw = await AsyncStorage.getItem(K.cal);
+  let existingCal = [];
+  try { const p = JSON.parse(existingCalRaw ?? "[]"); if (Array.isArray(p)) existingCal = p; } catch (_) {}
+  const _uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  const _mkCalEntry = (date, title, location) => {
+    if (!date || !title) return null;
+    return { id: _uid(), date, title, description: "", category: "travel", location: location ?? "", createdAt: new Date().toISOString() };
   };
-  saves.push(AsyncStorage.setItem(K.cal, JSON.stringify(cal)));
+  const calAdds = [
+    _mkCalEntry(extracted.departure_date, extracted.flight_number ? "Departure · " + extracted.flight_number : "Departure", ""),
+    _mkCalEntry(extracted.return_date, extracted.flight_number ? "Return flight · " + extracted.flight_number : "Return flight", ""),
+    _mkCalEntry(extracted.hotel_checkin, extracted.hotel_name ? "Hotel check-in · " + extracted.hotel_name : "Hotel check-in", ""),
+    _mkCalEntry(extracted.hotel_checkout, extracted.hotel_name ? "Hotel check-out · " + extracted.hotel_name : "Hotel check-out", ""),
+  ].filter(Boolean);
+  if (calAdds.length > 0) {
+    const merged = [...existingCal, ...calAdds].sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
+    saves.push(AsyncStorage.setItem(K.cal, JSON.stringify(merged)));
+  }
   if (extracted.checklist_items && extracted.checklist_items.length > 0) {
     const items = extracted.checklist_items.map((t, i) => ({
       id: "ai_" + i, text: t, done: false,
@@ -1187,16 +1198,22 @@ const YEARS = [THIS_YEAR, THIS_YEAR + 1, THIS_YEAR + 2];
 function DepartureDateScreen({ journeyType, onNext, onSkip, onBack }) {
   const [selectedMonth, setSelectedMonth] = useState(null);
   const [selectedYear,  setSelectedYear]  = useState(THIS_YEAR);
+  const [selectedDay,   setSelectedDay]   = useState(null);
 
   const journeyLabel = journeyType === "hajj" ? "Hajj" : "Umrah";
+
+  const daysInMonth = selectedMonth !== null
+    ? new Date(selectedYear, selectedMonth + 1, 0).getDate()
+    : 31;
 
   const handleContinue = useCallback(async () => {
     if (selectedMonth === null) { onSkip(); return; }
     const month = String(selectedMonth + 1).padStart(2, "0");
-    const iso   = selectedYear + "-" + month + "-01";
+    const day   = String(selectedDay ?? 1).padStart(2, "0");
+    const iso   = selectedYear + "-" + month + "-" + day;
     await AsyncStorage.setItem(K.departure, iso);
     onNext();
-  }, [selectedMonth, selectedYear, onNext, onSkip]);
+  }, [selectedMonth, selectedYear, selectedDay, onNext, onSkip]);
 
   return (
     <SafeAreaView style={ds.root}>
@@ -1218,7 +1235,7 @@ function DepartureDateScreen({ journeyType, onNext, onSkip, onBack }) {
             <TouchableOpacity
               key={String(yr)}
               style={selectedYear === yr ? [ds.yearPill, ds.yearPillActive] : ds.yearPill}
-              onPress={() => setSelectedYear(yr)}
+              onPress={() => { setSelectedYear(yr); setSelectedDay(null); }}
               activeOpacity={0.8}
             >
               <Text style={selectedYear === yr ? ds.yearTxtActive : ds.yearTxt}>
@@ -1239,7 +1256,7 @@ function DepartureDateScreen({ journeyType, onNext, onSkip, onBack }) {
                   ? [ds.monthCell, ds.monthCellActive]
                   : ds.monthCell
               }
-              onPress={() => setSelectedMonth(i)}
+              onPress={() => { setSelectedMonth(i); setSelectedDay(null); }}
               activeOpacity={0.8}
             >
               <Text style={selectedMonth === i ? ds.monthTxtActive : ds.monthTxt}>
@@ -1250,9 +1267,30 @@ function DepartureDateScreen({ journeyType, onNext, onSkip, onBack }) {
         </View>
 
         {selectedMonth !== null ? (
-          <Text style={ds.selectedLabel}>
-            {MONTHS[selectedMonth] + " " + selectedYear}
-          </Text>
+          <>
+            {/* Day grid */}
+            <Text style={ds.sectionLabel}>{"DAY"}</Text>
+            <View style={ds.dayGrid}>
+              {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((d) => (
+                <TouchableOpacity
+                  key={String(d)}
+                  style={selectedDay === d ? [ds.dayCell, ds.dayCellActive] : ds.dayCell}
+                  onPress={() => setSelectedDay(d)}
+                  activeOpacity={0.8}
+                >
+                  <Text style={selectedDay === d ? ds.dayTxtActive : ds.dayTxt}>
+                    {String(d)}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <Text style={ds.selectedLabel}>
+              {selectedDay !== null
+                ? MONTHS[selectedMonth] + " " + selectedDay + ", " + selectedYear
+                : MONTHS[selectedMonth] + " " + selectedYear}
+            </Text>
+          </>
         ) : null}
 
         <View style={{ height: 24 }} />
@@ -1295,6 +1333,15 @@ const ds = StyleSheet.create({
   monthCellActive: { borderColor: T.primary, backgroundColor: "#EBF0EC" },
   monthTxt:      { fontSize: 14, color: T.sub },
   monthTxtActive:{ fontSize: 14, color: T.primary, fontWeight: "500" },
+  dayGrid:       { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 20 },
+  dayCell:       {
+    width: 40, height: 36,
+    borderRadius: 8, borderWidth: 1.5, borderColor: T.border,
+    backgroundColor: T.card, alignItems: "center", justifyContent: "center",
+  },
+  dayCellActive: { borderColor: T.primary, backgroundColor: "#EBF0EC" },
+  dayTxt:        { fontSize: 13, color: T.sub },
+  dayTxtActive:  { fontSize: 13, color: T.primary, fontWeight: "500" },
   selectedLabel: { fontFamily: SERIF, fontSize: 17, color: T.primary, textAlign: "center", marginBottom: 8 },
   footer:        { paddingHorizontal: 24, paddingBottom: 40, paddingTop: 16 },
   btn:           {
