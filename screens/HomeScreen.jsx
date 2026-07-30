@@ -25,6 +25,7 @@ import {
   ArrowRight, BookOpen, Moon, ListChecks, Users,
   PlayCircle, Wrench, Note, Gear, Info,
   SunHorizon, Compass, Heartbeat, NotePencil, CalendarBlank,
+  CaretLeft, CaretRight,
 } from "phosphor-react-native";
 
 const SERIF = "SourceSerif4-Regular";
@@ -35,6 +36,19 @@ const DEPARTURE_KEY       = "safar_departure_date_v1";
 const USER_NAME_KEY       = "safar_user_name_v1";
 const PLAN_STARTED_KEY    = "safar_plan_started_v1";
 const INTRO_DISMISSED_KEY = "safar_intro_dismissed_v1";
+const CALENDAR_KEY        = "safar_calendar_v1";
+
+// Same mapping as CalendarScreen.jsx — not exported from that file so duplicated here
+const CAL_CATEGORIES = [
+  { id: "travel",    label: "Travel",           color: "#2E4560" },
+  { id: "worship",   label: "Acts of Worship",  color: "#C8A96A" },
+  { id: "group",     label: "Group",            color: "#3D2240" },
+  { id: "personal",  label: "Personal",         color: "#4A5C48" },
+  { id: "reminders", label: "Reminders",        color: "#3A2F1E" },
+];
+function getCalCat(id) {
+  return CAL_CATEGORIES.find(c => c.id === id) ?? CAL_CATEGORIES[0];
+}
 
 // ── Hero slides ───────────────────────────────────────────────────────────────
 const HERO_SLIDES = [
@@ -297,6 +311,120 @@ const od = StyleSheet.create({
 
 // ─────────────────────────────────────────────────────────────────────────────
 
+function EventsCard({ events, page, onPageChange, navigation }) {
+  const PAGE_SIZE = 3;
+  const totalPages = Math.ceil(events.length / PAGE_SIZE);
+  const pageEvents = events.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
+  const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  return (
+    <View style={ec.card}>
+      {/* Header */}
+      <View style={ec.header}>
+        <Text style={ec.title}>{"Upcoming Events"}</Text>
+        {totalPages > 1 ? (
+          <View style={ec.pageRow}>
+            <TouchableOpacity
+              onPress={() => onPageChange(page - 1)}
+              disabled={page === 0}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <CaretLeft size={18} color={page === 0 ? "#C8BFB2" : "#5A4A38"} weight="bold" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => onPageChange(page + 1)}
+              disabled={page === totalPages - 1}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <CaretRight size={18} color={page === totalPages - 1 ? "#C8BFB2" : "#5A4A38"} weight="bold" />
+            </TouchableOpacity>
+          </View>
+        ) : null}
+      </View>
+
+      {/* Event rows */}
+      <View style={ec.rows}>
+        {pageEvents.map((evt, idx) => {
+          const [y, m, d] = evt.date.split("-").map(Number);
+          const dt      = new Date(y, m - 1, d);
+          const dayName = DAY_NAMES[dt.getDay()];
+          const dayNum  = d;
+          const cat     = getCalCat(evt.category);
+          return (
+            <TouchableOpacity
+              key={evt.id}
+              style={idx < pageEvents.length - 1 ? ec.row : ec.rowLast}
+              onPress={() => navigation?.navigate?.("Calendar")}
+              activeOpacity={0.75}
+            >
+              <View style={ec.dayWrap}>
+                <Text style={[ec.dayName, { color: cat.color }]}>{dayName}</Text>
+                <Text style={[ec.dayNum,  { color: cat.color }]}>{String(dayNum)}</Text>
+              </View>
+              <View style={ec.divider} />
+              <View style={ec.main}>
+                <Text style={ec.evtTitle} numberOfLines={1}>{evt.title}</Text>
+                <View style={ec.meta}>
+                  <View style={[ec.dot, { backgroundColor: cat.color }]} />
+                  <Text style={ec.catLabel}>{cat.label}</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
+const ec = StyleSheet.create({
+  card: {
+    marginHorizontal: 13,
+    marginTop: 18,
+    borderWidth: 1,
+    borderColor: "#C8BFB2",
+    borderRadius: 16,
+    backgroundColor: "#FDFAF4",
+    overflow: "hidden",
+    shadowColor: "#4A2E10",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingTop: 14,
+    paddingBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#EDE4D4",
+  },
+  title: {
+    fontFamily: SERIF,
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#1A1712",
+  },
+  pageRow:  { flexDirection: "row", alignItems: "center", gap: 10 },
+  rows:     { paddingHorizontal: 12, paddingVertical: 8 },
+  row:      { flexDirection: "row", alignItems: "center", backgroundColor: "#FDFAF4", borderWidth: 1, borderColor: "#DDD5C0", borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12, marginBottom: 8, shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 4, elevation: 2 },
+  rowLast:  { flexDirection: "row", alignItems: "center", backgroundColor: "#FDFAF4", borderWidth: 1, borderColor: "#DDD5C0", borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12, shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 4, elevation: 2 },
+  dayWrap:  { width: 34, alignItems: "center" },
+  dayName:  { fontSize: 10, fontWeight: "600", textAlign: "center" },
+  dayNum:   { fontSize: 16, fontWeight: "700", width: 28, textAlign: "center" },
+  divider:  { width: 1, backgroundColor: "#E0D8CC", marginVertical: 2, marginHorizontal: 12, alignSelf: "stretch" },
+  main:     { flex: 1 },
+  evtTitle: { fontSize: 15, fontWeight: "600", color: "#1A1410" },
+  meta:     { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 4 },
+  dot:      { width: 6, height: 6, borderRadius: 3 },
+  catLabel: { fontSize: 11, color: "#8A7D6A" },
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 export default function HomeScreen({ navigation }) {
   const [heroSlide, setHeroSlide]           = useState(0);
   const [showAbout, setShowAbout]           = useState(false);
@@ -307,6 +435,8 @@ export default function HomeScreen({ navigation }) {
   const [introDismissed, setIntroDismissed] = useState(false);
   const [lastDua, setLastDua]               = useState(null); // { title, stage, id, allDuas, currentIndex }
   const [duaPinned, setDuaPinned]           = useState(false);
+  const [upcomingEvents, setUpcomingEvents] = useState([]);
+  const [eventsPage, setEventsPage]         = useState(0);
   const heroRef   = useRef(null);
   const heroTimer = useRef(null);
   const insets    = useSafeAreaInsets();
@@ -318,6 +448,17 @@ export default function HomeScreen({ navigation }) {
 
   useFocusEffect(useCallback(() => {
     isBookmarkedOnBoard("dua", DAILY_DUA.id).then(setDuaPinned);
+    const today = new Date().toISOString().slice(0, 10);
+    AsyncStorage.getItem(CALENDAR_KEY).then(raw => {
+      try {
+        const all = JSON.parse(raw ?? "[]");
+        const upcoming = Array.isArray(all)
+          ? all.filter(e => e.date >= today).sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0)
+          : [];
+        setUpcomingEvents(upcoming);
+        setEventsPage(0);
+      } catch (_) {}
+    }).catch(() => {});
   }, []));
 
   // Auto-advance hero every 5s
@@ -699,6 +840,15 @@ export default function HomeScreen({ navigation }) {
             </TouchableOpacity>
           </View>
         )}
+
+        {upcomingEvents.length > 0 ? (
+          <EventsCard
+            events={upcomingEvents}
+            page={eventsPage}
+            onPageChange={setEventsPage}
+            navigation={navigation}
+          />
+        ) : null}
 
         {/* ══════════════════════════════════════════════════════════════════
             MY JOURNEY CARD
