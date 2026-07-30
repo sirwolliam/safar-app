@@ -1206,6 +1206,10 @@ function DepartureDateScreen({ journeyType, onNext, onSkip, onBack }) {
     ? new Date(selectedYear, selectedMonth + 1, 0).getDate()
     : 31;
 
+  useEffect(() => {
+    if (selectedDay !== null && selectedDay > daysInMonth) setSelectedDay(null);
+  }, [daysInMonth]);
+
   const canContinue = selectedMonth !== null && selectedDay !== null;
 
   const handleContinue = useCallback(async () => {
