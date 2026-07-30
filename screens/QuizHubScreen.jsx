@@ -6,7 +6,7 @@
  */
 import React, { useState, useCallback } from "react";
 import {
-  View, Text, ScrollView, TouchableOpacity, StyleSheet, Image,
+  View, Text, ScrollView, TouchableOpacity, StyleSheet, Image, Modal,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
@@ -22,6 +22,7 @@ const SERIF = "SourceSerif4-Regular";
 const PAGE_BG    = "#F5F0E8";
 const TEXT       = "#1A1410";
 const TEXT_MUTED = "#5C534A";
+const TEXT_SEC   = "#8A7D6A";
 const SAGE       = "#4A5C48";
 const GOLD       = "#C8A96A";
 
@@ -37,6 +38,7 @@ const ICONS = { Mosque, MapPin, HandHeart, Sparkle };
 export default function QuizHubScreen({ navigation, route }) {
   const insets = useSafeAreaInsets();
   const [progressMap, setProgressMap] = useState({});
+  const [showSources, setShowSources] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -105,8 +107,26 @@ export default function QuizHubScreen({ navigation, route }) {
           );
         })}
 
+        <TouchableOpacity onPress={() => setShowSources(true)} activeOpacity={0.7}>
+          <Text style={s.sourcesLink}>Sources</Text>
+        </TouchableOpacity>
+
         <View style={{ height: 40 }} />
       </ScrollView>
+
+      <Modal visible={showSources} transparent animationType="slide" onRequestClose={() => setShowSources(false)}>
+        <TouchableOpacity style={s.modalBackdrop} activeOpacity={1} onPress={() => setShowSources(false)} />
+        <View style={[s.modalSheet, { paddingBottom: insets.bottom + 24 }]}>
+          <View style={s.sheetHandle} />
+          <Text style={s.sheetTitle}>About These Questions</Text>
+          <Text style={s.sheetBody}>
+            Quiz content is drawn from widely taught Hajj and Umrah guidance and general Islamic scholarship. It is intended for study and reflection, not as a substitute for qualified scholarly guidance, particularly on matters where interpretations may vary between schools of thought.
+          </Text>
+          <TouchableOpacity style={s.sheetDoneBtn} onPress={() => setShowSources(false)} activeOpacity={0.85}>
+            <Text style={s.sheetDoneTxt}>Done</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -143,4 +163,37 @@ const s = StyleSheet.create({
     paddingHorizontal: 10, paddingVertical: 4, alignSelf: "flex-start",
   },
   topicBadgeTxt: { fontSize: 11, color: "#FFFFFF", fontWeight: "600" },
+
+  sourcesLink: {
+    fontSize: 12, color: TEXT_SEC, textAlign: "center",
+    textDecorationLine: "underline", marginBottom: 16,
+  },
+
+  modalBackdrop: {
+    position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.45)",
+  },
+  modalSheet: {
+    position: "absolute", bottom: 0, left: 0, right: 0,
+    backgroundColor: "#FDFAF4", borderTopLeftRadius: 24, borderTopRightRadius: 24,
+    paddingHorizontal: 24, paddingTop: 12,
+    shadowColor: "#000", shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.12, shadowRadius: 16, elevation: 16,
+  },
+  sheetHandle: {
+    width: 40, height: 4, borderRadius: 2,
+    backgroundColor: "#DDD5C0", alignSelf: "center", marginBottom: 20,
+  },
+  sheetTitle: {
+    fontFamily: SERIF, fontSize: 22, fontWeight: "700",
+    color: TEXT, marginBottom: 14,
+  },
+  sheetBody: {
+    fontSize: 14, color: TEXT_MUTED, lineHeight: 22, marginBottom: 24,
+  },
+  sheetDoneBtn: {
+    backgroundColor: "#163C2C", borderRadius: 14,
+    paddingVertical: 14, alignItems: "center",
+  },
+  sheetDoneTxt: { fontSize: 15, fontWeight: "700", color: "#FFFFFF" },
 });

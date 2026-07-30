@@ -6,15 +6,17 @@
  */
 import React, { useEffect, useState } from "react";
 import {
-  View, Text, ScrollView, TouchableOpacity, StyleSheet, Share,
+  View, Text, ScrollView, TouchableOpacity, StyleSheet, Share, Dimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Svg, { Circle, Polygon } from "react-native-svg";
+import Svg, { Circle, Polygon, Defs, LinearGradient as SvgGrad, Stop, Mask, Rect, Path } from "react-native-svg";
+import { PATTERN_PATH } from "./headerPatternPath";
 import { CaretLeft } from "phosphor-react-native";
 import { getTopicById } from "../quizData";
 import { saveResult } from "../quizStore";
 
 const SERIF = "SourceSerif4-Regular";
+const { width: SW } = Dimensions.get("window");
 
 function formatTime(secs) {
   const m = Math.floor(secs / 60);
@@ -112,12 +114,22 @@ export default function QuizResultsScreen({ route, navigation }) {
           </View>
         </View>
 
-        {/* Hadith quote card */}
+        {/* Hadith quote card — styled to match HomeScreen dua card */}
         <View style={s.quoteCard}>
-          <Svg width={18} height={18} viewBox="0 0 18 18" style={{ alignSelf: "center", marginBottom: 10 }}>
-            <Polygon points="9,1 11.12,6.88 17,9 11.12,11.12 9,17 6.88,11.12 1,9 6.88,6.88" fill="#B4842A" />
-          </Svg>
-          <Text style={s.quoteTxt}>{"“"}Whoever Allah wills good for, He grants him understanding of the religion.{"”"}</Text>
+          <View style={s.quotePatternWrap} pointerEvents="none">
+            <Svg width={SW - 40} height={90} viewBox="0 0 375 133.62" preserveAspectRatio="xMidYMin slice">
+              <Defs>
+                <SvgGrad id="quoteGrad" x1="0" y1="0" x2="0" y2="1">
+                  <Stop offset="0"   stopColor="#fff" stopOpacity="1" />
+                  <Stop offset="0.7" stopColor="#fff" stopOpacity="0.35" />
+                  <Stop offset="1"   stopColor="#fff" stopOpacity="0" />
+                </SvgGrad>
+                <Mask id="quoteMask"><Rect width="375" height="133.62" fill="url(#quoteGrad)" /></Mask>
+              </Defs>
+              <Path d={PATTERN_PATH} fill="#bf9f60" opacity="0.55" mask="url(#quoteMask)" />
+            </Svg>
+          </View>
+          <Text style={s.quoteTxt}>{'”'}Whoever Allah wills good for, He grants him understanding of the religion.{'”'}</Text>
           <Text style={s.quoteAttr}>Prophet Muhammad (peace be upon him)</Text>
           <Text style={s.quoteSource}>Sahih al-Bukhari 71, Sahih Muslim 1037</Text>
         </View>
@@ -209,13 +221,19 @@ const s = StyleSheet.create({
   statLabelDark: { fontSize: 12, color: "#8A7D6A", marginTop: 2 },
 
   quoteCard: {
-    backgroundColor: "#F3E4C8",
-    borderWidth: 1.5, borderColor: "#D8AC4E",
-    borderRadius: 16, padding: 16, marginBottom: 16,
+    backgroundColor: "#FDFAF4",
+    borderRadius: 18,
+    paddingHorizontal: 22, paddingTop: 28, paddingBottom: 22,
+    overflow: "hidden", marginBottom: 16,
+    shadowColor: "#4A2E10",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.14, shadowRadius: 12, elevation: 4,
   },
+  quotePatternWrap: { position: "absolute", top: 0, left: 0, right: 0, alignItems: "center" },
   quoteTxt: {
-    fontStyle: "italic", fontSize: 13, lineHeight: 20,
-    color: "#4A3F30", textAlign: "center", marginBottom: 8,
+    fontFamily: SERIF, fontStyle: "italic", fontSize: 19,
+    color: "#2A2620", textAlign: "center", lineHeight: 30,
+    marginTop: 8, marginBottom: 14,
   },
   quoteAttr: { fontSize: 11.5, color: "#8A7A63", textAlign: "center" },
   quoteSource: { fontSize: 10.5, color: "#A8997E", textAlign: "center", marginTop: 3 },
