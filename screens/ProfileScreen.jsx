@@ -934,7 +934,7 @@ const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: "#F5F0E8" },
 
   // Header — ornate pattern, matches CalendarScreen/GroupsScreen
-  header: { backgroundColor: "#4A5C48", minHeight: 180, position: "relative", overflow: "hidden", paddingHorizontal: 16, paddingBottom: 30 },
+  header: { backgroundColor: "#3A3545", minHeight: 180, position: "relative", overflow: "hidden", paddingHorizontal: 16, paddingBottom: 30 },
   headerContent: { paddingHorizontal: 4 },
   titleRow: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 6, marginTop: 8 },
   iconCircle: { width: 40, height: 40, borderRadius: 20, borderWidth: 1.5, borderColor: "#C8A96A", alignItems: "center", justifyContent: "center" },
