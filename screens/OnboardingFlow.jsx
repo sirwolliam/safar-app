@@ -1206,14 +1206,15 @@ function DepartureDateScreen({ journeyType, onNext, onSkip, onBack }) {
     ? new Date(selectedYear, selectedMonth + 1, 0).getDate()
     : 31;
 
+  const canContinue = selectedMonth !== null && selectedDay !== null;
+
   const handleContinue = useCallback(async () => {
-    if (selectedMonth === null) { onSkip(); return; }
     const month = String(selectedMonth + 1).padStart(2, "0");
-    const day   = String(selectedDay ?? 1).padStart(2, "0");
+    const day   = String(selectedDay).padStart(2, "0");
     const iso   = selectedYear + "-" + month + "-" + day;
     await AsyncStorage.setItem(K.departure, iso);
     onNext();
-  }, [selectedMonth, selectedYear, selectedDay, onNext, onSkip]);
+  }, [selectedMonth, selectedYear, selectedDay, onNext]);
 
   return (
     <SafeAreaView style={ds.root}>
@@ -1301,7 +1302,8 @@ function DepartureDateScreen({ journeyType, onNext, onSkip, onBack }) {
         active={4}
         onBack={onBack}
         onPress={handleContinue}
-        label={selectedMonth !== null ? "Continue" : "I\u2019m not sure yet"}
+        label="Continue"
+        disabled={!canContinue}
       />
     </SafeAreaView>
   );
