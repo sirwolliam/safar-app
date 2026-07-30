@@ -1568,9 +1568,9 @@ const s = StyleSheet.create({
   },
   continuationLeft: {
     position: "absolute",
-    bottom: 14,
+    top: 14,
     left: 22,
-    right: 22,
+    right: 54,
   },
   continuationTopRow: {
     flexDirection: "row",
