@@ -17,6 +17,7 @@ import {
   Wrench, ShoppingBag, Buildings, MapTrifold, Mosque,
   CurrencyCircleDollar, PencilSimple, PushPin, Camera,
 } from "phosphor-react-native";
+import HeaderPatternBg from "../HeaderPatternBg";
 import { getAffiliateUrl } from "../utils/affiliateLinks";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getCurrentUser } from "../firebase";
@@ -294,21 +295,10 @@ export default function ProfileScreen({ navigation }) {
     <View style={s.root}>
       <StatusBar barStyle="light-content" />
 
-      {/* ── Photo header ─────────────────────────────────────────────────── */}
+      {/* ── Ornate pattern header ── */}
       <View style={s.header}>
-        <Image
-          source={require("../assets/prepare-header.jpg")}
-          style={s.headerImg}
-          resizeMode="cover"
-        />
-        <LinearGradient
-          colors={["transparent", "rgba(0,0,0,0.10)", "rgba(58,53,69,0.72)", "rgba(58,53,69,0.96)"]}
-          locations={[0, 0.35, 0.75, 1]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 0, y: 1 }}
-          style={s.gradient}
-        />
-        <View style={[s.headerContent, { paddingTop: insets.top + 16 }]}>
+        <HeaderPatternBg width={SW} />
+        <View style={[s.headerContent, { paddingTop: insets.top + 10 }]}>
           <View style={s.titleRow}>
             <View style={s.iconCircle}>
               <ListChecks size={22} color="#C8A96A" weight="regular" />
@@ -317,6 +307,92 @@ export default function ProfileScreen({ navigation }) {
           </View>
           <Text style={s.headerSub}>Everything you need before and during your journey</Text>
         </View>
+      </View>
+
+      {/* ── Profile card (overlapping header) ── */}
+      <View style={s.profileCard}>
+
+        {/* Left column — avatar */}
+        <View style={s.profileAvatarCol}>
+          <TouchableOpacity
+            style={[
+              s.profileAvatar,
+              avatarKey ? null : { backgroundColor: "#3A3545" },
+            ]}
+            onPress={() => {
+              setEditName(userName);
+              setEditEmail(userEmail);
+              setEditJourney(journeyType);
+              setShowEditSheet(true);
+            }}
+            activeOpacity={0.85}
+          >
+            {avatarKey ? (
+              avatarKey.startsWith("photo::") ? (
+                <Image
+                  source={{ uri: avatarKey.slice(7) }}
+                  style={s.profileAvatarImg}
+                  resizeMode="cover"
+                />
+              ) : (
+                <Image
+                  source={AVATARS.find(a => a.key === avatarKey)?.src}
+                  style={s.profileAvatarImg}
+                  resizeMode="cover"
+                />
+              )
+            ) : (
+              <Text style={s.profileInitials}>
+                {initials || "S"}
+              </Text>
+            )}
+          </TouchableOpacity>
+        </View>
+
+        {/* Vertical divider */}
+        <View style={s.profileDividerV} />
+
+        {/* Right column — info */}
+        <View style={s.profileInfoCol}>
+
+          {/* Top row: journey badge + pencil */}
+          <View style={s.profileTopRow}>
+            {journeyLabel ? (
+              <View style={s.journeyBadge}>
+                <Text style={s.journeyBadgeText}>
+                  {journeyLabel}
+                </Text>
+              </View>
+            ) : null}
+            <View style={{ flex: 1 }} />
+            <TouchableOpacity
+              onPress={() => {
+                setEditName(userName);
+                setEditEmail(userEmail);
+                setEditJourney(journeyType);
+                setShowEditSheet(true);
+              }}
+              activeOpacity={0.75}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <PencilSimple size={14} color="#8A7D6A" weight="regular" />
+            </TouchableOpacity>
+          </View>
+
+          {/* Name */}
+          <Text style={s.profileName} numberOfLines={1}>
+            {userName || "Pilgrim"}
+          </Text>
+
+          {/* Email */}
+          {userEmail ? (
+            <Text style={s.profileEmail} numberOfLines={1}>
+              {userEmail}
+            </Text>
+          ) : null}
+
+        </View>
+
       </View>
 
       {/* ── Search bar ───────────────────────────────────────────────────── */}
@@ -480,91 +556,6 @@ export default function ProfileScreen({ navigation }) {
           <>
             {/* ── Zone 1: Personal ──────────────────────────────────────── */}
             <View onLayout={e => { sectionY.current.personal = e.nativeEvent.layout.y; }}>
-
-              <View style={s.profileCard}>
-
-                {/* Left column — avatar */}
-                <View style={s.profileAvatarCol}>
-                  <TouchableOpacity
-                    style={[
-                      s.profileAvatar,
-                      avatarKey ? null : { backgroundColor: "#3A3545" },
-                    ]}
-                    onPress={() => {
-                      setEditName(userName);
-                      setEditEmail(userEmail);
-                      setEditJourney(journeyType);
-                      setShowEditSheet(true);
-                    }}
-                    activeOpacity={0.85}
-                  >
-                    {avatarKey ? (
-                      avatarKey.startsWith("photo::") ? (
-                        <Image
-                          source={{ uri: avatarKey.slice(7) }}
-                          style={s.profileAvatarImg}
-                          resizeMode="cover"
-                        />
-                      ) : (
-                        <Image
-                          source={AVATARS.find(a => a.key === avatarKey)?.src}
-                          style={s.profileAvatarImg}
-                          resizeMode="cover"
-                        />
-                      )
-                    ) : (
-                      <Text style={s.profileInitials}>
-                        {initials || "S"}
-                      </Text>
-                    )}
-                  </TouchableOpacity>
-                </View>
-
-                {/* Vertical divider */}
-                <View style={s.profileDividerV} />
-
-                {/* Right column — info */}
-                <View style={s.profileInfoCol}>
-
-                  {/* Top row: journey badge + pencil */}
-                  <View style={s.profileTopRow}>
-                    {journeyLabel ? (
-                      <View style={s.journeyBadge}>
-                        <Text style={s.journeyBadgeText}>
-                          {journeyLabel}
-                        </Text>
-                      </View>
-                    ) : null}
-                    <View style={{ flex: 1 }} />
-                    <TouchableOpacity
-                      onPress={() => {
-                        setEditName(userName);
-                        setEditEmail(userEmail);
-                        setEditJourney(journeyType);
-                        setShowEditSheet(true);
-                      }}
-                      activeOpacity={0.75}
-                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                    >
-                      <PencilSimple size={14} color="#8A7D6A" weight="regular" />
-                    </TouchableOpacity>
-                  </View>
-
-                  {/* Name */}
-                  <Text style={s.profileName} numberOfLines={1}>
-                    {userName || "Pilgrim"}
-                  </Text>
-
-                  {/* Email */}
-                  {userEmail ? (
-                    <Text style={s.profileEmail} numberOfLines={1}>
-                      {userEmail}
-                    </Text>
-                  ) : null}
-
-                </View>
-
-              </View>
 
               <View style={s.tileGrid}>
                 <TouchableOpacity
@@ -942,15 +933,13 @@ export default function ProfileScreen({ navigation }) {
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: "#F5F0E8" },
 
-  // Header
-  header: { height: 170, overflow: "hidden", backgroundColor: "#3A3545" },
-  headerImg: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, width: "100%", height: "100%" },
-  gradient: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
-  headerContent: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, justifyContent: "flex-end", paddingHorizontal: 20, paddingBottom: 22 },
-  titleRow: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 8 },
-  iconCircle: { width: 44, height: 44, borderRadius: 22, borderWidth: 1.5, borderColor: "#C8A96A", alignItems: "center", justifyContent: "center" },
-  headerTitle: { fontFamily: SERIF, fontSize: 38, color: "#FFFFFF", fontWeight: "600" },
-  headerSub: { fontSize: 15, color: "rgba(255,255,255,0.82)", lineHeight: 22, maxWidth: "88%" },
+  // Header — ornate pattern, matches CalendarScreen/GroupsScreen
+  header: { backgroundColor: "#4A5C48", minHeight: 180, position: "relative", overflow: "hidden", paddingHorizontal: 16, paddingBottom: 30 },
+  headerContent: { paddingHorizontal: 4 },
+  titleRow: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 6, marginTop: 8 },
+  iconCircle: { width: 40, height: 40, borderRadius: 20, borderWidth: 1.5, borderColor: "#C8A96A", alignItems: "center", justifyContent: "center" },
+  headerTitle: { fontFamily: SERIF, fontSize: 38, color: "#FDFAF4", fontWeight: "600" },
+  headerSub: { fontSize: 14, color: "rgba(255,255,255,0.82)", lineHeight: 20, maxWidth: "88%" },
 
   // Search
   searchWrap: { paddingHorizontal: 16, paddingVertical: 10, backgroundColor: "#F5F0E8" },
@@ -1131,7 +1120,7 @@ const s = StyleSheet.create({
   // Profile card & avatar
   profileCard: {
     marginHorizontal: 13,
-    marginTop: 8,
+    marginTop: -24,
     marginBottom: 10,
     backgroundColor: "#FDFAF4",
     borderWidth: 1,
