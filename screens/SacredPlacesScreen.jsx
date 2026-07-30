@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Svg, { Circle, Path, G, Text as SvgText } from "react-native-svg";
-import { CaretLeft, CaretRight, HandsPraying } from "phosphor-react-native";
+import { CaretLeft, CaretRight, HandsPraying, MapPin } from "phosphor-react-native";
 import { getDuaById } from "../dua-content";
 import { useAccessibility } from "../AccessibilityContext";
 
@@ -296,10 +296,14 @@ function SiteCard({ site, sites, onSelect, onViewDuas, city, isVisited, onToggle
         <Text style={styles.arabic}>{site.arabic}</Text>
         <Text style={styles.sub}>{site.sub}</Text>
 
-        {/* ── 4. Photo (omitted entirely when absent) ── */}
+        {/* ── 4. Photo or icon fallback ── */}
         {site.photo ? (
           <Image source={site.photo} style={styles.photo} resizeMode="cover" />
-        ) : null}
+        ) : (
+          <View style={styles.photoFallback}>
+            <MapPin size={36} color={colors.primary} weight="duotone" />
+          </View>
+        )}
 
         {/* ── 5. Description / detail ── */}
         {extra?.detail ? (
@@ -393,6 +397,15 @@ const createScStyles = (C) => StyleSheet.create({
     height: 160,
     borderRadius: 10,
     marginBottom: 12,
+  },
+  photoFallback: {
+    width: "100%",
+    height: 160,
+    borderRadius: 10,
+    marginBottom: 12,
+    backgroundColor: C.primary + "18",
+    alignItems: "center",
+    justifyContent: "center",
   },
   detail:         { fontSize: 12, color: C.text, lineHeight: 18, marginBottom: 10, fontStyle: "italic" },
   // citation color has no colors-token equivalent (distinctive sage green #5A8A72 — kept hardcoded)
