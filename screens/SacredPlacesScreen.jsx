@@ -3,10 +3,10 @@
  * Two cities: Makkah and Madinah
  * Full-bleed photo hero · single stepper nav · fallback-safe card content
  */
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
   SafeAreaView, View, Text, ScrollView, TouchableOpacity,
-  StyleSheet, Linking, Image,
+  StyleSheet, Linking, Image, PanResponder,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { CaretLeft, CaretRight, HandsPraying, MapPin, MapTrifold } from "phosphor-react-native";
@@ -387,6 +387,23 @@ export default function SacredPlacesScreen({ navigation }) {
 
   const sites = city === "Makkah" ? MAKKAH_SITES : MADINAH_SITES;
 
+  // Swipe nav — mutable ref avoids stale-closure on PanResponder (created once)
+  const swipeRef = useRef({ sites, selected, setSelected });
+  useEffect(() => { swipeRef.current = { sites, selected, setSelected }; });
+  const SWIPE_THRESHOLD = 40;
+  const heroPan = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, { dx, dy }) =>
+        Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 8,
+      onPanResponderRelease: (_, { dx }) => {
+        const { sites, selected, setSelected } = swipeRef.current;
+        const idx = sites.findIndex(s => s.id === selected.id);
+        if (dx < -SWIPE_THRESHOLD && idx < sites.length - 1) setSelected(sites[idx + 1]);
+        else if (dx > SWIPE_THRESHOLD && idx > 0) setSelected(sites[idx - 1]);
+      },
+    })
+  ).current;
+
   const toggleVisited = (siteId) => {
     setVisited(prev => {
       const updated = { ...prev, [siteId]: !prev[siteId] };
@@ -431,8 +448,10 @@ export default function SacredPlacesScreen({ navigation }) {
 
       <ScrollView showsVerticalScrollIndicator={false}>
 
-        {/* ── Full-bleed photo hero ── */}
-        <SiteHero site={selected} colors={colors} styles={s} />
+        {/* ── Full-bleed photo hero (swipeable) ── */}
+        <View {...heroPan.panHandlers}>
+          <SiteHero site={selected} colors={colors} styles={s} />
+        </View>
 
         {/* ── Site card (normal flow, no overlap) ── */}
         <SiteCard
