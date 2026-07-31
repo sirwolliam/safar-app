@@ -145,9 +145,9 @@ function LocationChips({ sites, selectedId, onSelect, styles }) {
 const createOlcStyles = () => StyleSheet.create({
   row:    { paddingHorizontal: 4, paddingVertical: 0, gap: 8 },
   chip:   { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,255,255,0.45)", backgroundColor: "rgba(0,0,0,0.28)" },
-  chipOn: { backgroundColor: "#FFFFFF", borderColor: "#FFFFFF" },
+  chipOn: { backgroundColor: "#4A5C48", borderColor: "#4A5C48" },
   label:  { fontSize: 13, color: "rgba(255,255,255,0.92)" },
-  labelOn:{ fontSize: 13, color: "#1A1710", fontWeight: "600" },
+  labelOn:{ fontSize: 13, color: "#FFFFFF", fontWeight: "600" },
 });
 
 // ── Site card — stepper removed, card starts at body content ─────────────────
@@ -261,7 +261,7 @@ const createScStyles = (C) => StyleSheet.create({
   },
   body:           { padding: 20 },
   nameRow:        { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 2 },
-  name:           { fontFamily: SERIF, fontSize: 22, color: C.text, flex: 1, marginRight: 8 },
+  name:           { fontFamily: SERIF, fontSize: 22, fontWeight: "600", color: C.text, flex: 1, marginRight: 8 },
   visitedBtn:     { borderRadius: 20, borderWidth: 1.5, borderColor: C.border, paddingHorizontal: 10, paddingVertical: 5, flexShrink: 0 },
   visitedBtnOn:   { backgroundColor: C.primary, borderColor: C.primary },
   visitedTxt:     { fontSize: 12, color: C.subtext, fontWeight: "600" },
@@ -372,7 +372,7 @@ export default function SacredPlacesScreen({ navigation }) {
           >
             <CaretLeft size={18} color="#1A1410" weight="bold" />
           </TouchableOpacity>
-          <View style={s.headerBtn} />
+          <View style={{ width: 36 }} />
         </View>
         <Text style={s.headerTitle}>Sacred Places</Text>
       </View>
@@ -469,7 +469,11 @@ export default function SacredPlacesScreen({ navigation }) {
           {sites.map((site, i) => (
             <TouchableOpacity
               key={site.id}
-              style={i < sites.length - 1 ? [s.listRow, s.listRowBorder] : s.listRow}
+              style={
+                i < sites.length - 1
+                  ? (selected?.id === site.id ? [s.listRow, s.listRowBorder, s.listRowActive] : [s.listRow, s.listRowBorder])
+                  : (selected?.id === site.id ? [s.listRow, s.listRowActive] : s.listRow)
+              }
               onPress={() => setSelected(site)}
               activeOpacity={0.85}
             >
@@ -481,7 +485,7 @@ export default function SacredPlacesScreen({ navigation }) {
                 <Text style={s.listSub}>{site.sub}</Text>
               </View>
               <Text style={s.listCount}>{site.duas} duʿāʾs</Text>
-              <Text style={selected?.id === site.id ? [s.listArrow, { color: colors.primary }] : s.listArrow}>{"›"}</Text>
+              <Text style={selected?.id === site.id ? [s.listArrow, { color: "#4A5C48" }] : s.listArrow}>{"›"}</Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -514,15 +518,15 @@ const createStyles = (C) => StyleSheet.create({
   safe: { flex: 1, backgroundColor: C.background },
 
   // ── Ornate pattern header (matches CalendarScreen / GroupsScreen exactly) ──
-  header:        { backgroundColor: "#4A5C48", minHeight: 160, position: "relative", overflow: "hidden", paddingHorizontal: 16, paddingBottom: 20 },
+  header:        { backgroundColor: "#4A5C48", minHeight: 110, position: "relative", overflow: "hidden", paddingHorizontal: 16, paddingBottom: 8 },
   headerTopRow:  { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   headerBtn:     { width: 36, height: 36, borderRadius: 18, backgroundColor: "#FDFAF4", borderWidth: 1, borderColor: "#D4D0CA", alignItems: "center", justifyContent: "center" },
-  headerTitle:   { fontFamily: SERIF, fontSize: 38, color: "#FDFAF4", textAlign: "center", marginTop: 12 },
+  headerTitle:   { fontFamily: SERIF, fontSize: 38, color: "#FDFAF4", textAlign: "center", marginTop: 4 },
 
   // ── City toggle ──
   cityToggle:        { flexDirection: "row", marginHorizontal: 20, marginTop: 12, marginBottom: 12, backgroundColor: C.card, borderRadius: 999, padding: 3, borderWidth: 1, borderColor: C.border },
   cityOpt:           { flex: 1, paddingVertical: 10, borderRadius: 999, alignItems: "center" },
-  cityOptActive:     { backgroundColor: C.primary },
+  cityOptActive:     { backgroundColor: "#4A5C48" },
   cityOptText:       { fontSize: 16, color: C.subtext },
   cityOptTextActive: { color: "#fff", fontWeight: "500" },
 
@@ -542,7 +546,8 @@ const createStyles = (C) => StyleSheet.create({
   listTitle:      { fontSize: 10, fontWeight: "800", letterSpacing: 1.5, color: C.subtext, textTransform: "uppercase", marginBottom: 12 },
   listRow:        { flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 14 },
   listRowBorder:  { borderBottomWidth: 1, borderBottomColor: C.border },
-  listNum:        { width: 22, height: 22, borderRadius: 11, backgroundColor: C.primary, alignItems: "center", justifyContent: "center", flexShrink: 0 },
+  listRowActive:  { backgroundColor: "#4A5C4818" },
+  listNum:        { width: 22, height: 22, borderRadius: 11, backgroundColor: "#4A5C48", alignItems: "center", justifyContent: "center", flexShrink: 0 },
   listNumText:    { fontSize: 11, color: "#fff", fontWeight: "700" },
   listInfo:       { flex: 1 },
   listName:       { fontFamily: SERIF, fontSize: 16, color: C.text, marginBottom: 2 },
