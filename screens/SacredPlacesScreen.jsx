@@ -29,45 +29,48 @@ const MAKKAH_SITES = [
     id: "kaaba", name: "Al-Kaʿbah", arabic: "الكَعبَة",
     sub: "The Most Sacred House", duas: 12,
     photo: require("../assets/kaaba-map.jpg"),
-    // locatorMap: require("../assets/..."), markerPos: { x: 0.5, y: 0.5 },
-    // citation: "Qurʾan 2:125",
-    // relatedDuas: [{ id: "...", title: "..." }],
+    description: "The Kaʿbah is the most sacred structure in Islam, the direction every Muslim worldwide faces in prayer, and the focal point of Ṭawāf during Hajj and Umrah. Tradition holds it was built by Prophet Ibrahim and his son Ismaʿil as the first house dedicated to the oneness of Allah. It is draped year-round in the Kiswah, a black silk covering embroidered with gold Qurʾanic calligraphy.",
   },
   {
     id: "hijr", name: "Hijr Ismāʿīl", arabic: "حِجر إِسماعيل",
     sub: "Sanctuary of the Prophet Ismāʿīl ﷺ", duas: 4,
     photo: require("../assets/hijr-ismail-map.jpg"),
-    // locatorMap, markerPos, citation, relatedDuas
+    description: "This low, semicircular wall on the Kaʿbah's northwest side is understood by many scholars to have been part of the Kaʿbah's original structure, left out only when the Quraysh rebuilt it with limited funds (Sahih Muslim). Islamic tradition holds it as the resting place of Ismaʿil and his mother Hajar. Because it's considered part of the Kaʿbah itself, pilgrims must walk entirely around it during Ṭawāf rather than cutting through.",
   },
   {
     id: "maqam", name: "Maqām Ibrāhīm", arabic: "مَقَامُ إبْرَاهِيم",
     sub: "Station of Prophet Ibrāhīm", duas: 5,
     photo: require("../assets/maqam-ibrahim-map.jpg"),
-    // locatorMap, markerPos, citation, relatedDuas
+    description: "This stone is believed to bear the footprints of Prophet Ibrahim, used as he stood to build the Kaʿbah's upper walls. The Qurʾan instructs believers to take the station of Ibrahim as a place of prayer (2:125), and it's Sunnah to pray two rakahs behind it after Ṭawāf. The stone is preserved today inside a small glass and gold enclosure just steps from the Kaʿbah.",
   },
   {
     id: "zamzam", name: "Zamzam", arabic: "زَمْزَم",
     sub: "The Blessed Well", duas: 4,
     photo: require("../assets/zamzam-map.jpg"),
-    // locatorMap, markerPos, citation, relatedDuas
+    description: "This well traces back to Hajar, left with her infant son Ismaʿil in the barren valley of Makkah, searching desperately for water. Tradition holds the well sprang forth beneath the infant's feet as a mercy from Allah, and it has never run dry since. The Prophet ﷺ described its water as blessed, serving whatever intention it is drunk with (Sunan Ibn Majah).",
   },
   {
     id: "yemeni", name: "Yemeni Corner", arabic: "الرُكن اليَمانِي",
     sub: "Second of the two blessed corners", duas: 3,
     photo: require("../assets/yemeni-corner-map.jpg"),
-    // locatorMap, markerPos, citation, relatedDuas
+    description: "This is the southwestern corner of the Kaʿbah, named for facing Yemen, sitting just before the Black Stone along the path of Ṭawāf. The Prophet ﷺ said that touching the Black Stone and the Yemeni Corner erases sins (Musnad Ahmad). It's Sunnah to touch it if the crowd allows — without kissing it, and without gesturing toward it if unreachable.",
   },
   {
     id: "safa", name: "Ṣafā & Marwah", arabic: "الصَّفَا وَالْمَرْوَة",
     sub: "Place of Saʿy — 7 passes", duas: 8,
     photo: require("../assets/safa-marwah-map.jpg"),
-    // locatorMap, markerPos, citation, relatedDuas
+    description: "These two hills near the Kaʿbah are connected by a gallery where pilgrims perform Saʿy — walking briskly between them seven times, commemorating Hajar's search for water for her infant son. The Qurʾan affirms both hills as being among the symbols of Allah (2:158). Saʿy is an obligatory rite of both Hajj and Umrah, performed immediately after Ṭawāf.",
   },
   {
     id: "jabalnur", name: "Jabal an-Nūr", arabic: "جَبَل النُّور",
     sub: "Site of the first revelation — Cave of Ḥirāʾ", duas: 0,
     photo: require("../assets/jabal-nur-map.jpg"),
-    // locatorMap, markerPos, citation, relatedDuas
+    description: "This mountain rises about 3km from the Grand Mosque, and near its summit sits the small cave where the Prophet ﷺ used to retreat for solitary reflection before prophethood. It was here that the Angel Jibril first appeared to him, delivering the opening words of Surah al-Alaq — the first revelation of the Qurʾan. The climb is steep, taking most visitors well over an hour each way.",
+  },
+  {
+    id: "multazam", name: "Al-Multazam", arabic: "الملتزم",
+    sub: "Where pilgrims press and supplicate", duas: 0,
+    description: "This is the section of the Kaʿbah's wall between the Black Stone and the door, about two meters wide, named for the Arabic word for \"clinging.\" Ibn Abbas identified this exact spot by name (Muwatta Malik), and it's Sunnah to press one's chest, face, and hands against it while making duʿāʾ. Scholars describe it as a place where supplication is especially heard.",
   },
 ];
 
@@ -88,14 +91,12 @@ const MADINAH_SITES = [
   {
     id: "greendome", name: "The Green Dome", arabic: "القُبَّة الخَضرَاء",
     sub: "Above the grave of the Prophet Muhammad ﷺ", duas: 4,
-    description: "The resting place of the Prophet Muhammad ㏏. Sending salām upon him here is among the most virtuous acts a visitor can perform.",
-    // photo, locatorMap, markerPos, citation, relatedDuas
+    description: "This green-painted dome marks the burial place of the Prophet Muhammad ﷺ and his companions Abu Bakr and Umar. The first dome here was built of wood in 1279 CE; it was rebuilt in stone in 1481, then rebuilt again by Ottoman Sultan Mahmud II in 1818, and wasn't painted green until 1837. It remains one of the most recognized silhouettes in the Muslim world.",
   },
   {
     id: "baqi", name: "Jannat al-Baqīʿ", arabic: "جَنَّة البَقيع",
     sub: "Historic cemetery — Companions and family of the Prophet ﷺ", duas: 3,
-    description: "The main cemetery of Madīnah where many Companions and family of the Prophet ㏏ are buried.",
-    // photo, locatorMap, markerPos, citation, relatedDuas
+    description: "Jannat al-Baqiʿ is the main cemetery of Madinah, resting place for many of the Prophet's ﷺ Companions and family members, including several of his wives and children. The Prophet ﷺ regularly visited to pray for those buried here. Its simplicity — unmarked graves, no headstones — reflects Islamic teaching on humility in death.",
   },
   {
     id: "quba", name: "Masjid Qubāʾ", arabic: "مسجد قُبَاء",
@@ -106,8 +107,17 @@ const MADINAH_SITES = [
   {
     id: "suffah", name: "As-Ṣuffah", arabic: "الصُّفَّة",
     sub: "Platform of the Companions of the Bench", duas: 2,
-    description: "The raised platform at the rear of the mosque where poor Companions lived and devoted themselves to learning from the Prophet ㏏.",
-    // photo, locatorMap, markerPos, citation, relatedDuas
+    description: "This raised platform at the rear of the Prophet's ﷺ Mosque was home to Ahl al-Suffah — Companions, many poor or newly arrived in Madinah with no family there, who devoted themselves entirely to learning directly from the Prophet ﷺ. The Prophet ﷺ regularly ate with them and looked after their needs personally. Their example is often cited as a model of prioritizing knowledge over worldly comfort.",
+  },
+  {
+    id: "qiblatayn", name: "Masjid al-Qiblatayn", arabic: "مسجد القبلتين",
+    sub: "Mosque of the Two Qiblahs", duas: 0,
+    description: "This mosque marks where the direction of prayer changed from Jerusalem to the Kaʿbah. According to Sahih al-Bukhari, the Prophet ﷺ was leading Zuhr prayer here when the revelation came (Qurʾan 2:144), and the entire congregation turned mid-prayer to face Makkah instead. The name literally means \"Mosque of the Two Qiblahs.\"",
+  },
+  {
+    id: "uhud", name: "Mount Uhud", arabic: "جبل أحد",
+    sub: "Site of the Battle of Uhud", duas: 0,
+    description: "This mountain was the site of the Battle of Uhud in 3 AH, where the Prophet's ﷺ beloved uncle Hamzah ibn Abdul Muttalib was martyred along with many Companions. The Prophet ﷺ said, \"Uhud is a mountain that loves us, and we love it\" (Sahih al-Bukhari and Sahih Muslim). Pilgrims visit the graves of the martyrs at its base and reflect on the sacrifices made there.",
   },
 ];
 
@@ -181,9 +191,9 @@ function SiteCard({ site, onViewDuas, isVisited, onToggleVisited, navigation, st
         <Text style={styles.arabic}>{site.arabic}</Text>
         <Text style={styles.sub}>{site.sub}</Text>
 
-        {/* ── 3. Description / detail ── */}
-        {extra?.detail ? (
-          <Text style={styles.detail}>{extra.detail}</Text>
+        {/* ── 3. Description ── */}
+        {site.description ? (
+          <Text style={styles.desc}>{site.description}</Text>
         ) : null}
 
         {/* ── 4. Locator map thumbnail (small position map — distinct from hero photo) ── */}
@@ -269,12 +279,13 @@ const createScStyles = (C) => StyleSheet.create({
   visitedTxtOn:   { fontSize: 12, color: "#fff", fontWeight: "600" },
   arabic:         { fontSize: 18, color: C.text, marginBottom: 2 },
   sub:            { fontSize: 14, color: C.text, marginBottom: 10 },
+  desc:           { fontSize: 14, color: C.text, lineHeight: 22, marginBottom: 12 },
   detail:         { fontSize: 12, color: C.text, lineHeight: 18, marginBottom: 10, fontStyle: "italic" },
   citation:       { fontSize: 11, color: "#5A8A72", fontWeight: "600", marginBottom: 10 },
-  locator:        { width: 120, height: 90, borderRadius: 8, overflow: "hidden", alignSelf: "flex-end", marginBottom: 10, marginTop: 4 },
-  locatorImg:     { width: 120, height: 90 },
+  locator:        { width: "100%", height: 80, borderRadius: 8, overflow: "hidden", marginBottom: 12 },
+  locatorImg:     { width: "100%", height: 80 },
   locatorPin:     { position: "absolute", marginLeft: -6, marginTop: -12 },
-  locatorFallback:{ width: 120, height: 90, borderRadius: 8, backgroundColor: C.primary + "18", alignItems: "center", justifyContent: "center", alignSelf: "flex-end", marginBottom: 10, marginTop: 4 },
+  locatorFallback:{ width: "100%", height: 80, borderRadius: 8, backgroundColor: C.primary + "18", alignItems: "center", justifyContent: "center", marginBottom: 12 },
   relatedSection: { marginTop: 8, borderTopWidth: 1, borderTopColor: C.border, paddingTop: 12 },
   duaRow:         { flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: C.border },
   duaRowTitle:    { flex: 1, fontSize: 14, color: C.primary, fontWeight: "500" },
