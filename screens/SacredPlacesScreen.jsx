@@ -16,7 +16,8 @@ import { getDuaById } from "../dua-content";
 import { useAccessibility } from "../AccessibilityContext";
 import HeaderPatternBg from "../HeaderPatternBg";
 
-const SERIF   = "SourceSerif4-Regular";
+const SERIF      = "SourceSerif4-Regular";
+const SERIF_BOLD = "SourceSerif4-SemiBold";
 const HERO_H  = 300;
 const { width: SW } = Dimensions.get("window");
 
@@ -261,7 +262,7 @@ const createScStyles = (C) => StyleSheet.create({
   },
   body:           { padding: 20 },
   nameRow:        { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 2 },
-  name:           { fontFamily: SERIF, fontSize: 22, fontWeight: "600", color: C.text, flex: 1, marginRight: 8 },
+  name:           { fontFamily: SERIF_BOLD, fontSize: 22, color: C.text, flex: 1, marginRight: 8 },
   visitedBtn:     { borderRadius: 20, borderWidth: 1.5, borderColor: C.border, paddingHorizontal: 10, paddingVertical: 5, flexShrink: 0 },
   visitedBtnOn:   { backgroundColor: C.primary, borderColor: C.primary },
   visitedTxt:     { fontSize: 12, color: C.subtext, fontWeight: "600" },
@@ -281,7 +282,7 @@ const createScStyles = (C) => StyleSheet.create({
   countLabel:     { fontSize: 14, color: C.text },
   countBadge:     { backgroundColor: "#E2EDE6", paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999 },
   countValue:     { fontSize: 14, color: C.primary, fontWeight: "500" },
-  btn:            { backgroundColor: C.primary, borderRadius: 10, paddingVertical: 14, alignItems: "center", shadowColor: "#4A2E10", shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.14, shadowRadius: 8, elevation: 4 },
+  btn:            { backgroundColor: "#4A5C48", borderRadius: 10, paddingVertical: 14, alignItems: "center", shadowColor: "#4A2E10", shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.14, shadowRadius: 8, elevation: 4 },
   btnText:        { fontSize: 16, color: "#fff", fontWeight: "500" },
 });
 
