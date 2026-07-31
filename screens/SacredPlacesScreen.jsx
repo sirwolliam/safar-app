@@ -49,7 +49,8 @@ const MAKKAH_SITES = [
   {
     id: "yemeni", name: "Yemeni Corner", arabic: "الرُكن اليَمانِي",
     sub: "Second of the two blessed corners", duas: 3,
-    // photo, locatorMap, markerPos, citation, relatedDuas
+    photo: require("../assets/yemeni-corner-map.jpg"),
+    // locatorMap, markerPos, citation, relatedDuas
   },
   {
     id: "safa", name: "Ṣafā & Marwah", arabic: "الصَّفَا وَالْمَرْوَة",
