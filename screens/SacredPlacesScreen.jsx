@@ -1,20 +1,24 @@
 /**
  * SacredPlacesScreen.jsx — Safar
  * Two cities: Makkah and Madinah
- * Full-bleed photo hero · single stepper nav · fallback-safe card content
+ * Ornate pattern header · full-bleed photo hero · stepper overlaid on hero bottom with scrim
  */
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
-  SafeAreaView, View, Text, ScrollView, TouchableOpacity,
-  StyleSheet, Linking, Image, PanResponder,
+  View, Text, ScrollView, TouchableOpacity,
+  StyleSheet, Linking, Image, PanResponder, Dimensions,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { CaretLeft, CaretRight, HandsPraying, MapPin, MapTrifold } from "phosphor-react-native";
 import { getDuaById } from "../dua-content";
 import { useAccessibility } from "../AccessibilityContext";
+import HeaderPatternBg from "../HeaderPatternBg";
 
 const SERIF   = "SourceSerif4-Regular";
 const HERO_H  = 300;
+const { width: SW } = Dimensions.get("window");
 
 const VISITED_KEY = "safar_visited_sites_v1";
 
@@ -118,21 +122,6 @@ const MADINAH_INFO = {
   },
 };
 
-// ── Full-bleed photo hero ─────────────────────────────────────────────────────
-function SiteHero({ site, colors, styles }) {
-  return (
-    <View style={styles.heroWrap}>
-      {site?.photo ? (
-        <Image source={site.photo} style={styles.heroImg} resizeMode="cover" />
-      ) : (
-        <View style={styles.heroFallback}>
-          <MapPin size={48} color={colors.primary} weight="duotone" />
-        </View>
-      )}
-    </View>
-  );
-}
-
 // ── Location chips ────────────────────────────────────────────────────────────
 function LocationChips({ sites, selectedId, onSelect, styles }) {
   return (
@@ -152,52 +141,25 @@ function LocationChips({ sites, selectedId, onSelect, styles }) {
   );
 }
 
-const createLcStyles = (C) => StyleSheet.create({
-  row:    { paddingHorizontal: 4, paddingVertical: 8, gap: 8 },
-  chip:   { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 999, borderWidth: 1, borderColor: C.border, backgroundColor: C.card },
-  chipOn: { backgroundColor: C.primary, borderColor: C.primary },
-  label:  { fontSize: 13, color: C.text },
-  labelOn:{ fontSize: 13, color: "#fff", fontWeight: "500" },
+// Overlay chip styles — white-on-dark for use over the hero scrim
+const createOlcStyles = () => StyleSheet.create({
+  row:    { paddingHorizontal: 4, paddingVertical: 0, gap: 8 },
+  chip:   { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,255,255,0.45)", backgroundColor: "rgba(0,0,0,0.28)" },
+  chipOn: { backgroundColor: "#FFFFFF", borderColor: "#FFFFFF" },
+  label:  { fontSize: 13, color: "rgba(255,255,255,0.92)" },
+  labelOn:{ fontSize: 13, color: "#1A1710", fontWeight: "600" },
 });
 
-// ── Site card ─────────────────────────────────────────────────────────────────
-function SiteCard({ site, sites, onSelect, onViewDuas, isVisited, onToggleVisited, navigation, styles, lcStyles, colors }) {
+// ── Site card — stepper removed, card starts at body content ─────────────────
+function SiteCard({ site, onViewDuas, isVisited, onToggleVisited, navigation, styles, colors }) {
   if (!site) return null;
-  const idx   = sites.findIndex(s => s.id === site.id);
-  const extra = MADINAH_INFO[site.id];
+  const extra   = MADINAH_INFO[site.id];
   const hasDuas = Array.isArray(site.relatedDuas) && site.relatedDuas.length > 0;
 
   return (
     <View style={styles.card}>
-
-      {/* ── 1. Stepper: arrow · chips · arrow ── */}
-      <View style={styles.stepperRow}>
-        <TouchableOpacity
-          style={styles.arrowBtn}
-          onPress={() => onSelect(sites[idx - 1])}
-          disabled={idx === 0}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 6 }}
-          activeOpacity={0.7}
-        >
-          <CaretLeft size={20} color={idx === 0 ? colors.border : colors.primary} weight="bold" />
-        </TouchableOpacity>
-        <View style={{ flex: 1 }}>
-          <LocationChips sites={sites} selectedId={site.id} onSelect={onSelect} styles={lcStyles} />
-        </View>
-        <TouchableOpacity
-          style={styles.arrowBtn}
-          onPress={() => onSelect(sites[idx + 1])}
-          disabled={idx === sites.length - 1}
-          hitSlop={{ top: 10, bottom: 10, left: 6, right: 10 }}
-          activeOpacity={0.7}
-        >
-          <CaretRight size={20} color={idx === sites.length - 1 ? colors.border : colors.primary} weight="bold" />
-        </TouchableOpacity>
-      </View>
-      <View style={styles.stepperDivider} />
-
       <View style={styles.body}>
-        {/* ── 2. Name + visited pill ── */}
+        {/* ── 1. Name + visited pill ── */}
         <View style={styles.nameRow}>
           <Text style={styles.name} numberOfLines={2}>{site.name}</Text>
           {onToggleVisited ? (
@@ -214,16 +176,16 @@ function SiteCard({ site, sites, onSelect, onViewDuas, isVisited, onToggleVisite
           ) : null}
         </View>
 
-        {/* ── 3. Arabic name + subtitle ── */}
+        {/* ── 2. Arabic name + subtitle ── */}
         <Text style={styles.arabic}>{site.arabic}</Text>
         <Text style={styles.sub}>{site.sub}</Text>
 
-        {/* ── 4. Description / detail ── */}
+        {/* ── 3. Description / detail ── */}
         {extra?.detail ? (
           <Text style={styles.detail}>{extra.detail}</Text>
         ) : null}
 
-        {/* ── 5. Locator map thumbnail ── */}
+        {/* ── 4. Locator map thumbnail (small position map — distinct from hero photo) ── */}
         {site.locatorMap ? (
           <View style={styles.locator}>
             <Image source={site.locatorMap} style={styles.locatorImg} resizeMode="cover" />
@@ -240,7 +202,7 @@ function SiteCard({ site, sites, onSelect, onViewDuas, isVisited, onToggleVisite
           </View>
         )}
 
-        {/* ── 6. Citation (omitted entirely when absent) ── */}
+        {/* ── 5. Citation ── */}
         {site.citation ? (
           <Text style={styles.citation}>{site.citation}</Text>
         ) : null}
@@ -297,33 +259,16 @@ const createScStyles = (C) => StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
   },
-  stepperRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 10,
-    paddingTop: 10,
-  },
-  arrowBtn: {
-    padding: 4,
-  },
-  stepperDivider: {
-    height: 1,
-    backgroundColor: C.border,
-    marginTop: 6,
-  },
-  body: {
-    padding: 20,
-  },
-  nameRow:      { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 2 },
-  name:         { fontFamily: SERIF, fontSize: 22, color: C.text, flex: 1, marginRight: 8 },
-  visitedBtn:   { borderRadius: 20, borderWidth: 1.5, borderColor: C.border, paddingHorizontal: 10, paddingVertical: 5, flexShrink: 0 },
-  visitedBtnOn: { backgroundColor: C.primary, borderColor: C.primary },
-  visitedTxt:   { fontSize: 12, color: C.subtext, fontWeight: "600" },
-  visitedTxtOn: { fontSize: 12, color: "#fff", fontWeight: "600" },
-  arabic:       { fontSize: 18, color: C.text, marginBottom: 2 },
-  sub:          { fontSize: 14, color: C.text, marginBottom: 10 },
+  body:           { padding: 20 },
+  nameRow:        { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 2 },
+  name:           { fontFamily: SERIF, fontSize: 22, color: C.text, flex: 1, marginRight: 8 },
+  visitedBtn:     { borderRadius: 20, borderWidth: 1.5, borderColor: C.border, paddingHorizontal: 10, paddingVertical: 5, flexShrink: 0 },
+  visitedBtnOn:   { backgroundColor: C.primary, borderColor: C.primary },
+  visitedTxt:     { fontSize: 12, color: C.subtext, fontWeight: "600" },
+  visitedTxtOn:   { fontSize: 12, color: "#fff", fontWeight: "600" },
+  arabic:         { fontSize: 18, color: C.text, marginBottom: 2 },
+  sub:            { fontSize: 14, color: C.text, marginBottom: 10 },
   detail:         { fontSize: 12, color: C.text, lineHeight: 18, marginBottom: 10, fontStyle: "italic" },
-  // citation color #5A8A72 has no colors-token equivalent — kept hardcoded
   citation:       { fontSize: 11, color: "#5A8A72", fontWeight: "600", marginBottom: 10 },
   locator:        { width: 120, height: 90, borderRadius: 8, overflow: "hidden", alignSelf: "flex-end", marginBottom: 10, marginTop: 4 },
   locatorImg:     { width: 120, height: 90 },
@@ -334,7 +279,6 @@ const createScStyles = (C) => StyleSheet.create({
   duaRowTitle:    { flex: 1, fontSize: 14, color: C.primary, fontWeight: "500" },
   countRow:       { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingTop: 12, borderTopWidth: 1, borderTopColor: C.border, marginBottom: 16 },
   countLabel:     { fontSize: 14, color: C.text },
-  // countBadge background #E2EDE6 has no colors-token equivalent — kept hardcoded
   countBadge:     { backgroundColor: "#E2EDE6", paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999 },
   countValue:     { fontSize: 14, color: C.primary, fontWeight: "500" },
   btn:            { backgroundColor: C.primary, borderRadius: 10, paddingVertical: 14, alignItems: "center", shadowColor: "#4A2E10", shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.14, shadowRadius: 8, elevation: 4 },
@@ -342,7 +286,6 @@ const createScStyles = (C) => StyleSheet.create({
 });
 
 // ── Scholarly footnote ────────────────────────────────────────────────────────
-// Warm amber brand colors (#EEE4CB, #DDD0A8, #6B5020) have no colors-token equivalent — kept hardcoded
 function ScholarlyFootnote({ styles }) {
   return (
     <View style={styles.wrap}>
@@ -372,9 +315,10 @@ const createFnStyles = () => StyleSheet.create({
 // ── Main screen ───────────────────────────────────────────────────────────────
 export default function SacredPlacesScreen({ navigation }) {
   const { colors } = useAccessibility();
+  const insets = useSafeAreaInsets();
   const s    = useMemo(() => createStyles(colors),   [colors]);
-  const lcS  = useMemo(() => createLcStyles(colors), [colors]);
   const scS  = useMemo(() => createScStyles(colors), [colors]);
+  const oLcS = useMemo(() => createOlcStyles(),      []);
   const fnS  = useMemo(() => createFnStyles(),       []);
 
   const [city,     setCity]     = useState("Makkah");
@@ -386,6 +330,7 @@ export default function SacredPlacesScreen({ navigation }) {
   }, []);
 
   const sites = city === "Makkah" ? MAKKAH_SITES : MADINAH_SITES;
+  const idx   = sites.findIndex(s => s.id === selected.id);
 
   // Swipe nav — mutable ref avoids stale-closure on PanResponder (created once)
   const swipeRef = useRef({ sites, selected, setSelected });
@@ -397,9 +342,9 @@ export default function SacredPlacesScreen({ navigation }) {
         Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 8,
       onPanResponderRelease: (_, { dx }) => {
         const { sites, selected, setSelected } = swipeRef.current;
-        const idx = sites.findIndex(s => s.id === selected.id);
-        if (dx < -SWIPE_THRESHOLD && idx < sites.length - 1) setSelected(sites[idx + 1]);
-        else if (dx > SWIPE_THRESHOLD && idx > 0) setSelected(sites[idx - 1]);
+        const i = sites.findIndex(s => s.id === selected.id);
+        if (dx < -SWIPE_THRESHOLD && i < sites.length - 1) setSelected(sites[i + 1]);
+        else if (dx > SWIPE_THRESHOLD && i > 0) setSelected(sites[i - 1]);
       },
     })
   ).current;
@@ -413,22 +358,26 @@ export default function SacredPlacesScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={s.safe}>
-      {/* Header */}
+    <View style={s.safe}>
+
+      {/* ── Ornate pattern header (matches CalendarScreen / GroupsScreen) ── */}
       <View style={s.header}>
-        <TouchableOpacity
-          onPress={() => navigation?.goBack?.()}
-          hitSlop={{ top: 12, bottom: 12, left: 12, right: 24 }}
-          accessibilityLabel="Go back"
-          accessibilityRole="button"
-        >
-          <Text style={s.back}>{"←"}</Text>
-        </TouchableOpacity>
+        <HeaderPatternBg width={SW} />
+        <View style={[s.headerTopRow, { paddingTop: insets.top + 10 }]}>
+          <TouchableOpacity
+            style={s.headerBtn}
+            onPress={() => navigation?.goBack?.()}
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 24 }}
+            activeOpacity={0.8}
+          >
+            <CaretLeft size={18} color="#1A1410" weight="bold" />
+          </TouchableOpacity>
+          <View style={s.headerBtn} />
+        </View>
         <Text style={s.headerTitle}>Sacred Places</Text>
-        <View style={{ width: 24 }} />
       </View>
 
-      {/* City toggle */}
+      {/* ── City toggle — below header, outside ScrollView ── */}
       <View style={s.cityToggle}>
         {["Makkah", "Madinah"].map((c) => (
           <TouchableOpacity
@@ -448,22 +397,60 @@ export default function SacredPlacesScreen({ navigation }) {
 
       <ScrollView showsVerticalScrollIndicator={false}>
 
-        {/* ── Full-bleed photo hero (swipeable) ── */}
-        <View {...heroPan.panHandlers}>
-          <SiteHero site={selected} colors={colors} styles={s} />
+        {/* ── Hero: full-bleed photo + gradient scrim + stepper overlay ── */}
+        <View style={s.heroContainer} {...heroPan.panHandlers}>
+          {selected?.photo ? (
+            <Image source={selected.photo} style={s.heroImg} resizeMode="cover" />
+          ) : (
+            <View style={s.heroFallback}>
+              <MapPin size={48} color={colors.primary} weight="duotone" />
+            </View>
+          )}
+
+          {/* Scrim covers bottom third of hero for stepper legibility */}
+          <View style={s.heroScrim} pointerEvents="none">
+            <LinearGradient
+              colors={["transparent", "rgba(0,0,0,0.78)"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 0, y: 1 }}
+              style={StyleSheet.absoluteFillObject}
+            />
+          </View>
+
+          {/* Stepper overlaid at hero bottom: arrow · chips · arrow */}
+          <View style={s.heroStepper}>
+            <TouchableOpacity
+              style={s.heroArrowBtn}
+              onPress={() => idx > 0 && setSelected(sites[idx - 1])}
+              disabled={idx === 0}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 6 }}
+              activeOpacity={0.7}
+            >
+              <CaretLeft size={20} color={idx === 0 ? "rgba(255,255,255,0.3)" : "#FFFFFF"} weight="bold" />
+            </TouchableOpacity>
+            <View style={{ flex: 1 }}>
+              <LocationChips sites={sites} selectedId={selected.id} onSelect={setSelected} styles={oLcS} />
+            </View>
+            <TouchableOpacity
+              style={s.heroArrowBtn}
+              onPress={() => idx < sites.length - 1 && setSelected(sites[idx + 1])}
+              disabled={idx === sites.length - 1}
+              hitSlop={{ top: 10, bottom: 10, left: 6, right: 10 }}
+              activeOpacity={0.7}
+            >
+              <CaretRight size={20} color={idx === sites.length - 1 ? "rgba(255,255,255,0.3)" : "#FFFFFF"} weight="bold" />
+            </TouchableOpacity>
+          </View>
         </View>
 
-        {/* ── Site card (normal flow, no overlap) ── */}
+        {/* ── Site card ── */}
         <SiteCard
           site={selected}
-          sites={sites}
-          onSelect={setSelected}
           onViewDuas={(site) => navigation?.navigate?.("SiteDuas", { site, city })}
           isVisited={!!visited[selected?.id]}
           onToggleVisited={toggleVisited}
           navigation={navigation}
           styles={scS}
-          lcStyles={lcS}
           colors={colors}
         />
 
@@ -519,27 +506,35 @@ export default function SacredPlacesScreen({ navigation }) {
         <ScholarlyFootnote styles={fnS} />
         <View style={{ height: 32 }} />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const createStyles = (C) => StyleSheet.create({
-  safe:         { flex: 1, backgroundColor: C.background },
-  header:       { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, paddingTop: 16, paddingBottom: 12 },
-  back:         { fontSize: 22, color: C.text },
-  headerTitle:  { fontFamily: SERIF, fontSize: 22, color: C.text },
+  safe: { flex: 1, backgroundColor: C.background },
 
-  cityToggle:        { flexDirection: "row", marginHorizontal: 20, marginBottom: 12, backgroundColor: C.card, borderRadius: 999, padding: 3, borderWidth: 1, borderColor: C.border },
+  // ── Ornate pattern header (matches CalendarScreen / GroupsScreen exactly) ──
+  header:        { backgroundColor: "#4A5C48", minHeight: 160, position: "relative", overflow: "hidden", paddingHorizontal: 16, paddingBottom: 20 },
+  headerTopRow:  { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  headerBtn:     { width: 36, height: 36, borderRadius: 18, backgroundColor: "#FDFAF4", borderWidth: 1, borderColor: "#D4D0CA", alignItems: "center", justifyContent: "center" },
+  headerTitle:   { fontFamily: SERIF, fontSize: 38, color: "#FDFAF4", textAlign: "center", marginTop: 12 },
+
+  // ── City toggle ──
+  cityToggle:        { flexDirection: "row", marginHorizontal: 20, marginTop: 12, marginBottom: 12, backgroundColor: C.card, borderRadius: 999, padding: 3, borderWidth: 1, borderColor: C.border },
   cityOpt:           { flex: 1, paddingVertical: 10, borderRadius: 999, alignItems: "center" },
   cityOptActive:     { backgroundColor: C.primary },
   cityOptText:       { fontSize: 16, color: C.subtext },
   cityOptTextActive: { color: "#fff", fontWeight: "500" },
 
-  heroWrap:     { width: "100%", height: HERO_H, marginBottom: 16 },
-  heroImg:      { width: "100%", height: HERO_H },
-  heroFallback: { flex: 1, backgroundColor: C.primary + "18", alignItems: "center", justifyContent: "center" },
+  // ── Hero container: photo + scrim + stepper ──
+  heroContainer: { width: "100%", height: HERO_H, position: "relative", marginBottom: 8 },
+  heroImg:       { width: "100%", height: HERO_H },
+  heroFallback:  { ...StyleSheet.absoluteFillObject, backgroundColor: C.primary + "18", alignItems: "center", justifyContent: "center" },
+  heroScrim:     { position: "absolute", left: 0, right: 0, bottom: 0, height: 110 },
+  heroStepper:   { position: "absolute", bottom: 0, left: 0, right: 0, flexDirection: "row", alignItems: "center", paddingHorizontal: 10, paddingBottom: 10, paddingTop: 6 },
+  heroArrowBtn:  { padding: 6 },
 
-  // Warm amber note colors (#EEE4CB, #DDD0A8, #6B5020) have no colors-token equivalent — kept hardcoded
+  // ── Warm amber note colors (#EEE4CB, #DDD0A8, #6B5020) — kept hardcoded ──
   madinahNote:     { marginHorizontal: 20, marginTop: 16, marginBottom: 4, backgroundColor: "#EEE4CB", borderRadius: 10, borderWidth: 1, borderColor: "#DDD0A8", padding: 14 },
   madinahNoteText: { fontSize: 12, color: "#6B5020", lineHeight: 18 },
 
