@@ -70,6 +70,7 @@ const MAKKAH_SITES = [
   {
     id: "multazam", name: "Al-Multazam", arabic: "الملتزم",
     sub: "Where pilgrims press and supplicate", duas: 0,
+    photo: require("../assets/multazam-map.jpg"),
     description: "This is the section of the Kaʿbah's wall between the Black Stone and the door, about two meters wide, named for the Arabic word for \"clinging.\" Ibn Abbas identified this exact spot by name (Muwatta Malik), and it's Sunnah to press one's chest, face, and hands against it while making duʿāʾ. Scholars describe it as a place where supplication is especially heard.",
   },
 ];
