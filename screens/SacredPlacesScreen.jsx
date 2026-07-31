@@ -23,7 +23,7 @@ const MAKKAH_SITES = [
   {
     id: "kaaba", name: "Al-Kaʿbah", arabic: "الكَعبَة",
     sub: "The Most Sacred House", duas: 12,
-    // photo: require("../assets/..."),
+    photo: require("../assets/kaaba-map.jpg"),
     // locatorMap: require("../assets/..."), markerPos: { x: 0.5, y: 0.5 },
     // citation: "Qurʾan 2:125",
     // relatedDuas: [{ id: "...", title: "..." }],
@@ -31,17 +31,20 @@ const MAKKAH_SITES = [
   {
     id: "hijr", name: "Hijr Ismāʿīl", arabic: "حِجر إِسماعيل",
     sub: "Sanctuary of the Prophet Ismāʿīl ﷺ", duas: 4,
-    // photo, locatorMap, markerPos, citation, relatedDuas
+    photo: require("../assets/hijr-ismail-map.jpg"),
+    // locatorMap, markerPos, citation, relatedDuas
   },
   {
     id: "maqam", name: "Maqām Ibrāhīm", arabic: "مَقَامُ إبْرَاهِيم",
     sub: "Station of Prophet Ibrāhīm", duas: 5,
-    // photo, locatorMap, markerPos, citation, relatedDuas
+    photo: require("../assets/maqam-ibrahim-map.jpg"),
+    // locatorMap, markerPos, citation, relatedDuas
   },
   {
     id: "zamzam", name: "Zamzam", arabic: "زَمْزَم",
     sub: "The Blessed Well", duas: 4,
-    // photo, locatorMap, markerPos, citation, relatedDuas
+    photo: require("../assets/zamzam-map.jpg"),
+    // locatorMap, markerPos, citation, relatedDuas
   },
   {
     id: "yemeni", name: "Yemeni Corner", arabic: "الرُكن اليَمانِي",
@@ -51,7 +54,14 @@ const MAKKAH_SITES = [
   {
     id: "safa", name: "Ṣafā & Marwah", arabic: "الصَّفَا وَالْمَرْوَة",
     sub: "Place of Saʿy — 7 passes", duas: 8,
-    // photo, locatorMap, markerPos, citation, relatedDuas
+    photo: require("../assets/safa-marwah-map.jpg"),
+    // locatorMap, markerPos, citation, relatedDuas
+  },
+  {
+    id: "jabalnur", name: "Jabal an-Nūr", arabic: "جَبَل النُّور",
+    sub: "Site of the first revelation — Cave of Ḥirāʾ", duas: 0,
+    photo: require("../assets/jabal-nur-map.jpg"),
+    // locatorMap, markerPos, citation, relatedDuas
   },
 ];
 
