@@ -26,14 +26,14 @@ export default function GuidesHubScreen({ navigation }) {
         </TouchableOpacity>
         <View style={s.headerCenter}>
           <Text style={s.headerTitle}>Guides</Text>
-          <Text style={s.headerSub}>Step-by-step for every rite</Text>
+          <Text style={s.headerSub}>Step-by-step through your pilgrimage</Text>
         </View>
         <View style={{ width: 36 }} />
       </View>
 
       <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
         <Text style={s.intro}>
-          {"Choose your pilgrimage for a full, step-by-step guide \u2014 each part explained in order, with du\u02bf\u0101s and tips."}
+          {"Choose your pilgrimage for a full, step-by-step guide \u2014 each part explained in order, with duas and tips."}
         </Text>
 
         {/* Umrah */}
@@ -52,7 +52,7 @@ export default function GuidesHubScreen({ navigation }) {
             <View style={s.cardContent}>
               <Text style={s.eyebrow}>UMRAH</Text>
               <Text style={s.cardTitle}>{"Umrah Guide"}</Text>
-              <Text style={s.cardSub}>{"Every step of \u02bfUmrah, in order"}</Text>
+              <Text style={s.cardSub}>{"Every step of Umrah, in order"}</Text>
             </View>
           </ImageBackground>
         </TouchableOpacity>

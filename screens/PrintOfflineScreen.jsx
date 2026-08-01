@@ -17,7 +17,7 @@ import { useAccessibility } from "../AccessibilityContext";
 
 const SERIF = "SourceSerif4-Regular";
 
-const STAGES = ["Ihram", "Entry", "Tawaf", "Saʿy", "Arafah", "Muzdalifah", "Jamarat", "Farewell"];
+const STAGES = ["Ihram", "Entry", "Tawaf", "Say", "Arafah", "Muzdalifah", "Jamarat", "Farewell"];
 
 export default function PrintOfflineScreen({ navigation }) {
   const { colors } = useAccessibility();
@@ -48,14 +48,14 @@ export default function PrintOfflineScreen({ navigation }) {
 
   const handleSave = async () => {
     if (selected.size === 0) {
-      Alert.alert("Nothing selected", "Select at least one duʿāʾ to save.");
+      Alert.alert("Nothing selected", "Select at least one dua to save.");
       return;
     }
     await AsyncStorage.setItem("safar_saved_offline", JSON.stringify([...selected]));
     setSaved(true);
     Alert.alert(
       "Saved ✓",
-      `${selected.size} duʿāʾs saved to your device. The app works fully offline — no internet needed during your journey.`,
+      `${selected.size} duas saved to your device. The app works fully offline — no internet needed during your journey.`,
       [{ text: "Great" }]
     );
   };
@@ -66,7 +66,7 @@ export default function PrintOfflineScreen({ navigation }) {
     const text = selectedDuas.map((d) =>
       `${d.title}\n\n${d.arabic}\n\n${d.transliteration}\n\n"${d.translation}"\n\n— ${d.source}`
     ).join("\n\n────────────\n\n");
-    await Share.share({ message: `My Safar Duʿāʾ Selection\n\n${text}` });
+    await Share.share({ message: `My Safar Dua Selection\n\n${text}` });
   };
 
   return (

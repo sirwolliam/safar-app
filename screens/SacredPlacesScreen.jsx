@@ -26,64 +26,64 @@ const VISITED_KEY = "safar_visited_sites_v1";
 // ── Site data ─────────────────────────────────────────────────────────────────
 const MAKKAH_SITES = [
   {
-    id: "kaaba", name: "Al-Kaʿbah", arabic: "الكَعبَة",
+    id: "kaaba", name: "Al-Kabah", arabic: "الكَعبَة",
     sub: "The Most Sacred House", duas: 12,
     photo: require("../assets/kaaba-map.jpg"),
-    description: "The Kaʿbah is the most sacred structure in Islam, the direction every Muslim worldwide faces in prayer, and the focal point of Ṭawāf during Hajj and Umrah. Tradition holds it was built by Prophet Ibrahim and his son Ismaʿil as the first house dedicated to the oneness of Allah. It is draped year-round in the Kiswah, a black silk covering embroidered with gold Qurʾanic calligraphy.",
+    description: "The Kabah is the most sacred structure in Islam, the direction every Muslim worldwide faces in prayer, and the focal point of Tawaf during Hajj and Umrah. Tradition holds it was built by Prophet Ibrahim and his son Ismail as the first house dedicated to the oneness of Allah. It is draped year-round in the Kiswah, a black silk covering embroidered with gold Quranic calligraphy.",
   },
   {
-    id: "hijr", name: "Hijr Ismāʿīl", arabic: "حِجر إِسماعيل",
-    sub: "Sanctuary of the Prophet Ismāʿīl ﷺ", duas: 4,
+    id: "hijr", name: "Hijr Ismail", arabic: "حِجر إِسماعيل",
+    sub: "Sanctuary of the Prophet Ismail ﷺ", duas: 4,
     photo: require("../assets/hijr-ismail-map.jpg"),
-    description: "This low, semicircular wall on the Kaʿbah's northwest side is understood by many scholars to have been part of the Kaʿbah's original structure, left out only when the Quraysh rebuilt it with limited funds (Sahih Muslim). Islamic tradition holds it as the resting place of Ismaʿil and his mother Hajar. Because it's considered part of the Kaʿbah itself, pilgrims must walk entirely around it during Ṭawāf rather than cutting through.",
+    description: "This low, semicircular wall on the Kabah's northwest side is understood by many scholars to have been part of the Kabah's original structure, left out only when the Quraysh rebuilt it with limited funds (Sahih Muslim). Islamic tradition holds it as the resting place of Ismail and his mother Hajar. Because it's considered part of the Kabah itself, pilgrims must walk entirely around it during Tawaf rather than cutting through.",
   },
   {
-    id: "maqam", name: "Maqām Ibrāhīm", arabic: "مَقَامُ إبْرَاهِيم",
-    sub: "Station of Prophet Ibrāhīm", duas: 5,
+    id: "maqam", name: "Maqam Ibrahim", arabic: "مَقَامُ إبْرَاهِيم",
+    sub: "Station of Prophet Ibrahim", duas: 5,
     photo: require("../assets/maqam-ibrahim-map.jpg"),
-    description: "This stone is believed to bear the footprints of Prophet Ibrahim, used as he stood to build the Kaʿbah's upper walls. The Qurʾan instructs believers to take the station of Ibrahim as a place of prayer (2:125), and it's Sunnah to pray two rakahs behind it after Ṭawāf. The stone is preserved today inside a small glass and gold enclosure just steps from the Kaʿbah.",
+    description: "This stone is believed to bear the footprints of Prophet Ibrahim, used as he stood to build the Kabah's upper walls. The Quran instructs believers to take the station of Ibrahim as a place of prayer (2:125), and it's Sunnah to pray two rakahs behind it after Tawaf. The stone is preserved today inside a small glass and gold enclosure just steps from the Kabah.",
   },
   {
     id: "zamzam", name: "Zamzam", arabic: "زَمْزَم",
     sub: "The Blessed Well", duas: 4,
     photo: require("../assets/zamzam-map.jpg"),
-    description: "This well traces back to Hajar, left with her infant son Ismaʿil in the barren valley of Makkah, searching desperately for water. Tradition holds the well sprang forth beneath the infant's feet as a mercy from Allah, and it has never run dry since. The Prophet ﷺ described its water as blessed, serving whatever intention it is drunk with (Sunan Ibn Majah).",
+    description: "This well traces back to Hajar, left with her infant son Ismail in the barren valley of Makkah, searching desperately for water. Tradition holds the well sprang forth beneath the infant's feet as a mercy from Allah, and it has never run dry since. The Prophet ﷺ described its water as blessed, serving whatever intention it is drunk with (Sunan Ibn Majah).",
   },
   {
     id: "yemeni", name: "Yemeni Corner", arabic: "الرُكن اليَمانِي",
     sub: "Second of the two blessed corners", duas: 3,
     photo: require("../assets/yemeni-corner-map.jpg"),
-    description: "This is the southwestern corner of the Kaʿbah, named for facing Yemen, sitting just before the Black Stone along the path of Ṭawāf. The Prophet ﷺ said that touching the Black Stone and the Yemeni Corner erases sins (Musnad Ahmad). It's Sunnah to touch it if the crowd allows — without kissing it, and without gesturing toward it if unreachable.",
+    description: "This is the southwestern corner of the Kabah, named for facing Yemen, sitting just before the Black Stone along the path of Tawaf. The Prophet ﷺ said that touching the Black Stone and the Yemeni Corner erases sins (Musnad Ahmad). It's Sunnah to touch it if the crowd allows — without kissing it, and without gesturing toward it if unreachable.",
   },
   {
-    id: "safa", name: "Ṣafā & Marwah", arabic: "الصَّفَا وَالْمَرْوَة",
-    sub: "Place of Saʿy — 7 passes", duas: 8,
+    id: "safa", name: "Safa & Marwah", arabic: "الصَّفَا وَالْمَرْوَة",
+    sub: "Place of Say — 7 passes", duas: 8,
     photo: require("../assets/safa-marwah-map.jpg"),
-    description: "These two hills near the Kaʿbah are connected by a gallery where pilgrims perform Saʿy — walking briskly between them seven times, commemorating Hajar's search for water for her infant son. The Qurʾan affirms both hills as being among the symbols of Allah (2:158). Saʿy is an obligatory rite of both Hajj and Umrah, performed immediately after Ṭawāf.",
+    description: "These two hills near the Kabah are connected by a gallery where pilgrims perform Say — walking briskly between them seven times, commemorating Hajar's search for water for her infant son. The Quran affirms both hills as being among the symbols of Allah (2:158). Say is an essential act of both Hajj and Umrah, performed immediately after Tawaf.",
   },
   {
-    id: "jabalnur", name: "Jabal an-Nūr", arabic: "جَبَل النُّور",
-    sub: "Site of the first revelation — Cave of Ḥirāʾ", duas: 0,
+    id: "jabalnur", name: "Jabal an-Nur", arabic: "جَبَل النُّور",
+    sub: "Site of the first revelation — Cave of Hira", duas: 0,
     photo: require("../assets/jabal-nur-map.jpg"),
-    description: "This mountain rises about 3km from the Grand Mosque, and near its summit sits the small cave where the Prophet ﷺ used to retreat for solitary reflection before prophethood. It was here that the Angel Jibril first appeared to him, delivering the opening words of Surah al-Alaq — the first revelation of the Qurʾan. The climb is steep, taking most visitors well over an hour each way.",
+    description: "This mountain rises about 3km from the Grand Mosque, and near its summit sits the small cave where the Prophet ﷺ used to retreat for solitary reflection before prophethood. It was here that the Angel Jibril first appeared to him, delivering the opening words of Surah al-Alaq — the first revelation of the Quran. The climb is steep, taking most visitors well over an hour each way.",
   },
   {
     id: "multazam", name: "Al-Multazam", arabic: "الملتزم",
     sub: "Where pilgrims press and supplicate", duas: 0,
     photo: require("../assets/multazam-map.jpg"),
-    description: "This is the section of the Kaʿbah's wall between the Black Stone and the door, about two meters wide, named for the Arabic word for \"clinging.\" Ibn Abbas identified this exact spot by name (Muwatta Malik), and it's Sunnah to press one's chest, face, and hands against it while making duʿāʾ. Scholars describe it as a place where supplication is especially heard.",
+    description: "This is the section of the Kabah's wall between the Black Stone and the door, about two meters wide, named for the Arabic word for \"clinging.\" Ibn Abbas identified this exact spot by name (Muwatta Malik), and it's Sunnah to press one's chest, face, and hands against it while making dua. Scholars describe it as a place where supplication is especially heard.",
   },
 ];
 
 const MADINAH_SITES = [
   {
-    id: "nabawi", name: "Al-Masjid an-Nabawī", arabic: "المسجد النبوي",
+    id: "nabawi", name: "Al-Masjid an-Nabawi", arabic: "المسجد النبوي",
     sub: "The Prophet's Mosque", duas: 8, official: true,
-    description: "Built by the Prophet ㏏ after the Hijrah in 622 CE. A prayer here equals 1,000 prayers elsewhere, except al-Masjid al-Ḥarām.",
+    description: "Built by the Prophet ㏏ after the Hijrah in 622 CE. A prayer here equals 1,000 prayers elsewhere, except al-Masjid al-Haram.",
     // photo, locatorMap, markerPos, citation, relatedDuas
   },
   {
-    id: "rawdah", name: "Al-Rawḍah al-Sharīfah", arabic: "الرَّوضَة الشَّريفَة",
+    id: "rawdah", name: "Al-Rawdah al-Sharifah", arabic: "الرَّوضَة الشَّريفَة",
     sub: "The Noble Garden — between the minbar and the grave of the Prophet ﷺ",
     duas: 6, official: true,
     description: "The area between the Prophet's ㏏ grave and his pulpit — a garden from the gardens of Paradise.",
@@ -95,25 +95,25 @@ const MADINAH_SITES = [
     description: "This green-painted dome marks the burial place of the Prophet Muhammad ﷺ and his companions Abu Bakr and Umar. The first dome here was built of wood in 1279 CE; it was rebuilt in stone in 1481, then rebuilt again by Ottoman Sultan Mahmud II in 1818, and wasn't painted green until 1837. It remains one of the most recognized silhouettes in the Muslim world.",
   },
   {
-    id: "baqi", name: "Jannat al-Baqīʿ", arabic: "جَنَّة البَقيع",
+    id: "baqi", name: "Jannat al-Baqi", arabic: "جَنَّة البَقيع",
     sub: "Historic cemetery — Companions and family of the Prophet ﷺ", duas: 3,
-    description: "Jannat al-Baqiʿ is the main cemetery of Madinah, resting place for many of the Prophet's ﷺ Companions and family members, including several of his wives and children. The Prophet ﷺ regularly visited to pray for those buried here. Its simplicity — unmarked graves, no headstones — reflects Islamic teaching on humility in death.",
+    description: "Jannat al-Baqi is the main cemetery of Madinah, resting place for many of the Prophet's ﷺ Companions and family members, including several of his wives and children. The Prophet ﷺ regularly visited to pray for those buried here. Its simplicity — unmarked graves, no headstones — reflects Islamic teaching on humility in death.",
   },
   {
-    id: "quba", name: "Masjid Qubāʾ", arabic: "مسجد قُبَاء",
+    id: "quba", name: "Masjid Quba", arabic: "مسجد قُبَاء",
     sub: "First mosque built in Islam", duas: 3,
-    description: "The first mosque built in Islam. Two rakʿahs here equals the reward of an ʿUmrah.",
+    description: "The first mosque built in Islam. Two rakahs here equals the reward of an Umrah.",
     // photo, locatorMap, markerPos, citation, relatedDuas
   },
   {
-    id: "suffah", name: "As-Ṣuffah", arabic: "الصُّفَّة",
+    id: "suffah", name: "As-Suffah", arabic: "الصُّفَّة",
     sub: "Platform of the Companions of the Bench", duas: 2,
     description: "This raised platform at the rear of the Prophet's ﷺ Mosque was home to Ahl al-Suffah — Companions, many poor or newly arrived in Madinah with no family there, who devoted themselves entirely to learning directly from the Prophet ﷺ. The Prophet ﷺ regularly ate with them and looked after their needs personally. Their example is often cited as a model of prioritizing knowledge over worldly comfort.",
   },
   {
     id: "qiblatayn", name: "Masjid al-Qiblatayn", arabic: "مسجد القبلتين",
     sub: "Mosque of the Two Qiblahs", duas: 0,
-    description: "This mosque marks where the direction of prayer changed from Jerusalem to the Kaʿbah. According to Sahih al-Bukhari, the Prophet ﷺ was leading Zuhr prayer here when the revelation came (Qurʾan 2:144), and the entire congregation turned mid-prayer to face Makkah instead. The name literally means \"Mosque of the Two Qiblahs.\"",
+    description: "This mosque marks where the direction of prayer changed from Jerusalem to the Kabah. According to Sahih al-Bukhari, the Prophet ﷺ was leading Zuhr prayer here when the revelation came (Quran 2:144), and the entire congregation turned mid-prayer to face Makkah instead. The name literally means \"Mosque of the Two Qiblahs.\"",
   },
   {
     id: "uhud", name: "Mount Uhud", arabic: "جبل أحد",
@@ -124,13 +124,13 @@ const MADINAH_SITES = [
 
 const MADINAH_INFO = {
   rawdah: {
-    detail: "The Rawḍah (Garden of Paradise) is the area between the minbar and the grave of the Prophet Muhammad ﷺ. The Prophet ﷺ said: 'Between my house and my pulpit is a garden from the gardens of Paradise.' (Ṣaḥīḥ al-Bukhārī · 1196). Entry is managed and may require permits — check with the Masjid authorities.",
+    detail: "The Rawdah (Garden of Paradise) is the area between the minbar and the grave of the Prophet Muhammad ﷺ. The Prophet ﷺ said: 'Between my house and my pulpit is a garden from the gardens of Paradise.' (Sahih al-Bukhari · 1196). Entry is managed and may require permits — check with the Masjid authorities.",
   },
   baqi: {
-    detail: "Jannat al-Baqīʿ is the main Islamic cemetery in Madinah, containing the graves of many Companions (Ṣaḥābah), family members of the Prophet ﷺ, and early Muslims. The Prophet ﷺ regularly visited and prayed for those buried here. Visiting hours are limited and visiting etiquette should be followed.",
+    detail: "Jannat al-Baqi is the main Islamic cemetery in Madinah, containing the graves of many Companions (Sahabah), family members of the Prophet ﷺ, and early Muslims. The Prophet ﷺ regularly visited and prayed for those buried here. Visiting hours are limited and visiting etiquette should be followed.",
   },
   nabawi: {
-    detail: "The Prophet's Mosque (Masjid al-Nabawī) was originally built by the Prophet ﷺ himself after the Hijrah in 622 CE. Today it is one of the largest mosques in the world. Visiting it is highly recommended — the Prophet ﷺ said: 'A prayer in this mosque of mine is better than a thousand prayers elsewhere except al-Masjid al-Ḥarām.' (Ṣaḥīḥ Muslim · 1394). It is not part of what is required in Hajj or Umrah.",
+    detail: "The Prophet's Mosque (Masjid al-Nabawi) was originally built by the Prophet ﷺ himself after the Hijrah in 622 CE. Today it is one of the largest mosques in the world. Visiting it is highly recommended — the Prophet ﷺ said: 'A prayer in this mosque of mine is better than a thousand prayers elsewhere except al-Masjid al-Haram.' (Sahih Muslim · 1394). It is not part of what is required in Hajj or Umrah.",
   },
 };
 
@@ -241,13 +241,13 @@ function SiteCard({ site, onViewDuas, isVisited, onToggleVisited, navigation, st
         ) : (
           <>
             <View style={styles.countRow}>
-              <Text style={styles.countLabel}>{"Duʿāʾs at this place"}</Text>
+              <Text style={styles.countLabel}>{"Duas at this place"}</Text>
               <View style={styles.countBadge}>
-                <Text style={styles.countValue}>{site.duas} {"Duʿāʾs"}</Text>
+                <Text style={styles.countValue}>{site.duas} {"Duas"}</Text>
               </View>
             </View>
             <TouchableOpacity style={styles.btn} onPress={() => onViewDuas?.(site)} activeOpacity={0.88}>
-              <Text style={styles.btnText}>{"View Duʿāʾs  →"}</Text>
+              <Text style={styles.btnText}>{"View Duas  →"}</Text>
             </TouchableOpacity>
           </>
         )}
@@ -304,7 +304,7 @@ function ScholarlyFootnote({ styles }) {
     <View style={styles.wrap}>
       <Text style={styles.text}>
         <Text style={styles.bold}>Sources</Text>{" — "}
-        {"Duʿāʾs are drawn from Ṣaḥīḥ al-Bukhārī, Ṣaḥīḥ Muslim, Sunan Abī Dāwūd, Sunan al-Tirmiḏī, and established scholarly works. Each duʿāʾ is attributed to its primary source. Practice and wording may differ across the four madhabs (Ḥanafī, Mālikī, Shāfiʿī, Ḥanbalī). Consult a qualified scholar for rulings specific to your school of thought."}
+        {"Duas are drawn from Sahih al-Bukhari, Sahih Muslim, Sunan Abi Dawud, Sunan al-Tirmidi, and established scholarly works. Each dua is attributed to its primary source. Practice and wording may differ across the four madhabs (Hanafi, Maliki, Shafii, Hanbali). Consult a qualified scholar for rulings specific to your school of thought."}
       </Text>
     </View>
   );
@@ -471,7 +471,7 @@ export default function SacredPlacesScreen({ navigation }) {
         {city === "Madinah" ? (
           <View style={s.madinahNote}>
             <Text style={s.madinahNoteText}>
-              {"Visiting Madinah is not part of Hajj or Umrah, but is a beloved and highly recommended practice. The sites below are outside Masjid al-Ḥarām."}
+              {"Visiting Madinah is not part of Hajj or Umrah, but is a beloved and highly recommended practice. The sites below are outside Masjid al-Haram."}
             </Text>
           </View>
         ) : null}
@@ -497,7 +497,7 @@ export default function SacredPlacesScreen({ navigation }) {
                 <Text style={selected?.id === site.id ? [s.listName, s.listNameActive] : s.listName}>{site.name}</Text>
                 <Text style={s.listSub}>{site.sub}</Text>
               </View>
-              <Text style={s.listCount}>{site.duas} duʿāʾs</Text>
+              <Text style={s.listCount}>{site.duas} duas</Text>
               <Text style={selected?.id === site.id ? [s.listArrow, { color: "#4A5C48" }] : s.listArrow}>{"›"}</Text>
             </TouchableOpacity>
           ))}

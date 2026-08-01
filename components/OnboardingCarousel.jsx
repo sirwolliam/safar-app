@@ -20,7 +20,7 @@ const SLIDES = [
   {
     id: "welcome",
     image:    require("../assets/kaaba_mixed.png"),
-    eyebrow:  "As-sal\u0101mu \u02bfalaykum",
+    eyebrow:  "As-salamu alaykum",
     title:    "Welcome to Safar",
     subtitle: "Your step-by-step companion for Umrah and Hajj. Everything you need, in one place.",
     cta:      null,
@@ -33,7 +33,7 @@ const SLIDES = [
     subtitle: null,
     features: [
       { icon: "\uD83D\uDCCB", label: "Step-by-step plan",   desc: "A guided checklist through every ritual" },
-      { icon: "\uD83E\uDD32", label: "Du\u02bf\u0101\u02be for every moment", desc: "Authenticated duas for each sacred place" },
+      { icon: "\uD83E\uDD32", label: "Dua for every moment", desc: "Authenticated duas for each sacred place" },
       { icon: "\uD83D\uDCCD", label: "Sacred Places Map",   desc: "Learn the duas tied to each location" },
       { icon: "\uD83D\uDC65", label: "Groups & Milestones", desc: "Share your journey with loved ones" },
     ],

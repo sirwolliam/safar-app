@@ -28,11 +28,11 @@ const PILLS = [
 
 // ── List rows ─────────────────────────────────────────────────────────────────
 const ROWS = [
-  { key: "umrah",  Icon: Compass,  label: "Umrah Guide",    sub: "Every step of ʿUmrah, in order",            nav: "stack", target: "UmrahGuide"  },
+  { key: "umrah",  Icon: Compass,  label: "Umrah Guide",    sub: "Every step of Umrah, in order",            nav: "stack", target: "UmrahGuide"  },
   { key: "hajj",   Icon: Cube,     label: "Hajj Guide",     sub: "The full pilgrimage, day by day",            nav: "stack", target: "HajjGuide"   },
   { key: "expect", Icon: BookOpen, label: "What to Expect", sub: "Crowds, climate, what it really feels like", nav: "stack", target: "WhatToExpect" },
   { key: "sacred", Icon: MapPin,   label: "Sacred Places",  sub: "Map of the holy sites",                      nav: "stack", target: "SacredPlaces" },
-  { key: "duas",   Icon: Books,    label: "Duʿā Library",   sub: "Supplications for every moment",             nav: "tab",   tab: "Duas", screen: "MyDuas" },
+  { key: "duas",   Icon: Books,    label: "Dua Library",   sub: "Supplications for every moment",             nav: "tab",   tab: "Duas", screen: "MyDuas" },
 ];
 
 // ── Helper ────────────────────────────────────────────────────────────────────

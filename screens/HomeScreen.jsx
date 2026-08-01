@@ -138,10 +138,10 @@ function getHijriDate() {
   const year  = 100 * (n - 49) + i + jj - 1;
   const hijriYear  = Math.floor((year - 622) * (33 / 32));
   const HIJRI_MONTHS = [
-    "Muharram","Safar","Rab\u012b\u02bf al-Awwal","Rab\u012b\u02bf al-\u1e24khar",
-    "Jum\u0101d\u0101 al-\u016al\u00e1","Jum\u0101d\u0101 al-\u1e24khr\u00e1",
-    "Rajab","Sha\u02bcb\u0101n","Rama\u1e0d\u0101n","Shaww\u0101l",
-    "Dh\u016b al-Qa\u02bfdah","Dh\u016b al-\u1e24ijjah",
+    "Muharram","Safar","Rabi al-Awwal","Rabi al-Hkhar",
+    "Jumada al-Ul\u00e1","Jumada al-Hkhr\u00e1",
+    "Rajab","Shaban","Ramadan","Shawwal",
+    "Dhu al-Qadah","Dhu al-Hijjah",
   ];
   return {
     day,
@@ -160,16 +160,16 @@ function getGregorianLabel() {
   });
 }
 
-// ── Today's du'ā ──────────────────────────────────────────────────────────────
+// ── Today's du'a ──────────────────────────────────────────────────────────────
 const DAILY_DUA = {
   id: "hu12",
   arabic:
     "\u0627\u0644\u0644\u0651\u064e\u0647\u064f\u0645\u064e\u0651 \u0627\u062c\u0652\u0639\u064e\u0644\u0652\u0646\u064e\u0627 \u062d\u064e\u062c\u0651\u064b\u0627 \u0645\u064e\u0628\u0652\u0631\u064f\u0648\u0631\u064b\u0627 \u0648\u064e\u0633\u064e\u0639\u0652\u064a\u064b\u0627 \u0645\u064e\u0634\u0652\u0643\u064f\u0648\u0631\u064b\u0627 \u0648\u064e\u0630\u064e\u0646\u0652\u0628\u064b\u0627 \u0645\u064e\u063a\u0652\u0641\u064f\u0648\u0631\u064b\u0627",
   transliteration:
-    "All\u0101humma-j\u02bfaln\u0101 \u1e25ajjan mabrūran wa sa\u02bfyan mash\u016bran wa dhanban maghf\u016bran",
+    "Allahumma-jalna hajjan mabruran wa sayan mashuran wa dhanban maghfuran",
   translation:
-    "O Allah, make our Hajj one that is accepted, our sa\u02bfy one that is appreciated, and our sins forgiven.",
-  source: "Ibn M\u0101jah \u00b7 2893",
+    "O Allah, make our Hajj one that is accepted, our say one that is appreciated, and our sins forgiven.",
+  source: "Ibn Majah \u00b7 2893",
 };
 
 // ── About modal ───────────────────────────────────────────────────────────────
@@ -183,7 +183,7 @@ function AboutModal({ visible, onClose }) {
             <Text style={ab.title}>What is Safar?</Text>
             <Text style={ab.body}>
               {"Safar is your companion for every step of your sacred Hajj or Umrah journey.\n\n"}
-              {"Plan your journey, practise the essential du\u02bfa\u02bcs, and share every milestone with those you love.\n\n"}
+              {"Plan your journey, practise the essential duas, and share every milestone with those you love.\n\n"}
               {"May Allah accept your journey. \u0622\u0645\u064a\u0646"}
             </Text>
             <Text style={ab.pillarsIntro}>{"Here is how Safar is organized to help you prepare for your Hajj or Umrah with confidence."}</Text>
@@ -502,7 +502,7 @@ export default function HomeScreen({ navigation }) {
         const dismissed = await AsyncStorage.getItem(INTRO_DISMISSED_KEY);
         if (dismissed === "true") setIntroDismissed(true);
 
-        // Last viewed du'ā — for continuation card
+        // Last viewed du'a — for continuation card
         const lastDuaRaw = await AsyncStorage.getItem("SAFAR_LAST_DUA");
         if (lastDuaRaw) {
           try { setLastDua(JSON.parse(lastDuaRaw)); } catch (_) {}
@@ -685,7 +685,7 @@ export default function HomeScreen({ navigation }) {
         {/* ── TOP BAR ── */}
         <View style={[s.topBar, { paddingTop: insets.top + 8 }]}>
           <View style={s.topBarLeft}>
-            <Text style={s.topBarSalam}>{"As-salāmu ʿalaykum"}</Text>
+            <Text style={s.topBarSalam}>{"As-salamu alaykum"}</Text>
             <Text style={s.topBarName}>{displayName}</Text>
           </View>
           <View style={s.topBarRight}>
@@ -785,7 +785,7 @@ export default function HomeScreen({ navigation }) {
               </View>
               <View>
                 <Text style={s.pillarLabel}>Practice</Text>
-                <Text style={s.pillarDesc}>{"Du\u02bf\u0101s, Focus mode\n& step-by-step"}</Text>
+                <Text style={s.pillarDesc}>{"Duas, Focus mode\n& step-by-step"}</Text>
               </View>
               <View style={s.pillarStatBadge}>
                 <HandsPraying size={11} color="rgba(253,250,244,0.90)" weight="regular" />
@@ -845,7 +845,7 @@ export default function HomeScreen({ navigation }) {
             {/* Concise value statement */}
             <Text style={s.introTitle}>Your trusted guide for Hajj and Umrah</Text>
             <Text style={s.introBody}>
-              {"Step-by-step guidance, du\u02bf\u0101\u02bes for every moment, and tools to help you stay focused and connected."}
+              {"Step-by-step guidance, duas for every moment, and tools to help you stay focused and connected."}
             </Text>
 
             <View style={s.introDivider} />
@@ -964,7 +964,7 @@ export default function HomeScreen({ navigation }) {
         </View>
 
         {/* ══════════════════════════════════════════════════════════════════
-            CONTINUATION CARD — only shown when there's a last-viewed du'ā
+            CONTINUATION CARD — only shown when there's a last-viewed du'a
         ══════════════════════════════════════════════════════════════════ */}
         {lastDua ? (
           <TouchableOpacity
@@ -994,7 +994,7 @@ export default function HomeScreen({ navigation }) {
             <View style={s.continuationLeft}>
               <Text style={s.continuationEyebrow} numberOfLines={1}>CONTINUE READING</Text>
               <Text style={s.continuationTitle} numberOfLines={2}>
-                {lastDua.dua?.title ?? "Your last du\u02bf\u0101\u02be"}
+                {lastDua.dua?.title ?? "Your last dua"}
               </Text>
               {lastDua.dua?.stage ? (
                 <Text style={s.continuationStage}>{lastDua.dua.stage}</Text>
@@ -1010,7 +1010,7 @@ export default function HomeScreen({ navigation }) {
             for reuse on a future screen. */}
 
         <View style={s.pillarsHeader}>
-          <Text style={[s.pillarsHeaderText, { fontSize: 20, fontWeight: "600", color: "#1A1712", textAlign: "center" }]}>{"Today\u2019s Du\u02bf\u0101"}</Text>
+          <Text style={[s.pillarsHeaderText, { fontSize: 20, fontWeight: "600", color: "#1A1712", textAlign: "center" }]}>{"Today\u2019s Dua"}</Text>
         </View>
 
         <View style={s.duaCard}>
@@ -1081,7 +1081,7 @@ export default function HomeScreen({ navigation }) {
           <View style={s.sourcesSheet}>
             <Text style={s.sourcesTitle}>Sources</Text>
             <Text style={s.sourcesBody}>
-              {"Du\u02bf\u0101\u02bes are drawn from \u1e62a\u1e25\u012b\u1e25 al-Bukh\u0101r\u012b, \u1e62a\u1e25\u012b\u1e25 Muslim, Sunan Ab\u012b D\u0101w\u016bd, Sunan al-Tirmidh\u012b, and established scholarly works. Practice and wording may differ across the four madhhabs (\u1e24anaf\u012b, M\u0101lik\u012b, Sh\u0101fi\u02bf\u012b, \u1e24anbal\u012b). Consult a qualified scholar for rulings specific to your school of thought."}
+              {"Duas are drawn from Sahih al-Bukhari, Sahih Muslim, Sunan Abi Dawud, Sunan al-Tirmidhi, and established scholarly works. Practice and wording may differ across the four madhhabs (Hanafi, Maliki, Shafii, Hanbali). Consult a qualified scholar for rulings specific to your school of thought."}
             </Text>
             <TouchableOpacity style={s.sourcesClose} onPress={() => setShowSources(false)} activeOpacity={0.85}>
               <Text style={s.sourcesCloseTxt}>Got it</Text>
@@ -2039,7 +2039,7 @@ const s = StyleSheet.create({
     lineHeight: 14,
   },
 
-  // ── Du'ā card ─────────────────────────────────────────────────────────────
+  // ── Du'a card ─────────────────────────────────────────────────────────────
   duaCard: {
     backgroundColor: "#FDFAF4",
     marginHorizontal: 20,

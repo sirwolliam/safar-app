@@ -270,7 +270,7 @@ export default function MyDuasScreen({ navigation }) {
           </View>
           <TouchableOpacity style={[styles.addBtn, { top: insets.top + 14 }]} onPress={openModal} activeOpacity={0.85}>
             <Plus size={14} color="#C8A96A" weight="bold" />
-            <Text style={styles.addBtnText}>Add a Du'ā</Text>
+            <Text style={styles.addBtnText}>Add a Du'a</Text>
           </TouchableOpacity>
         </View>
 
@@ -493,7 +493,7 @@ export default function MyDuasScreen({ navigation }) {
           <View style={styles.emptyTab}>
             <Star size={48} color="#C8A96A" weight="regular" />
             <Text style={styles.favEmptyTitle}>Your favourite duas</Text>
-            <Text style={styles.favEmptySub}>{"Tap ★ on any du’ā to save it here."}</Text>
+            <Text style={styles.favEmptySub}>{"Tap ★ on any du’a to save it here."}</Text>
           </View>
 
         ) : (
@@ -511,7 +511,7 @@ export default function MyDuasScreen({ navigation }) {
                 activeOpacity={0.85}
               >
                 <Plus size={16} color="#FFFFFF" weight="bold" />
-                <Text style={styles.addDuaEmptyBtnText}>Add a Du'ā</Text>
+                <Text style={styles.addDuaEmptyBtnText}>Add a Du'a</Text>
               </TouchableOpacity>
             </View>
 
@@ -521,7 +521,7 @@ export default function MyDuasScreen({ navigation }) {
                 <View>
                   <Text style={styles.sharedSectionTitle}>Shared with me</Text>
                   <Text style={styles.sharedSectionSub}>
-                    Du'ā requests from family and friends
+                    Du'a requests from family and friends
                   </Text>
                 </View>
                 <TouchableOpacity
@@ -538,7 +538,7 @@ export default function MyDuasScreen({ navigation }) {
               </View>
               <View style={styles.sharedEmpty}>
                 <Text style={styles.sharedEmptyText}>
-                  When someone asks you to make du'ā for them,
+                  When someone asks you to make du'a for them,
                   tap Import to paste their message. It will be
                   saved here so you can find it easily during
                   your journey.
@@ -568,7 +568,7 @@ export default function MyDuasScreen({ navigation }) {
             >
               <View style={styles.sheetHandle} />
               <View style={styles.sheetHeaderRow}>
-                <Text style={styles.sheetTitle}>Add a Du'ā</Text>
+                <Text style={styles.sheetTitle}>Add a Du'a</Text>
                 <TouchableOpacity onPress={closeModal} activeOpacity={0.7}>
                   <X size={20} color="#8A7D6A" />
                 </TouchableOpacity>

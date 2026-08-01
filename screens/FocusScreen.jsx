@@ -30,15 +30,15 @@ const SERIF = "SourceSerif4-Regular";
 const OPTIONS = [
   {
     screen: "Tawaf",
-    title:  "Taw\u0101f Counter",
-    what:   "Circling the Ka\u02bfbah \u00b7 7 rounds",
+    title:  "Tawaf Counter",
+    what:   "Circling the Kabah \u00b7 7 rounds",
     image:  require("../assets/tawaf.jpg"),
     scrim:  "rgba(4,16,8,0.35)",
   },
   {
     screen: "Saiy",
-    title:  "Sa\u02bfi Tracker",
-    what:   "\u1e62af\u0101 to Marwah \u00b7 7 lengths",
+    title:  "Sai Tracker",
+    what:   "Safa to Marwah \u00b7 7 lengths",
     image:  require("../assets/sayi.jpg"),
     scrim:  "rgba(4,14,10,0.32)",
   },

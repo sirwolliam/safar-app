@@ -23,11 +23,11 @@ const PARCHMENT = "#FDFAF4";
 const DARK_TEXT = "#2A2218";
 
 const SUGGESTIONS = [
-  "When exactly do I say this du\u02bf\u0101\u02be?",
+  "When exactly do I say this dua?",
   "What does this mean and why is it important?",
   "Is there a shorter version I can use?",
   "Does the ruling differ between madhabs?",
-  "What if I forget to say this during the rite?",
+  "What if I forget to say this during the pilgrimage?",
 ];
 
 function SendIcon() {

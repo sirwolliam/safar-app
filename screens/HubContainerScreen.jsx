@@ -50,7 +50,7 @@ const PILLAR_CONFIG = {
     hasHeroCard:       true,
     rows: [
       { key: "expect",    Icon: Compass,        label: "What to Expect",     sub: "Crowds, climate, what it really feels like", nav: "stack", target: "WhatToExpect"      },
-      { key: "calendar",  Icon: CalendarBlank,  label: "Calendar",           sub: "Track dates, rites and reminders",           nav: "tab",   tab: "Home", screen: "Calendar" },
+      { key: "calendar",  Icon: CalendarBlank,  label: "Calendar",           sub: "Track dates, milestones and reminders",      nav: "tab",   tab: "Home", screen: "Calendar" },
       { key: "checklist", Icon: ListChecks,     label: "Checklist",          sub: "Pack and prepare, nothing missed",           nav: "stack", target: "Checklists"         },
       { key: "shop",      Icon: ShoppingBag,    label: "Shop",               sub: "Essentials for your journey",                nav: "stack", target: "Shop"              },
       { key: "contacts",  Icon: AddressBook,    label: "Contacts",           sub: "Hotel, group leader, agent",                 nav: "tab",   tab: "Journey", screen: "MyContacts" },
@@ -72,11 +72,11 @@ const PILLAR_CONFIG = {
     subtitle:          "Understand every step before you go — at your own pace.",
     hasHeroCard:       false,
     rows: [
-      { key: "umrah",  Icon: Compass,  label: "Umrah Guide",     sub: "Every step of ʿUmrah, in order",            nav: "stack", target: "UmrahGuide"  },
+      { key: "umrah",  Icon: Compass,  label: "Umrah Guide",     sub: "Every step of Umrah, in order",            nav: "stack", target: "UmrahGuide"  },
       { key: "hajj",   Icon: Cube,     label: "Hajj Guide",      sub: "The full pilgrimage, day by day",                nav: "stack", target: "HajjGuide"   },
       { key: "expect", Icon: BookOpen, label: "What to Expect",  sub: "Crowds, climate, what it really feels like",     nav: "stack", target: "WhatToExpect" },
       { key: "sacred", Icon: MapPin,   label: "Sacred Places",   sub: "Map of the holy sites",                          nav: "stack", target: "SacredPlaces" },
-      { key: "dualib", Icon: Books,    label: "Duʿā Library", sub: "Supplications for every moment",          nav: "tab",   tab: "Duas", screen: "MyDuas" },
+      { key: "dualib", Icon: Books,    label: "Dua Library", sub: "Supplications for every moment",          nav: "tab",   tab: "Duas", screen: "MyDuas" },
     ],
   },
   practice: {
@@ -90,11 +90,11 @@ const PILLAR_CONFIG = {
     subtitle:          "Rehearse each step and keep your remembrance — calm, guided, hands-free.",
     hasHeroCard:       false,
     rows: [
-      { key: "umrahduas", Icon: HandsPraying, label: "Umrah Duʿās",  sub: "Supplications for every step of ʿUmrah", nav: "stack", target: "PilgrimageDuas", params: { mode: "umrah" } },
-      { key: "hajjduas",  Icon: Sparkle,      label: "Ḥajj Duʿās",   sub: "Supplications for every step of Ḥajj",  nav: "stack", target: "PilgrimageDuas", params: { mode: "hajj"  } },
+      { key: "umrahduas", Icon: HandsPraying, label: "Umrah Duas",  sub: "Supplications for every step of Umrah", nav: "stack", target: "PilgrimageDuas", params: { mode: "umrah" } },
+      { key: "hajjduas",  Icon: Sparkle,      label: "Hajj Duas",   sub: "Supplications for every step of Hajj",  nav: "stack", target: "PilgrimageDuas", params: { mode: "hajj"  } },
       { key: "audio",     Icon: PlayCircle,   label: "Audio Practice",         sub: "Listen and rehearse before you go",           nav: "stack", target: "PracticeLearn"                            },
       { key: "quiz",      Icon: BookOpenText, label: "Quiz",          sub: "Test your knowledge before your journey",     nav: "stack", target: "QuizHub"                                          },
-      { key: "dualib",    Icon: Books,        label: "Duʿā Library", sub: "Supplications for every moment",              nav: "tab",   tab: "Duas", screen: "MyDuas"                      },
+      { key: "dualib",    Icon: Books,        label: "Dua Library", sub: "Supplications for every moment",              nav: "tab",   tab: "Duas", screen: "MyDuas"                      },
       { key: "media",     Icon: Video,        label: "Media",                  sub: "Videos and podcasts for your preparation",    nav: "stack", target: "Media"                                    },
     ],
   },

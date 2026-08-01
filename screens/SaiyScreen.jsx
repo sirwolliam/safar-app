@@ -1,8 +1,8 @@
 /**
  * SaiyScreen.jsx — Safar
  *
- * Sa'y tracker — alternates between Ṣafā and Marwah.
- * 7 lengths total (Ṣafā→Marwah = 1, Marwah→Ṣafā = 2, etc.)
+ * Sa'y tracker — alternates between Safa and Marwah.
+ * 7 lengths total (Safa→Marwah = 1, Marwah→Safa = 2, etc.)
  * Mountain icon fills when that length is completed.
  * Dua overlay for both Sa'y duas.
  */
@@ -38,21 +38,21 @@ const getOrigin      = (length) => length % 2 === 1 ? "SAFA"   : "MARWAH";
 const SAI_DUAS = [
   {
     id: "safa-start",
-    name: "Upon Ascending \u1e62af\u0101",
-    when: "Said when you first ascend \u1e62af\u0101 and face the Ka\u02bfbah",
+    name: "Upon Ascending Safa",
+    when: "Said when you first ascend Safa and face the Kabah",
     arabic: "\u0625\u0650\u0646\u064e\u0651 \u0627\u0644\u0635\u064e\u0651\u0641\u064e\u0627 \u0648\u064e\u0627\u0644\u0652\u0645\u064e\u0631\u0652\u0648\u064e\u0629\u064e \u0645\u0650\u0646\u0652 \u0634\u064e\u0639\u064e\u0627\u0626\u0650\u0631\u0650 \u0627\u0644\u0644\u0651\u064e\u0647\u0650",
-    translit: "Inna\u1e63-\u1e63af\u0101 wal-marwata min sha\u02bf\u0101\u02bfiri-ll\u0101h",
-    translation: "Indeed \u1e62af\u0101 and Marwah are among the signs of Allah.",
-    source: "\u1e62a\u1e25\u012b\u1e25 Muslim \u00b7 1218",
+    translit: "Innas-safa wal-marwata min shaairi-llah",
+    translation: "Indeed Safa and Marwah are among the signs of Allah.",
+    source: "Sahih Muslim \u00b7 1218",
   },
   {
     id: "safa-dua",
-    name: "Du\u02bf\u0101 on \u1e62af\u0101 & Marwah",
-    when: "Said while standing on \u1e62af\u0101 or Marwah facing the Ka\u02bfbah",
+    name: "Dua on Safa & Marwah",
+    when: "Said while standing on Safa or Marwah facing the Kabah",
     arabic: "\u0644\u064e\u0627 \u0625\u0650\u0644\u064e\u0647\u064e \u0625\u0650\u0644\u064e\u0651\u0627 \u0627\u0644\u0644\u0651\u064e\u0647\u064f \u0648\u064e\u062d\u0652\u062f\u064e\u0647\u064f \u0644\u064e\u0627 \u0634\u064e\u0631\u0650\u064a\u0643\u064e \u0644\u064e\u0647\u064f\u060c \u0644\u064e\u0647\u064f \u0627\u0644\u0652\u0645\u064f\u0644\u0652\u0643\u064f \u0648\u064e\u0644\u064e\u0647\u064f \u0627\u0644\u0652\u062d\u064e\u0645\u0652\u062f\u064f",
-    translit: "L\u0101 il\u0101ha illa-ll\u0101hu wa\u1e25dahu l\u0101 shar\u012bka lahu, lahu\u02bbl-mulku wa lahu\u02bbl-\u1e25amd",
+    translit: "La ilaha illa-llahu wahdahu la sharika lahu, lahul-mulku wa lahul-hamd",
     translation: "There is no god but Allah alone, with no partner. To Him belongs the dominion and to Him belongs all praise.",
-    source: "\u1e62a\u1e25\u012b\u1e25 Muslim \u00b7 1218",
+    source: "Sahih Muslim \u00b7 1218",
   },
 ];
 
@@ -133,7 +133,7 @@ function DuaAudioPlayer({ duaName }) {
               width: progress.interpolate({ inputRange:[0,1], outputRange:["0%","100%"] }),
             }]} />
           </View>
-          <Text style={ap.label}>{playing ? "Playing…" : "Listen to this du\u02bf\u0101"}</Text>
+          <Text style={ap.label}>{playing ? "Playing…" : "Listen to this dua"}</Text>
         </View>
       </View>
 
@@ -248,8 +248,8 @@ export default function SaiyScreen({ navigation }) {
         </TouchableOpacity>
         <View style={s.headerCenter}>
           {/* Sa'y title */}
-          <Text style={s.title}>{"Saʿi Tracker"}</Text>
-          <Text style={s.subtitle}>{"Track your Sa\u02bfy between \u1e62af\u0101 and Marwah."}</Text>
+          <Text style={s.title}>{"Sai Tracker"}</Text>
+          <Text style={s.subtitle}>{"Track your Say between Safa and Marwah."}</Text>
         </View>
         <View style={{ width:40 }} />
       </View>
@@ -360,7 +360,7 @@ export default function SaiyScreen({ navigation }) {
         {SAI_DUAS.map(dua => (
           <TouchableOpacity key={dua.id} style={s.duaCard} onPress={() => setActiveDua(dua)} activeOpacity={0.82}>
             <View style={s.duaCardHeader}>
-              <Text style={s.duaCardView}>{"View du\u02bf\u0101"}</Text>
+              <Text style={s.duaCardView}>{"View dua"}</Text>
               <Text style={s.duaCardArrow}>{"›"}</Text>
             </View>
             <View style={s.duaCardDivider}/>
@@ -375,7 +375,7 @@ export default function SaiyScreen({ navigation }) {
       <View style={s.footer}>
         <Text style={s.footerTxt}>
           {"May Allah accept your "}
-          <Text style={{ color:GOLD }}>{"Sa\u02bfy"}</Text>
+          <Text style={{ color:GOLD }}>{"Say"}</Text>
           {"."}
         </Text>
       </View>

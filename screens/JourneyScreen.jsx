@@ -14,51 +14,51 @@ const DEPARTURE_KEY  = "safar_departure_date_v1";
 
 // ── Steps data ────────────────────────────────────────────────────────────────
 const UMRAH_STEPS = [
-  { id:"ihram", number:1, name:"Entering Ihṛām", sub:"Intention & Talbīyah", done:true, duas:[{
-    id:"ihram-1", title:"Talbiyah", stage:"Ihṛām",
+  { id:"ihram", number:1, name:"Entering Ihram", sub:"Intention & Talbiyah", done:true, duas:[{
+    id:"ihram-1", title:"Talbiyah", stage:"Ihram",
     arabic:"لَبَّيْكَ اللَّهُمَّ لَبَّيْكَ",
-    transliteration:"Labbayk Allāhumma labbayk",
+    transliteration:"Labbayk Allahumma labbayk",
     translation:"Here I am O Allah, here I am.",
-    source:"Ṣaḥīḥ al-Bukhārī · 1549", isFeatured:true }]},
-  { id:"tawaf", number:2, name:"Ṣawāf", sub:"7 circuits of the Kaʿbah", active:true, duas:[
-    { id:"tawaf-1", title:"Upon Beginning", stage:"Tawāf",
+    source:"Sahih al-Bukhari · 1549", isFeatured:true }]},
+  { id:"tawaf", number:2, name:"Sawaf", sub:"7 circuits of the Kabah", active:true, duas:[
+    { id:"tawaf-1", title:"Upon Beginning", stage:"Tawaf",
       arabic:"بِسْمِ اللهِ وَاللهُ أَكْبَرُ",
-      transliteration:"Bismi-llāhi wa-llāhu akbar",
+      transliteration:"Bismi-llahi wa-llahu akbar",
       translation:"In the name of Allah, and Allah is the Greatest.",
-      source:"Ṣaḥīḥ al-Bukhārī · 1613", isFeatured:true },
-    { id:"tawaf-2", title:"Between Yemeni Corner & Black Stone", stage:"Tawāf",
+      source:"Sahih al-Bukhari · 1613", isFeatured:true },
+    { id:"tawaf-2", title:"Between Yemeni Corner & Black Stone", stage:"Tawaf",
       arabic:"رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً",
-      transliteration:"Rabbanā ātinā fiʿd-dunyā ḥasanatan",
+      transliteration:"Rabbana atina fid-dunya hasanatan",
       translation:"Our Lord, give us good in this world and the Hereafter.",
       source:"Al-Baqarah 2:201" }]},
-  { id:"maqam",  number:3, name:"Pray at Maqām Ibrāhīm", sub:"2 rakʿahs after Ṣawāf", duas:[] },
+  { id:"maqam",  number:3, name:"Pray at Maqam Ibrahim", sub:"2 rakahs after Sawaf", duas:[] },
   { id:"zamzam", number:4, name:"Drink Zamzam", sub:"At the Zamzam well", duas:[] },
-  { id:"saee",   number:5, name:"Saʿy", sub:"7 trips between Ṣafā & Marwah", duas:[{
-    id:"safa-1", title:"Upon Ascending Ṣafā", stage:"Saʿy",
+  { id:"saee",   number:5, name:"Say", sub:"7 trips between Safa & Marwah", duas:[{
+    id:"safa-1", title:"Upon Ascending Safa", stage:"Say",
     arabic:"إِنَّ الصَّفَا وَالْمَرْوَةَ مِنْ شَعَائِرِ اللَّهِ",
-    transliteration:"Innaṣ-ṣafā wal-marwata min shaʿāʿiri-llāh",
-    translation:"Indeed Ṣafā and Marwah are among the signs of Allah.",
-    source:"Ṣaḥīḥ Muslim · 1218", isFeatured:true }]},
+    transliteration:"Innas-safa wal-marwata min shaairi-llah",
+    translation:"Indeed Safa and Marwah are among the signs of Allah.",
+    source:"Sahih Muslim · 1218", isFeatured:true }]},
   { id:"halq",     number:6, name:"Halq / Taqsir",  sub:"Shave or trim hair",   duas:[] },
-  { id:"complete", number:7, name:"Umrah Complete", sub:"Exit Ihṛām", duas:[] },
+  { id:"complete", number:7, name:"Umrah Complete", sub:"Exit Ihram", duas:[] },
 ];
 
 const HAJJ_STEPS = [
-  { id:"ihram_h", number:1,  name:"Ihṛām for Hajj",       sub:"8th Dhul Hijjah",              duas:[] },
-  { id:"mina",    number:2,  name:"Day in Minā",               sub:"Prayer & preparation",          duas:[] },
-  { id:"arafah",  number:3,  name:"Wuqūf at ʿarafah",     sub:"9th Dhul Hijjah — pillar", active:true, duas:[{
-    id:"arafah-1", title:"Duʿā at ʿarafah", stage:"ʿarafah",
+  { id:"ihram_h", number:1,  name:"Ihram for Hajj",       sub:"8th Dhul Hijjah",              duas:[] },
+  { id:"mina",    number:2,  name:"Day in Mina",               sub:"Prayer & preparation",          duas:[] },
+  { id:"arafah",  number:3,  name:"Wuquf at arafah",     sub:"9th Dhul Hijjah — pillar", active:true, duas:[{
+    id:"arafah-1", title:"Dua at arafah", stage:"arafah",
     arabic:"لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ",
-    transliteration:"Lā ilāha illa-llāhu waḥdahu lā sharīka lah",
+    transliteration:"La ilaha illa-llahu wahdahu la sharika lah",
     translation:"There is no god but Allah alone, with no partner.",
-    source:"Sunan al-Tirmidhī · 3585", isFeatured:true }]},
+    source:"Sunan al-Tirmidhi · 3585", isFeatured:true }]},
   { id:"muzdal",  number:4,  name:"Muzdalifah",                    sub:"Night under the stars",         duas:[] },
   { id:"jamarat", number:5,  name:"Jamarat",                       sub:"Stoning of the pillars",        duas:[] },
   { id:"nahr",    number:6,  name:"Sacrifice",                     sub:"10th Dhul Hijjah",              duas:[] },
-  { id:"tawaf_i", number:7,  name:"Tawāf al-Ifāḍah", sub:"Pillar of Hajj",               duas:[] },
-  { id:"saee_h",  number:8,  name:"Saʿy",                     sub:"Ṣafā & Marwah",        duas:[] },
-  { id:"mina_d",  number:9,  name:"Days in Minā",             sub:"11-13th Dhul Hijjah",           duas:[] },
-  { id:"wadaa",   number:10, name:"Tawāf al-Wadāʿ", sub:"Farewell tawaf",                duas:[] },
+  { id:"tawaf_i", number:7,  name:"Tawaf al-Ifadah", sub:"Pillar of Hajj",               duas:[] },
+  { id:"saee_h",  number:8,  name:"Say",                     sub:"Safa & Marwah",        duas:[] },
+  { id:"mina_d",  number:9,  name:"Days in Mina",             sub:"11-13th Dhul Hijjah",           duas:[] },
+  { id:"wadaa",   number:10, name:"Tawaf al-Wada", sub:"Farewell tawaf",                duas:[] },
 ];
 
 // ── Main screen ───────────────────────────────────────────────────────────────
@@ -188,7 +188,7 @@ export default function JourneyScreen({ navigation }) {
           </ImageBackground>
         </TouchableOpacity>
 
-        {/* ── 4. Du'ā Card — changes with mode toggle ── */}
+        {/* ── 4. Du'a Card — changes with mode toggle ── */}
         <TouchableOpacity
           style={jn.duaCard}
           onPress={() => navigation?.navigate?.("PilgrimageDuas", { mode })}
@@ -205,10 +205,10 @@ export default function JourneyScreen({ navigation }) {
             <View style={jn.duaCardContent}>
               <Text style={jn.duaCardEyebrow}>{mode === "umrah" ? "UMRAH" : "HAJJ"}</Text>
               <Text style={jn.duaCardTitle}>
-                {mode === "umrah" ? "Umrah Duʿās" : "Hajj Duʿās"}
+                {mode === "umrah" ? "Umrah Duas" : "Hajj Duas"}
               </Text>
               <Text style={jn.duaCardSub}>
-                {mode === "umrah" ? "Every duʿā for every stage" : "From Ihrām to Farewell"}
+                {mode === "umrah" ? "Every dua for every stage" : "From Ihram to Farewell"}
               </Text>
             </View>
           </ImageBackground>
@@ -309,7 +309,7 @@ export default function JourneyScreen({ navigation }) {
               <CalendarBlank size={22} color={colors.primary} weight="regular" />
             </View>
             <Text style={jn.compactTitle}>Calendar</Text>
-            <Text style={jn.compactSub}>Dates, rites and reminders for your journey</Text>
+            <Text style={jn.compactSub}>Dates, milestones and reminders for your journey</Text>
           </TouchableOpacity>
         </View>
 
@@ -347,7 +347,7 @@ const jn = StyleSheet.create({
   // ── 2. Hero card: Step-by-step Guide — taller at 260 ─────────────────────────
   heroCard:          { borderRadius:radius.xl, overflow:"hidden", marginBottom:spacing(1.5), height:260, ...shadows.card },
 
-  // Du'ā card — full width, changes with mode toggle
+  // Du'a card — full width, changes with mode toggle
   duaCard:       { height:160, borderRadius:16, overflow:"hidden", marginBottom:spacing(1.5), ...shadows.card },
   duaCardBg:     { flex:1, justifyContent:"flex-end" },
   duaCardScrim:  { ...StyleSheet.absoluteFillObject, backgroundColor:"rgba(10,8,4,0.45)", borderRadius:16 },

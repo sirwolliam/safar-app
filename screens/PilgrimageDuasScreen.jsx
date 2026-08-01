@@ -1,7 +1,7 @@
 /**
  * PilgrimageDuasScreen.jsx — Safar
  *
- * Handles both Umrah and Hajj du'ā collections.
+ * Handles both Umrah and Hajj du'a collections.
  * Route param: { mode: "umrah" | "hajj" }
  *
  * Design: each stage is a single cohesive card module containing:
@@ -10,7 +10,7 @@
  *   - Divider
  *   - Icon + title + description
  *   - Divider
- *   - Du'ā rows (no internal border between card and rows)
+ *   - Du'a rows (no internal border between card and rows)
  * All at the same width, same border radius, feeling like one unit.
  */
 import React, { useMemo } from "react";
@@ -31,10 +31,10 @@ const MUTED  = "#7A7060";
 
 // ── Stage order ────────────────────────────────────────────────────────────────
 const UMRAH_STAGE_ORDER = [
-  "Ihram", "Entry", "Tawaf", "Sa\u02bfy", "Farewell",
+  "Ihram", "Entry", "Tawaf", "Say", "Farewell",
 ];
 const HAJJ_STAGE_ORDER = [
-  "Ihram", "Entry", "Tawaf", "Sa\u02bfy",
+  "Ihram", "Entry", "Tawaf", "Say",
   "Arafah", "Muzdalifah", "Jamarat", "Farewell",
 ];
 
@@ -43,50 +43,50 @@ const STAGE_META = {
   "Ihram": {
     image:       require("../assets/ihram.jpg"),
     emoji:       "\uD83E\uDEF4",
-    displayName: "Entering Ih\u1e5b\u0101m",
-    description: "Ih\u1e5b\u0101m marks the beginning of your sacred journey. Make your intention, recite the Talbiyah, and enter the state of spiritual purity that will carry you through every rite.",
+    displayName: "Entering Ihram",
+    description: "Ihram marks the beginning of your sacred journey. Make your intention, recite the Talbiyah, and enter the state of spiritual purity that will carry you through every step.",
   },
   "Entry": {
     image:       require("../assets/arrival.jpg"),
     emoji:       "\uD83D\uDD4C",
-    displayName: "Arrival at the \u1e24aram",
-    description: "Entering Masjid al-\u1e24ar\u0101m for the first time is a moment many pilgrims describe as life-changing. Prepare your heart and your du\u02bf\u0101 before you step inside.",
+    displayName: "Arrival at the Haram",
+    description: "Entering Masjid al-Haram for the first time is a moment many pilgrims describe as life-changing. Prepare your heart and your dua before you step inside.",
   },
   "Tawaf": {
     image:       require("../assets/tawaf.jpg"),
     emoji:       "\uD83D\uDD4B",
-    displayName: "Taw\u0101f",
-    description: "Circling the Ka\u02bfbah seven times is an act of worship performed by millions simultaneously. Begin at the Black Stone and keep the Ka\u02bfbah to your left throughout.",
+    displayName: "Tawaf",
+    description: "Circling the Kabah seven times is an act of worship performed by millions simultaneously. Begin at the Black Stone and keep the Kabah to your left throughout.",
   },
-  "Sa\u02bfy": {
+  "Say": {
     image:       require("../assets/sayi.jpg"),
     emoji:       "\uD83D\uDEB6",
-    displayName: "Sa\u02bfy between \u1e62af\u0101 and Marwah",
-    description: "Walking seven lengths between \u1e62af\u0101 and Marwah commemorates H\u0101jar\u2019s search for water. Begin at \u1e62af\u0101, ascend, face the Ka\u02bfbah, and make du\u02bf\u0101 before walking to Marwah.",
+    displayName: "Say between Safa and Marwah",
+    description: "Walking seven lengths between Safa and Marwah commemorates Hajar\u2019s search for water. Begin at Safa, ascend, face the Kabah, and make dua before walking to Marwah.",
   },
   "Arafah": {
     image:       require("../assets/arafah.jpg"),
     emoji:       "\uD83C\uDF05",
-    displayName: "Standing at \u02bfarafah",
-    description: "The standing at \u02bfarafah is the heart of Hajj \u2014 \u201cHajj is \u02bfarafah.\u201d Spend the afternoon in constant du\u02bf\u0101 and dhikr. This is the day Allah frees most people from the Fire.",
+    displayName: "Standing at arafah",
+    description: "The standing at arafah is the heart of Hajj \u2014 \u201cHajj is arafah.\u201d Spend the afternoon in constant dua and dhikr. This is the day Allah frees most people from the Fire.",
   },
   "Muzdalifah": {
     image:       require("../assets/08_muzdalifah_gradient.jpg"),
     emoji:       "\uD83C\uDF19",
     displayName: "Night at Muzdalifah",
-    description: "After leaving \u02bfarafah, spend the night at Muzdalifah under the open sky. Collect your pebbles for stoning and combine Maghrib and \u02bfish\u0101\u02bc prayers here.",
+    description: "After leaving arafah, spend the night at Muzdalifah under the open sky. Collect your pebbles for stoning and combine Maghrib and isha prayers here.",
   },
   "Jamarat": {
     image:       require("../assets/mina.jpg"),
     emoji:       "\u26AA",
-    displayName: "Stoning at Min\u0101",
-    description: "At Min\u0101, we stone the Jamar\u0101t as we complete \u1e24ajj. Say \u2018All\u0101hu Akbar\u2019 with each stone thrown and seek Allah\u2019s acceptance.",
+    displayName: "Stoning at Mina",
+    description: "At Mina, we stone the Jamarat as we complete Hajj. Say \u2018Allahu Akbar\u2019 with each stone thrown and seek Allah\u2019s acceptance.",
   },
   "Farewell": {
     image:       require("../assets/tawaf2.jpg"),
     emoji:       "\uD83E\uDD32",
-    displayName: "Farewell Taw\u0101f",
-    description: "The farewell Taw\u0101f is the last act before leaving Makkah. Leave with your heart full, your du\u02bf\u0101s made, and the intention to return.",
+    displayName: "Farewell Tawaf",
+    description: "The farewell Tawaf is the last act before leaving Makkah. Leave with your heart full, your duas made, and the intention to return.",
   },
 };
 
@@ -135,10 +135,10 @@ function StageModule({ stage, duas, allDuas, navigation }) {
       {/* ── Divider + section label ── */}
       <View style={mod.divider} />
       <Text style={mod.sectionLabel}>
-        {"Du\u02bf\u0101s for " + meta.displayName}
+        {"Duas for " + meta.displayName}
       </Text>
 
-      {/* ── Du'ā mini-cards ── */}
+      {/* ── Du'a mini-cards ── */}
       <View style={mod.duaRowsWrap}>
         {duas.map((dua) => (
           <TouchableOpacity
@@ -274,7 +274,7 @@ const mod = StyleSheet.create({
     paddingBottom: 10,
   },
 
-  // Du'ā rows — each is its own mini-card inside the module
+  // Du'a rows — each is its own mini-card inside the module
   duaRowsWrap: {
     paddingHorizontal: 12,
     paddingBottom: 12,
@@ -323,8 +323,8 @@ export default function PilgrimageDuasScreen({ route, navigation }) {
   const allDuas    = isUmrah ? UMRAH_DUAS : HAJJ_DUAS;
   const stageOrder = isUmrah ? UMRAH_STAGE_ORDER : HAJJ_STAGE_ORDER;
 
-  // Title: "Umrah Du'ās" / "Hajj Du'ās" — no "Journey"
-  const title = isUmrah ? "Umrah Du\u02bf\u0101s" : "Hajj Du\u02bf\u0101s";
+  // Title: "Umrah Du'as" / "Hajj Du'as" — no "Journey"
+  const title = isUmrah ? "Umrah Duas" : "Hajj Duas";
 
   const grouped = useMemo(() => {
     const map = {};
@@ -353,7 +353,7 @@ export default function PilgrimageDuasScreen({ route, navigation }) {
         <View style={s.headerCenter}>
           <Text style={s.headerTitle}>{title}</Text>
           <Text style={s.headerSub}>
-            {(allDuas ?? []).length}{" du\u02bf\u0101s \u00b7 "}
+            {(allDuas ?? []).length}{" duas \u00b7 "}
             {stages.length}{" stages"}
           </Text>
         </View>
@@ -366,7 +366,7 @@ export default function PilgrimageDuasScreen({ route, navigation }) {
       >
         {stages.length === 0 ? (
           <View style={s.empty}>
-            <Text style={s.emptyTxt}>No du\u02bf\u0101s found.</Text>
+            <Text style={s.emptyTxt}>No duas found.</Text>
           </View>
         ) : (
           stages.map(stage => (
@@ -384,7 +384,7 @@ export default function PilgrimageDuasScreen({ route, navigation }) {
         <View style={s.footnote}>
           <Text style={s.footnoteText}>
             <Text style={s.footnoteBold}>{"Sources \u2014 "}</Text>
-            {"Du\u02bf\u0101s drawn from \u1e62a\u1e25\u012b\u1e25 al-Bukh\u0101r\u012b, \u1e62a\u1e25\u012b\u1e25 Muslim, Sunan Ab\u012b D\u0101w\u016bd, Sunan al-Tirmidh\u012b and Sunan Ibn M\u0101jah. Consult a qualified scholar for rulings specific to your school of thought."}
+            {"Duas drawn from Sahih al-Bukhari, Sahih Muslim, Sunan Abi Dawud, Sunan al-Tirmidhi and Sunan Ibn Majah. Consult a qualified scholar for rulings specific to your school of thought."}
           </Text>
         </View>
       </ScrollView>

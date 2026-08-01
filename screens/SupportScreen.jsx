@@ -42,12 +42,12 @@ const FAQ_SECTIONS = [
       {
         id: "app-1",
         q: "How do I track my Tawaf rounds?",
-        a: "Open the Journey tab and select Tawaf. The app will guide you round by round, showing the relevant duʿāʾ for each. Tap the round indicator to advance manually, or use the auto-track toggle if you have location enabled.",
+        a: "Open the Journey tab and select Tawaf. The app will guide you round by round, showing the relevant dua for each. Tap the round indicator to advance manually, or use the auto-track toggle if you have location enabled.",
       },
       {
         id: "app-2",
         q: "Can I use Safar without an internet connection?",
-        a: "Yes. All duʿāʾs, guides, and maps are stored on your device after the first download. You can use Safar fully offline inside the Haram — no connection needed.",
+        a: "Yes. All duas, guides, and maps are stored on your device after the first download. You can use Safar fully offline inside the Haram — no connection needed.",
       },
       {
         id: "app-3",
@@ -74,39 +74,39 @@ const FAQ_SECTIONS = [
       {
         id: "haj-1",
         q: "What is the correct order of Umrah practices?",
-        a: "The four steps of Umrah are: (1) Iḥrām — entering the sacred state with the intention and talbiyah; (2) Ṭawāf — seven circuits around the Kaʿbah; (3) Saʿy — seven trips between Ṣafā and Marwah; (4) Taḥallul — shaving or cutting the hair to exit iḥrām. Safar's Journey tab walks you through each step in order.",
+        a: "The four steps of Umrah are: (1) Ihram — entering the sacred state with the intention and talbiyah; (2) Tawaf — seven circuits around the Kabah; (3) Say — seven trips between Safa and Marwah; (4) Tahallul — shaving or cutting the hair to exit ihram. Safar's Journey tab walks you through each step in order.",
       },
       {
         id: "haj-2",
         q: "What are the pillars of Hajj I must not miss?",
-        a: "The essential pillars (arkān) of Hajj are: Iḥrām with intention, standing at ʿArafah (wuqūf), Ṭawāf al-Ifāḍah, and Saʿy. Missing any of these invalidates the Hajj. Safar's Hajj mode includes reminders and timing alerts for each pillar.",
+        a: "The essential pillars (arkan) of Hajj are: Ihram with intention, standing at Arafah (wuquf), Tawaf al-Ifadah, and Say. Missing any of these invalidates the Hajj. Safar's Hajj mode includes reminders and timing alerts for each pillar.",
       },
       {
         id: "haj-3",
-        q: "What should I do if I miss a Wājib act?",
-        a: "A wājib (obligatory but not a pillar) act that is missed or performed incorrectly generally requires a dam — the sacrifice of a sheep in Makkah. It is strongly advised to consult a qualified scholar for your specific situation. Safar can help you identify which acts are wājib in the Journey guides.",
+        q: "What should I do if I miss a Wajib act?",
+        a: "A wajib (obligatory but not a pillar) act that is missed or performed incorrectly generally requires a dam — the sacrifice of a sheep in Makkah. It is strongly advised to consult a qualified scholar for your specific situation. Safar can help you identify which acts are wajib in the Journey guides.",
       },
       {
         id: "haj-4",
-        q: "Can women perform Tawaf and Saʿy at any time?",
-        a: "There is no restriction on women performing Ṭawāf or Saʿy at any time. However, if a woman is in a state of ḥayḍ (menstruation) she may not perform Ṭawāf until she is pure. Saʿy may be performed in that state according to the majority opinion. Please consult a scholar for personal guidance.",
+        q: "Can women perform Tawaf and Say at any time?",
+        a: "There is no restriction on women performing Tawaf or Say at any time. However, if a woman is in a state of hayd (menstruation) she may not perform Tawaf until she is pure. Say may be performed in that state according to the majority opinion. Please consult a scholar for personal guidance.",
       },
     ],
   },
   {
     id: "duas",
-    label: "Duʿāʾ Sources & References",
+    label: "Dua Sources & References",
     Icon: BookOpenText,
     questions: [
       {
         id: "dua-1",
         q: "Where do the duas in Safar come from?",
-        a: "Every duʿāʾ in Safar is sourced from authenticated ḥadīth collections — primarily Ṣaḥīḥ al-Bukhārī, Ṣaḥīḥ Muslim, Sunan Abī Dāwūd, and Ibn Mājah — or from established scholarly works on Hajj and Umrah. Each card displays its reference so you can verify independently.",
+        a: "Every dua in Safar is sourced from authenticated hadith collections — primarily Sahih al-Bukhari, Sahih Muslim, Sunan Abi Dawud, and Ibn Majah — or from established scholarly works on Hajj and Umrah. Each card displays its reference so you can verify independently.",
       },
       {
         id: "dua-2",
         q: "Are the duas specific to Hajj and Umrah only?",
-        a: "No. The Duʿāʾ Library contains duas for all occasions — morning and evening adhkār, duas for family, provision, forgiveness, protection, and more. The Hajj & Umrah section is a curated subset of the full library.",
+        a: "No. The Dua Library contains duas for all occasions — morning and evening adhkar, duas for family, provision, forgiveness, protection, and more. The Hajj & Umrah section is a curated subset of the full library.",
       },
       {
         id: "dua-3",
@@ -115,8 +115,8 @@ const FAQ_SECTIONS = [
       },
       {
         id: "dua-4",
-        q: "Can I suggest a duʿāʾ to be added?",
-        a: "Absolutely. Tap the + icon inside the Library and select 'Suggest a Duʿāʾ'. Include the Arabic text, source reference, and transliteration if possible. Our team reviews all suggestions and will notify you if it's added.",
+        q: "Can I suggest a dua to be added?",
+        a: "Absolutely. Tap the + icon inside the Library and select 'Suggest a Dua'. Include the Arabic text, source reference, and transliteration if possible. Our team reviews all suggestions and will notify you if it's added.",
       },
     ],
   },

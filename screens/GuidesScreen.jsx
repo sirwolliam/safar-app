@@ -56,63 +56,63 @@ function ContactIcon({ size = 18, color = "#2F5D50" }) {
 
 // ── Steps data ────────────────────────────────────────────────────────────────
 const UMRAH_STEPS = [
-  { id:"ihram", number:1, name:"Entering Ih\u1e5b\u0101m", sub:"Intention & Talb\u012byah", done:true, duas:[{
-    id:"ihram-1", title:"Talbiyah", stage:"Ih\u1e5b\u0101m",
+  { id:"ihram", number:1, name:"Entering Ihram", sub:"Intention & Talbiyah", done:true, duas:[{
+    id:"ihram-1", title:"Talbiyah", stage:"Ihram",
     arabic:"\u0644\u064e\u0628\u064e\u0651\u064a\u0652\u0643\u064e \u0627\u0644\u0644\u0651\u064e\u0647\u064f\u0645\u064e\u0651 \u0644\u064e\u0628\u064e\u0651\u064a\u0652\u0643\u064e",
-    transliteration:"Labbayk All\u0101humma labbayk",
+    transliteration:"Labbayk Allahumma labbayk",
     translation:"Here I am O Allah, here I am.",
-    source:"\u1e62a\u1e25\u012b\u1e25 al-Bukh\u0101r\u012b \u00b7 1549", isFeatured:true }]},
-  { id:"tawaf", number:2, name:"\u1e62aw\u0101f", sub:"7 circuits of the Ka\u02bfbah", active:true, duas:[
-    { id:"tawaf-1", title:"Upon Beginning", stage:"Taw\u0101f",
+    source:"Sahih al-Bukhari \u00b7 1549", isFeatured:true }]},
+  { id:"tawaf", number:2, name:"Sawaf", sub:"7 circuits of the Kabah", active:true, duas:[
+    { id:"tawaf-1", title:"Upon Beginning", stage:"Tawaf",
       arabic:"\u0628\u0650\u0633\u0652\u0645\u0650 \u0627\u0644\u0644\u0647\u0650 \u0648\u064e\u0627\u0644\u0644\u0647\u064f \u0623\u064e\u0643\u0652\u0628\u064e\u0631\u064f",
-      transliteration:"Bismi-ll\u0101hi wa-ll\u0101hu akbar",
+      transliteration:"Bismi-llahi wa-llahu akbar",
       translation:"In the name of Allah, and Allah is the Greatest.",
-      source:"\u1e62a\u1e25\u012b\u1e25 al-Bukh\u0101r\u012b \u00b7 1613", isFeatured:true },
-    { id:"tawaf-2", title:"Between Yemeni Corner & Black Stone", stage:"Taw\u0101f",
+      source:"Sahih al-Bukhari \u00b7 1613", isFeatured:true },
+    { id:"tawaf-2", title:"Between Yemeni Corner & Black Stone", stage:"Tawaf",
       arabic:"\u0631\u064e\u0628\u064e\u0651\u0646\u064e\u0627 \u0622\u062a\u0650\u0646\u064e\u0627 \u0641\u0650\u064a \u0627\u0644\u062f\u064f\u0651\u0646\u0652\u064a\u064e\u0627 \u062d\u064e\u0633\u064e\u0646\u064e\u0629\u064b",
-      transliteration:"Rabban\u0101 \u0101tin\u0101 fi\u02bfd-duny\u0101 \u1e25asanatan",
+      transliteration:"Rabbana atina fid-dunya hasanatan",
       translation:"Our Lord, give us good in this world and the Hereafter.",
       source:"Al-Baqarah 2:201" }]},
-  { id:"maqam",  number:3, name:"Pray at Maq\u0101m Ibr\u0101h\u012bm", sub:"2 rak\u02bfahs after \u1e62aw\u0101f", duas:[] },
+  { id:"maqam",  number:3, name:"Pray at Maqam Ibrahim", sub:"2 rakahs after Sawaf", duas:[] },
   { id:"zamzam", number:4, name:"Drink Zamzam", sub:"At the Zamzam well", duas:[] },
-  { id:"saee",   number:5, name:"Sa\u02bfy", sub:"7 trips between \u1e62af\u0101 & Marwah", duas:[{
-    id:"safa-1", title:"Upon Ascending \u1e62af\u0101", stage:"Sa\u02bfy",
+  { id:"saee",   number:5, name:"Say", sub:"7 trips between Safa & Marwah", duas:[{
+    id:"safa-1", title:"Upon Ascending Safa", stage:"Say",
     arabic:"\u0625\u0650\u0646\u064e\u0651 \u0627\u0644\u0635\u064e\u0651\u0641\u064e\u0627 \u0648\u064e\u0627\u0644\u0652\u0645\u064e\u0631\u0652\u0648\u064e\u0629\u064e \u0645\u0650\u0646\u0652 \u0634\u064e\u0639\u064e\u0627\u0626\u0650\u0631\u0650 \u0627\u0644\u0644\u0651\u064e\u0647\u0650",
-    transliteration:"Inna\u1e63-\u1e63af\u0101 wal-marwata min sha\u02bf\u0101\u02bfiri-ll\u0101h",
-    translation:"Indeed \u1e62af\u0101 and Marwah are among the signs of Allah.",
-    source:"\u1e62a\u1e25\u012b\u1e25 Muslim \u00b7 1218", isFeatured:true }]},
+    transliteration:"Innas-safa wal-marwata min shaairi-llah",
+    translation:"Indeed Safa and Marwah are among the signs of Allah.",
+    source:"Sahih Muslim \u00b7 1218", isFeatured:true }]},
   { id:"halq",     number:6, name:"Halq / Taqsir",  sub:"Shave or trim hair",   duas:[] },
-  { id:"complete", number:7, name:"Umrah Complete", sub:"Exit Ih\u1e5b\u0101m", duas:[] },
+  { id:"complete", number:7, name:"Umrah Complete", sub:"Exit Ihram", duas:[] },
 ];
 
 const HAJJ_STEPS = [
-  { id:"ihram_h", number:1,  name:"Ih\u1e5b\u0101m for Hajj",       sub:"8th Dhul Hijjah",              duas:[] },
-  { id:"mina",    number:2,  name:"Day in Min\u0101",               sub:"Prayer & preparation",          duas:[] },
-  { id:"arafah",  number:3,  name:"Wuq\u016bf at \u02bfarafah",     sub:"9th Dhul Hijjah \u2014 pillar", active:true, duas:[{
-    id:"arafah-1", title:"Du\u02bf\u0101 at \u02bfarafah", stage:"\u02bfarafah",
+  { id:"ihram_h", number:1,  name:"Ihram for Hajj",       sub:"8th Dhul Hijjah",              duas:[] },
+  { id:"mina",    number:2,  name:"Day in Mina",               sub:"Prayer & preparation",          duas:[] },
+  { id:"arafah",  number:3,  name:"Wuquf at arafah",     sub:"9th Dhul Hijjah \u2014 pillar", active:true, duas:[{
+    id:"arafah-1", title:"Dua at arafah", stage:"arafah",
     arabic:"\u0644\u064e\u0627 \u0625\u0650\u0644\u064e\u0647\u064e \u0625\u0650\u0644\u064e\u0651\u0627 \u0627\u0644\u0644\u0651\u064e\u0647\u064f \u0648\u064e\u062d\u0652\u062f\u064e\u0647\u064f \u0644\u064e\u0627 \u0634\u064e\u0631\u0650\u064a\u0643\u064e \u0644\u064e\u0647\u064f",
-    transliteration:"L\u0101 il\u0101ha illa-ll\u0101hu wa\u1e25dahu l\u0101 shar\u012bka lah",
+    transliteration:"La ilaha illa-llahu wahdahu la sharika lah",
     translation:"There is no god but Allah alone, with no partner.",
-    source:"Sunan al-Tirmidh\u012b \u00b7 3585", isFeatured:true }]},
+    source:"Sunan al-Tirmidhi \u00b7 3585", isFeatured:true }]},
   { id:"muzdal",  number:4,  name:"Muzdalifah",                    sub:"Night under the stars",         duas:[] },
   { id:"jamarat", number:5,  name:"Jamarat",                       sub:"Stoning of the pillars",        duas:[] },
   { id:"nahr",    number:6,  name:"Sacrifice",                     sub:"10th Dhul Hijjah",              duas:[] },
-  { id:"tawaf_i", number:7,  name:"Taw\u0101f al-If\u0101\u1e0dah", sub:"Pillar of Hajj",               duas:[] },
-  { id:"saee_h",  number:8,  name:"Sa\u02bfy",                     sub:"\u1e62af\u0101 & Marwah",        duas:[] },
-  { id:"mina_d",  number:9,  name:"Days in Min\u0101",             sub:"11-13th Dhul Hijjah",           duas:[] },
-  { id:"wadaa",   number:10, name:"Taw\u0101f al-Wad\u0101\u02bf", sub:"Farewell tawaf",                duas:[] },
+  { id:"tawaf_i", number:7,  name:"Tawaf al-Ifadah", sub:"Pillar of Hajj",               duas:[] },
+  { id:"saee_h",  number:8,  name:"Say",                     sub:"Safa & Marwah",        duas:[] },
+  { id:"mina_d",  number:9,  name:"Days in Mina",             sub:"11-13th Dhul Hijjah",           duas:[] },
+  { id:"wadaa",   number:10, name:"Tawaf al-Wada", sub:"Farewell tawaf",                duas:[] },
 ];
 
 // ── Board card type config ────────────────────────────────────────────────────
 const CARD_TYPES = [
   { key:"note",      label:"Note",           Icon:Note,          desc:"Personal intention or reminder" },
   { key:"checklist", label:"Checklist item", Icon:CheckSquare,   desc:"Something to prepare or pack"   },
-  { key:"dua",       label:"Pin a Du\u02bf\u0101\u02be", Icon:HandsPraying, desc:"Save a specific du\u02bf\u0101\u02be" },
+  { key:"dua",       label:"Pin a Dua", Icon:HandsPraying, desc:"Save a specific dua" },
   { key:"link",      label:"Link",           Icon:Link,          desc:"A URL, booking or resource"      },
 ];
 
 const CARD_SUGGESTIONS = {
-  note:      ["My intention for this journey","Things to remember at the Ka\u02bfbah","Du\u02bf\u0101\u02be for my family"],
+  note:      ["My intention for this journey","Things to remember at the Kabah","Dua for my family"],
   checklist: ["Pack ihram clothing","Renew passport","Book accommodation near Haram","Get travel insurance","Exchange currency to SAR","Download offline maps"],
   link:      ["Flight booking","Hotel near Haram","Nusuk registration"],
 };
@@ -204,7 +204,7 @@ function AddCardModal({ visible, onAdd, onClose }) {
                 )}
                 {cardType === "dua" && (
                   <>
-                    <Text style={am.fieldLabel}>{"Search for a du\u02bf\u0101\u02be"}</Text>
+                    <Text style={am.fieldLabel}>{"Search for a dua"}</Text>
                     <View style={am.searchBar}>
                       <MagnifyingGlass size={16} color={colors.subtext} weight="regular" />
                       <TextInput style={am.searchInput} placeholder="Search by title or stage..." placeholderTextColor={colors.subtext} value={duaSearch} onChangeText={setDuaSearch} autoFocus />
@@ -370,7 +370,7 @@ function BoardCard({ card, onToggle, onDelete }) {
   if (card.type === "dua") return (
     <TouchableOpacity style={[bc.card, bc.duaCard]} onLongPress={handleLongPress} activeOpacity={0.9}>
       <View style={bc.duaHeader}>
-        <Text style={bc.duaPinLabel}>{"PINNED DU\u02bf\u0100\u02be"}</Text>
+        <Text style={bc.duaPinLabel}>{"PINNED DUA"}</Text>
         <HandsPraying size={16} color={colors.subtext} weight="regular" />
       </View>
       <Text style={bc.duaTitle}>{card.dua?.title}</Text>
@@ -433,7 +433,7 @@ function DuaPlayer({ dua, onClose, onNext, onPrev, hasPrev, hasNext }) {
       </View>
       <ScrollView style={pl.scroll} contentContainerStyle={pl.scrollContent} showsVerticalScrollIndicator={false}>
         {dua.isFeatured && (
-          <View style={pl.featuredRow}><View style={pl.featuredBadge}><Text style={pl.featuredText}>{"KEY DU\u02bf\u0100\u02be"}</Text></View></View>
+          <View style={pl.featuredRow}><View style={pl.featuredBadge}><Text style={pl.featuredText}>{"KEY DUA"}</Text></View></View>
         )}
         <View style={pl.arabicCard}><Text style={pl.arabicText}>{dua.arabic}</Text></View>
         <TouchableOpacity style={pl.sectionToggle}
@@ -514,7 +514,7 @@ function StepRow({ step, isLast, onPress }) {
         <Text style={sr.sub}>{step.sub}</Text>
       </View>
       {step.duas ? step.duas.length : null > 0 && (
-        <View style={sr.badge}><Text style={sr.badgeText}>{step.duas.length} {step.duas.length===1?"du\u02bf\u0101\u02be":"du\u02bf\u0101\u02bes"}</Text></View>
+        <View style={sr.badge}><Text style={sr.badgeText}>{step.duas.length} {step.duas.length===1?"dua":"duas"}</Text></View>
       )}
       <Text style={sr.arrow}>{"\u203a"}</Text>
     </TouchableOpacity>
@@ -684,7 +684,7 @@ export default function GuidesScreen({ navigation }) {
           </ImageBackground>
         </TouchableOpacity>
 
-        {/* ── 4. Du'ā Card — changes with mode toggle ── */}
+        {/* ── 4. Du'a Card — changes with mode toggle ── */}
         <TouchableOpacity
           style={jn.duaCard}
           onPress={() => navigation?.navigate?.("PilgrimageDuas", { mode })}
@@ -701,10 +701,10 @@ export default function GuidesScreen({ navigation }) {
             <View style={jn.duaCardContent}>
               <Text style={jn.duaCardEyebrow}>{mode === "umrah" ? "UMRAH" : "HAJJ"}</Text>
               <Text style={jn.duaCardTitle}>
-                {mode === "umrah" ? "Umrah Du\u02bf\u0101s" : "Hajj Du\u02bf\u0101s"}
+                {mode === "umrah" ? "Umrah Duas" : "Hajj Duas"}
               </Text>
               <Text style={jn.duaCardSub}>
-                {mode === "umrah" ? "Every du\u02bf\u0101 for every stage" : "From Ihr\u0101m to Farewell"}
+                {mode === "umrah" ? "Every dua for every stage" : "From Ihram to Farewell"}
               </Text>
             </View>
           </ImageBackground>
@@ -864,7 +864,7 @@ const jn = StyleSheet.create({
   // ── 2. Hero card: Step-by-step Guide — taller at 260 ─────────────────────────
   heroCard:          { borderRadius:radius.xl, overflow:"hidden", marginBottom:spacing(1.5), height:260, ...shadows.card },
 
-  // Du'ā card — full width, changes with mode toggle
+  // Du'a card — full width, changes with mode toggle
   duaCard:       { height:160, borderRadius:16, overflow:"hidden", marginBottom:spacing(1.5), shadowColor:"#1C1408", shadowOffset:{width:0,height:4}, shadowOpacity:0.16, shadowRadius:12, elevation:6 },
   duaCardBg:     { flex:1, justifyContent:"flex-end" },
   duaCardScrim:  { ...StyleSheet.absoluteFillObject, backgroundColor:"rgba(8,14,6,0.45)", borderRadius:16 },

@@ -21,7 +21,7 @@ function ScholarlyFootnote({ style }) {
     <View style={[fn.wrap, style]}>
       <Text style={fn.text}>
         <Text style={fn.bold}>Sources</Text>{" — "}
-        Duas are drawn from Ṣaḥīḥ al-Bukhārī, Ṣaḥīḥ Muslim, Sunan Abī Dāwūd, Sunan al-Tirmidhī, and established scholarly works. Each duʿāʾ is attributed to its primary source. Practice and wording may differ across the four madhabs (Ḥanafī, Mālikī, Shāfiʿī, Ḥanbalī). Consult a qualified scholar for rulings specific to your school of thought.
+        Duas are drawn from Sahih al-Bukhari, Sahih Muslim, Sunan Abi Dawud, Sunan al-Tirmidhi, and established scholarly works. Each dua is attributed to its primary source. Practice and wording may differ across the four madhabs (Hanafi, Maliki, Shafii, Hanbali). Consult a qualified scholar for rulings specific to your school of thought.
       </Text>
     </View>
   );
@@ -162,12 +162,12 @@ function HajjHero({ w, h }) {
 const STEPS = {
   Umrah: [
     { id: "u1",  title: "Enter Ihram",           sub: "Make niyyah and recite Talbiyah",        detail: "Perform ghusl, wear ihram garments. At the Miqat, make your intention for Umrah and begin reciting the Talbiyah continuously." },
-    { id: "u2",  title: "Recite Talbiyah",        sub: "Continue until first sight of Kaaba",    detail: "Recite Labbayk Allāhumma labbayk continuously throughout your journey. Men recite aloud, women quietly." },
+    { id: "u2",  title: "Recite Talbiyah",        sub: "Continue until first sight of Kaaba",    detail: "Recite Labbayk Allahumma labbayk continuously throughout your journey. Men recite aloud, women quietly." },
     { id: "u3",  title: "Enter Masjid al-Haram",  sub: "Right foot first, dua at entry",         detail: "Enter with your right foot. Recite the mosque entry dua and proceed with humility." },
     { id: "u4",  title: "Perform Tawaf",          sub: "7 circuits, begin at Black Stone",        detail: "Begin at the Black Stone (Hajar al-Aswad), keeping the Kaaba on your left. Complete 7 circuits. Men should perform Raml (brisk walking) in the first 3 circuits if possible." },
     { id: "u5",  title: "Pray at Maqam Ibrahim",  sub: "2 rakah behind the Maqam",               detail: "After Tawaf, pray 2 rakah behind Maqam Ibrahim. Recite Surah al-Kafirun in the first and Surah al-Ikhlas in the second." },
     { id: "u6",  title: "Drink Zamzam",           sub: "Face Kaaba, make dua",                   detail: "Drink Zamzam water facing the Kaaba. Make dua for beneficial knowledge, provision, and health." },
-    { id: "u7",  title: "Perform Saʿy",           sub: "7 passes, Safa to Marwah",               detail: "Begin at Safa. Complete 7 passes between Safa and Marwah (Safa→Marwah = 1 pass). Men should run between the green markers." },
+    { id: "u7",  title: "Perform Say",           sub: "7 passes, Safa to Marwah",               detail: "Begin at Safa. Complete 7 passes between Safa and Marwah (Safa→Marwah = 1 pass). Men should run between the green markers." },
     { id: "u8",  title: "Halq or Taqsir",         sub: "Shave or trim hair to exit Ihram",       detail: "Men: shaving the head (halq) is preferable; trimming at least a fingertip length (taqsir) is the minimum. Women: trim a fingertip length from hair. This completes Umrah." },
   ],
   Hajj: [
@@ -181,9 +181,9 @@ const STEPS = {
     { id: "h8",  title: "Sacrifice (Udhiyah / Nahr)",  sub: "10 Dhul Hijjah",                     detail: "Arrange a sacrifice (through an authorized agent if needed). This fulfills the Sunnah of Prophet Ibrahim ﷺ." },
     { id: "h9",  title: "Halq or Taqsir",              sub: "Shave or trim to exit partial Ihram", detail: "Men shave or trim. Women trim a fingertip length. After this you exit partial Ihram — regular clothing is permitted but intimacy remains prohibited until Tawaf Ifadah." },
     { id: "h10", title: "Tawaf al-Ifadah",             sub: "Return to Makkah for main Tawaf",    detail: "This is a pillar (rukn) of Hajj — Hajj is incomplete without it. Perform 7 circuits. Pray 2 rakah at Maqam Ibrahim." },
-    { id: "h11", title: "Saʿy between Safa & Marwah",  sub: "If not performed after Qudum",       detail: "Perform 7 passes between Safa and Marwah. Required if not done after Tawaf al-Qudum." },
+    { id: "h11", title: "Say between Safa & Marwah",  sub: "If not performed after Qudum",       detail: "Perform 7 passes between Safa and Marwah. Required if not done after Tawaf al-Qudum." },
     { id: "h12", title: "Ayyam al-Tashriq in Mina",   sub: "11–13 Dhul Hijjah",                  detail: "Return to Mina. Stone all three Jamarat each day (21 pebbles/day) after midday. Spend at least 2 nights (11th & 12th). May leave after the 12th if you depart before sunset." },
-    { id: "h13", title: "Tawaf al-Wadaʿ",             sub: "Farewell Tawaf before leaving Makkah", detail: "The last act before leaving Makkah. Perform 7 circuits. This is obligatory (wajib) — omitting it requires a dam (penalty)." },
+    { id: "h13", title: "Tawaf al-Wada",             sub: "Farewell Tawaf before leaving Makkah", detail: "The last act before leaving Makkah. Perform 7 circuits. This is obligatory (wajib) — omitting it requires a dam (penalty)." },
   ],
 };
 

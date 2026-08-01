@@ -185,12 +185,12 @@ const LEARNING_PATHS = [
 ];
 
 const BROWSE_TOPICS = [
-  { key: "umrah",     label: "Umrah Guides",      sub: "Step-by-step rites",          Icon: HandsPraying,    color: "#1A1A1A" },
+  { key: "umrah",     label: "Umrah Guides",      sub: "Step-by-step guides",         Icon: HandsPraying,    color: "#1A1A1A" },
   { key: "hajj",      label: "Hajj Guides",        sub: "The full pilgrimage",         Icon: MapPin,          color: "#3A4A5C" },
   { key: "spiritual", label: "Spiritual Growth",   sub: "Deepen your connection",      Icon: Heart,           color: "#5A3050" },
   { key: "practical", label: "Planning & Prep",    sub: "Visas, packing, logistics",   Icon: SuitcaseRolling, color: "#5A3A1A" },
   { key: "family",    label: "Family Travel",      sub: "Tips for traveling together", Icon: UsersThree,      color: "#4A3A6A" },
-  { key: "worship",   label: "Duʿā & Worship",sub: "Supplications for the trip",  Icon: BookOpen,        color: "#1A1A1A" },
+  { key: "worship",   label: "Dua & Worship",sub: "Supplications for the trip",  Icon: BookOpen,        color: "#1A1A1A" },
 ];
 
 const HERO_SLIDES_MEDIA = MEDIA.slice(0, 4);

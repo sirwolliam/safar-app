@@ -250,10 +250,10 @@ function WelcomeScreen({ onNext }) {
 
       {/* Bottom: content */}
       <View style={ws.content}>
-        <Text style={ws.eyebrow}>{"As-sal\u0101mu \u02bfalaykum"}</Text>
+        <Text style={ws.eyebrow}>{"As-salamu alaykum"}</Text>
         <Text style={ws.title}>{"Your companion\nfor the journey\nahead."}</Text>
         <Text style={ws.subtitle}>
-          {"Everything you need to prepare for Umrah and Hajj \u2014 guidance, du\u02bf\u0101s, contacts, and more."}
+          {"Everything you need to prepare for Umrah and Hajj \u2014 guidance, duas, contacts, and more."}
         </Text>
 
         <ProgressDots total={6} active={0} dark />
@@ -388,7 +388,7 @@ const JOURNEY_OPTIONS = [
     label:  "Umrah",
     arabic: "\u0639\u064f\u0645\u0652\u0631\u064e\u0629",
     desc:   "I\u2019m preparing for Umrah",
-    detail: "Du\u02bf\u0101s, step-by-step guide, checklist and tools tailored for Umrah.",
+    detail: "Duas, step-by-step guide, checklist and tools tailored for Umrah.",
   },
   {
     id:     "hajj",
@@ -402,7 +402,7 @@ const JOURNEY_OPTIONS = [
     label:  "Just Learning",
     arabic: "\u062a\u064e\u0639\u064e\u0644\u0651\u064f\u0645",
     desc:   "I want to learn about pilgrimage",
-    detail: "Explore guidance, du\u02bf\u0101s and sacred places at your own pace.",
+    detail: "Explore guidance, duas and sacred places at your own pace.",
   },
 ];
 
@@ -1368,19 +1368,19 @@ function ReadyScreen({ userName, journeyType, onComplete, onBack }) {
     umrah: {
       greeting:  "\u0623\u0647\u0644\u0627\u064b \u0648\u0633\u0647\u0644\u0627\u064b",   // Ahlan wa sahlan
       title:     "May Allah accept\nyour Umrah.",
-      sub:       "Your Safar is set up and ready. Explore your guide, learn your du\u02bf\u0101s, and prepare with confidence.",
+      sub:       "Your Safar is set up and ready. Explore your guide, learn your duas, and prepare with confidence.",
       cta:       "Open Safar",
     },
     hajj: {
       greeting:  "\u0623\u0647\u0644\u0627\u064b \u0648\u0633\u0647\u0644\u0627\u064b",
       title:     "May Allah accept\nyour Hajj.",
-      sub:       "Your Safar is set up and ready. Begin your step-by-step Hajj guide, learn your du\u02bf\u0101s, and track your preparation.",
+      sub:       "Your Safar is set up and ready. Begin your step-by-step Hajj guide, learn your duas, and track your preparation.",
       cta:       "Open Safar",
     },
     learn: {
       greeting:  "\u0623\u0647\u0644\u0627\u064b \u0648\u0633\u0647\u0644\u0627\u064b",
       title:     "Welcome to Safar.",
-      sub:       "Explore guidance, du\u02bf\u0101s and sacred places at your own pace. Safar is always here when you need it.",
+      sub:       "Explore guidance, duas and sacred places at your own pace. Safar is always here when you need it.",
       cta:       "Start Exploring",
     },
   };

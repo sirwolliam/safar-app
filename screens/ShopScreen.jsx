@@ -38,7 +38,7 @@ const SERIF  = "SourceSerif4-Regular";
 const CATS = [
   { key:"all",         label:"All",              Icon:ShoppingBag  },
   { key:"ihram",       label:"Ihram",            Icon:TShirt       },
-  { key:"books",       label:"Books & Du\u02bf\u0101s", Icon:BookOpen },
+  { key:"books",       label:"Books & Duas", Icon:BookOpen },
   { key:"health",      label:"Health & Care",    Icon:FirstAid     },
   { key:"bags",        label:"Bags",             Icon:Backpack     },
   { key:"footwear",    label:"Footwear",         Icon:Sneaker      },
@@ -57,7 +57,7 @@ const PRODUCTS = [
   { id:"ihram-belt",   cat:"ihram",       label:"Ihram Belt",        sub:"Secure fit",        Icon:TShirt,        query:"ihram belt money belt hajj"           },
   { id:"abaya",        cat:"ihram",       label:"Abaya",             sub:"Women's modest",    Icon:TShirt,        query:"abaya hajj umrah women"               },
   // Books
-  { id:"fortress",     cat:"books",       label:"Fortress of the Muslim", sub:"Du\u02bf\u0101 book", Icon:BookOpen, query:"fortress muslim hisnul dua book"  },
+  { id:"fortress",     cat:"books",       label:"Fortress of the Muslim", sub:"Dua book", Icon:BookOpen, query:"fortress muslim hisnul dua book"  },
   { id:"hajj-guide",   cat:"books",       label:"Hajj Guide",        sub:"Step by step",      Icon:BookOpen,      query:"hajj guide book pilgrimage"           },
   { id:"quran",        cat:"books",       label:"Travel Quran",      sub:"Pocket size",       Icon:BookOpen,      query:"pocket quran travel compact"          },
   { id:"tasbeeh",      cat:"books",       label:"Tasbeeh",           sub:"Dhikr counter",     Icon:Sparkle,       query:"tasbeeh misbaha dhikr counter"        },

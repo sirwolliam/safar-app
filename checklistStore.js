@@ -44,7 +44,7 @@ export const CHECKLIST_ITEMS = {
   spiritual: {
     title: "Spiritual preparation",
     items: [
-      { id: "spi-niyyah",      label: "Learn the niyyah (intention) for your rites" },
+      { id: "spi-niyyah",      label: "Learn the niyyah (intention) for your pilgrimage" },
       { id: "spi-duas",        label: "Memorize key du’ās for the journey" },
       { id: "spi-tawbah",      label: "Make sincere tawbah (repentance)" },
       { id: "spi-debts",       label: "Settle outstanding debts" },

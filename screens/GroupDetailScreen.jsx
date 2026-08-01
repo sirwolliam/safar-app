@@ -150,12 +150,12 @@ function MilestoneCard({ item, myUid, onAmeen, onDelete }) {
             : <>
                 <HandHeart size={14} color={hasAmeen ? "#fff" : SAGE} weight={hasAmeen ? "fill" : "regular"} />
                 <Text style={hasAmeen ? [styles.msBtnTxt, styles.msBtnTxtOn] : styles.msBtnTxt}>
-                  {hasAmeen ? "\u0100meen" : "Say \u0100meen"}
+                  {hasAmeen ? "Ameen" : "Say Ameen"}
                 </Text>
               </>
           }
         </TouchableOpacity>
-        {item.ameen?.length > 0 ? <Text style={styles.msCount}>{item.ameen.length} \u0100meen</Text> : null}
+        {item.ameen?.length > 0 ? <Text style={styles.msCount}>{item.ameen.length} Ameen</Text> : null}
         <TouchableOpacity
           style={styles.shareIconBtn}
           onPress={async () => {

@@ -1,6 +1,6 @@
 /**
  * HajjGuideScreen.jsx — Safar
- * Hero → carousel, Hajj Du'ās (full width), Sacred Places + Pilgrimage Map (halves), Checklist
+ * Hero → carousel, Hajj Du'as (full width), Sacred Places + Pilgrimage Map (halves), Checklist
  */
 import React, { useState, useEffect } from "react";
 import {
@@ -20,12 +20,12 @@ const HAJJ_CHECKLIST = [
   { id:"hc3",  text:"Register with an authorised Hajj operator" },
   { id:"hc4",  text:"Arrange Udhiya (Qurbani) with a licensed agency" },
   { id:"hc5",  text:"Pack Ihram garments and travel essentials" },
-  { id:"hc6",  text:"Learn the steps, du\u02bf\u0101\u02bes and intentions for each rite" },
+  { id:"hc6",  text:"Learn the steps, duas and intentions for each act" },
   { id:"hc7",  text:"Attend a Hajj preparation course or workshop" },
   { id:"hc8",  text:"Get any required vaccinations (meningitis, flu)" },
   { id:"hc9",  text:"Arrange power of attorney and affairs before departure" },
   { id:"hc10", text:"Write down the contact details of your Hajj group leader" },
-  { id:"hc11", text:"Memorise key du\u02bf\u0101\u02bes for Taw\u0101f, Sa\u02bfy, and \u02bfArafah" },
+  { id:"hc11", text:"Memorise key duas for Tawaf, Say, and Arafah" },
   { id:"hc12", text:"Pack comfortable walking shoes and unscented toiletries" },
 ];
 
@@ -82,7 +82,7 @@ export default function HajjGuideScreen({ navigation }) {
           </ImageBackground>
         </TouchableOpacity>
 
-        {/* ── 2. Hajj Du'ās — full width ── */}
+        {/* ── 2. Hajj Du'as — full width ── */}
         <TouchableOpacity
           style={s.fullCard}
           activeOpacity={0.88}
@@ -96,9 +96,9 @@ export default function HajjGuideScreen({ navigation }) {
           >
             <View style={[s.fullCardScrim, { backgroundColor:"rgba(8,14,24,0.44)" }]} />
             <View style={s.fullCardInner}>
-              <Text style={s.fullCardEyebrow}>{"DU\u02bfĀS"}</Text>
-              <Text style={s.fullCardTitle}>{"Hajj Du\u02bf\u0101\u02bes"}</Text>
-              <Text style={s.fullCardSub}>{"23 du\u02bf\u0101\u02bes for every step of your Hajj"}</Text>
+              <Text style={s.fullCardEyebrow}>{"DUAS"}</Text>
+              <Text style={s.fullCardTitle}>{"Hajj Duas"}</Text>
+              <Text style={s.fullCardSub}>{"23 duas for every step of your Hajj"}</Text>
             </View>
           </ImageBackground>
         </TouchableOpacity>
@@ -248,7 +248,7 @@ const s = StyleSheet.create({
   heroCardTitle:   { fontFamily:SERIF, fontSize:26, color:"#fff", fontWeight:"400", marginBottom:5 },
   heroCardSub:     { fontSize:14, color:"rgba(255,255,255,0.75)" },
 
-  // Full-width Du'ās card
+  // Full-width Du'as card
   fullCard:        { height:130, borderRadius:14, overflow:"hidden", marginBottom:spacing(1.5), ...shadows.card },
   fullCardScrim:   { ...StyleSheet.absoluteFillObject, borderRadius:14 },
   fullCardInner:   { flex:1, justifyContent:"flex-end", padding:16 },

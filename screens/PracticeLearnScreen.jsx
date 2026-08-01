@@ -23,7 +23,7 @@ import {
 } from "phosphor-react-native";
 
 const SERIF = "SourceSerif4-Regular";
-const STAGES = ["All", "Ihram", "Entry", "Tawaf", "Saʿy",
+const STAGES = ["All", "Ihram", "Entry", "Tawaf", "Say",
                 "Arafah", "Muzdalifah", "Jamarat", "Farewell"];
 
 // ── Quick Start sets — ids verified against duas-data.js ─────────────────────

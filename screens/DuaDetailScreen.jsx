@@ -329,7 +329,7 @@ export default function DuaDetailScreen({ route, navigation }) {
   const activeDua = allDuas.length > 0 ? (allDuas[idx] ?? dua) : dua;
   if (!activeDua) return null;
 
-  // Persist last viewed du'ā for HomeScreen continuation card
+  // Persist last viewed du'a for HomeScreen continuation card
   useEffect(() => {
     if (!activeDua) return;
     const payload = {
@@ -434,7 +434,7 @@ export default function DuaDetailScreen({ route, navigation }) {
             <Text style={s.stageLabel}>{(activeDua.stage ?? "").toUpperCase()}</Text>
           ) : null}
 
-          {/* Du'ā title */}
+          {/* Du'a title */}
           <Text style={s.duaTitle}>{activeDua.title}</Text>
 
           {/* Counter */}
@@ -502,7 +502,7 @@ export default function DuaDetailScreen({ route, navigation }) {
           {/* Ask pill button */}
           <TouchableOpacity style={s.askPill} onPress={() => setShowAsk(true)} activeOpacity={0.8}>
             <IconChat size={15} />
-            <Text style={s.askPillTxt}>{"Ask about this du\u02bf\u0101\u02be"}</Text>
+            <Text style={s.askPillTxt}>{"Ask about this dua"}</Text>
           </TouchableOpacity>
         </ScrollView>
 
@@ -595,7 +595,7 @@ export default function DuaDetailScreen({ route, navigation }) {
         <AskModal
           visible={showAsk}
           onClose={() => setShowAsk(false)}
-          context={`The user is reading this du\u02bf\u0101\u02be:\n\nTitle: ${activeDua.title}\nStage: ${activeDua.stage ?? ""}\nArabic: ${activeDua.arabic}\nTransliteration: ${activeDua.transliteration ?? ""}\nTranslation: ${activeDua.translation ?? ""}\nSource: ${activeDua.source ?? ""}`}
+          context={`The user is reading this dua:\n\nTitle: ${activeDua.title}\nStage: ${activeDua.stage ?? ""}\nArabic: ${activeDua.arabic}\nTransliteration: ${activeDua.transliteration ?? ""}\nTranslation: ${activeDua.translation ?? ""}\nSource: ${activeDua.source ?? ""}`}
           contextLabel={activeDua.title}
         />
       )}

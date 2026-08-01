@@ -1,6 +1,6 @@
 /**
  * UmrahGuideScreen.jsx — Safar
- * Hero → carousel, Umrah Du'ās, Pilgrimage Map, Sacred Places, Checklist
+ * Hero → carousel, Umrah Du'as, Pilgrimage Map, Sacred Places, Checklist
  */
 import React, { useState, useEffect } from "react";
 import {
@@ -18,8 +18,8 @@ const UMRAH_CHECKLIST = [
   { id:"uc1",  text:"Obtain a valid Umrah visa" },
   { id:"uc2",  text:"Book flights and accommodation near the Haram" },
   { id:"uc3",  text:"Pack Ihram garments and travel essentials" },
-  { id:"uc4",  text:"Learn the steps, du\u02bf\u0101\u02bes and intentions for each rite" },
-  { id:"uc5",  text:"Memorise the Talbiyah and du\u02bf\u0101\u02be for entering Ihram" },
+  { id:"uc4",  text:"Learn the steps, duas and intentions for each act" },
+  { id:"uc5",  text:"Memorise the Talbiyah and dua for entering Ihram" },
   { id:"uc6",  text:"Get any required vaccinations (meningitis, flu)" },
   { id:"uc7",  text:"Plan visits to sacred sites in Makkah and Madinah" },
   { id:"uc8",  text:"Pack comfortable walking shoes and unscented toiletries" },
@@ -80,7 +80,7 @@ export default function UmrahGuideScreen({ navigation }) {
           </ImageBackground>
         </TouchableOpacity>
 
-        {/* ── 2. Umrah Du'ās — full width ── */}
+        {/* ── 2. Umrah Du'as — full width ── */}
         <TouchableOpacity
           style={s.fullCard}
           activeOpacity={0.88}
@@ -94,9 +94,9 @@ export default function UmrahGuideScreen({ navigation }) {
           >
             <View style={[s.fullCardScrim, { backgroundColor:"rgba(10,24,16,0.42)" }]} />
             <View style={s.fullCardInner}>
-              <Text style={s.fullCardEyebrow}>{"DU\u02bfĀS"}</Text>
-              <Text style={s.fullCardTitle}>{"Umrah Du\u02bf\u0101\u02bes"}</Text>
-              <Text style={s.fullCardSub}>{"23 du\u02bf\u0101\u02bes for every step of your Umrah"}</Text>
+              <Text style={s.fullCardEyebrow}>{"DUAS"}</Text>
+              <Text style={s.fullCardTitle}>{"Umrah Duas"}</Text>
+              <Text style={s.fullCardSub}>{"23 duas for every step of your Umrah"}</Text>
             </View>
           </ImageBackground>
         </TouchableOpacity>
@@ -246,7 +246,7 @@ const s = StyleSheet.create({
   heroCardTitle:   { fontFamily:SERIF, fontSize:26, color:"#fff", fontWeight:"400", marginBottom:5 },
   heroCardSub:     { fontSize:14, color:"rgba(255,255,255,0.75)" },
 
-  // Full-width Du'ās card
+  // Full-width Du'as card
   fullCard:        { height:130, borderRadius:14, overflow:"hidden", marginBottom:spacing(1.5), ...shadows.card },
   fullCardScrim:   { ...StyleSheet.absoluteFillObject, borderRadius:14 },
   fullCardInner:   { flex:1, justifyContent:"flex-end", padding:16 },

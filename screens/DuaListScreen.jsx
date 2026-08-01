@@ -21,47 +21,47 @@ const SERIF = "SourceSerif4-Regular";
 const STAGE_META = {
   "Ihram": {
     image:   require("../assets/02_ihram_gradient.jpg"),
-    context: "Before entering the M\u012bq\u0101t boundary",
+    context: "Before entering the Miqat boundary",
     siteId:  null,
   },
   "Tawaf": {
     image:   require("../assets/04_tawaf_gradient.jpg"),
-    context: "Circling the Ka\u02bfbah \u2014 seven circuits, beginning at the Black Stone",
+    context: "Circling the Kabah \u2014 seven circuits, beginning at the Black Stone",
     siteId:  "kaaba",
   },
-  "Sa'y": {
+  "Say": {
     image:   require("../assets/05_sai_gradient.jpg"),
-    context: "Walking between \u1e62af\u0101 and Marwah \u2014 seven lengths",
+    context: "Walking between Safa and Marwah \u2014 seven lengths",
     siteId:  "safa_marwa",
   },
   "Zamzam": {
     image:   require("../assets/01_arrival_gradient.jpg"),
-    context: "After Taw\u0101f, at the Well of Zamzam",
+    context: "After Tawaf, at the Well of Zamzam",
     siteId:  "zamzam",
   },
   "Maqam": {
     image:   require("../assets/04_tawaf_gradient.jpg"),
-    context: "At Maq\u0101m Ibr\u0101h\u012bm, after completing Taw\u0101f",
+    context: "At Maqam Ibrahim, after completing Tawaf",
     siteId:  "maqam_ibrahim",
   },
   "Arafah": {
     image:   require("../assets/07_arafah_gradient.jpg"),
-    context: "Standing on the plain of \u02bfArafah \u2014 the heart of Hajj",
+    context: "Standing on the plain of Arafah \u2014 the heart of Hajj",
     siteId:  "arafah",
   },
   "Muzdalifah": {
     image:   require("../assets/08_muzdalifah_gradient.jpg"),
-    context: "Spending the night at Muzdalifah after \u02bfArafah",
+    context: "Spending the night at Muzdalifah after Arafah",
     siteId:  "muzdalifah",
   },
   "Mina": {
     image:   require("../assets/06_mina_gradient.jpg"),
-    context: "At Min\u0101 \u2014 stoning the Jamar\u0101t on the final days of \u1e24ajj",
+    context: "At Mina \u2014 stoning the Jamarat on the final days of Hajj",
     siteId:  "mina",
   },
   "Kaaba": {
     image:   require("../assets/04_tawaf_gradient.jpg"),
-    context: "In the presence of the Ka\u02bfbah",
+    context: "In the presence of the Kabah",
     siteId:  "kaaba",
   },
   "General": {
@@ -71,7 +71,7 @@ const STAGE_META = {
   },
   "Daily": {
     image:   require("../assets/03_journey_gradient.jpg"),
-    context: "For daily remembrance and morning/evening adhk\u0101r",
+    context: "For daily remembrance and morning/evening adhkar",
     siteId:  null,
   },
   "Before Sleep": {
@@ -89,6 +89,30 @@ const STAGE_META = {
 function getStageMeta(stage) {
   return STAGE_META[stage] ?? STAGE_META["default"];
 }
+
+// Maps category keys (from MyDuasScreen theme/mood navigation) to DUA_CONTENT ids + display names.
+// Keys with no matching content tag resolve to an empty array → shows "Coming soon" state.
+const CATEGORY_META = {
+  pilgrimage:  { id: "hajj",      name: "Pilgrimage Duas" },
+  forgiveness: { id: "forgive",   name: "Forgiveness & Repentance" },
+  gratitude:   { id: "gratitude", name: "Gratitude" },
+  patience:    { id: "patience",  name: "Patience" },
+  family:      { id: "family",    name: "Family Duas" },
+  guidance:    { id: "guidance",  name: "Guidance" },
+  grateful:    { id: "gratitude", name: "Feeling Grateful" },
+  prayer:      { id: "prayer",    name: "Salah & Prayer" },
+  dhikr:       { id: "dhikr",     name: "Dhikr & Remembrance" },
+  tawakkul:    { id: "tawakkul",  name: "Tawakkul & Trust" },
+  health:      { id: "health",    name: "Health & Healing" },
+  anxiety:     { id: "anxiety",   name: "Anxiety & Worry" },
+  travel:      { id: "travel",    name: "Travel" },
+  anxious:     { id: "anxious",   name: "Feeling Anxious" },
+  peace:       { id: "peace",     name: "Seeking Peace" },
+  strength:    { id: "strength",  name: "Need Strength" },
+  anew:        { id: "anew",      name: "Starting Anew" },
+  all:         { id: "all",       name: "All Duas" },
+  mood:        { id: "mood",      name: "Mood Duas" },
+};
 
 // ── Dua row ───────────────────────────────────────────────────────────────────
 function DuaRow({ dua, index, total, onPress }) {
@@ -168,10 +192,32 @@ const sh = StyleSheet.create({
 
 // ── Screen ────────────────────────────────────────────────────────────────────
 export default function DuaListScreen({ route, navigation }) {
-  const list = route?.params?.list ?? { id:"hajj", name:"Hajj & Umrah Du\u02bf\u0101\u02bes" };
+  // category param (from theme/mood cards) takes priority; fallback to list param (from guide screens).
+  const rawCat = route?.params?.category;
+  const list = (rawCat ? CATEGORY_META[rawCat] : null) ?? route?.params?.list ?? null;
 
-  // No fallback — if the ID doesn't exist show an empty state
-  // rather than silently showing the wrong duas
+  if (!list?.id) {
+    return (
+      <SafeAreaView style={s.safe}>
+        <View style={s.empty}>
+          <Text style={s.emptyTitle}>{"Nothing selected"}</Text>
+          <Text style={s.emptyBody}>
+            {"Head back to the dua library and pick a category or list."}
+          </Text>
+          <TouchableOpacity
+            style={s.emptyBtn}
+            onPress={() => navigation?.navigate?.("MyDuas")}
+            activeOpacity={0.8}
+          >
+            <Text style={s.emptyBtnTxt}>{"Go to dua library"}</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // If the ID doesn't exist show an empty state rather than silently
+  // showing the wrong duas
   const duas = DUA_CONTENT[list.id] ?? [];
 
   const stages = [];
@@ -190,7 +236,7 @@ export default function DuaListScreen({ route, navigation }) {
         </TouchableOpacity>
         <View style={s.headerCenter}>
           <Text style={s.headerTitle} numberOfLines={1}>{list.name}</Text>
-          <Text style={s.headerSub}>{duas.length}{" "}{duas.length === 1 ? "du\u02bf\u0101\u02be" : "du\u02bf\u0101\u02bes"}</Text>
+          <Text style={s.headerSub}>{duas.length}{" "}{duas.length === 1 ? "dua" : "duas"}</Text>
         </View>
         <View style={{ width:36 }} />
       </View>
@@ -199,14 +245,14 @@ export default function DuaListScreen({ route, navigation }) {
         <View style={s.empty}>
           <Text style={s.emptyTitle}>{"Coming soon"}</Text>
           <Text style={s.emptyBody}>
-            {"Du\u02bf\u0101\u02bes for \u201c" + list.name + "\u201d are being added.\nCheck back soon, or explore the Hajj & Umrah du\u02bf\u0101\u02bes in the meantime."}
+            {"Duas for \u201c" + list.name + "\u201d are being added.\nCheck back soon, or explore the Hajj & Umrah duas in the meantime."}
           </Text>
           <TouchableOpacity
             style={s.emptyBtn}
-            onPress={() => navigation.replace("DuaList", { list:{ id:"hajj", name:"Hajj & Umrah Du\u02bf\u0101\u02bes" } })}
+            onPress={() => navigation.replace("DuaList", { list:{ id:"hajj", name:"Hajj & Umrah Duas" } })}
             activeOpacity={0.8}
           >
-            <Text style={s.emptyBtnTxt}>{"Browse Hajj & Umrah du\u02bf\u0101\u02bes"}</Text>
+            <Text style={s.emptyBtnTxt}>{"Browse Hajj & Umrah duas"}</Text>
           </TouchableOpacity>
         </View>
       ) : (
@@ -242,7 +288,7 @@ export default function DuaListScreen({ route, navigation }) {
           <View style={s.footnote}>
             <Text style={s.footnoteText}>
               <Text style={s.footnoteBold}>Sources</Text>
-              {" \u2014 Du\u02bf\u0101\u02bes are drawn from \u1e62a\u1e25\u012b\u1e25 al-Bukh\u0101r\u012b, \u1e62a\u1e25\u012b\u1e25 Muslim, Sunan Ab\u012b D\u0101w\u016bd, Sunan al-Tirmidh\u012b, Sunan Ibn M\u0101jah, and established scholarly works. Wording may differ across the four madhhabs (\u1e24anaf\u012b, M\u0101lik\u012b, Sh\u0101fi\u02bf\u012b, \u1e24anbal\u012b). Consult a qualified scholar for rulings specific to your school of thought."}
+              {" \u2014 Duas are drawn from Sahih al-Bukhari, Sahih Muslim, Sunan Abi Dawud, Sunan al-Tirmidhi, Sunan Ibn Majah, and established scholarly works. Wording may differ across the four madhhabs (Hanafi, Maliki, Shafii, Hanbali). Consult a qualified scholar for rulings specific to your school of thought."}
             </Text>
           </View>
 

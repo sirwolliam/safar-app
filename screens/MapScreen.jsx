@@ -5,7 +5,7 @@
  *   1. Toggle (top bar)
  *   2. Photo strip — "what it looks like" — changes per step, crossfades
  *   3. Map — full screen background, spatial context
- *   4. Card — slim, step info + inline du'ās link
+ *   4. Card — slim, step info + inline du'as link
  *
  * No scrolling — everything fits in one screen.
  */
@@ -35,7 +35,7 @@ const UMRAH_STEPS = [
     id:"enter",  step:1, label:"Enter Haram",
     title:"Enter Masjid al-Haram",
     date:null, distance:null, duaMode:"umrah",
-    desc:"Enter with your right foot reciting the du\u02bf\u0101 of entry. When the Ka\u02bfbah comes into view, pause \u2014 this is among the most answered moments for du\u02bf\u0101 in the pilgrimage.",
+    desc:"Enter with your right foot reciting the dua of entry. When the Kabah comes into view, pause \u2014 this is among the most answered moments for dua in the pilgrimage.",
     dot:{ x:0.45, y:0.22 },
     photo: require("../assets/arrival.jpg"),
     map:   require("../assets/Umrah_map_test1.png"),
@@ -44,7 +44,7 @@ const UMRAH_STEPS = [
     id:"tawaf",  step:2, label:"Tawaf",
     title:"Tawaf \u2014 7 Circuits",
     date:null, distance:"~1.2km total", duaMode:"umrah",
-    desc:"Circumambulate the Ka\u02bfbah seven times counter-clockwise from the Black Stone. Recite Bismi-ll\u0101hi All\u0101hu Akbar at each start.",
+    desc:"Circumambulate the Kabah seven times counter-clockwise from the Black Stone. Recite Bismi-llahi Allahu Akbar at each start.",
     dot:{ x:0.26, y:0.52 },
     photo: require("../assets/tawaf2.jpg"),
     map:   require("../assets/Umrah_map_test1.png"),
@@ -53,25 +53,25 @@ const UMRAH_STEPS = [
     id:"maqam",  step:3, label:"Maqam Ibrahim",
     title:"Prayer at Maqam Ibrahim",
     date:null, distance:null, duaMode:"umrah",
-    desc:"Pray two rak\u02bfahs with Maqam Ibrahim between you and the Ka\u02bfbah. Recite S\u016brah al-K\u0101fir\u016bn then al-Ikhl\u0101\u1e63. Then drink Zamzam and make du\u02bf\u0101.",
+    desc:"Pray two rakahs with Maqam Ibrahim between you and the Kabah. Recite Surah al-Kafirun then al-Ikhlas. Then drink Zamzam and make dua.",
     dot:{ x:0.44, y:0.58 },
     photo: require("../assets/maqam_ibrahim_map.png"),
     map:   require("../assets/Umrah_map_test1.png"),
   },
   {
     id:"safa",   step:4, label:"Safa",
-    title:"Sa\u02bfi \u2014 Begin at Safa",
+    title:"Sai \u2014 Begin at Safa",
     date:null, distance:"~450m per length", duaMode:"umrah",
-    desc:"Ascend \u1e62af\u0101, face the Ka\u02bfbah and make du\u02bf\u0101 three times. Then begin walking toward Marwah. Men walk briskly between the green lights.",
+    desc:"Ascend Safa, face the Kabah and make dua three times. Then begin walking toward Marwah. Men walk briskly between the green lights.",
     dot:{ x:0.79, y:0.52 },
     photo: require("../assets/sayi.jpg"),
     map:   require("../assets/Umrah_map_test1.png"),
   },
   {
-    id:"sai",    step:5, label:"Sa\u02bfi",
-    title:"Sa\u02bfi \u2014 7 Lengths",
+    id:"sai",    step:5, label:"Sai",
+    title:"Sai \u2014 7 Lengths",
     date:null, distance:"~3.15km total", duaMode:"umrah",
-    desc:"Walk seven lengths between \u1e62af\u0101 and Marwah. Begin at \u1e62af\u0101, end at Marwah on the seventh. Make du\u02bf\u0101 and dhikr throughout.",
+    desc:"Walk seven lengths between Safa and Marwah. Begin at Safa, end at Marwah on the seventh. Make dua and dhikr throughout.",
     dot:{ x:0.79, y:0.62 },
     photo: require("../assets/sayi.jpg"),
     map:   require("../assets/Umrah_map_test1.png"),
@@ -80,38 +80,38 @@ const UMRAH_STEPS = [
     id:"halq",   step:6, label:"Halq / Taqseer",
     title:"Halq or Taqseer",
     date:null, distance:null, duaMode:"umrah",
-    desc:"Shave the head (Halq) or shorten the hair (Taqseer) to exit Ihr\u0101m. Men: shaving carries greater reward. Women: trim a fingertip\u2019s length. Umrah complete.",
+    desc:"Shave the head (Halq) or shorten the hair (Taqseer) to exit Ihram. Men: shaving carries greater reward. Women: trim a fingertip\u2019s length. Umrah complete.",
     dot:{ x:0.67, y:0.72 },
     photo: require("../assets/ihram.jpg"),
     map:   require("../assets/Umrah_map_test1.png"),
-    note:"Taw\u0101f al-Wad\u0101\u02bf before leaving Makkah is recommended Sunnah, not a required step of Umrah.",
+    note:"Tawaf al-Wada before leaving Makkah is recommended Sunnah, not a required step of Umrah.",
   },
 ];
 
 const HAJJ_STEPS = [
   {
     id:"ihram",      step:1, label:"Ihram",
-    title:"Enter Ihr\u0101m",
+    title:"Enter Ihram",
     date:"8th Dhul Hijjah", distance:null, duaMode:"hajj",
-    desc:"At the M\u012bq\u0101t make your intention, wear Ihr\u0101m garments and recite the Talbiyah: Labbayk All\u0101humma labbayk.",
+    desc:"At the Miqat make your intention, wear Ihram garments and recite the Talbiyah: Labbayk Allahumma labbayk.",
     dot:{ x:0.20, y:0.48 },
     photo: require("../assets/ihram.jpg"),
     map:   require("../assets/Umrah_map_test1.png"),
   },
   {
     id:"mina",       step:2, label:"Mina",
-    title:"Travel to Min\u0101",
+    title:"Travel to Mina",
     date:"8th Dhul Hijjah", distance:"~8km from Makkah", duaMode:"hajj",
-    desc:"Travel to Min\u0101. Pray all five prayers here shortening four rak\u02bfah prayers to two. Spend the night in worship before the Day of Arafat.",
+    desc:"Travel to Mina. Pray all five prayers here shortening four rakah prayers to two. Spend the night in worship before the Day of Arafat.",
     dot:{ x:0.47, y:0.42 },
     photo: require("../assets/arrival.jpg"),
     map:   require("../assets/Umrah_map_test1.png"),
   },
   {
     id:"arafat",     step:3, label:"Arafat",
-    title:"Wuq\u016bf at \u02bfarafah",
+    title:"Wuquf at arafah",
     date:"9th Dhul Hijjah", distance:"~14km from Makkah", duaMode:"hajj",
-    desc:"The most important day of Hajj. Stand at \u02bfarafah from midday to sunset in continuous du\u02bf\u0101 and dhikr. The Prophet \u0635 said: \u2018Hajj is \u02bfarafah.\u2019",
+    desc:"The most important day of Hajj. Stand at arafah from midday to sunset in continuous dua and dhikr. The Prophet \u0635 said: \u2018Hajj is arafah.\u2019",
     dot:{ x:0.78, y:0.42 },
     photo: require("../assets/arafah.jpg"),
     map:   require("../assets/Umrah_map_test1.png"),
@@ -120,25 +120,25 @@ const HAJJ_STEPS = [
     id:"muzdalifah", step:4, label:"Muzdalifah",
     title:"Night in Muzdalifah",
     date:"Night of 9th", distance:"~9km from Arafat", duaMode:"hajj",
-    desc:"After sunset travel to Muzdalifah. Combine Maghrib and Ish\u0101\u02bc. Sleep under the open sky. Collect 49\u201370 pebbles for the Jamar\u0101t.",
+    desc:"After sunset travel to Muzdalifah. Combine Maghrib and Isha. Sleep under the open sky. Collect 49\u201370 pebbles for the Jamarat.",
     dot:{ x:0.50, y:0.62 },
     photo: require("../assets/arrival.jpg"),
     map:   require("../assets/Umrah_map_test1.png"),
   },
   {
     id:"jamarat",    step:5, label:"Jamarat",
-    title:"Ram\u012b \u2014 Stone the Jamar\u0101t",
+    title:"Rami \u2014 Stone the Jamarat",
     date:"10th\u201312th", distance:"In Mina", duaMode:"hajj",
-    desc:"Return to Min\u0101. On the 10th throw 7 pebbles at Jamar\u0101t al-\u02bfAqabah. On 11th and 12th stone all three pillars in order. Say All\u0101hu Akbar with each throw.",
+    desc:"Return to Mina. On the 10th throw 7 pebbles at Jamarat al-Aqabah. On 11th and 12th stone all three pillars in order. Say Allahu Akbar with each throw.",
     dot:{ x:0.42, y:0.42 },
     photo: require("../assets/arrival.jpg"),
     map:   require("../assets/Umrah_map_test1.png"),
   },
   {
     id:"ifadah",     step:6, label:"Tawaf + Farewell",
-    title:"Taw\u0101f al-If\u0101dah + Farewell",
+    title:"Tawaf al-Ifadah + Farewell",
     date:"10th Dhul Hijjah", distance:"Return to Makkah", duaMode:"hajj",
-    desc:"Perform Taw\u0101f al-If\u0101dah then Sa\u02bfi. All Ihr\u0101m restrictions are fully lifted. Perform Taw\u0101f al-Wad\u0101\u02bf before leaving Makkah.",
+    desc:"Perform Tawaf al-Ifadah then Sai. All Ihram restrictions are fully lifted. Perform Tawaf al-Wada before leaving Makkah.",
     dot:{ x:0.20, y:0.48 },
     photo: require("../assets/tawaf2.jpg"),
     map:   require("../assets/Umrah_map_test1.png"),
@@ -327,7 +327,7 @@ export default function MapScreen({ navigation }) {
             ? <Text style={s.note} numberOfLines={2}>{"\u2139\uFE0F  " + current.note}</Text>
             : null}
 
-          {/* Inline du'ās link — no button */}
+          {/* Inline du'as link — no button */}
           <TouchableOpacity
             onPress={() => navigation?.navigate?.("PilgrimageDuas", { mode: current.duaMode })}
             activeOpacity={0.7}
@@ -335,7 +335,7 @@ export default function MapScreen({ navigation }) {
             hitSlop={{top:8,bottom:8,left:0,right:0}}
           >
             <HandsPraying size={14} color={SAGE} weight="thin"/>
-            <Text style={s.duaLinkTxt}>{"Du\u02bf\u0101s for " + current.label + "  \u2192"}</Text>
+            <Text style={s.duaLinkTxt}>{"Duas for " + current.label + "  \u2192"}</Text>
           </TouchableOpacity>
         </View>
 

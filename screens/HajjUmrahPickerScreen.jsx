@@ -1,6 +1,6 @@
 /**
  * HajjUmrahPickerScreen.jsx — Safar
- * Gateway shown when user taps "Hajj & Umrah" in the du'ā library.
+ * Gateway shown when user taps "Hajj & Umrah" in the du'a library.
  * Two large image cards — Umrah and Hajj — each leading to PilgrimageDuasScreen.
  */
 import React from "react";
@@ -28,7 +28,7 @@ export default function HajjUmrahPickerScreen({ navigation }) {
           <Text style={s.backArrow}>‹</Text>
         </TouchableOpacity>
         <View style={s.headerCenter}>
-          <Text style={s.headerTitle}>{"Ḥajj & Umrah Du\u02bfās"}</Text>
+          <Text style={s.headerTitle}>{"Hajj & Umrah Duas"}</Text>
           <Text style={s.headerSub}>Choose your pilgrimage</Text>
         </View>
         <View style={{ width:36 }} />
@@ -36,7 +36,7 @@ export default function HajjUmrahPickerScreen({ navigation }) {
 
       <View style={s.body}>
         <Text style={s.intro}>
-          {"Select the du\u02bfās for your pilgrimage. Each collection is arranged by stage so you always know when to say each one."}
+          {"Select the duas for your pilgrimage. Each collection is arranged by stage so you always know when to say each one."}
         </Text>
 
         {/* Umrah */}
@@ -54,8 +54,8 @@ export default function HajjUmrahPickerScreen({ navigation }) {
             <View style={s.cardScrim} />
             <View style={s.cardContent}>
               <Text style={s.cardEyebrow}>UMRAH</Text>
-              <Text style={s.cardTitle}>{"Umrah Du\u02bfās"}</Text>
-              <Text style={s.cardSub}>{"8 stages · Ihrām through Farewell"}</Text>
+              <Text style={s.cardTitle}>{"Umrah Duas"}</Text>
+              <Text style={s.cardSub}>{"8 stages · Ihram through Farewell"}</Text>
             </View>
           </ImageBackground>
         </TouchableOpacity>
@@ -75,8 +75,8 @@ export default function HajjUmrahPickerScreen({ navigation }) {
             <View style={s.cardScrim} />
             <View style={s.cardContent}>
               <Text style={s.cardEyebrow}>HAJJ</Text>
-              <Text style={s.cardTitle}>{"Ḥajj Du\u02bfās"}</Text>
-              <Text style={s.cardSub}>{"13 stages · Ihrām through Farewell"}</Text>
+              <Text style={s.cardTitle}>{"Hajj Duas"}</Text>
+              <Text style={s.cardSub}>{"13 stages · Ihram through Farewell"}</Text>
             </View>
           </ImageBackground>
         </TouchableOpacity>

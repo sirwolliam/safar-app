@@ -28,7 +28,7 @@ function ScholarlyFootnote({ style }) {
     <View style={[fn.wrap, style]}>
       <Text style={fn.text}>
         <Text style={fn.bold}>Sources</Text>{" — "}
-        Duas are drawn from Ṣaḥīḥ al-Bukhārī, Ṣaḥīḥ Muslim, Sunan Abī Dāwūd, Sunan al-Tirmidhī, and established scholarly works. Each duʿāʾ is attributed to its primary source. Practice and wording may differ across the four madhabs (Ḥanafī, Mālikī, Shāfiʿī, Ḥanbalī). Consult a qualified scholar for rulings specific to your school of thought.
+        Duas are drawn from Sahih al-Bukhari, Sahih Muslim, Sunan Abi Dawud, Sunan al-Tirmidhi, and established scholarly works. Each dua is attributed to its primary source. Practice and wording may differ across the four madhabs (Hanafi, Maliki, Shafii, Hanbali). Consult a qualified scholar for rulings specific to your school of thought.
       </Text>
     </View>
   );

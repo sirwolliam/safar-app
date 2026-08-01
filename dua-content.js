@@ -48,7 +48,7 @@ const VISIBLE = DUAS_DATA.filter((d) => SHOW_UNVERIFIED || d.verified).map(adapt
 export const DUAS = VISIBLE;
 
 export const STAGES = [
-  "Ihram", "Entry", "Tawaf", "Zamzam", "Saʿy", "Maqam",
+  "Ihram", "Entry", "Tawaf", "Zamzam", "Say", "Maqam",
   "Arafah", "Muzdalifah", "Jamarat", "Farewell", "Madinah",
 ];
 
@@ -71,9 +71,9 @@ function byStages(stageList) {
   return DUAS.filter((d) => d.stage && stageList.includes(d.stage));
 }
 
-const UMRAH_STAGES = ["Ihram", "Entry", "Tawaf", "Zamzam", "Saʿy", "Farewell"];
+const UMRAH_STAGES = ["Ihram", "Entry", "Tawaf", "Zamzam", "Say", "Farewell"];
 const HAJJ_STAGES = [
-  "Ihram", "Entry", "Tawaf", "Zamzam", "Saʿy",
+  "Ihram", "Entry", "Tawaf", "Zamzam", "Say",
   "Arafah", "Muzdalifah", "Jamarat", "Farewell",
 ];
 
@@ -84,7 +84,7 @@ export const HAJJ_DUAS = byStages(HAJJ_STAGES);
 // Pilgrimage routes use stages; Discover/My-Lists use REAL category tags.
 export const DUA_CONTENT = {
   // Pilgrimage routes
-  hajj:       DUAS,
+  hajj:       HAJJ_DUAS,
   umrah:      UMRAH_DUAS,
   umrahDuas:  UMRAH_DUAS,
   hajjDuas:   HAJJ_DUAS,

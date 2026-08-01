@@ -37,16 +37,16 @@ const TAWAF_DUAS = [
     name: "Upon Beginning Tawaf",
     when: "Said at the Black Stone to begin each round",
     arabic: "\u0628\u0650\u0633\u0652\u0645\u0650 \u0627\u0644\u0644\u0647\u0650 \u0648\u064e\u0627\u0644\u0644\u0647\u064f \u0623\u064e\u0643\u0652\u0628\u064e\u0631\u064f",
-    translit: "Bismi-ll\u0101hi wa-ll\u0101hu akbar",
+    translit: "Bismi-llahi wa-llahu akbar",
     translation: "In the name of Allah, and Allah is the Greatest.",
-    source: "\u1e62a\u1e25\u012b\u1e25 al-Bukh\u0101r\u012b \u00b7 1613",
+    source: "Sahih al-Bukhari \u00b7 1613",
   },
   {
     id: "tawaf-yemeni",
     name: "Between Yemeni Corner & Black Stone",
     when: "Recited in the final stretch of each round",
     arabic: "\u0631\u064e\u0628\u064e\u0651\u0646\u064e\u0627 \u0622\u062a\u0650\u0646\u064e\u0627 \u0641\u0650\u064a \u0627\u0644\u062f\u064f\u0651\u0646\u0652\u064a\u064e\u0627 \u062d\u064e\u0633\u064e\u0646\u064e\u0629\u064b \u0648\u064e\u0641\u0650\u064a \u0627\u0644\u0622\u062e\u0650\u0631\u064e\u0629\u0650 \u062d\u064e\u0633\u064e\u0646\u064e\u0629\u064b \u0648\u064e\u0642\u0650\u0646\u064e\u0627 \u0639\u064e\u0630\u064e\u0627\u0628\u064e \u0627\u0644\u0646\u064e\u0651\u0627\u0631\u0650",
-    translit: "Rabban\u0101 \u0101tin\u0101 fi\u02bfd-duny\u0101 \u1e25asanatan wa fi\u02bfl-\u0101khirati \u1e25asanatan wa qin\u0101 \u02bfadh\u0101ba\u02bbn-n\u0101r",
+    translit: "Rabbana atina fid-dunya hasanatan wa fil-akhirati hasanatan wa qina adhaban-nar",
     translation: "Our Lord, give us good in this world and in the Hereafter, and protect us from the punishment of the Fire.",
     source: "Al-Baqarah 2:201",
   },
@@ -103,7 +103,7 @@ function DuaAudioPlayer({ duaName }) {
               width: progress.interpolate({ inputRange:[0,1], outputRange:["0%","100%"] }),
             }]} />
           </View>
-          <Text style={ap.label}>{playing ? "Playing…" : "Listen to this du\u02bf\u0101"}</Text>
+          <Text style={ap.label}>{playing ? "Playing…" : "Listen to this dua"}</Text>
         </View>
       </View>
       {showHint && (
@@ -316,9 +316,9 @@ export default function TawafScreen({ navigation }) {
         <View style={s.duasRow}>
           {TAWAF_DUAS.map(dua => (
             <TouchableOpacity key={dua.id} style={s.duaCard} onPress={() => setActiveDua(dua)} activeOpacity={0.82}>
-              {/* View du'ā — prominent at top */}
+              {/* View du'a — prominent at top */}
               <View style={s.duaCardHeader}>
-                <Text style={s.duaCardView}>{"View du\u02bf\u0101"}</Text>
+                <Text style={s.duaCardView}>{"View dua"}</Text>
                 <Text style={s.duaCardArrow}>{"›"}</Text>
               </View>
               <View style={s.duaCardDivider}/>
