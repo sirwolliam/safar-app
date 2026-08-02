@@ -2659,5 +2659,92 @@ export const DUAS_DATA = [
     "verified_date": "",
     "source_page": "",
     "review_flag": null
+  },
+  {
+    "id": "ahyini-ma-kanat",
+    "title": "The Patient's Wish",
+    "arabic": "اللَّهُمَّ أَحْيِنِي مَا كَانَتِ الْحَيَاةُ خَيْرًا لِي، وَتَوَفَّنِي إِذَا كَانَتِ الْوَفَاةُ خَيْرًا لِي",
+    "transliteration": "Allahumma ahyini ma kanatil-hayatu khayran li, wa tawaffani idha kanatil-wafatu khayran li",
+    "translation": "O Allah, keep me alive as long as life is good for me, and cause me to die when death is better for me.",
+    "source_full": "Sahih al-Bukhari 5671 · Sahih Muslim 2680 (Muttafaqun 'Alayhi)",
+    "authenticity": "sahih",
+    "stage": null,
+    "stage_order": 327,
+    "categories": [
+      "depressed",
+      "sad"
+    ],
+    "keywords": [
+      "hardship",
+      "wish",
+      "patience",
+      "trust"
+    ],
+    "is_featured": false,
+    "audio_traditional": null,
+    "audio_gentle": null,
+    "verified": false,
+    "verified_by": "",
+    "verified_date": "",
+    "source_page": "",
+    "review_flag": null
+  },
+  {
+    "id": "rabbana-zalamna",
+    "title": "Rabbana Zalamna Anfusana — Adam & Hawwa's Repentance",
+    "arabic": "رَبَّنَا ظَلَمْنَا أَنفُسَنَا وَإِن لَّمْ تَغْفِرْ لَنَا وَتَرْحَمْنَا لَنَكُونَنَّ مِنَ الْخَاسِرِينَ",
+    "transliteration": "Rabbana zalamna anfusana, wa in lam taghfir lana wa tarhamna lanakunanna minal-khasirin",
+    "translation": "Our Lord, we have wronged ourselves, and if You do not forgive us and have mercy upon us, we will surely be among the losers.",
+    "source_full": "Qur'an 7:23",
+    "authenticity": "quran",
+    "stage": null,
+    "stage_order": 329,
+    "categories": [
+      "regret",
+      "guilty"
+    ],
+    "keywords": [
+      "adam",
+      "hawwa",
+      "repentance",
+      "forgiveness"
+    ],
+    "is_featured": false,
+    "audio_traditional": null,
+    "audio_gentle": null,
+    "verified": false,
+    "verified_by": "",
+    "verified_date": "",
+    "source_page": "",
+    "review_flag": null
+  },
+  {
+    "id": "afini-fi-badani",
+    "title": "Health in Body, Hearing, and Sight",
+    "arabic": "اللَّهُمَّ عَافِنِي فِي بَدَنِي، اللَّهُمَّ عَافِنِي فِي سَمْعِي، اللَّهُمَّ عَافِنِي فِي بَصَرِي، لَا إِلَهَ إِلَّا أَنْتَ",
+    "transliteration": "Allahumma 'afini fi badani, Allahumma 'afini fi sam'i, Allahumma 'afini fi basari, la ilaha illa ant",
+    "translation": "O Allah, grant health to my body. O Allah, grant health to my hearing. O Allah, grant health to my sight. There is no god but You.",
+    "source_full": "Sunan Abi Dawud 5090",
+    "authenticity": "hasan",
+    "stage": null,
+    "stage_order": 330,
+    "categories": [
+      "tired",
+      "weak"
+    ],
+    "keywords": [
+      "health",
+      "afiyah",
+      "morning",
+      "evening"
+    ],
+    "is_featured": false,
+    "audio_traditional": null,
+    "audio_gentle": null,
+    "verified": false,
+    "verified_by": "",
+    "verified_date": "",
+    "source_page": "",
+    "review_flag": null
   }
 ];

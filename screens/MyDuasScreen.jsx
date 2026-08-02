@@ -436,28 +436,16 @@ export default function MyDuasScreen({ navigation }) {
 
             {/* Duas by Mood */}
             <TouchableOpacity
-              style={styles.moodBanner}
-              activeOpacity={0.85}
+              style={styles.moodRow}
+              activeOpacity={0.75}
               onPress={() => navigation.navigate("Moods")}
             >
-              <Image
-                source={require("../assets/mood/mood-peace.png")}
-                style={StyleSheet.absoluteFillObject}
-                resizeMode="cover"
-              />
-              <LinearGradient
-                colors={["rgba(0,0,0,0.15)", "rgba(0,0,0,0.70)"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 0, y: 1 }}
-                style={StyleSheet.absoluteFillObject}
-              />
-              <View style={styles.moodBannerContent}>
-                <View style={styles.moodBannerText}>
-                  <Text style={styles.moodBannerTitle}>{"Moods"}</Text>
-                  <Text style={styles.moodBannerSub}>{"Find the right words for how you feel"}</Text>
-                </View>
-                <CaretRight size={20} color="#FFFFFF" weight="bold" />
+              <View style={styles.moodRowThumb} />
+              <View style={styles.rowInfo}>
+                <Text style={styles.rowTitle}>{"Moods"}</Text>
+                <Text style={styles.rowSub}>{"Find the right words for how you feel"}</Text>
               </View>
+              <CaretRight size={16} color="#B0A090" weight="bold" />
             </TouchableOpacity>
           </View>
 
@@ -710,12 +698,9 @@ const styles = StyleSheet.create({
   themeCardContent: { flex: 1, alignItems: "center", justifyContent: "center" },
   themeLabel:       { fontSize: 14, color: "#1A1410", textAlign: "center", lineHeight: 18, marginTop: 6, paddingHorizontal: 4 },
 
-  // ── Moods banner
-  moodBanner:        { height: 110, borderRadius: 16, marginHorizontal: 16, marginTop: 16, marginBottom: 12, overflow: "hidden" },
-  moodBannerContent: { flex: 1, flexDirection: "row", alignItems: "center", paddingHorizontal: 20, gap: 12 },
-  moodBannerText:    { flex: 1 },
-  moodBannerTitle:   { fontFamily: SERIF, fontSize: 20, fontWeight: "400", color: "#FFFFFF", marginBottom: 4 },
-  moodBannerSub:     { fontSize: 13, color: "rgba(255,255,255,0.85)", lineHeight: 18 },
+  // ── Moods row card
+  moodRow:      { flexDirection: "row", alignItems: "center", paddingHorizontal: 20, paddingVertical: 14, minHeight: 88, backgroundColor: "#FDF7EE", borderRadius: 16, marginHorizontal: 16, marginTop: 16, marginBottom: 12, borderWidth: 1, borderColor: "#EDE4D4", shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 8, elevation: 3 },
+  moodRowThumb: { width: 72, height: 72, borderRadius: 14, backgroundColor: "#243020", marginRight: 14 },
 
   // ── Empty tab states
   emptyTab:       { alignItems: "center", paddingTop: 64, paddingBottom: 40, gap: 14 },

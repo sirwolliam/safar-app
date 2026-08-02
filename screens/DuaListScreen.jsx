@@ -35,10 +35,15 @@ const CATEGORY_META = {
   health:      { id: "health",    name: "Health & Healing" },
   anxiety:     { id: "anxiety",   name: "Anxiety & Worry" },
   travel:      { id: "travel",    name: "Travel" },
-  anxious:     { id: "anxious",   name: "Feeling Anxious" },
-  peace:       { id: "peace",     name: "Seeking Peace" },
-  strength:    { id: "strength",  name: "Need Strength" },
-  anew:        { id: "anew",      name: "Starting Anew" },
+  anxious:     { id: "anxious",     name: "Feeling Anxious" },
+  peace:       { id: "peace",       name: "Seeking Peace" },
+  strength:    { id: "strength",    name: "Need Strength" },
+  anew:        { id: "anew",        name: "Starting Anew" },
+  grief:       { id: "grief",       name: "Grief & Sadness" },
+  frustration: { id: "frustration", name: "Frustration" },
+  faithDoubt:  { id: "faithDoubt",  name: "Faith & Doubt" },
+  lowEnergy:   { id: "lowEnergy",   name: "Low Energy" },
+  contentment: { id: "contentment", name: "Content & Grateful" },
   scared:      { id: "scared",      name: "Feeling Scared" },
   nervous:     { id: "nervous",     name: "Feeling Nervous" },
   overwhelmed: { id: "overwhelmed", name: "Feeling Overwhelmed" },
@@ -232,7 +237,7 @@ export default function DuaListScreen({ route, navigation }) {
           <View style={s.footnote}>
             <Text style={s.footnoteText}>
               <Text style={s.footnoteBold}>Sources</Text>
-              {" — Duas are drawn from Sahih al-Bukhari, Sahih Muslim, Sunan Abi Dawud, Sunan al-Tirmidhi, Sunan Ibn Majah, and established scholarly works. Wording may differ across the four madhhabs (Hanafi, Maliki, Shafii, Hanbali). Consult a qualified scholar for rulings specific to your school of thought."}
+              {" — Duas are drawn from the Qur'an and the major hadith collections (Sahih al-Bukhari, Sahih Muslim, Sunan Abi Dawud, Jami' at-Tirmidhi, Sunan Ibn Majah) via Sunnah.com and Hisn al-Muslim. Wording may differ slightly across the four madhhabs."}
             </Text>
           </View>
         </ScrollView>

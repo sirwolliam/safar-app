@@ -66,6 +66,10 @@ export function getDuaById(id) {
 function byTag(tag) {
   return DUAS.filter((d) => d.categories.includes(tag));
 }
+// Helper: every dua carrying any of the given category tags
+function byTags(tags) {
+  return DUAS.filter((d) => d.categories.some((c) => tags.includes(c)));
+}
 // Helper: pilgrimage subsets by stage membership
 function byStages(stageList) {
   return DUAS.filter((d) => d.stage && stageList.includes(d.stage));
@@ -102,8 +106,14 @@ export const DUA_CONTENT = {
   daily:      byTag("daily"),
   sleep:      byTag("sleep"),
 
-  // Mood tiles
-  anxious:    byTag("anxious"),
+  // Mood tiles — grouped keys (each covers a cluster of individual tags)
+  anxious:     byTags(["anxious", "nervous", "scared", "overwhelmed"]),
+  grief:       byTags(["sad", "depressed", "hurt", "lonely", "unloved", "regret"]),
+  frustration: byTags(["angry", "impatient", "jealous", "greedy"]),
+  faithDoubt:  byTags(["doubtful", "hypocritical", "guilty", "indecisive", "confused"]),
+  lowEnergy:   byTags(["tired", "lazy", "bored", "weak"]),
+  contentment: byTags(["content", "happy", "gratitude"]),
+  // Individual mood tags (unchanged — kept for direct deep-link routing)
   peace:      byTag("peace"),
   strength:   byTag("strength"),
   anew:       byTag("anew"),

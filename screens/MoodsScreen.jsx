@@ -6,46 +6,24 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   CaretLeft,
-  CloudRain, Leaf, Flame, Moon, SunHorizon,
-  Ghost, Pulse, Waves, BatteryLow, Bed, Coffee, Drop, CloudFog,
-  Bandaids, User, HeartBreak, ClockCounterClockwise, Fire, Timer,
-  Eye, Coins, Question, MaskHappy, Scales, ArrowsLeftRight,
-  BatteryWarning, PuzzlePiece, HandHeart, Smiley,
+  CloudRain, Drop, Fire, Question, BatteryLow, HandHeart, Leaf, Flame, SunHorizon,
 } from "phosphor-react-native";
 import HeaderPatternBg from "../HeaderPatternBg";
 
 const SW = Dimensions.get("window").width;
+const TILE_W = (SW - 16 * 2 - 10 * 2) / 3;
+const TILE_H = Math.round(TILE_W * 1.1);
 
 const MOOD_TILES = [
-  { key: "anxious",      label: "Feeling\nAnxious",       icon: CloudRain,             image: require("../assets/mood/mood-anxious.png")      },
-  { key: "peace",        label: "Seeking\nPeace",          icon: Leaf,                  image: require("../assets/mood/mood-peace.png")        },
-  { key: "strength",     label: "Need\nStrength",          icon: Flame,                 image: require("../assets/mood/mood-strength.png")     },
-  { key: "grateful",     label: "Feeling\nGrateful",       icon: Moon,                  image: require("../assets/mood/mood-grateful.png")     },
-  { key: "anew",         label: "Starting\nAnew",          icon: SunHorizon,            image: require("../assets/mood/mood-anew.png")         },
-  { key: "scared",       label: "Feeling\nScared",         icon: Ghost,                 image: require("../assets/mood/mood-scared.png")       },
-  { key: "nervous",      label: "Feeling\nNervous",        icon: Pulse,                 image: require("../assets/mood/mood-nervous.png")      },
-  { key: "overwhelmed",  label: "Feeling\nOverwhelmed",    icon: Waves,                 image: require("../assets/mood/mood-overwhelmed.png")  },
-  { key: "tired",        label: "Feeling\nTired",          icon: BatteryLow,            image: require("../assets/mood/mood-tired.png")        },
-  { key: "lazy",         label: "Feeling\nLazy",           icon: Bed,                   image: require("../assets/mood/mood-lazy.png")         },
-  { key: "bored",        label: "Feeling\nBored",          icon: Coffee,                image: require("../assets/mood/mood-bored.png")        },
-  { key: "sad",          label: "Feeling\nSad",            icon: Drop,                  image: require("../assets/mood/mood-sad.png")          },
-  { key: "depressed",    label: "Feeling\nDepressed",      icon: CloudFog,              image: require("../assets/mood/mood-depressed.png")    },
-  { key: "hurt",         label: "Feeling\nHurt",           icon: Bandaids,              image: require("../assets/mood/mood-hurt.png")         },
-  { key: "lonely",       label: "Feeling\nLonely",         icon: User,                  image: require("../assets/mood/mood-lonely.png")       },
-  { key: "unloved",      label: "Feeling\nUnloved",        icon: HeartBreak,            image: require("../assets/mood/mood-unloved.png")      },
-  { key: "regret",       label: "Feeling\nRegret",         icon: ClockCounterClockwise, image: require("../assets/mood/mood-regret.png")       },
-  { key: "angry",        label: "Feeling\nAngry",          icon: Fire,                  image: require("../assets/mood/mood-angry.png")        },
-  { key: "impatient",    label: "Feeling\nImpatient",      icon: Timer,                 image: require("../assets/mood/mood-impatient.png")    },
-  { key: "jealous",      label: "Feeling\nJealous",        icon: Eye,                   image: require("../assets/mood/mood-jealous.png")      },
-  { key: "greedy",       label: "Feeling\nGreedy",         icon: Coins,                 image: require("../assets/mood/mood-greedy.png")       },
-  { key: "doubtful",     label: "Feeling\nDoubtful",       icon: Question,              image: require("../assets/mood/mood-doubtful.png")     },
-  { key: "hypocritical", label: "Feeling\nHypocritical",   icon: MaskHappy,             image: require("../assets/mood/mood-hypocritical.png") },
-  { key: "guilty",       label: "Feeling\nGuilty",         icon: Scales,                image: require("../assets/mood/mood-guilty.png")       },
-  { key: "indecisive",   label: "Feeling\nIndecisive",     icon: ArrowsLeftRight,       image: require("../assets/mood/mood-indecisive.png")   },
-  { key: "weak",         label: "Feeling\nWeak",           icon: BatteryWarning,        image: require("../assets/mood/mood-weak.png")         },
-  { key: "confused",     label: "Feeling\nConfused",       icon: PuzzlePiece,           image: require("../assets/mood/mood-confused.png")     },
-  { key: "content",      label: "Feeling\nContent",        icon: HandHeart,             image: require("../assets/mood/mood-content.png")      },
-  { key: "happy",        label: "Feeling\nHappy",          icon: Smiley,                image: require("../assets/mood/mood-happy.png")        },
+  { key: "anxious",     label: "Feeling\nAnxious",    icon: CloudRain, image: require("../assets/mood/mood-anxious.png")  },
+  { key: "grief",       label: "Grief &\nSadness",    icon: Drop,      image: require("../assets/mood/mood-sad.png")      },
+  { key: "frustration", label: "Feeling\nFrustrated", icon: Fire,      image: require("../assets/mood/mood-angry.png")    },
+  { key: "faithDoubt",  label: "Faith &\nDoubt",      icon: Question,  image: require("../assets/mood/mood-doubtful.png") },
+  { key: "lowEnergy",   label: "Low on\nEnergy",      icon: BatteryLow,image: require("../assets/mood/mood-tired.png")    },
+  { key: "contentment", label: "Content &\nGrateful", icon: HandHeart, image: require("../assets/mood/mood-grateful.png") },
+  { key: "peace",       label: "Seeking\nPeace",      icon: Leaf,      image: require("../assets/mood/mood-peace.png")    },
+  { key: "strength",    label: "Need\nStrength",      icon: Flame,     image: require("../assets/mood/mood-strength.png") },
+  { key: "anew",        label: "Starting\nAnew",      icon: SunHorizon,image: require("../assets/mood/mood-anew.png")     },
 ];
 
 export default function MoodsScreen({ navigation }) {
@@ -99,7 +77,7 @@ const s = StyleSheet.create({
   headerTitle:  { fontFamily: "SourceSerif4-Regular", fontSize: 28, color: "#FDFAF4", fontWeight: "400" },
   headerSub:    { fontSize: 13, color: "#FDFAF4", marginTop: 2, opacity: 0.8 },
   grid:         { flexDirection: "row", flexWrap: "wrap", gap: 10, paddingHorizontal: 16, paddingTop: 16, paddingBottom: 40 },
-  tile:         { width: 100, height: 110, borderRadius: 12, overflow: "hidden" },
+  tile:         { width: TILE_W, height: TILE_H, borderRadius: 12, overflow: "hidden" },
   tileContent:  { flex: 1, alignItems: "center", justifyContent: "center", gap: 6, paddingHorizontal: 4 },
   tileLabel:    { fontSize: 14, fontWeight: "600", color: "#FFFFFF", textAlign: "center", lineHeight: 18 },
 });
