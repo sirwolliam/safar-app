@@ -156,13 +156,6 @@ const THEMES = [
   },
 ];
 
-const MOODS = [
-  { key: "anxious",  label: "Feeling\nAnxious",  icon: CloudRain,  image: require("../assets/mood/mood-anxious.png")  },
-  { key: "peace",    label: "Seeking\nPeace",    icon: Leaf,       image: require("../assets/mood/mood-peace.png")    },
-  { key: "strength", label: "Need\nStrength",    icon: Flame,      image: require("../assets/mood/mood-strength.png") },
-  { key: "grateful", label: "Feeling\nGrateful", icon: Moon,       image: require("../assets/mood/mood-grateful.png") },
-  { key: "anew",     label: "Starting\nAnew",    icon: SunHorizon, image: require("../assets/mood/mood-anew.png")     },
-];
 
 const TAGS      = ["Health", "Family", "Forgiveness", "Gratitude", "Protection", "Custom"];
 const LOCATIONS = ["Arafah", "Mina", "Tawaf", "Madinah", "General", "Custom"];
@@ -442,51 +435,30 @@ export default function MyDuasScreen({ navigation }) {
             </View>
 
             {/* Duas by Mood */}
-            <View style={styles.moodSection}>
-              <View style={styles.sectionRow}>
-                <View style={styles.sectionHeaderLeft}>
-                  <Text style={styles.sectionTitle}>Duas by Mood</Text>
-                  <Text style={styles.sectionSub}>Find the right words for how you feel</Text>
+            <TouchableOpacity
+              style={styles.moodBanner}
+              activeOpacity={0.85}
+              onPress={() => navigation.navigate("Moods")}
+            >
+              <Image
+                source={require("../assets/mood/mood-peace.png")}
+                style={StyleSheet.absoluteFillObject}
+                resizeMode="cover"
+              />
+              <LinearGradient
+                colors={["rgba(0,0,0,0.15)", "rgba(0,0,0,0.70)"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 0, y: 1 }}
+                style={StyleSheet.absoluteFillObject}
+              />
+              <View style={styles.moodBannerContent}>
+                <View style={styles.moodBannerText}>
+                  <Text style={styles.moodBannerTitle}>{"Moods"}</Text>
+                  <Text style={styles.moodBannerSub}>{"Find the right words for how you feel"}</Text>
                 </View>
-                <TouchableOpacity
-                  style={styles.sectionViewAll}
-                  onPress={() => navigation.navigate("DuaList", { category: "mood" })}
-                  activeOpacity={0.75}
-                >
-                  <Text style={styles.viewAll}>View all  ›</Text>
-                </TouchableOpacity>
+                <CaretRight size={20} color="#FFFFFF" weight="bold" />
               </View>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.moodScroll}
-              >
-                {MOODS.map((m) => (
-                  <TouchableOpacity
-                    key={m.key}
-                    style={styles.moodCard}
-                    activeOpacity={0.85}
-                    onPress={() => navigation.navigate("DuaList", { category: m.key })}
-                  >
-                    <Image
-                      source={m.image}
-                      style={StyleSheet.absoluteFillObject}
-                      resizeMode="cover"
-                    />
-                    <LinearGradient
-                      colors={["rgba(0,0,0,0.15)", "rgba(0,0,0,0.70)"]}
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 0, y: 1 }}
-                      style={StyleSheet.absoluteFillObject}
-                    />
-                    <View style={styles.moodCardContent}>
-                      <m.icon size={24} color="#FFFFFF" weight="regular" />
-                      <Text style={styles.moodLabel}>{m.label}</Text>
-                    </View>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            </View>
+            </TouchableOpacity>
           </View>
 
         ) : activeTab === "favourites" ? (
@@ -738,12 +710,12 @@ const styles = StyleSheet.create({
   themeCardContent: { flex: 1, alignItems: "center", justifyContent: "center" },
   themeLabel:       { fontSize: 14, color: "#1A1410", textAlign: "center", lineHeight: 18, marginTop: 6, paddingHorizontal: 4 },
 
-  // ── Moods
-  moodSection:    { backgroundColor: "#FDF7EE", borderRadius: 16, marginHorizontal: 16, marginTop: 16, marginBottom: 12, paddingBottom: 16, borderWidth: 0, shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.10, shadowRadius: 6, elevation: 3 },
-  moodScroll:     { paddingHorizontal: 16, paddingBottom: 8, gap: 10 },
-  moodCard:       { width: 100, height: 110, borderRadius: 12, overflow: "hidden", marginRight: 10 },
-  moodCardContent:{ flex: 1, alignItems: "center", justifyContent: "center", gap: 6, paddingHorizontal: 4 },
-  moodLabel:      { fontSize: 14, fontWeight: "600", color: "#FFFFFF", textAlign: "center", lineHeight: 18 },
+  // ── Moods banner
+  moodBanner:        { height: 110, borderRadius: 16, marginHorizontal: 16, marginTop: 16, marginBottom: 12, overflow: "hidden" },
+  moodBannerContent: { flex: 1, flexDirection: "row", alignItems: "center", paddingHorizontal: 20, gap: 12 },
+  moodBannerText:    { flex: 1 },
+  moodBannerTitle:   { fontFamily: SERIF, fontSize: 20, fontWeight: "400", color: "#FFFFFF", marginBottom: 4 },
+  moodBannerSub:     { fontSize: 13, color: "rgba(255,255,255,0.85)", lineHeight: 18 },
 
   // ── Empty tab states
   emptyTab:       { alignItems: "center", paddingTop: 64, paddingBottom: 40, gap: 14 },

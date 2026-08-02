@@ -39,6 +39,7 @@ import ConnectionsScreen   from "./screens/ConnectionsScreen";
 import WhatToExpectScreen  from "./screens/WhatToExpectScreen";
 import MyBoardScreen       from "./screens/MyBoardScreen";
 import DuaListScreen       from "./screens/DuaListScreen";
+import MoodsScreen         from "./screens/MoodsScreen";
 import MyContactsScreen    from "./screens/MyContactsScreen";
 import MomentsScreen       from "./screens/MomentsScreen";
 import MomentCreatorScreen from "./screens/MomentCreatorScreen";
@@ -249,6 +250,7 @@ function DuasNavigator() {
     <DuasStack.Navigator screenOptions={{ headerShown:false }}>
       <DuasStack.Screen name="MyDuas"  component={MyDuasScreen}  />
       <DuasStack.Screen name="DuaList" component={DuaListScreen} />
+      <DuasStack.Screen name="Moods"   component={MoodsScreen}   />
       <DuasStack.Screen name="Dhikr"   component={DhikrScreen}   />
     </DuasStack.Navigator>
   );
@@ -288,6 +290,7 @@ export default function App() {
   const [fontsLoaded] = useFonts({
     "SourceSerif4-Regular":  require("./assets/fonts/SourceSerif4-Regular.ttf"),
     "SourceSerif4-SemiBold": require("./assets/fonts/SourceSerif4-SemiBold.ttf"),
+    "SourceSerif4-Bold":     require("./assets/fonts/SourceSerif4-Bold.ttf"),
   });
 
   // ── Onboarding gate ──

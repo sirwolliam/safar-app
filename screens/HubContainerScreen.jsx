@@ -95,7 +95,7 @@ const PILLAR_CONFIG = {
       { key: "audio",     Icon: PlayCircle,   label: "Audio Practice",         sub: "Listen and rehearse before you go",           nav: "stack", target: "PracticeLearn"                            },
       { key: "quiz",      Icon: BookOpenText, label: "Quiz",          sub: "Test your knowledge before your journey",     nav: "stack", target: "QuizHub"                                          },
       { key: "dualib",    Icon: Books,        label: "Dua Library", sub: "Supplications for every moment",              nav: "tab",   tab: "Duas", screen: "MyDuas"                      },
-      { key: "media",     Icon: Video,        label: "Media",                  sub: "Videos and podcasts for your preparation",    nav: "stack", target: "Media"                                    },
+      { key: "media",     Icon: Video,        label: "Media",                  sub: "Videos, articles and podcasts",               nav: "stack", target: "Media"                                    },
     ],
   },
   connect: {

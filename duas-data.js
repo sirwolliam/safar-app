@@ -1034,7 +1034,9 @@ export const DUAS_DATA = [
     "stage": null,
     "stage_order": 200,
     "categories": [
-      "guidance"
+      "guidance",
+      "anew",
+      "bored"
     ],
     "keywords": [
       "dua",
@@ -1060,7 +1062,11 @@ export const DUAS_DATA = [
     "stage": null,
     "stage_order": 201,
     "categories": [
-      "guidance"
+      "guidance",
+      "peace",
+      "strength",
+      "nervous",
+      "overwhelmed"
     ],
     "keywords": [
       "dua",
@@ -1637,7 +1643,8 @@ export const DUAS_DATA = [
     "stage": null,
     "stage_order": 222,
     "categories": [
-      "gratitude"
+      "gratitude",
+      "happy"
     ],
     "keywords": [
       "gratitude",
@@ -1694,7 +1701,8 @@ export const DUAS_DATA = [
     "stage_order": 224,
     "categories": [
       "forgive",
-      "daily"
+      "daily",
+      "guilty"
     ],
     "keywords": [
       "sayyid",
@@ -1942,7 +1950,15 @@ export const DUAS_DATA = [
     "stage_order": 233,
     "categories": [
       "protect",
-      "daily"
+      "daily",
+      "peace",
+      "anxious",
+      "tired",
+      "lazy",
+      "overwhelmed",
+      "sad",
+      "greedy",
+      "weak"
     ],
     "keywords": [
       "seeking",
@@ -1997,7 +2013,10 @@ export const DUAS_DATA = [
     "stage": null,
     "stage_order": 235,
     "categories": [
-      "patience"
+      "patience",
+      "peace",
+      "scared",
+      "nervous"
     ],
     "keywords": [
       "dua",
@@ -2325,5 +2344,320 @@ export const DUAS_DATA = [
     "verified_date": "",
     "source_page": "",
     "review_flag": "Companion piece to the leaving-home dua above; the source doesn't carry an explicit standalone grading beyond the general Abu Dawud citation -- verify before shipping."
+  },
+  {
+    "id": "muqallib-qulub",
+    "title": "O Turner of Hearts",
+    "arabic": "يَا مُقَلِّبَ الْقُلُوبِ ثَبِّتْ قَلْبِي عَلَى دِينِكَ",
+    "transliteration": "Ya Muqallib al-qulub, thabbit qalbi 'ala dinik",
+    "translation": "O Turner of hearts, keep my heart firm upon Your religion.",
+    "source_full": "Jami' at-Tirmidhi 3522 (hasan)",
+    "authenticity": "hasan",
+    "stage": null,
+    "stage_order": 311,
+    "categories": [
+      "strength"
+    ],
+    "keywords": [
+      "heart",
+      "firmness",
+      "steadfastness"
+    ],
+    "is_featured": false,
+    "audio_traditional": null,
+    "audio_gentle": null,
+    "verified": false,
+    "verified_by": "",
+    "verified_date": "",
+    "source_page": "",
+    "review_flag": null
+  },
+  {
+    "id": "ashab-kahf-rashada",
+    "title": "Dua of the People of the Cave",
+    "arabic": "رَبَّنَا آتِنَا مِن لَّدُنكَ رَحْمَةً وَهَيِّئْ لَنَا مِنْ أَمْرِنَا رَشَدًا",
+    "transliteration": "Rabbana atina min ladunka rahmatan wa hayyi lana min amrina rashada",
+    "translation": "Our Lord, grant us mercy from Yourself and prepare for us right guidance in our affair.",
+    "source_full": "Qur'an 18:10",
+    "authenticity": "quran",
+    "stage": null,
+    "stage_order": 315,
+    "categories": [
+      "anew"
+    ],
+    "keywords": [
+      "new beginning",
+      "guidance",
+      "youth",
+      "cave"
+    ],
+    "is_featured": false,
+    "audio_traditional": null,
+    "audio_gentle": null,
+    "verified": false,
+    "verified_by": "",
+    "verified_date": "",
+    "source_page": "",
+    "review_flag": null
+  },
+  {
+    "id": "hasbiya-allah-throne",
+    "title": "Hasbiya Allah",
+    "arabic": "حَسْبِيَ اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ ۖ عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ",
+    "transliteration": "Hasbiya Allahu la ilaha illa huwa, 'alayhi tawakkaltu wa huwa rabbul-'arshil-'azim",
+    "translation": "Allah is sufficient for me; there is no deity except Him. On Him I have relied, and He is Lord of the Great Throne.",
+    "source_full": "Qur'an 9:129",
+    "authenticity": "quran",
+    "stage": null,
+    "stage_order": 316,
+    "categories": [
+      "scared",
+      "overwhelmed"
+    ],
+    "keywords": [
+      "trust",
+      "distress",
+      "throne",
+      "sufficiency"
+    ],
+    "is_featured": false,
+    "audio_traditional": null,
+    "audio_gentle": null,
+    "verified": false,
+    "verified_by": "",
+    "verified_date": "",
+    "source_page": "",
+    "review_flag": null
+  },
+  {
+    "id": "ayat-al-karima",
+    "title": "Ayat al-Karima — Dua of Yunus",
+    "arabic": "لَا إِلَٰهَ إِلَّا أَنتَ سُبْحَٰنَكَ إِنِّي كُنتُ مِنَ الظَّالِمِينَ",
+    "transliteration": "La ilaha illa anta subhanaka inni kuntu minaz-zalimin",
+    "translation": "There is no deity except You; exalted are You. Indeed, I have been of the wrongdoers.",
+    "source_full": "Qur'an 21:87 · also Jami' at-Tirmidhi 3505",
+    "authenticity": "quran",
+    "stage": null,
+    "stage_order": 317,
+    "categories": [
+      "sad",
+      "depressed",
+      "regret"
+    ],
+    "keywords": [
+      "yunus",
+      "jonah",
+      "distress",
+      "repentance",
+      "relief"
+    ],
+    "is_featured": false,
+    "audio_traditional": null,
+    "audio_gentle": null,
+    "verified": false,
+    "verified_by": "",
+    "verified_date": "",
+    "source_page": "",
+    "review_flag": null
+  },
+  {
+    "id": "rahmataka-arju",
+    "title": "Do Not Leave Me to Myself",
+    "arabic": "اللَّهُمَّ رَحْمَتَكَ أَرْجُو فَلَا تَكِلْنِي إِلَى نَفْسِي طَرْفَةَ عَيْنٍ وَأَصْلِحْ لِي شَأْنِي كُلَّهُ لَا إِلَهَ إِلَّا أَنْتَ",
+    "transliteration": "Allahumma rahmataka arju, fala takilni ila nafsi tarfata 'ayn, wa aslih li sha'ni kullah, la ilaha illa ant",
+    "translation": "O Allah, it is Your mercy I hope for — do not leave me to myself even for the blink of an eye, and set right all my affairs. There is no god but You.",
+    "source_full": "Sunan Abi Dawud · Hisn al-Muslim 123 (hasan, al-Albani)",
+    "authenticity": "hasan",
+    "stage": null,
+    "stage_order": 318,
+    "categories": [
+      "lonely",
+      "unloved",
+      "hurt"
+    ],
+    "keywords": [
+      "mercy",
+      "alone",
+      "distress",
+      "affairs"
+    ],
+    "is_featured": false,
+    "audio_traditional": null,
+    "audio_gentle": null,
+    "verified": false,
+    "verified_by": "",
+    "verified_date": "",
+    "source_page": "",
+    "review_flag": null
+  },
+  {
+    "id": "hamazat-shayateen",
+    "title": "Refuge from the Incitements of Devils",
+    "arabic": "وَقُل رَّبِّ أَعُوذُ بِكَ مِنْ هَمَزَاتِ الشَّيَاطِينِ وَأَعُوذُ بِكَ رَبِّ أَن يَحْضُرُونِ",
+    "transliteration": "Wa qul rabbi a'udhu bika min hamazatish-shayateen, wa a'udhu bika rabbi an yahdurun",
+    "translation": "My Lord, I seek refuge in You from the incitements of the devils, and I seek refuge in You, my Lord, lest they be present with me.",
+    "source_full": "Qur'an 23:97-98",
+    "authenticity": "quran",
+    "stage": null,
+    "stage_order": 319,
+    "categories": [
+      "angry"
+    ],
+    "keywords": [
+      "anger",
+      "devils",
+      "incitement",
+      "refuge"
+    ],
+    "is_featured": false,
+    "audio_traditional": null,
+    "audio_gentle": null,
+    "verified": false,
+    "verified_by": "",
+    "verified_date": "",
+    "source_page": "",
+    "review_flag": null
+  },
+  {
+    "id": "surah-al-falaq",
+    "title": "Surah al-Falaq",
+    "arabic": "قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ مِنْ شَرِّ مَا خَلَقَ وَمِنْ شَرِّ غَاسِقٍ إِذَا وَقَبَ وَمِنْ شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ وَمِنْ شَرِّ حَاسِدٍ إِذَا حَسَدَ",
+    "transliteration": "Qul a'udhu bi rabbil-falaq, min sharri ma khalaq, wa min sharri ghasiqin idha waqab, wa min sharrin-naffathati fil-'uqad, wa min sharri hasidin idha hasad",
+    "translation": "Say, 'I seek refuge in the Lord of daybreak, from the evil of that which He created, and from the evil of darkness when it settles, and from the evil of the blowers in knots, and from the evil of an envier when he envies.'",
+    "source_full": "Qur'an 113 (Surah al-Falaq)",
+    "authenticity": "quran",
+    "stage": null,
+    "stage_order": 320,
+    "categories": [
+      "jealous"
+    ],
+    "keywords": [
+      "envy",
+      "protection",
+      "falaq",
+      "hasad"
+    ],
+    "is_featured": false,
+    "audio_traditional": null,
+    "audio_gentle": null,
+    "verified": false,
+    "verified_by": "",
+    "verified_date": "",
+    "source_page": "",
+    "review_flag": null
+  },
+  {
+    "id": "la-sahla-illa",
+    "title": "Nothing Is Easy Except What You Make Easy",
+    "arabic": "اللَّهُمَّ لَا سَهْلَ إِلَّا مَا جَعَلْتَهُ سَهْلًا، وَأَنْتَ تَجْعَلُ الْحَزْنَ إِذَا شِئْتَ سَهْلًا",
+    "transliteration": "Allahumma la sahla illa ma ja'altahu sahla, wa anta taj'alul-hazna idha shi'ta sahla",
+    "translation": "O Allah, nothing is easy except what You make easy, and You make the difficult easy when You will.",
+    "source_full": "Hisn al-Muslim 139 · Sahih Ibn Hibban",
+    "authenticity": "sahih",
+    "stage": null,
+    "stage_order": 321,
+    "categories": [
+      "impatient"
+    ],
+    "keywords": [
+      "ease",
+      "difficulty",
+      "patience",
+      "waiting"
+    ],
+    "is_featured": false,
+    "audio_traditional": null,
+    "audio_gentle": null,
+    "verified": false,
+    "verified_by": "",
+    "verified_date": "",
+    "source_page": "",
+    "review_flag": null
+  },
+  {
+    "id": "amantu-billah",
+    "title": "Amantu Billah — I Believe in Allah",
+    "arabic": "آمَنْتُ بِاللَّهِ",
+    "transliteration": "Amantu billah",
+    "translation": "I believe in Allah.",
+    "source_full": "Sahih Muslim 134",
+    "authenticity": "sahih",
+    "stage": null,
+    "stage_order": 322,
+    "categories": [
+      "doubtful",
+      "hypocritical"
+    ],
+    "keywords": [
+      "faith",
+      "whispers",
+      "waswas",
+      "affirmation"
+    ],
+    "is_featured": false,
+    "audio_traditional": null,
+    "audio_gentle": null,
+    "verified": false,
+    "verified_by": "",
+    "verified_date": "",
+    "source_page": "",
+    "review_flag": "Short affirmation rather than a full multi-clause dua — this is the exact prophetic response taught for intrusive doubts about faith, per the hadith context, not a paraphrase."
+  },
+  {
+    "id": "dua-istikharah",
+    "title": "Dua of Istikharah — Seeking Guidance",
+    "arabic": "اللَّهُمَّ إِنِّي أَسْتَخِيرُكَ بِعِلْمِكَ وَأَسْتَقْدِرُكَ بِقُدْرَتِكَ وَأَسْأَلُكَ مِنْ فَضْلِكَ الْعَظِيمِ فَإِنَّكَ تَقْدِرُ وَلَا أَقْدِرُ وَتَعْلَمُ وَلَا أَعْلَمُ وَأَنْتَ عَلَّامُ الْغُيُوبِ اللَّهُمَّ إِنْ كُنْتَ تَعْلَمُ أَنَّ هَذَا الْأَمْرَ خَيْرٌ لِي فِي دِينِي وَمَعَاشِي وَعَاقِبَةِ أَمْرِي فَاقْدُرْهُ لِي وَيَسِّرْهُ لِي ثُمَّ بَارِكْ لِي فِيهِ وَإِنْ كُنْتَ تَعْلَمُ أَنَّ هَذَا الْأَمْرَ شَرٌّ لِي فِي دِينِي وَمَعَاشِي وَعَاقِبَةِ أَمْرِي فَاصْرِفْهُ عَنِّي وَاصْرِفْنِي عَنْهُ وَاقْدُرْ لِيَ الْخَيْرَ حَيْثُ كَانَ ثُمَّ أَرْضِنِي بِهِ",
+    "transliteration": "Allahumma inni astakhiruka bi 'ilmika, wa astaqdiruka bi qudratika, wa as'aluka min fadlika al-'azim, fa innaka taqdiru wa la aqdiru, wa ta'lamu wa la a'lamu, wa anta 'allamu al-ghuyub. Allahumma in kunta ta'lamu anna hadha al-amra khayrun li fi dini wa ma'ashi wa 'aqibati amri, faqdurhu li wa yassirhu li thumma barik li fihi. Wa in kunta ta'lamu anna hadha al-amra sharrun li fi dini wa ma'ashi wa 'aqibati amri, fasrifhu 'anni wasrifni 'anhu, waqdur li al-khayra haythu kana thumma ardini bih",
+    "translation": "O Allah, I seek Your guidance by virtue of Your knowledge, and I seek ability by virtue of Your power, and I ask You of Your great bounty. You have power and I have none. You know and I do not. You are the Knower of hidden things. O Allah, if in Your knowledge this matter is good for me in my religion, my livelihood, and the outcome of my affair, then decree it for me, make it easy for me, and bless me in it. But if in Your knowledge this matter is bad for me in my religion, my livelihood, and the outcome of my affair, then turn it away from me, and turn me away from it, and decree for me what is good wherever it may be, and make me content with it.",
+    "source_full": "Sahih al-Bukhari 1166",
+    "authenticity": "sahih",
+    "stage": null,
+    "stage_order": 324,
+    "categories": [
+      "indecisive",
+      "confused"
+    ],
+    "keywords": [
+      "istikharah",
+      "guidance",
+      "decision",
+      "prayer"
+    ],
+    "is_featured": false,
+    "audio_traditional": null,
+    "audio_gentle": null,
+    "verified": false,
+    "verified_by": "",
+    "verified_date": "",
+    "source_page": "",
+    "review_flag": "Traditionally recited after two voluntary rak'ahs with the specific matter named aloud where the text says 'this matter' — consider a UI note on the detail screen at some point, not required for this data pass."
+  },
+  {
+    "id": "radhitu-billahi-rabba",
+    "title": "Radhitu Billahi Rabba — I Am Content",
+    "arabic": "رَضِيتُ بِاللَّهِ رَبًّا، وَبِالْإِسْلَامِ دِينًا، وَبِمُحَمَّدٍ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ نَبِيًّا",
+    "transliteration": "Radhitu billahi rabba, wa bil-islami dinan, wa bi-Muhammadin sallallahu 'alayhi wa sallama nabiyya",
+    "translation": "I am content with Allah as my Lord, Islam as my religion, and Muhammad ﷺ as my Prophet.",
+    "source_full": "Sunan Abi Dawud 1529 · also Jami' at-Tirmidhi 3389 (hasan gharib)",
+    "authenticity": "hasan",
+    "stage": null,
+    "stage_order": 325,
+    "categories": [
+      "content"
+    ],
+    "keywords": [
+      "contentment",
+      "satisfaction",
+      "acceptance",
+      "morning evening"
+    ],
+    "is_featured": false,
+    "audio_traditional": null,
+    "audio_gentle": null,
+    "verified": false,
+    "verified_by": "",
+    "verified_date": "",
+    "source_page": "",
+    "review_flag": null
   }
 ];
