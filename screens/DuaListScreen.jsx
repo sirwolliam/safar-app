@@ -233,13 +233,15 @@ export default function DuaListScreen({ route, navigation }) {
             </View>
           ))}
 
-          {/* Scholarly footnote */}
-          <View style={s.footnote}>
-            <Text style={s.footnoteText}>
-              <Text style={s.footnoteBold}>Sources</Text>
-              {" — Duas are drawn from the Qur'an and the major hadith collections (Sahih al-Bukhari, Sahih Muslim, Sunan Abi Dawud, Jami' at-Tirmidhi, Sunan Ibn Majah) via Sunnah.com and Hisn al-Muslim. Wording may differ slightly across the four madhhabs."}
-            </Text>
-          </View>
+          {/* Scholarly footnote — multi-stage lists only */}
+          {isMultiStage ? (
+            <View style={s.footnote}>
+              <Text style={s.footnoteText}>
+                <Text style={s.footnoteBold}>{"Sources"}</Text>
+                {" — Qur'an and major hadith collections via Sunnah.com and Hisn al-Muslim. Wording may vary by madhhab."}
+              </Text>
+            </View>
+          ) : null}
         </ScrollView>
       )}
     </View>

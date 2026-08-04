@@ -508,6 +508,13 @@ export default function MyDuasScreen({ navigation }) {
           </View>
         )}
 
+        <View style={styles.sourceFootnote}>
+          <Text style={styles.sourceFootnoteText}>
+            <Text style={styles.sourceFootnoteBold}>{"Sources"}</Text>
+            {" — Qur'an and major hadith collections via Sunnah.com and Hisn al-Muslim. Wording may vary by madhhab."}
+          </Text>
+        </View>
+
         <View style={styles.bottomSpacer} />
       </ScrollView>
 
@@ -708,6 +715,10 @@ const styles = StyleSheet.create({
   emptySub:       { fontSize: 14, color: "#8A7D6A", textAlign: "center" },
   favEmptyTitle:  { fontSize: 20, color: "#1A1410" },
   favEmptySub:    { fontSize: 14, color: "#8A7D6A", textAlign: "center", marginTop: 8, paddingHorizontal: 32 },
+
+  sourceFootnote:     { marginHorizontal: 16, marginTop: 4, marginBottom: 8, backgroundColor: "#F5EDD8", borderRadius: 12, borderWidth: 1, borderColor: "#E8D9B8", padding: 14 },
+  sourceFootnoteText: { fontSize: 12, color: "#7A6030", lineHeight: 18 },
+  sourceFootnoteBold: { fontWeight: "600" },
 
   bottomSpacer:   { height: 32 },
 
