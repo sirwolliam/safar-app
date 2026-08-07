@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   CaretLeft, CaretRight, ArrowSquareOut,
   PersonSimpleRun, HandsPraying, Sparkle, PlayCircle, BookOpenText, Books, Video,
+  Compass, Heartbeat, Sun,
 } from "phosphor-react-native";
 
 const SERIF = "SourceSerif4-Regular";
@@ -21,7 +22,12 @@ const ROWS = [
   { key: "audio",     Icon: PlayCircle,   label: "Audio Practice", sub: "Listen and rehearse before you go",       nav: "stack", target: "PracticeLearn"                             },
   { key: "quiz",      Icon: BookOpenText, label: "Quiz",           sub: "Test your knowledge before your journey", nav: "tab",   tab: "Learn", screen: "QuizHub"               },
   { key: "dualib",    Icon: Books,        label: "Dua Library",    sub: "Supplications for every moment",          nav: "stack", target: "MyDuas"                                    },
-  { key: "media",     Icon: Video,        label: "Media",          sub: "Videos, articles and podcasts",           nav: "tab",   tab: "Learn", screen: "Media"                       },
+  { key: "tawaf",     Icon: Compass,         label: "Tawaf Counter",  sub: "Count your circuits around the Kaaba",      nav: "stack", target: "Tawaf"                                            },
+  { key: "saiy",      Icon: PersonSimpleRun, label: "Sa'i Counter",   sub: "Track your walks between Safa and Marwah",  nav: "stack", target: "Saiy"                                             },
+  { key: "dhikr",     Icon: Heartbeat,       label: "Dhikr Counter",  sub: "Count your dhikr and remembrance",          nav: "stack", target: "Dhikr"                                            },
+  { key: "prayer",    Icon: Sun,             label: "Prayer Times",   sub: "Salah times for Makkah and Madinah",        nav: "stack", target: "PrayerTimes"                                      },
+  { key: "qibla",     Icon: Compass,         label: "Qibla",          sub: "Direction of the Kaaba from your location", nav: "stack", target: "Qibla"                                            },
+  { key: "media",     Icon: Video,           label: "Media",          sub: "Videos, articles and podcasts",             nav: "tab",   tab: "Learn", screen: "Media"                              },
 ];
 
 function goRow(item, navigation) {
