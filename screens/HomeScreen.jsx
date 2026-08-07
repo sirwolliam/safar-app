@@ -73,7 +73,7 @@ const HERO_SLIDES = [
     sub: "Scholarly guides, travel tips, and inspirational content to help you before, during, and after your journey.",
     cta: "Explore Media",
     ctaIsAbout: false,
-    ctaScreen: "Media",
+    ctaScreen: { tab: "Learn", screen: "Media" },
     showGreeting: false,
   },
   {
@@ -85,7 +85,7 @@ const HERO_SLIDES = [
     sub: "A growing library of verified duas for every occasion — with audio so you can learn and practice before you go.",
     cta: "View duas",
     ctaIsAbout: false,
-    ctaScreen: "Duas",
+    ctaScreen: { tab: "Practice", screen: "MyDuas" },
     showGreeting: false,
   },
 ];
@@ -324,7 +324,7 @@ function EventsCard({ events, page, onPageChange, navigation }) {
         <Text style={ec.title}>{"Upcoming Events"}</Text>
         <View style={ec.headerRight}>
           <TouchableOpacity
-            onPress={() => navigation?.navigate?.("Calendar", { returnToTab: "Home" })}
+            onPress={() => navigation?.getParent?.()?.navigate?.("Plan", { screen: "Calendar", initial: false })}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
             <Text style={ec.viewCalLink}>View Calendar</Text>
@@ -363,7 +363,7 @@ function EventsCard({ events, page, onPageChange, navigation }) {
             <TouchableOpacity
               key={evt.id}
               style={idx < pageEvents.length - 1 ? ec.row : ec.rowLast}
-              onPress={() => navigation?.navigate?.("Calendar", { selectedDate: evt.date, returnToTab: "Home" })}
+              onPress={() => navigation?.getParent?.()?.navigate?.("Plan", { screen: "Calendar", initial: false, params: { selectedDate: evt.date } })}
               activeOpacity={0.75}
             >
               <View style={ec.dayWrap}>
@@ -526,7 +526,13 @@ export default function HomeScreen({ navigation }) {
 
   const handleHeroCta = (slide) => {
     if (slide.ctaIsAbout) { setShowAbout(true); return; }
-    if (slide.ctaScreen) navigation?.navigate?.(slide.ctaScreen);
+    if (slide.ctaScreen) {
+      if (typeof slide.ctaScreen === "string") {
+        navigation?.navigate?.(slide.ctaScreen);
+      } else {
+        navigation?.getParent?.()?.navigate?.(slide.ctaScreen.tab, { screen: slide.ctaScreen.screen, initial: false });
+      }
+    }
   };
 
   // Contextual CTA
@@ -623,7 +629,7 @@ export default function HomeScreen({ navigation }) {
     <TouchableOpacity
       style={s.prayerCard}
       activeOpacity={0.85}
-      onPress={() => navigation.navigate("PrayerTimes")}
+      onPress={() => navigation?.getParent?.()?.navigate?.("Practice", { screen: "PrayerTimes", initial: false })}
     >
       {/* Prayer + date row */}
       <View style={s.prayerContentRow}>
@@ -715,108 +721,6 @@ export default function HomeScreen({ navigation }) {
           })}
         />
 
-        {/* ══════════════════════════════════════════════════════════════════
-            FOUR PILLARS — wayfinding hub cards
-            Each opens a dedicated hub screen (stubs navigate to closest
-            existing screen; replace targets when hub screens are built)
-        ══════════════════════════════════════════════════════════════════ */}
-        <View style={[s.pillarsHeader, { marginTop: 24 }]}>
-          <Text style={[s.pillarsHeaderText, { fontSize: 20, fontWeight: "600", color: "#1A1712", textAlign: "center" }]}>Where would you like to begin?</Text>
-        </View>
-        <Text style={s.pillarsHeaderSub}>
-          {"We’ve organized the Umrah and Hajj journeys into four sections to help you prepare with confidence and focus on what matters most."}
-        </Text>
-        <OrnamentDivider />
-        <View style={s.pillarsGrid}>
-
-          {/* Plan */}
-          <TouchableOpacity
-            style={[s.pillarCard, s.pillarCardPlan]}
-            activeOpacity={0.88}
-            onPress={() => navigation?.navigate?.("HubContainer", { pillar: "plan" })}
-          >
-            <View style={s.pillarInner}>
-              <View style={s.pillarArrowBtn}>
-                <ArrowRight size={14} color="#C8A96A" weight="regular" />
-              </View>
-              <View>
-                <Text style={s.pillarLabel}>Plan</Text>
-                <Text style={s.pillarDesc}>{"Dates, checklist,\nnotes & contacts"}</Text>
-              </View>
-              <View style={s.pillarStatBadge}>
-                <ListChecks size={11} color="rgba(253,250,244,0.90)" weight="regular" />
-                <Text style={s.pillarStatText}>
-                  {daysAway !== null ? `${daysAway} days to go` : "Add trip dates"}
-                </Text>
-              </View>
-            </View>
-          </TouchableOpacity>
-
-          {/* Learn */}
-          <TouchableOpacity
-            style={[s.pillarCard, s.pillarCardLearn]}
-            activeOpacity={0.88}
-            onPress={() => navigation?.navigate?.("HubContainer", { pillar: "learn" })}
-          >
-            <View style={s.pillarInner}>
-              <View style={s.pillarArrowBtn}>
-                <ArrowRight size={14} color="#C8A96A" weight="regular" />
-              </View>
-              <View>
-                <Text style={s.pillarLabel}>Learn</Text>
-                <Text style={s.pillarDesc}>{"Guides, sacred places\n& what to expect"}</Text>
-              </View>
-              <View style={s.pillarStatBadge}>
-                <BookOpen size={11} color="rgba(253,250,244,0.90)" weight="regular" />
-                <Text style={s.pillarStatText}>12 guides</Text>
-              </View>
-            </View>
-          </TouchableOpacity>
-
-          {/* Practice */}
-          <TouchableOpacity
-            style={[s.pillarCard, s.pillarCardPractice]}
-            activeOpacity={0.88}
-            onPress={() => navigation?.navigate?.("HubContainer", { pillar: "practice" })}
-          >
-            <View style={s.pillarInner}>
-              <View style={s.pillarArrowBtn}>
-                <ArrowRight size={14} color="#C8A96A" weight="regular" />
-              </View>
-              <View>
-                <Text style={s.pillarLabel}>Practice</Text>
-                <Text style={s.pillarDesc}>{"Duas, Focus mode\n& step-by-step"}</Text>
-              </View>
-              <View style={s.pillarStatBadge}>
-                <HandsPraying size={11} color="rgba(253,250,244,0.90)" weight="regular" />
-                <Text style={s.pillarStatText}>4 tools</Text>
-              </View>
-            </View>
-          </TouchableOpacity>
-
-          {/* Connect */}
-          <TouchableOpacity
-            style={[s.pillarCard, s.pillarCardConnect]}
-            activeOpacity={0.88}
-            onPress={() => navigation?.navigate?.("HubContainer", { pillar: "connect" })}
-          >
-            <View style={s.pillarInner}>
-              <View style={s.pillarArrowBtn}>
-                <ArrowRight size={14} color="#C8A96A" weight="regular" />
-              </View>
-              <View>
-                <Text style={s.pillarLabel}>Connect</Text>
-                <Text style={s.pillarDesc}>{"Groups, milestones\n& companions"}</Text>
-              </View>
-              <View style={s.pillarStatBadge}>
-                <UsersThree size={11} color="rgba(253,250,244,0.90)" weight="regular" />
-                <Text style={s.pillarStatText}>8 members</Text>
-              </View>
-            </View>
-          </TouchableOpacity>
-
-        </View>
-
         {upcomingEvents.length > 0 ? (
           <EventsCard
             events={upcomingEvents}
@@ -853,7 +757,13 @@ export default function HomeScreen({ navigation }) {
             {/* Contextual link */}
             <TouchableOpacity
               activeOpacity={0.75}
-              onPress={() => navigation?.navigate?.(ctxScreen)}
+              onPress={() => {
+                if (ctxScreen === "Guides") {
+                  navigation?.getParent?.()?.navigate?.("Learn", { screen: "Guides", initial: false });
+                } else {
+                  navigation?.navigate?.(ctxScreen);
+                }
+              }}
             >
               <Text style={s.introCtaText}>{ctxLabel}</Text>
             </TouchableOpacity>
@@ -903,7 +813,7 @@ export default function HomeScreen({ navigation }) {
             </View>
             <TouchableOpacity
               style={s.cardCornerBtn}
-              onPress={() => navigation?.getParent?.()?.navigate?.("Journey", { params: { returnToTab: "Home" } })}
+              onPress={() => navigation?.getParent?.()?.navigate?.("Plan", { screen: "MyBoard", initial: false })}
               activeOpacity={0.85}
             >
               <ArrowRight size={16} color="#FFFFFF" weight="regular" />
@@ -913,10 +823,10 @@ export default function HomeScreen({ navigation }) {
           {/* Quick links row */}
           <View style={s.journeyLinks}>
             {[
-              { label:"Board",     onPress: () => navigation?.getParent?.()?.navigate?.("Journey", { screen: "MyBoard",    initial: false, params: { returnToTab: "Home" } }) },
-              { label:"Checklist", onPress: () => navigation?.navigate?.("Checklists") },
-              { label:"Contacts",  onPress: () => navigation?.getParent?.()?.navigate?.("Journey", { screen: "MyContacts", initial: false, params: { returnToTab: "Home" } }) },
-              { label:"Groups",    onPress: () => navigation?.navigate?.("Groups") },
+              { label:"Board",     onPress: () => navigation?.getParent?.()?.navigate?.("Plan",    { screen: "MyBoard",    initial: false }) },
+              { label:"Checklist", onPress: () => navigation?.getParent?.()?.navigate?.("Plan", { screen: "Checklists", initial: false }) },
+              { label:"Contacts",  onPress: () => navigation?.getParent?.()?.navigate?.("Connect", { screen: "MyContacts", initial: false }) },
+              { label:"Groups",    onPress: () => navigation?.getParent?.()?.navigate?.("Connect", { screen: "Groups",     initial: false }) },
             ].map((item, i, arr) => (
               <React.Fragment key={item.label}>
                 <TouchableOpacity
@@ -943,10 +853,10 @@ export default function HomeScreen({ navigation }) {
         </View>
         <View style={s.gridWrap}>
           {[
-            { label: "Qibla",   Icon: Compass,      onPress: () => navigation?.getParent?.()?.navigate?.("Tools", { screen: "Qibla",        initial: false, params: { returnToTab: "Home" } }) },
-            { label: "Calendar", Icon: CalendarBlank, onPress: () => navigation?.navigate?.("Calendar", { returnToTab: "Home" }) },
-            { label: "Dhikr",   Icon: Heartbeat,    onPress: () => navigation?.getParent?.()?.navigate?.("Tools", { screen: "Dhikr",         initial: false, params: { returnToTab: "Home" } }) },
-            { label: "Notes",   Icon: NotePencil,   onPress: () => navigation?.navigate?.("Notes") },
+            { label: "Qibla",    Icon: Compass,       onPress: () => navigation?.getParent?.()?.navigate?.("Practice", { screen: "Qibla",    initial: false }) },
+            { label: "Calendar", Icon: CalendarBlank, onPress: () => navigation?.getParent?.()?.navigate?.("Plan",     { screen: "Calendar", initial: false }) },
+            { label: "Dhikr",    Icon: Heartbeat,    onPress: () => navigation?.getParent?.()?.navigate?.("Practice", { screen: "Dhikr",    initial: false }) },
+            { label: "Notes",    Icon: NotePencil,   onPress: () => navigation?.getParent?.()?.navigate?.("Plan",     { screen: "Notes",    initial: false }) },
           ].map(({ label, Icon, onPress }) => (
             <TouchableOpacity
               key={label}

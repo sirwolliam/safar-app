@@ -459,7 +459,7 @@ export default function SacredPlacesScreen({ navigation }) {
         {/* ── Site card ── */}
         <SiteCard
           site={selected}
-          onViewDuas={(site) => navigation?.navigate?.("SiteDuas", { site, city })}
+          onViewDuas={(site) => navigation?.navigate?.("PilgrimageDuas", { mode: "umrah" })}
           isVisited={!!visited[selected?.id]}
           onToggleVisited={toggleVisited}
           navigation={navigation}

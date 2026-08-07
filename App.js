@@ -1,6 +1,6 @@
 /**
  * App.js — Safar
- * Tabs: Home · Journey · Duas · Tools · Prepare
+ * Tabs: Home · Plan · Learn · Practice · Connect
  */
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Platform, ActivityIndicator } from "react-native";
@@ -9,16 +9,18 @@ import { NavigationContainer, StackActions } from "@react-navigation/native";
 import { createBottomTabNavigator }          from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator }        from "@react-navigation/native-stack";
 import { useFonts }                   from "expo-font";
-import { House, Compass, Moon, Wrench, ListChecks } from "phosphor-react-native";
+import { House, ListChecks, BookOpen, Moon, UsersThree } from "phosphor-react-native";
 
-// ── Tab screens ───────────────────────────────────────────────────────────────
-import HomeScreen    from "./screens/HomeScreen";
-import JourneyScreen from "./screens/JourneyScreen";
-import MapScreen     from "./screens/MapScreen";
-import MyDuasScreen  from "./screens/MyDuasScreen";
-import ProfileScreen from "./screens/ProfileScreen";
+// ── Tab landing screens ───────────────────────────────────────────────────────
+import HomeScreen        from "./screens/HomeScreen";
+import PlanMainScreen    from "./screens/PlanMainScreen";
+import LearnMainScreen   from "./screens/LearnMainScreen";
+import PracticeMainScreen from "./screens/PracticeMainScreen";
+import ConnectMainScreen from "./screens/ConnectMainScreen";
 
-// ── Stack screens (pushed on top) ─────────────────────────────────────────────
+// ── Stack screens ─────────────────────────────────────────────────────────────
+import MapScreen           from "./screens/MapScreen";
+import MyDuasScreen        from "./screens/MyDuasScreen";
 import SupportScreen       from "./screens/SupportScreen";
 import SettingsScreen      from "./screens/SettingsScreen";
 import { runBookmarkMigration } from "./bookmarkStore";
@@ -28,7 +30,6 @@ import DuaDetailScreen     from "./screens/DuaDetailScreen";
 import CurrencyScreen      from "./screens/CurrencyScreen";
 import PrintOfflineScreen  from "./screens/PrintOfflineScreen";
 import GroupsScreen        from "./screens/GroupsScreen";
-
 import TawafScreen         from "./screens/TawafScreen";
 import SaiyScreen          from "./screens/SaiyScreen";
 import DhikrScreen         from "./screens/DhikrScreen";
@@ -45,7 +46,6 @@ import MomentsScreen       from "./screens/MomentsScreen";
 import MomentCreatorScreen from "./screens/MomentCreatorScreen";
 import ProgressScreen      from "./screens/ProgressScreen";
 import OnboardingFlow      from "./screens/OnboardingFlow";
-import ToolsScreen         from "./screens/ToolsScreen";
 import GuidesHubScreen     from "./screens/GuidesHubScreen";
 import ShopScreen          from "./screens/ShopScreen";
 import MediaScreen         from "./screens/MediaScreen";
@@ -55,16 +55,14 @@ import PilgrimageDuasScreen from "./screens/PilgrimageDuasScreen";
 import SafarAssistScreen   from "./screens/SafarAssistScreen";
 import SacredPlacesScreen  from "./screens/SacredPlacesScreen";
 import NotificationsScreen from "./screens/NotificationsScreen";
-
-import HubContainerScreen  from "./screens/HubContainerScreen";
-import CalendarScreen         from "./screens/CalendarScreen";
-import PillarIntroScreen     from "./screens/PillarIntroScreen";
-import ChecklistsScreen      from "./screens/ChecklistsScreen";
-import ChecklistDetailScreen      from "./screens/ChecklistDetailScreen";
-import OfficialResourcesScreen   from "./screens/OfficialResourcesScreen";
-import QuizHubScreen             from "./screens/QuizHubScreen";
-import QuizScreen                from "./screens/QuizScreen";
-import QuizResultsScreen         from "./screens/QuizResultsScreen";
+import CalendarScreen      from "./screens/CalendarScreen";
+import PillarIntroScreen   from "./screens/PillarIntroScreen";
+import ChecklistsScreen    from "./screens/ChecklistsScreen";
+import ChecklistDetailScreen    from "./screens/ChecklistDetailScreen";
+import OfficialResourcesScreen  from "./screens/OfficialResourcesScreen";
+import QuizHubScreen            from "./screens/QuizHubScreen";
+import QuizScreen               from "./screens/QuizScreen";
+import QuizResultsScreen        from "./screens/QuizResultsScreen";
 
 // ── Context ───────────────────────────────────────────────────────────────────
 import { AccessibilityProvider } from "./AccessibilityContext";
@@ -73,20 +71,20 @@ import { colors, spacing, shadows, typography } from "./theme";
 
 const SERIF = "SourceSerif4-Regular";
 const ICON_INACTIVE = "#8A7E6A";
-const Tab      = createBottomTabNavigator();
-const Stack    = createNativeStackNavigator();
-const DuasStack    = createNativeStackNavigator();
-const HomeStack    = createNativeStackNavigator();
-const JourneyStack = createNativeStackNavigator();
-const PrepareStack = createNativeStackNavigator();
-const ToolsStack   = createNativeStackNavigator();
+const Tab           = createBottomTabNavigator();
+const Stack         = createNativeStackNavigator();
+const HomeStack     = createNativeStackNavigator();
+const PlanStack     = createNativeStackNavigator();
+const LearnStack    = createNativeStackNavigator();
+const PracticeStack = createNativeStackNavigator();
+const ConnectStack  = createNativeStackNavigator();
 
-// ── Placeholder screens with back nav ────────────────────────────────────────
+// ── Placeholder screen with back nav ─────────────────────────────────────────
 function BackScreen({ title, sub, navigation }) {
   return (
     <View style={ph.safe}>
       <TouchableOpacity style={ph.backBtn} onPress={() => navigation.goBack()} activeOpacity={0.8}>
-        <Text style={ph.backArrow}>{"\u2039"}</Text>
+        <Text style={ph.backArrow}>{"‹"}</Text>
         <Text style={ph.backLabel}>Back</Text>
       </TouchableOpacity>
       <Text style={ph.title}>{title}</Text>
@@ -94,22 +92,6 @@ function BackScreen({ title, sub, navigation }) {
     </View>
   );
 }
-
-
-function SiteDuasScreen({ route, navigation }) {
-  const site = route?.params?.site;
-  return (
-    <View style={ph.safe}>
-      <TouchableOpacity style={ph.backBtn} onPress={() => navigation.goBack()} activeOpacity={0.8}>
-        <Text style={ph.backArrow}>{"\u2039"}</Text>
-        <Text style={ph.backLabel}>Sacred Places</Text>
-      </TouchableOpacity>
-      <Text style={ph.title}>{site?.name ?? "Duas"}</Text>
-      <Text style={ph.sub}>{site?.subtitle}</Text>
-    </View>
-  );
-}
-
 
 const ph = StyleSheet.create({
   safe:      { flex:1, backgroundColor:colors.background, paddingTop:spacing(6) },
@@ -125,11 +107,11 @@ const ph = StyleSheet.create({
 
 // ── Tab config ────────────────────────────────────────────────────────────────
 const TAB_CONFIG = {
-  Home:    { Icon: House,      label: "Home"    },
-  Journey: { Icon: Compass,    label: "Journey" },
-  Duas:    { Icon: Moon,       label: "Duas",   center: true },
-  Tools:   { Icon: Wrench,     label: "Tools"   },
-  Prepare: { Icon: ListChecks, label: "Prepare" },
+  Home:     { Icon: House,       label: "Home"     },
+  Plan:     { Icon: ListChecks,  label: "Plan"     },
+  Learn:    { Icon: BookOpen,    label: "Learn"    },
+  Practice: { Icon: Moon,        label: "Practice", center: true },
+  Connect:  { Icon: UsersThree,  label: "Connect"  },
 };
 
 function SafarTabBar({ state, descriptors, navigation }) {
@@ -186,89 +168,80 @@ const tb = StyleSheet.create({
 function HomeNavigator() {
   return (
     <HomeStack.Navigator screenOptions={{ headerShown: false, animation: "none" }}>
-      <HomeStack.Screen name="HomeMain"      component={HomeScreen}         />
-
-      <HomeStack.Screen name="HubContainer" component={HubContainerScreen}  />
-      <HomeStack.Screen name="UmrahGuide"    component={UmrahGuideScreen}   />
-      <HomeStack.Screen name="HajjGuide"     component={HajjGuideScreen}    />
-      <HomeStack.Screen name="WhatToExpect"  component={WhatToExpectScreen} />
-      <HomeStack.Screen name="Groups"       component={GroupsScreen}       />
-      <HomeStack.Screen name="Guides"        component={GuidesHubScreen}    />
-      <HomeStack.Screen name="Shop"          component={ShopScreen}         />
-      <HomeStack.Screen name="Media"         component={MediaScreen}        />
-      <HomeStack.Screen name="Notes"         component={NotesScreen}        />
-      <HomeStack.Screen name="Settings"      component={SettingsScreen}     />
+      <HomeStack.Screen name="HomeMain"      component={HomeScreen}          />
+      <HomeStack.Screen name="Settings"      component={SettingsScreen}      />
       <HomeStack.Screen name="Notifications" component={NotificationsScreen} />
-      <HomeStack.Screen name="Calendar"         component={CalendarScreen}         />
-      <HomeStack.Screen name="Checklists"       component={ChecklistsScreen}       />
-      <HomeStack.Screen name="ChecklistDetail"        component={ChecklistDetailScreen}       />
-      <HomeStack.Screen name="OfficialResourcesScreen" component={OfficialResourcesScreen} />
-      <HomeStack.Screen name="QuizHub"     component={QuizHubScreen}     />
-      <HomeStack.Screen name="Quiz"        component={QuizScreen}        />
-      <HomeStack.Screen name="QuizResults" component={QuizResultsScreen} />
     </HomeStack.Navigator>
   );
 }
 
-function JourneyNavigator() {
+function PlanNavigator() {
   return (
-    <JourneyStack.Navigator screenOptions={{ headerShown:false }}>
-      <JourneyStack.Screen name="JourneyMain" component={JourneyScreen}      />
-      <JourneyStack.Screen name="Map"         component={MapScreen}          />
-      <JourneyStack.Screen name="SiteDuas"    component={SiteDuasScreen}     />
-      <JourneyStack.Screen name="WhatToExpect" component={WhatToExpectScreen}/>
-      <JourneyStack.Screen name="Groups"      component={GroupsScreen}       />
-      <JourneyStack.Screen name="GroupDetail" component={GroupDetailScreen}  />
-      <JourneyStack.Screen name="Connections" component={ConnectionsScreen}  />
-      <JourneyStack.Screen name="MyBoard"     component={MyBoardScreen}      />
-      <JourneyStack.Screen name="MyContacts"      component={MyContactsScreen}     />
-      <JourneyStack.Screen name="Moments"         component={MomentsScreen}         />
-      <JourneyStack.Screen name="MomentCreator"   component={MomentCreatorScreen}   />
-      <JourneyStack.Screen name="Tawaf"           component={TawafScreen}           />
-      <JourneyStack.Screen name="Saiy"            component={SaiyScreen}            />
-    </JourneyStack.Navigator>
+    <PlanStack.Navigator screenOptions={{ headerShown: false }}>
+      <PlanStack.Screen name="PlanMain"          component={PlanMainScreen}       />
+      <PlanStack.Screen name="Notes"             component={NotesScreen}          />
+      <PlanStack.Screen name="Calendar"          component={CalendarScreen}       />
+      <PlanStack.Screen name="Checklists"        component={ChecklistsScreen}     />
+      <PlanStack.Screen name="ChecklistDetail"   component={ChecklistDetailScreen}/>
+      <PlanStack.Screen name="CurrencyConverter" component={CurrencyScreen}       />
+      <PlanStack.Screen name="MyBoard"           component={MyBoardScreen}        />
+      <PlanStack.Screen name="MyContacts"        component={MyContactsScreen}     />
+      <PlanStack.Screen name="Support"           component={SupportScreen}        />
+      <PlanStack.Screen name="Shop"              component={ShopScreen}           />
+      <PlanStack.Screen name="WhatToExpect"      component={WhatToExpectScreen}   />
+      <PlanStack.Screen name="Media"             component={MediaScreen}          />
+    </PlanStack.Navigator>
   );
 }
 
-function PrepareNavigator() {
+function LearnNavigator() {
   return (
-    <PrepareStack.Navigator screenOptions={{ headerShown:false }}>
-      <PrepareStack.Screen name="PrepareMain"       component={ProfileScreen}       />
-      <PrepareStack.Screen name="Notes"             component={NotesScreen}         />
-      <PrepareStack.Screen name="CurrencyConverter" component={CurrencyScreen}      />
-      <PrepareStack.Screen name="Support"           component={SupportScreen}       />
-      <PrepareStack.Screen name="Settings"          component={SettingsScreen}      />
-      <PrepareStack.Screen name="WhatToExpect"      component={WhatToExpectScreen}  />
-      <PrepareStack.Screen name="PrintOffline"      component={PrintOfflineScreen}  />
-      <PrepareStack.Screen name="Media"             component={MediaScreen}         />
-    </PrepareStack.Navigator>
+    <LearnStack.Navigator screenOptions={{ headerShown: false }}>
+      <LearnStack.Screen name="LearnMain"              component={LearnMainScreen}       />
+      <LearnStack.Screen name="UmrahGuide"             component={UmrahGuideScreen}      />
+      <LearnStack.Screen name="HajjGuide"              component={HajjGuideScreen}       />
+      <LearnStack.Screen name="Guides"                 component={GuidesHubScreen}       />
+      <LearnStack.Screen name="WhatToExpect"           component={WhatToExpectScreen}    />
+      <LearnStack.Screen name="Media"                  component={MediaScreen}           />
+      <LearnStack.Screen name="SacredPlaces"           component={SacredPlacesScreen}    />
+      <LearnStack.Screen name="Map"                    component={MapScreen}             />
+      <LearnStack.Screen name="QuizHub"                component={QuizHubScreen}         />
+      <LearnStack.Screen name="Quiz"                   component={QuizScreen}            />
+      <LearnStack.Screen name="QuizResults"            component={QuizResultsScreen}     />
+      <LearnStack.Screen name="OfficialResourcesScreen" component={OfficialResourcesScreen} />
+      <LearnStack.Screen name="Shop"                   component={ShopScreen}            />
+    </LearnStack.Navigator>
   );
 }
 
-function DuasNavigator() {
+function PracticeNavigator() {
   return (
-    <DuasStack.Navigator screenOptions={{ headerShown:false }}>
-      <DuasStack.Screen name="MyDuas"  component={MyDuasScreen}  />
-      <DuasStack.Screen name="DuaList" component={DuaListScreen} />
-      <DuasStack.Screen name="Moods"   component={MoodsScreen}   />
-      <DuasStack.Screen name="Dhikr"   component={DhikrScreen}   />
-    </DuasStack.Navigator>
+    <PracticeStack.Navigator screenOptions={{ headerShown: false }}>
+      <PracticeStack.Screen name="PracticeMain"  component={PracticeMainScreen}  />
+      <PracticeStack.Screen name="MyDuas"        component={MyDuasScreen}        />
+      <PracticeStack.Screen name="DuaList"       component={DuaListScreen}       />
+      <PracticeStack.Screen name="Moods"         component={MoodsScreen}         />
+      <PracticeStack.Screen name="Dhikr"         component={DhikrScreen}         />
+      <PracticeStack.Screen name="Tawaf"         component={TawafScreen}         />
+      <PracticeStack.Screen name="Saiy"          component={SaiyScreen}          />
+      <PracticeStack.Screen name="PrayerTimes"   component={PrayerTimesScreen}   />
+      <PracticeStack.Screen name="Qibla"         component={QiblaScreen}         />
+      <PracticeStack.Screen name="PracticeLearn" component={PracticeLearnScreen} />
+    </PracticeStack.Navigator>
   );
 }
 
-function ToolsNavigator() {
+function ConnectNavigator() {
   return (
-    <ToolsStack.Navigator screenOptions={{ headerShown:false }}>
-      <ToolsStack.Screen name="ToolsMain"         component={ToolsScreen}        />
-      <ToolsStack.Screen name="PrayerTimes"       component={PrayerTimesScreen}  />
-      <ToolsStack.Screen name="Qibla"             component={QiblaScreen}        />
-      <ToolsStack.Screen name="CurrencyConverter" component={CurrencyScreen}     />
-      <ToolsStack.Screen name="Tawaf"             component={TawafScreen}        />
-      <ToolsStack.Screen name="Saiy"              component={SaiyScreen}         />
-      <ToolsStack.Screen name="Dhikr"             component={DhikrScreen}        />
-      <ToolsStack.Screen name="PracticeLearn"     component={PracticeLearnScreen}/>
-      <ToolsStack.Screen name="Notes"             component={NotesScreen}        />
-    </ToolsStack.Navigator>
+    <ConnectStack.Navigator screenOptions={{ headerShown: false }}>
+      <ConnectStack.Screen name="ConnectMain"   component={ConnectMainScreen}  />
+      <ConnectStack.Screen name="Groups"        component={GroupsScreen}       />
+      <ConnectStack.Screen name="GroupDetail"   component={GroupDetailScreen}  />
+      <ConnectStack.Screen name="Connections"   component={ConnectionsScreen}  />
+      <ConnectStack.Screen name="MyContacts"    component={MyContactsScreen}   />
+      <ConnectStack.Screen name="Moments"       component={MomentsScreen}      />
+      <ConnectStack.Screen name="MomentCreator" component={MomentCreatorScreen}/>
+    </ConnectStack.Navigator>
   );
 }
 
@@ -276,12 +249,12 @@ function MainTabs() {
   return (
     <Tab.Navigator tabBar={(props) => (
       <SafarTabBar {...props} />
-    )} screenOptions={{ headerShown:false }}>
-      <Tab.Screen name="Home"    component={HomeNavigator}    />
-      <Tab.Screen name="Journey" component={JourneyNavigator} />
-      <Tab.Screen name="Duas"    component={DuasNavigator}    />
-      <Tab.Screen name="Tools"   component={ToolsNavigator}   />
-      <Tab.Screen name="Prepare" component={PrepareNavigator} />
+    )} screenOptions={{ headerShown: false }}>
+      <Tab.Screen name="Home"     component={HomeNavigator}     />
+      <Tab.Screen name="Plan"     component={PlanNavigator}     />
+      <Tab.Screen name="Learn"    component={LearnNavigator}    />
+      <Tab.Screen name="Practice" component={PracticeNavigator} />
+      <Tab.Screen name="Connect"  component={ConnectNavigator}  />
     </Tab.Navigator>
   );
 }
@@ -318,22 +291,22 @@ export default function App() {
     <AccessibilityProvider>
       <NavigationContainer>
         <Stack.Navigator
-          screenOptions={{ headerShown:false }}
+          screenOptions={{ headerShown: false }}
           initialRouteName={onboarded === "yes" ? "MainTabs" : "Onboarding"}
         >
-          <Stack.Screen name="Onboarding"     component={OnboardingFlow}      />
+          <Stack.Screen name="Onboarding"    component={OnboardingFlow}      />
           <Stack.Screen name="PillarIntro"   component={PillarIntroScreen}   options={{ gestureEnabled: false }} />
           <Stack.Screen name="MainTabs"      component={MainTabs}            />
           {/* ── Full-screen focused task screens — no tab bar ── */}
           {/* Users are mid-task: reciting, counting, learning, printing */}
-          <Stack.Screen name="DuaDetail"          component={DuaDetailScreen}      />
-          <Stack.Screen name="StepGuide"          component={ProgressScreen}       />
-          <Stack.Screen name="PracticeLearn"      component={PracticeLearnScreen}  />
-          <Stack.Screen name="PrintOffline"       component={PrintOfflineScreen}   />
+          <Stack.Screen name="DuaDetail"     component={DuaDetailScreen}     />
+          <Stack.Screen name="StepGuide"     component={ProgressScreen}      />
+          <Stack.Screen name="PracticeLearn" component={PracticeLearnScreen} />
+          <Stack.Screen name="PrintOffline"  component={PrintOfflineScreen}  />
           {/* ── Shared destinations reachable from multiple stacks ── */}
-          <Stack.Screen name="PilgrimageDuas"     component={PilgrimageDuasScreen} />
-          <Stack.Screen name="SafarAssist"        component={SafarAssistScreen}    />
-          <Stack.Screen name="SacredPlaces"       component={SacredPlacesScreen}   />
+          <Stack.Screen name="PilgrimageDuas" component={PilgrimageDuasScreen} />
+          <Stack.Screen name="SafarAssist"    component={SafarAssistScreen}    />
+          <Stack.Screen name="SacredPlaces"   component={SacredPlacesScreen}   />
         </Stack.Navigator>
         <ToastHost />
       </NavigationContainer>

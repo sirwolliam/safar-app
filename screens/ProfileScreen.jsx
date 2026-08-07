@@ -560,7 +560,7 @@ export default function ProfileScreen({ navigation }) {
               <View style={s.tileGrid}>
                 <TouchableOpacity
                   style={[s.tile, { backgroundColor: "rgba(58,53,69,0.82)" }]}
-                  onPress={() => navigation?.getParent?.()?.navigate?.("Journey", { screen: "MyBoard", initial: false, params: { returnToTab: "Prepare" } })}
+                  onPress={() => navigation?.navigate?.("MyBoard")}
                   activeOpacity={0.85}
                 >
                   <PushPin size={28} color="#C8A96A" weight="regular" />

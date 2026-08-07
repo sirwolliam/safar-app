@@ -486,7 +486,7 @@ export default function MediaScreen({ navigation, route }) {
       if (newState) {
         showToast("Saved to My Board", {
           actionLabel: "View",
-          onAction: () => navigation?.getParent?.()?.navigate?.("Journey", { screen: "MyBoard", initial: false }),
+          onAction: () => navigation?.getParent?.()?.navigate?.("Plan", { screen: "MyBoard", initial: false }),
         });
       }
     });
