@@ -324,7 +324,7 @@ function EventsCard({ events, page, onPageChange, navigation }) {
         <Text style={ec.title}>{"Upcoming Events"}</Text>
         <View style={ec.headerRight}>
           <TouchableOpacity
-            onPress={() => navigation?.getParent?.()?.navigate?.("Plan", { screen: "Calendar", initial: false })}
+            onPress={() => navigation?.getParent?.()?.navigate?.("Plan", { screen: "Calendar", initial: false, params: { returnToTab: "Home" } })}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
             <Text style={ec.viewCalLink}>View Calendar</Text>
@@ -363,7 +363,7 @@ function EventsCard({ events, page, onPageChange, navigation }) {
             <TouchableOpacity
               key={evt.id}
               style={idx < pageEvents.length - 1 ? ec.row : ec.rowLast}
-              onPress={() => navigation?.getParent?.()?.navigate?.("Plan", { screen: "Calendar", initial: false, params: { selectedDate: evt.date } })}
+              onPress={() => navigation?.getParent?.()?.navigate?.("Plan", { screen: "Calendar", initial: false, params: { selectedDate: evt.date, returnToTab: "Home" } })}
               activeOpacity={0.75}
             >
               <View style={ec.dayWrap}>
@@ -530,7 +530,7 @@ export default function HomeScreen({ navigation }) {
       if (typeof slide.ctaScreen === "string") {
         navigation?.navigate?.(slide.ctaScreen);
       } else {
-        navigation?.getParent?.()?.navigate?.(slide.ctaScreen.tab, { screen: slide.ctaScreen.screen, initial: false });
+        navigation?.getParent?.()?.navigate?.(slide.ctaScreen.tab, { screen: slide.ctaScreen.screen, initial: false, params: { returnToTab: "Home" } });
       }
     }
   };
@@ -629,7 +629,7 @@ export default function HomeScreen({ navigation }) {
     <TouchableOpacity
       style={s.prayerCard}
       activeOpacity={0.85}
-      onPress={() => navigation?.getParent?.()?.navigate?.("Practice", { screen: "PrayerTimes", initial: false })}
+      onPress={() => navigation?.getParent?.()?.navigate?.("Practice", { screen: "PrayerTimes", initial: false, params: { returnToTab: "Home" } })}
     >
       {/* Prayer + date row */}
       <View style={s.prayerContentRow}>
@@ -759,7 +759,7 @@ export default function HomeScreen({ navigation }) {
               activeOpacity={0.75}
               onPress={() => {
                 if (ctxScreen === "Guides") {
-                  navigation?.getParent?.()?.navigate?.("Learn", { screen: "Guides", initial: false });
+                  navigation?.getParent?.()?.navigate?.("Learn", { screen: "Guides", initial: false, params: { returnToTab: "Home" } });
                 } else {
                   navigation?.navigate?.(ctxScreen);
                 }
@@ -813,7 +813,7 @@ export default function HomeScreen({ navigation }) {
             </View>
             <TouchableOpacity
               style={s.cardCornerBtn}
-              onPress={() => navigation?.getParent?.()?.navigate?.("Plan", { screen: "MyBoard", initial: false })}
+              onPress={() => navigation?.getParent?.()?.navigate?.("Plan", { screen: "MyBoard", initial: false, params: { returnToTab: "Home" } })}
               activeOpacity={0.85}
             >
               <ArrowRight size={16} color="#FFFFFF" weight="regular" />
@@ -823,10 +823,10 @@ export default function HomeScreen({ navigation }) {
           {/* Quick links row */}
           <View style={s.journeyLinks}>
             {[
-              { label:"Board",     onPress: () => navigation?.getParent?.()?.navigate?.("Plan",    { screen: "MyBoard",    initial: false }) },
-              { label:"Checklist", onPress: () => navigation?.getParent?.()?.navigate?.("Plan", { screen: "Checklists", initial: false }) },
-              { label:"Contacts",  onPress: () => navigation?.getParent?.()?.navigate?.("Connect", { screen: "MyContacts", initial: false }) },
-              { label:"Groups",    onPress: () => navigation?.getParent?.()?.navigate?.("Connect", { screen: "Groups",     initial: false }) },
+              { label:"Board",     onPress: () => navigation?.getParent?.()?.navigate?.("Plan",    { screen: "MyBoard",    initial: false, params: { returnToTab: "Home" } }) },
+              { label:"Checklist", onPress: () => navigation?.getParent?.()?.navigate?.("Plan",    { screen: "Checklists", initial: false, params: { returnToTab: "Home" } }) },
+              { label:"Contacts",  onPress: () => navigation?.getParent?.()?.navigate?.("Connect", { screen: "MyContacts", initial: false, params: { returnToTab: "Home" } }) },
+              { label:"Groups",    onPress: () => navigation?.getParent?.()?.navigate?.("Connect", { screen: "Groups",     initial: false, params: { returnToTab: "Home" } }) },
             ].map((item, i, arr) => (
               <React.Fragment key={item.label}>
                 <TouchableOpacity
@@ -853,10 +853,10 @@ export default function HomeScreen({ navigation }) {
         </View>
         <View style={s.gridWrap}>
           {[
-            { label: "Qibla",    Icon: Compass,       onPress: () => navigation?.getParent?.()?.navigate?.("Practice", { screen: "Qibla",    initial: false }) },
-            { label: "Calendar", Icon: CalendarBlank, onPress: () => navigation?.getParent?.()?.navigate?.("Plan",     { screen: "Calendar", initial: false }) },
-            { label: "Dhikr",    Icon: Heartbeat,    onPress: () => navigation?.getParent?.()?.navigate?.("Practice", { screen: "Dhikr",    initial: false }) },
-            { label: "Notes",    Icon: NotePencil,   onPress: () => navigation?.getParent?.()?.navigate?.("Plan",     { screen: "Notes",    initial: false }) },
+            { label: "Qibla",    Icon: Compass,       onPress: () => navigation?.getParent?.()?.navigate?.("Practice", { screen: "Qibla",    initial: false, params: { returnToTab: "Home" } }) },
+            { label: "Calendar", Icon: CalendarBlank, onPress: () => navigation?.getParent?.()?.navigate?.("Plan",     { screen: "Calendar", initial: false, params: { returnToTab: "Home" } }) },
+            { label: "Dhikr",    Icon: Heartbeat,    onPress: () => navigation?.getParent?.()?.navigate?.("Practice", { screen: "Dhikr",    initial: false, params: { returnToTab: "Home" } }) },
+            { label: "Notes",    Icon: NotePencil,   onPress: () => navigation?.getParent?.()?.navigate?.("Plan",     { screen: "Notes",    initial: false, params: { returnToTab: "Home" } }) },
           ].map(({ label, Icon, onPress }) => (
             <TouchableOpacity
               key={label}

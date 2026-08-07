@@ -144,7 +144,7 @@ function SafarTabBar({ state, descriptors, navigation }) {
         }
         return (
           <TouchableOpacity key={route.key} style={tb.tab} onPress={onPress} activeOpacity={0.7}>
-            <Icon size={22} color={focused ? colors.primary : ICON_INACTIVE} weight={focused ? "fill" : "regular"} />
+            <Icon size={24} color={focused ? colors.primary : ICON_INACTIVE} weight={focused ? "fill" : "bold"} />
             <Text style={focused ? [tb.label, tb.labelActive] : tb.label}>
               {label}
             </Text>

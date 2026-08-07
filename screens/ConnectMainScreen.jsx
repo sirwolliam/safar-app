@@ -37,6 +37,7 @@ function goRow(item, navigation) {
     navigation?.getParent?.()?.navigate?.(item.tab, {
       screen: item.screen,
       initial: false,
+      params: { returnToTab: "Connect" },
     });
     return;
   }
