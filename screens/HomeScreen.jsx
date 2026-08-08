@@ -17,6 +17,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { toggleBookmarkCard, isBookmarkedOnBoard } from "../bookmarkStore";
 import Svg, { Path, Defs, LinearGradient as SvgGrad, Stop, Mask, Rect, Polygon } from "react-native-svg";
 import { PATTERN_PATH } from "./headerPatternPath";
+import HomeCountdownCard from "./HomeCountdownCard";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
 import {
@@ -695,10 +696,12 @@ export default function HomeScreen({ navigation }) {
             <Text style={s.topBarName}>{displayName}</Text>
           </View>
           <View style={s.topBarRight}>
-            <Text style={s.topBarDaysNum}>{daysAway !== null ? daysAway : "--"}</Text>
-            <Text style={s.topBarDaysLabel}>{" days to go"}</Text>
+            {/* Wordmark placeholder — logo to be added here later */}
           </View>
         </View>
+
+        {/* ── HOME COUNTDOWN CARD (Phase 3a — hardcoded test data) ── */}
+        <HomeCountdownCard navigation={navigation} />
 
         {/* ── HERO CAROUSEL ── */}
         <FlatList
