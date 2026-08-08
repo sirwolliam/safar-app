@@ -970,6 +970,20 @@ export default function HomeScreen({ navigation }) {
           </View>
         </View>
 
+        <TouchableOpacity
+          style={s.settingsTile}
+          onPress={() => navigation?.navigate?.("Settings")}
+          activeOpacity={0.85}
+        >
+          <View style={s.settingsTileIconBox}>
+            <Gear size={22} color="#FDFAF4" weight="regular" />
+          </View>
+          <View style={s.settingsTileText}>
+            <Text style={s.settingsTileLabel}>Settings</Text>
+            <Text style={s.settingsTileSub}>App settings, profile, and support</Text>
+          </View>
+          <Text style={s.settingsTileArrow}>{"›"}</Text>
+        </TouchableOpacity>
         {/* ── Compact source line + info popup ── */}
         <TouchableOpacity
           style={s.sourceLine}
@@ -1952,7 +1966,7 @@ const s = StyleSheet.create({
   // ── Du'a card ─────────────────────────────────────────────────────────────
   duaCard: {
     backgroundColor: "#FDFAF4",
-    marginHorizontal: 20,
+    marginHorizontal: 14,
     borderRadius: 18,
     paddingHorizontal: 22,
     paddingTop: 28,
@@ -2006,7 +2020,7 @@ const s = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 6,
-    marginTop: 16,
+    marginTop: 4,
     marginBottom: 8,
     paddingVertical: 6,
   },
@@ -2147,4 +2161,44 @@ const s = StyleSheet.create({
   topBarRight:    { flexDirection: "row", alignItems: "baseline", paddingTop: 2 },
   topBarDaysNum:  { fontSize: 20, color: "#1A1410", fontWeight: "700", lineHeight: 22 },
   topBarDaysLabel:{ fontSize: 13, color: "#8A7D6A", fontWeight: "500", lineHeight: 18 },
+  settingsTile: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(28,43,30,0.55)",
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#E0D8CC",
+    padding: 14,
+    marginHorizontal: 14,
+    marginTop: 20,
+    marginBottom: 8,
+  },
+  settingsTileIconBox: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    backgroundColor: "#4A5C48",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 12,
+  },
+  settingsTileText: {
+    flex: 1,
+  },
+  settingsTileLabel: {
+    fontSize: 16,
+    color: "#FDFAF4",
+    fontWeight: "500",
+    marginBottom: 2,
+  },
+  settingsTileSub: {
+    fontSize: 13,
+    color: "rgba(253,250,244,0.75)",
+    lineHeight: 18,
+  },
+  settingsTileArrow: {
+    fontSize: 22,
+    color: "rgba(253,250,244,0.85)",
+    marginLeft: 8,
+  },
 });

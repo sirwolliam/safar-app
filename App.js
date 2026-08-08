@@ -183,6 +183,7 @@ function HomeNavigator() {
     <HomeStack.Navigator screenOptions={{ headerShown: false, animation: "none" }}>
       <HomeStack.Screen name="HomeMain"      component={HomeScreen}          />
       <HomeStack.Screen name="Settings"      component={SettingsScreen}      />
+      <HomeStack.Screen name="Support"       component={SupportScreen}       />
       <HomeStack.Screen name="Notifications" component={NotificationsScreen} />
     </HomeStack.Navigator>
   );
