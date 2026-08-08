@@ -19,8 +19,9 @@ const ROWS = [
   { key: "umrah",  Icon: Compass,  label: "Umrah Guide",    sub: "Every step of Umrah, in order",              nav: "stack", target: "UmrahGuide"  },
   { key: "hajj",   Icon: Cube,     label: "Hajj Guide",     sub: "The full pilgrimage, day by day",            nav: "stack", target: "HajjGuide"   },
   { key: "expect", Icon: BookOpen, label: "What to Expect", sub: "Crowds, climate, what it really feels like", nav: "stack", target: "WhatToExpect" },
-  { key: "sacred", Icon: MapPin,   label: "Sacred Places",  sub: "Map of the holy sites",                      nav: "stack", target: "SacredPlaces" },
-  { key: "dualib", Icon: Books,    label: "Dua Library",    sub: "Supplications for every moment",             nav: "tab",   tab: "Practice", screen: "MyDuas" },
+  { key: "sacred",     Icon: MapPin,   label: "Sacred Places",       sub: "Map of the holy sites",                      nav: "stack", target: "SacredPlaces"      },
+  { key: "dualib",     Icon: Books,    label: "Dua Library",         sub: "Supplications for every moment",             nav: "tab",   tab: "Practice", screen: "MyDuas" },
+  { key: "references", Icon: Books,    label: "Islamic References",  sub: "Trusted scholarly sources",                  nav: "stack", target: "IslamicReferences" },
 ];
 
 function goRow(item, navigation) {

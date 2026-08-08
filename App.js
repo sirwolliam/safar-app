@@ -9,7 +9,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator }          from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator }        from "@react-navigation/native-stack";
 import { useFonts }                   from "expo-font";
-import { House, ListChecks, BookOpen, Moon, UsersThree } from "phosphor-react-native";
+import { House, ListChecks, BookOpenText, Moon, UsersThree } from "phosphor-react-native";
 
 // ── Tab landing screens ───────────────────────────────────────────────────────
 import HomeScreen        from "./screens/HomeScreen";
@@ -60,6 +60,7 @@ import PillarIntroScreen   from "./screens/PillarIntroScreen";
 import ChecklistsScreen    from "./screens/ChecklistsScreen";
 import ChecklistDetailScreen    from "./screens/ChecklistDetailScreen";
 import OfficialResourcesScreen  from "./screens/OfficialResourcesScreen";
+import IslamicReferencesScreen  from "./screens/IslamicReferencesScreen";
 import QuizHubScreen            from "./screens/QuizHubScreen";
 import QuizScreen               from "./screens/QuizScreen";
 import QuizResultsScreen        from "./screens/QuizResultsScreen";
@@ -109,7 +110,7 @@ const ph = StyleSheet.create({
 const TAB_CONFIG = {
   Home:     { Icon: House,       label: "Home"     },
   Plan:     { Icon: ListChecks,  label: "Plan"     },
-  Learn:    { Icon: BookOpen,    label: "Learn", center: true },
+  Learn:    { Icon: BookOpenText, label: "Learn", center: true },
   Practice: { Icon: Moon,        label: "Practice" },
   Connect:  { Icon: UsersThree,  label: "Connect"  },
 };
@@ -220,6 +221,7 @@ function LearnNavigator() {
       <LearnStack.Screen name="Media"                  component={MediaScreen}           />
       <LearnStack.Screen name="SacredPlaces"           component={SacredPlacesScreen}    />
       <LearnStack.Screen name="Map"                    component={MapScreen}             />
+      <LearnStack.Screen name="IslamicReferences"      component={IslamicReferencesScreen} />
       <LearnStack.Screen name="QuizHub"                component={QuizHubScreen}         />
       <LearnStack.Screen name="Quiz"                   component={QuizScreen}            />
       <LearnStack.Screen name="QuizResults"            component={QuizResultsScreen}     />
