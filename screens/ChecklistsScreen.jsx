@@ -27,7 +27,7 @@ const CATEGORY_COLORS = {
   "before-leaving": "#4A5C48",
 };
 
-export default function ChecklistsScreen({ navigation }) {
+export default function ChecklistsScreen({ navigation, route }) {
   const SW = Dimensions.get("window").width;
   const insets = useSafeAreaInsets();
   const [progress, setProgress] = useState({});
@@ -51,7 +51,14 @@ export default function ChecklistsScreen({ navigation }) {
         <View style={[s.headerTopRow, { paddingTop: insets.top + 12 }]}>
           <TouchableOpacity
             style={s.backBtn}
-            onPress={() => navigation.goBack()}
+            onPress={() => {
+              const returnToTab = route?.params?.returnToTab;
+              if (returnToTab) {
+                navigation?.getParent?.()?.navigate?.(returnToTab);
+              } else {
+                navigation?.goBack?.();
+              }
+            }}
             activeOpacity={0.8}
           >
             <CaretLeft size={20} color="#1A1712" weight="bold" />

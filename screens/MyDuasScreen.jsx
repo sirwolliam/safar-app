@@ -161,7 +161,7 @@ const TAGS      = ["Health", "Family", "Forgiveness", "Gratitude", "Protection",
 const LOCATIONS = ["Arafah", "Mina", "Tawaf", "Madinah", "General", "Custom"];
 
 // ── Component ─────────────────────────────────────────────────────────────────
-export default function MyDuasScreen({ navigation }) {
+export default function MyDuasScreen({ navigation, route }) {
   const insets = useSafeAreaInsets();
 
   const [activeTab,    setActiveTab]    = useState("discover");
@@ -245,7 +245,14 @@ export default function MyDuasScreen({ navigation }) {
           />
           <TouchableOpacity
             style={[styles.backBtn, { top: insets.top + 14 }]}
-            onPress={() => navigation.goBack()}
+            onPress={() => {
+              const returnToTab = route?.params?.returnToTab;
+              if (returnToTab) {
+                navigation?.getParent?.()?.navigate?.(returnToTab);
+              } else {
+                navigation?.goBack?.();
+              }
+            }}
             activeOpacity={0.8}
           >
             <CaretLeft size={18} color="#FFFFFF" weight="bold" />

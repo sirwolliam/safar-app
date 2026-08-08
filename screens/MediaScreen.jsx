@@ -513,7 +513,14 @@ export default function MediaScreen({ navigation, route }) {
 
         {/* ── Page title ── */}
         <View style={s.pageHeader}>
-          <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8} style={s.headerBackBtn}>
+          <TouchableOpacity onPress={() => {
+              const returnToTab = route?.params?.returnToTab;
+              if (returnToTab) {
+                navigation?.getParent?.()?.navigate?.(returnToTab);
+              } else {
+                navigation?.goBack?.();
+              }
+            }} activeOpacity={0.8} style={s.headerBackBtn}>
             <CaretLeft size={20} color="#1A1410" weight="bold" />
           </TouchableOpacity>
           <View style={s.pageTitleRow}>

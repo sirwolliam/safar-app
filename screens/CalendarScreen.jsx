@@ -347,7 +347,7 @@ export default function CalendarScreen({ navigation, route }) {
             style={s.headerBtn}
             onPress={() => {
               const returnToTab = route?.params?.returnToTab;
-              if (returnToTab && returnToTab !== "Home") {
+              if (returnToTab) {
                 navigation?.getParent?.()?.navigate?.(returnToTab);
               } else {
                 navigation?.goBack?.();

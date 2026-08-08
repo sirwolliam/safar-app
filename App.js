@@ -5,7 +5,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Platform, ActivityIndicator } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { NavigationContainer, StackActions } from "@react-navigation/native";
+import { NavigationContainer, CommonActions } from "@react-navigation/native";
 import { createBottomTabNavigator }          from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator }        from "@react-navigation/native-stack";
 import { useFonts }                   from "expo-font";
@@ -114,6 +114,17 @@ const TAB_CONFIG = {
   Connect:  { Icon: UsersThree,  label: "Connect"  },
 };
 
+function routeToLanding(tabName) {
+  switch (tabName) {
+    case "Home":     return "HomeMain";
+    case "Plan":     return "PlanMain";
+    case "Learn":    return "LearnMain";
+    case "Practice": return "PracticeMain";
+    case "Connect":  return "ConnectMain";
+    default:         return undefined;
+  }
+}
+
 function SafarTabBar({ state, descriptors, navigation }) {
   return (
     <View style={tb.bar}>
@@ -122,12 +133,20 @@ function SafarTabBar({ state, descriptors, navigation }) {
         const { Icon, label, center } = TAB_CONFIG[route.name] ?? { Icon: House, label: route.name };
         const onPress = () => {
           const event = navigation.emit({ type: "tabPress", target: route.key, canPreventDefault: true });
-          if (!event.defaultPrevented) {
-            if (focused) {
-              navigation.dispatch(StackActions.popToTop());
-            } else {
-              navigation.navigate(route.name);
+          if (event.defaultPrevented) return;
+          if (focused) {
+            const landing = routeToLanding(route.name);
+            if (landing) {
+              navigation.dispatch({
+                ...CommonActions.reset({
+                  index: 0,
+                  routes: [{ name: landing }],
+                }),
+                target: state.routes[index].state?.key,
+              });
             }
+          } else {
+            navigation.navigate(route.name);
           }
         };
         if (center) {
@@ -177,7 +196,7 @@ function HomeNavigator() {
 
 function PlanNavigator() {
   return (
-    <PlanStack.Navigator screenOptions={{ headerShown: false }}>
+    <PlanStack.Navigator screenOptions={{ headerShown: false, animation: "none" }}>
       <PlanStack.Screen name="PlanMain"          component={PlanMainScreen}       />
       <PlanStack.Screen name="Notes"             component={NotesScreen}          />
       <PlanStack.Screen name="Calendar"          component={CalendarScreen}       />
@@ -196,7 +215,7 @@ function PlanNavigator() {
 
 function LearnNavigator() {
   return (
-    <LearnStack.Navigator screenOptions={{ headerShown: false }}>
+    <LearnStack.Navigator screenOptions={{ headerShown: false, animation: "none" }}>
       <LearnStack.Screen name="LearnMain"              component={LearnMainScreen}       />
       <LearnStack.Screen name="UmrahGuide"             component={UmrahGuideScreen}      />
       <LearnStack.Screen name="HajjGuide"              component={HajjGuideScreen}       />
@@ -216,7 +235,7 @@ function LearnNavigator() {
 
 function PracticeNavigator() {
   return (
-    <PracticeStack.Navigator screenOptions={{ headerShown: false }}>
+    <PracticeStack.Navigator screenOptions={{ headerShown: false, animation: "none" }}>
       <PracticeStack.Screen name="PracticeMain"  component={PracticeMainScreen}  />
       <PracticeStack.Screen name="MyDuas"        component={MyDuasScreen}        />
       <PracticeStack.Screen name="DuaList"       component={DuaListScreen}       />
@@ -233,7 +252,7 @@ function PracticeNavigator() {
 
 function ConnectNavigator() {
   return (
-    <ConnectStack.Navigator screenOptions={{ headerShown: false }}>
+    <ConnectStack.Navigator screenOptions={{ headerShown: false, animation: "none" }}>
       <ConnectStack.Screen name="ConnectMain"   component={ConnectMainScreen}  />
       <ConnectStack.Screen name="Groups"        component={GroupsScreen}       />
       <ConnectStack.Screen name="GroupDetail"   component={GroupDetailScreen}  />

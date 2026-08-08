@@ -216,7 +216,7 @@ const nm = StyleSheet.create({
 });
 
 // ── Main screen ───────────────────────────────────────────────────────────────
-export default function NotesScreen({ navigation }) {
+export default function NotesScreen({ navigation, route }) {
   const { colors } = useAccessibility();
   const s = useMemo(() => createStyles(colors), [colors]);
   const SW = Dimensions.get("window").width;
@@ -323,7 +323,14 @@ export default function NotesScreen({ navigation }) {
         <View style={[s.headerTopRow, { paddingTop: insets.top + 12 }]}>
           <TouchableOpacity
             style={s.backBtn}
-            onPress={() => navigation?.goBack?.()}
+            onPress={() => {
+              const returnToTab = route?.params?.returnToTab;
+              if (returnToTab) {
+                navigation?.getParent?.()?.navigate?.(returnToTab);
+              } else {
+                navigation?.goBack?.();
+              }
+            }}
             activeOpacity={0.8}
           >
             <CaretLeft size={20} color={colors.text} weight="bold" />
