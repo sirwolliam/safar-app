@@ -109,8 +109,8 @@ const ph = StyleSheet.create({
 const TAB_CONFIG = {
   Home:     { Icon: House,       label: "Home"     },
   Plan:     { Icon: ListChecks,  label: "Plan"     },
-  Learn:    { Icon: BookOpen,    label: "Learn"    },
-  Practice: { Icon: Moon,        label: "Practice", center: true },
+  Learn:    { Icon: BookOpen,    label: "Learn", center: true },
+  Practice: { Icon: Moon,        label: "Practice" },
   Connect:  { Icon: UsersThree,  label: "Connect"  },
 };
 
@@ -202,6 +202,7 @@ function PlanNavigator() {
       <PlanStack.Screen name="Support"           component={SupportScreen}        />
       <PlanStack.Screen name="Shop"              component={ShopScreen}           />
       <PlanStack.Screen name="WhatToExpect"      component={WhatToExpectScreen}   />
+      <PlanStack.Screen name="OfficialResourcesScreen" component={OfficialResourcesScreen} />
       <PlanStack.Screen name="Media"             component={MediaScreen}          />
     </PlanStack.Navigator>
   );
@@ -221,7 +222,6 @@ function LearnNavigator() {
       <LearnStack.Screen name="QuizHub"                component={QuizHubScreen}         />
       <LearnStack.Screen name="Quiz"                   component={QuizScreen}            />
       <LearnStack.Screen name="QuizResults"            component={QuizResultsScreen}     />
-      <LearnStack.Screen name="OfficialResourcesScreen" component={OfficialResourcesScreen} />
       <LearnStack.Screen name="Shop"                   component={ShopScreen}            />
     </LearnStack.Navigator>
   );

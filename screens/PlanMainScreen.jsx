@@ -24,7 +24,7 @@ const ROWS = [
   { key: "shop",      Icon: ShoppingBag,    label: "Shop",               sub: "Essentials for your journey",                nav: "stack", target: "Shop"                               },
   { key: "contacts",  Icon: AddressBook,    label: "Contacts",           sub: "Hotel, group leader, agent",                 nav: "tab",   tab: "Connect", screen: "MyContacts"          },
   { key: "media",     Icon: PlayCircle,     label: "Media",              sub: "Videos, articles and podcasts",              nav: "tab",   tab: "Learn",   screen: "Media"               },
-  { key: "resources", Icon: Link,           label: "Official Resources", sub: "Government and authority links",             nav: "tab",   tab: "Learn",   screen: "OfficialResourcesScreen" },
+  { key: "resources", Icon: Link,           label: "Official Resources", sub: "Government and authority links",             nav: "stack", target: "OfficialResourcesScreen" },
   { key: "board",     Icon: PushPin,        label: "My Board",           sub: "Notes, checklists, and saved content",        nav: "stack", target: "MyBoard"                           },
   { key: "notes",     Icon: NotePencil,     label: "Notes",              sub: "Reflections and intentions",                 nav: "stack", target: "Notes"                             },
   { key: "currency",  Icon: CurrencyDollar, label: "Currency",           sub: "Live exchange rates",                        nav: "stack", target: "CurrencyConverter"                 },
