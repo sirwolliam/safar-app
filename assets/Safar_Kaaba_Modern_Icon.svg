@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#E0B54B"/>
+      <stop offset="100%" stop-color="#FFD56A"/>
+    </linearGradient>
+    <linearGradient id="left" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E2128"/>
+      <stop offset="100%" stop-color="#252933"/>
+    </linearGradient>
+    <linearGradient id="right" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2A2E37"/>
+      <stop offset="100%" stop-color="#1C1F26"/>
+    </linearGradient>
+  </defs>
+
+  <g>
+    <polygon fill="url(#left)" points="256,80 138,120 138,360 256,402"/>
+    <polygon fill="url(#right)" points="256,80 374,120 374,360 256,402"/>
+
+    <polygon fill="url(#gold)" points="138,172 256,148 256,176 138,200"/>
+    <polygon fill="url(#gold)" points="256,148 374,172 374,200 256,176"/>
+
+    <rect x="168" y="220" width="62" height="16" rx="2" fill="#F2C95F"/>
+    <rect x="282" y="220" width="62" height="16" rx="2" fill="#F2C95F"/>
+    <rect x="245" y="214" width="22" height="26" rx="1" fill="#F2C95F"/>
+
+    <polygon fill="#F2C95F" points="152,228 162,214 172,228 162,242"/>
+    <polygon fill="#F2C95F" points="238,228 248,214 258,228 248,242"/>
+    <polygon fill="#F2C95F" points="274,228 284,214 294,228 284,242"/>
+    <polygon fill="#F2C95F" points="340,228 350,214 360,228 350,242"/>
+  </g>
+</svg>

@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from "react-native";
+import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions } from "react-native";
 import { CalendarBlank, CaretRight } from "phosphor-react-native";
 
 const SERIF = "SourceSerif4-Regular";
@@ -68,8 +68,13 @@ export default function HomeCountdownCard({ navigation }) {
     <View style={s.wrap}>
       {/* ─── CARD 1: PHASE HEADER ─── */}
       <View style={s.headerCard}>
-        <View style={s.eyebrowPill}>
-          <Text style={s.eyebrowText}>YOUR JOURNEY</Text>
+        <View style={s.topRow}>
+          <View style={s.eyebrowPill}>
+            <Text style={s.eyebrowText}>YOUR JOURNEY</Text>
+          </View>
+          <View style={s.phaseTagBox}>
+            <Text style={s.phaseTagText}>Phase {phaseIdx + 1} of 5</Text>
+          </View>
         </View>
 
         <Text style={s.phaseName}>{phase.fullLabel}</Text>
@@ -87,8 +92,8 @@ export default function HomeCountdownCard({ navigation }) {
             </View>
           </View>
 
-          <View style={s.phaseTagBox}>
-            <Text style={s.phaseTagText}>Phase {phaseIdx + 1} of 5</Text>
+          <View style={s.kaabaWrap} pointerEvents="none">
+            <Image source={require("../assets/kaaba_framed.png")} style={s.kaabaImage} resizeMode="contain" />
           </View>
         </View>
 
@@ -105,7 +110,20 @@ export default function HomeCountdownCard({ navigation }) {
       {/* ─── CARD 2: CHECKLIST MECHANIC ─── */}
       <View style={s.checklistCard}>
         <View style={s.checklistHeaderStrip}>
-          <Text style={s.thisWeekLabel}>This week</Text>
+          <View style={s.checklistTopRow}>
+            <View style={s.checklistLabelGroup}>
+              <Text style={s.thisWeekLabel}>This week</Text>
+              <Text style={s.thisWeekSub}>Things to focus on</Text>
+            </View>
+            <TouchableOpacity
+              style={s.viewAllBtn}
+              onPress={() => navigation?.getParent?.()?.navigate?.("Plan", { screen: "Checklists" })}
+              activeOpacity={0.7}
+            >
+              <Text style={s.viewAllText}>View all</Text>
+              <CaretRight size={14} color="#5C534A" weight="regular" />
+            </TouchableOpacity>
+          </View>
           <Text style={s.thisWeekFraming}>{TEST_WEEKLY_FRAMING}</Text>
         </View>
         <View style={s.checklistBody}>
@@ -149,8 +167,10 @@ const s = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
     borderColor: "#4A5C48",
-    padding: 18,
+    padding: 20,
     marginBottom: 10,
+    position: "relative",
+    overflow: "hidden",
   },
   eyebrowPill: {
     alignSelf: "flex-start",
@@ -166,32 +186,51 @@ const s = StyleSheet.create({
     fontFamily: SERIF,
     fontSize: 28,
     color: "#FDFAF4",
-    marginBottom: 8,
+    marginBottom: 4,
     lineHeight: 34,
   },
   phaseDescription: {
     fontSize: 14,
     color: "rgba(253,250,244,0.85)",
-    lineHeight: 20,
-    marginBottom: 16,
+    lineHeight: 19,
+    marginBottom: 14,
+  },
+  topRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
   },
   middleRow: {
     flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 16,
+    alignItems: "flex-end",
+    marginBottom: 12,
+  },
+  kaabaWrap: {
+    marginLeft: -2,
+    marginRight: 18,
+    marginBottom: -2,
+  },
+  kaabaImage: {
+    width: 114,
+    height: 114,
   },
   daysBox: {
     flexDirection: "row",
     alignItems: "center",
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: "#C8A96A",
     borderRadius: 12,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    backgroundColor: "rgba(253,250,244,0.10)",
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    backgroundColor: "rgba(0,0,0,0.10)",
     flex: 0,
     marginRight: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 3,
   },
   daysIconWrap: {
     width: 36,
@@ -233,10 +272,12 @@ const s = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "flex-start",
     marginTop: 4,
-    backgroundColor: "#F5F0E8",
-    borderRadius: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 4,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(200,169,106,0.3)",
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(200,169,106,0.3)",
   },
   timelineCell: {
     alignItems: "center",
@@ -246,27 +287,27 @@ const s = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: "#F5F0E8",
+    backgroundColor: "transparent",
     borderWidth: 1.5,
-    borderColor: "#8A7D6A",
+    borderColor: "rgba(200,169,106,0.4)",
     marginBottom: 6,
   },
   timelineDotActive: {
-    backgroundColor: "#2D4F32",
-    borderColor: "#2D4F32",
+    backgroundColor: "#C8A96A",
+    borderColor: "#C8A96A",
   },
   timelineDotPast: {
-    backgroundColor: "#2D4F32",
-    borderColor: "#2D4F32",
-    opacity: 0.4,
+    backgroundColor: "transparent",
+    borderColor: "#C8A96A",
+    opacity: 0.7,
   },
   timelineLabel: {
     fontSize: 10,
-    color: "#8A7D6A",
+    color: "rgba(253,250,244,0.6)",
     textAlign: "center",
   },
   timelineLabelActive: {
-    color: "#2D4F32",
+    color: "#C8A96A",
     fontWeight: "600",
   },
   checklistCard: {
@@ -278,14 +319,23 @@ const s = StyleSheet.create({
     overflow: "hidden",
   },
   checklistHeaderStrip: {
-    backgroundColor: "#4A5C48",
-    paddingHorizontal: 18,
-    paddingVertical: 18,
-    justifyContent: "center",
+    backgroundColor: "transparent",
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 10,
+  },
+  checklistTopRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 4,
+  },
+  checklistLabelGroup: {
+    flex: 1,
   },
   checklistBody: {
-    paddingHorizontal: 18,
-    paddingTop: 4,
+    paddingHorizontal: 20,
+    paddingTop: 0,
   },
   thisWeekLabel: {
     fontSize: 12,
@@ -298,14 +348,36 @@ const s = StyleSheet.create({
   thisWeekFraming: {
     fontFamily: SERIF,
     fontSize: 20,
-    color: "#FDFAF4",
+    color: "#1C1A14",
     lineHeight: 26,
-    marginBottom: 16,
+    marginBottom: 2,
+  },
+  thisWeekSub: {
+    fontSize: 13,
+    color: "#5C534A",
+    marginTop: 0,
+    marginBottom: 4,
+  },
+  viewAllBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FDFAF4",
+    borderWidth: 1,
+    borderColor: "#E0D8CC",
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  viewAllText: {
+    fontSize: 12,
+    color: "#5C534A",
+    fontWeight: "500",
+    marginRight: 4,
   },
   taskRow: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 12,
+    paddingVertical: 15,
     borderTopWidth: 1,
     borderTopColor: "#F0EBE1",
   },
