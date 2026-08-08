@@ -5,7 +5,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Platform, ActivityIndicator } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { NavigationContainer, CommonActions } from "@react-navigation/native";
+import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator }          from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator }        from "@react-navigation/native-stack";
 import { useFonts }                   from "expo-font";
@@ -132,19 +132,13 @@ function SafarTabBar({ state, descriptors, navigation }) {
         const focused = state.index === index;
         const { Icon, label, center } = TAB_CONFIG[route.name] ?? { Icon: House, label: route.name };
         const onPress = () => {
-          const event = navigation.emit({ type: "tabPress", target: route.key, canPreventDefault: true });
-          if (event.defaultPrevented) return;
-          if (focused) {
-            const landing = routeToLanding(route.name);
-            if (landing) {
-              navigation.dispatch({
-                ...CommonActions.reset({
-                  index: 0,
-                  routes: [{ name: landing }],
-                }),
-                target: state.routes[index].state?.key,
-              });
-            }
+          const landing = routeToLanding(route.name);
+          if (landing) {
+            navigation.navigate(route.name, {
+              screen: landing,
+              params: {},
+              initial: true,
+            });
           } else {
             navigation.navigate(route.name);
           }
