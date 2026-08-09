@@ -3,17 +3,11 @@ import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions, Modal } fr
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { CalendarBlank, CaretRight, Sparkle } from "phosphor-react-native";
+import { CHECKLIST_ITEMS, getChecklistProgress, setItemChecked } from "../checklistStore";
+import { useFocusEffect } from "@react-navigation/native";
 
 const SERIF = "SourceSerif4-Regular";
 const SW = Dimensions.get("window").width;
-
-// ── Pillar colors (locked from HubContainerScreen's PILLAR_CONFIG) ──
-const PILLAR_COLORS = {
-  plan:     "#2E4560",
-  learn:    "#2D4F32",
-  practice: "#4E3414",
-  connect:  "#3D2240",
-};
 
 // ── Phase definitions ──
 const PHASES = [
@@ -24,6 +18,14 @@ const PHASES = [
   { key: "onsite",   label: "Pilgrimage",  fullLabel: "Pilgrimage",            description: "You are here. The duas and guides are ready when you need them." },
 ];
 
+const PHASE_FRAMING = [
+  "Passport renewals, bookings, and the intention behind the trip are natural starting points this far out.",
+  "Visas, insurance, and a few conversations at home tend to fill this stretch.",
+  "Packing, prayer items, and last practical details usually take shape around now.",
+  "The final printouts, the last bag items, and a word with those staying behind.",
+  "Whatever's left is small — the rest is between you and what you came here for.",
+];
+
 function phaseIndexForDays(daysOut) {
   if (daysOut > 90) return 0;
   if (daysOut > 30) return 1;
@@ -31,15 +33,6 @@ function phaseIndexForDays(daysOut) {
   if (daysOut > 0)  return 3;
   return 4;
 }
-
-// ── Static test data (weekly framing + tasks remain hardcoded until Phase 3b) ──
-const TEST_WEEKLY_FRAMING = "Start your visa application";
-const TEST_TASKS = [
-  { id: "visa",      label: "Book your visa appointment",       pillar: "plan"     },
-  { id: "ihram",     label: "Read the guide to Ihram",          pillar: "learn"    },
-  { id: "insurance", label: "Confirm your travel insurance",    pillar: "plan"     },
-  { id: "niyyah",    label: "Memorize the intention (niyyah)",  pillar: "practice" },
-];
 
 export default function HomeCountdownCard({ navigation }) {
   const [tripDate, setTripDate] = React.useState(null);
@@ -85,17 +78,36 @@ export default function HomeCountdownCard({ navigation }) {
     ? new Date(tripDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
     : "";
 
-  const [checked, setChecked] = React.useState({});
+  const [activeTasks, setActiveTasks] = React.useState([]);
 
-  const toggleCheck = (id) => setChecked((prev) => ({ ...prev, [id]: !prev[id] }));
-
-  const openPillarTab = (pillar) => {
-    const tabMap = { plan: "Plan", learn: "Learn", practice: "Practice", connect: "Connect" };
-    const targetTab = tabMap[pillar];
-    if (targetTab) {
-      navigation?.getParent?.()?.navigate?.(targetTab);
+  function buildActiveTasks(daysOut, checkedIds) {
+    const flat = [];
+    for (const categoryId of Object.keys(CHECKLIST_ITEMS)) {
+      for (const item of CHECKLIST_ITEMS[categoryId].items) {
+        flat.push({ ...item, categoryId, checked: checkedIds.has(item.id) });
+      }
     }
-  };
+    const unlocked = flat.filter((t) => t.daysOutThreshold >= daysOut).sort((a, b) => a.daysOutThreshold - b.daysOutThreshold);
+    const locked = flat.filter((t) => t.daysOutThreshold < daysOut).sort((a, b) => b.daysOutThreshold - a.daysOutThreshold);
+    const ordered = [...unlocked, ...locked];
+    const unchecked = ordered.filter((t) => !t.checked);
+    const checkedList = ordered.filter((t) => t.checked);
+    return [...unchecked, ...checkedList].slice(0, 4);
+  }
+
+  useFocusEffect(
+    React.useCallback(() => {
+      if (!hasDate) return;
+      let cancelled = false;
+      (async () => {
+        const categoryIds = Object.keys(CHECKLIST_ITEMS);
+        const lists = await Promise.all(categoryIds.map((id) => getChecklistProgress(id)));
+        const checkedIds = new Set(lists.flat());
+        if (!cancelled) setActiveTasks(buildActiveTasks(daysOut, checkedIds));
+      })();
+      return () => { cancelled = true; };
+    }, [hasDate, daysOut])
+  );
 
   const openTripModal = () => {
     setDraftDate(tripDate ? new Date(tripDate) : new Date());
@@ -117,6 +129,12 @@ export default function HomeCountdownCard({ navigation }) {
 
   const cancelTripModal = () => {
     setModalOpen(false);
+  };
+
+  const toggleTaskChecked = (task) => {
+    const next = !task.checked;
+    setActiveTasks((prev) => prev.map((t) => (t.id === task.id ? { ...t, checked: next } : t)));
+    setItemChecked(task.categoryId, task.id, next);
   };
 
   if (!loaded) return null;
@@ -193,28 +211,27 @@ export default function HomeCountdownCard({ navigation }) {
                   <CaretRight size={14} color="#5C534A" weight="regular" />
                 </TouchableOpacity>
               </View>
-              <Text style={s.thisWeekFraming}>{TEST_WEEKLY_FRAMING}</Text>
+              <Text style={s.thisWeekFraming}>{PHASE_FRAMING[phaseIdx]}</Text>
             </View>
             <View style={s.checklistBody}>
-              {TEST_TASKS.map((task) => {
-                const isChecked = !!checked[task.id];
+              {activeTasks.map((task) => {
+                const isChecked = task.checked;
                 return (
                   <TouchableOpacity
                     key={task.id}
                     style={s.taskRow}
-                    onPress={() => openPillarTab(task.pillar)}
+                    onPress={() => navigation?.getParent?.()?.navigate?.("Plan", { screen: "ChecklistDetail", params: { categoryId: task.categoryId, itemId: task.id } })}
                     activeOpacity={0.8}
                   >
                     <TouchableOpacity
-                      style={[s.checkbox, isChecked && s.checkboxChecked]}
-                      onPress={(e) => { e.stopPropagation && e.stopPropagation(); toggleCheck(task.id); }}
+                      style={[s.checkbox, isChecked ? s.checkboxChecked : null]}
+                      onPress={(e) => { e.stopPropagation && e.stopPropagation(); toggleTaskChecked(task); }}
                       activeOpacity={0.7}
                     >
                       {isChecked ? <Text style={s.checkboxCheck}>{"✓"}</Text> : null}
                     </TouchableOpacity>
 
-                    <View style={[s.pillarDot, { backgroundColor: PILLAR_COLORS[task.pillar] }]} />
-                    <Text style={[s.taskLabel, isChecked && s.taskLabelChecked]}>{task.label}</Text>
+                    <Text style={[s.taskLabel, isChecked ? s.taskLabelChecked : null]}>{task.label}</Text>
                     <CaretRight size={16} color="#8A7D6A" weight="regular" />
                   </TouchableOpacity>
                 );
@@ -619,12 +636,6 @@ const s = StyleSheet.create({
     color: "#FDFAF4",
     fontSize: 14,
     fontWeight: "700",
-  },
-  pillarDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    marginRight: 10,
   },
   taskLabel: {
     flex: 1,
