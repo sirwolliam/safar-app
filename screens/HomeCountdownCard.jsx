@@ -1,5 +1,7 @@
 import React from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions } from "react-native";
+import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions, Modal } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { CalendarBlank, CaretRight } from "phosphor-react-native";
 
 const SERIF = "SourceSerif4-Regular";
@@ -30,10 +32,7 @@ function phaseIndexForDays(daysOut) {
   return 4;
 }
 
-// ── Hardcoded test data (Phase 3b will replace with real reads from AsyncStorage + checklistStore) ──
-const TEST_HAS_DATE = true;
-const TEST_DAYS_OUT = 87;
-const TEST_PILGRIMAGE_TYPE = "Umrah";
+// ── Static test data (weekly framing + tasks remain hardcoded until Phase 3b) ──
 const TEST_WEEKLY_FRAMING = "Start your visa application";
 const TEST_TASKS = [
   { id: "visa",      label: "Book your visa appointment",       pillar: "plan"     },
@@ -43,15 +42,49 @@ const TEST_TASKS = [
 ];
 
 export default function HomeCountdownCard({ navigation }) {
-  const hasDate = TEST_HAS_DATE;
+  const [tripDate, setTripDate] = React.useState(null);
+  const [pilgrimageType, setPilgrimageType] = React.useState(null);
+  const [loaded, setLoaded] = React.useState(false);
+  const [modalOpen, setModalOpen] = React.useState(false);
+  const [draftDate, setDraftDate] = React.useState(new Date());
+  const [draftType, setDraftType] = React.useState("umrah");
 
-  if (!hasDate) {
-    return null;
+  React.useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const [dateStr, typeStr] = await Promise.all([
+          AsyncStorage.getItem("safar_departure_date_v1"),
+          AsyncStorage.getItem("safar_journey_type_v1"),
+        ]);
+        if (cancelled) return;
+        if (dateStr) setTripDate(dateStr);
+        if (typeStr) setPilgrimageType(typeStr);
+      } catch (e) {
+        // If storage read fails, treat as no trip set
+      } finally {
+        if (!cancelled) setLoaded(true);
+      }
+    };
+    load();
+    return () => { cancelled = true; };
+  }, []);
+
+  const hasDate = tripDate !== null && (pilgrimageType === "umrah" || pilgrimageType === "hajj");
+  const pilgrimageLabel = pilgrimageType === "hajj" ? "Hajj" : "Umrah";
+
+  let daysOut = 0;
+  if (hasDate) {
+    const now = new Date();
+    const trip = new Date(tripDate);
+    const ms = trip.getTime() - now.getTime();
+    daysOut = Math.max(0, Math.ceil(ms / (1000 * 60 * 60 * 24)));
   }
 
-  const daysOut = TEST_DAYS_OUT;
-  const phaseIdx = phaseIndexForDays(daysOut);
-  const phase = PHASES[phaseIdx];
+  const formattedDate = hasDate
+    ? new Date(tripDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+    : "";
+
   const [checked, setChecked] = React.useState({});
 
   const toggleCheck = (id) => setChecked((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -63,6 +96,50 @@ export default function HomeCountdownCard({ navigation }) {
       navigation?.getParent?.()?.navigate?.(targetTab);
     }
   };
+
+  const openTripModal = () => {
+    setDraftDate(tripDate ? new Date(tripDate) : new Date());
+    setDraftType(pilgrimageType || "umrah");
+    setModalOpen(true);
+  };
+
+  const saveTripModal = async () => {
+    try {
+      await AsyncStorage.setItem("safar_departure_date_v1", draftDate.toISOString());
+      await AsyncStorage.setItem("safar_journey_type_v1", draftType);
+      setTripDate(draftDate.toISOString());
+      setPilgrimageType(draftType);
+      setModalOpen(false);
+    } catch (e) {
+      // Save failed silently
+    }
+  };
+
+  const cancelTripModal = () => {
+    setModalOpen(false);
+  };
+
+  if (!loaded) return null;
+
+  if (!hasDate) {
+    return (
+      <TouchableOpacity
+        style={s.inviteCard}
+        onPress={() => navigation?.navigate?.("SafarAssist")}
+        activeOpacity={0.85}
+      >
+        <View style={s.inviteContent}>
+          <Text style={s.inviteEyebrow}>GET STARTED</Text>
+          <Text style={s.inviteHeadline}>Ready to plan your Hajj or Umrah?</Text>
+          <Text style={s.inviteSub}>Add your trip details for a personalized preparation timeline, tips, and reminders.</Text>
+        </View>
+        <CaretRight size={20} color="#C8A96A" weight="regular" />
+      </TouchableOpacity>
+    );
+  }
+
+  const phaseIdx = phaseIndexForDays(daysOut);
+  const phase = PHASES[phaseIdx];
 
   return (
     <View style={s.wrap}>
@@ -81,15 +158,22 @@ export default function HomeCountdownCard({ navigation }) {
         <Text style={s.phaseDescription}>{phase.description}</Text>
 
         <View style={s.middleRow}>
-          <View style={s.daysBox}>
-            <View style={s.daysIconWrap}>
-              <CalendarBlank size={36} color="#C8A96A" weight="regular" />
-            </View>
-            <Text style={s.daysNum}>{daysOut}</Text>
-            <View style={s.daysLabelStack}>
-              <Text style={s.daysLabel}>days until</Text>
-              <Text style={s.daysLabel}>your {TEST_PILGRIMAGE_TYPE}</Text>
-            </View>
+          <View style={s.daysBoxColumn}>
+            <Text style={s.departureLine}>Departure · {formattedDate}</Text>
+            <TouchableOpacity
+              style={s.daysBox}
+              onPress={openTripModal}
+              activeOpacity={0.85}
+            >
+              <View style={s.daysIconWrap}>
+                <CalendarBlank size={36} color="#C8A96A" weight="regular" />
+              </View>
+              <Text style={s.daysNum}>{daysOut}</Text>
+              <View style={s.daysLabelStack}>
+                <Text style={s.daysLabel}>days until</Text>
+                <Text style={s.daysLabel}>your {pilgrimageLabel}</Text>
+              </View>
+            </TouchableOpacity>
           </View>
 
           <View style={s.kaabaWrap} pointerEvents="none">
@@ -152,6 +236,56 @@ export default function HomeCountdownCard({ navigation }) {
           })}
         </View>
       </View>
+
+      <Modal
+        visible={modalOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={cancelTripModal}
+      >
+        <View style={s.modalBackdrop}>
+          <View style={s.modalCard}>
+            <Text style={s.modalTitle}>Trip Details</Text>
+            <Text style={s.modalSub}>Set your pilgrimage type and departure date.</Text>
+
+            <View style={s.segmentedControl}>
+              <TouchableOpacity
+                style={[s.segment, draftType === "umrah" ? s.segmentActive : null]}
+                onPress={() => setDraftType("umrah")}
+                activeOpacity={0.85}
+              >
+                <Text style={[s.segmentText, draftType === "umrah" ? s.segmentTextActive : null]}>Umrah</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[s.segment, draftType === "hajj" ? s.segmentActive : null]}
+                onPress={() => setDraftType("hajj")}
+                activeOpacity={0.85}
+              >
+                <Text style={[s.segmentText, draftType === "hajj" ? s.segmentTextActive : null]}>Hajj</Text>
+              </TouchableOpacity>
+            </View>
+
+            <DateTimePicker
+              value={draftDate}
+              mode="date"
+              display="spinner"
+              onChange={(e, selected) => { if (selected) setDraftDate(selected); }}
+              minimumDate={new Date()}
+              style={s.datePicker}
+              textColor="#1C1A14"
+            />
+
+            <View style={s.modalActions}>
+              <TouchableOpacity style={s.modalCancel} onPress={cancelTripModal} activeOpacity={0.85}>
+                <Text style={s.modalCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={s.modalSave} onPress={saveTripModal} activeOpacity={0.85}>
+                <Text style={s.modalSaveText}>Save</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -161,6 +295,41 @@ const s = StyleSheet.create({
     marginHorizontal: 14,
     marginTop: 12,
     marginBottom: 12,
+  },
+  inviteCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#4A5C48",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#4A5C48",
+    padding: 20,
+    marginHorizontal: 14,
+    marginTop: 12,
+    marginBottom: 12,
+  },
+  inviteContent: {
+    flex: 1,
+    marginRight: 12,
+  },
+  inviteEyebrow: {
+    fontSize: 12,
+    fontWeight: "700",
+    letterSpacing: 1.2,
+    color: "#C8A96A",
+    marginBottom: 8,
+  },
+  inviteHeadline: {
+    fontFamily: SERIF,
+    fontSize: 22,
+    color: "#FDFAF4",
+    lineHeight: 28,
+    marginBottom: 8,
+  },
+  inviteSub: {
+    fontSize: 13,
+    color: "rgba(253,250,244,0.75)",
+    lineHeight: 19,
   },
   headerCard: {
     backgroundColor: "#4A5C48",
@@ -173,8 +342,7 @@ const s = StyleSheet.create({
     overflow: "hidden",
   },
   eyebrowPill: {
-    alignSelf: "flex-start",
-    marginBottom: 12,
+    alignSelf: "center",
   },
   eyebrowText: {
     fontSize: 12,
@@ -210,6 +378,11 @@ const s = StyleSheet.create({
     marginLeft: -2,
     marginRight: 18,
     marginBottom: -2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 3,
   },
   kaabaImage: {
     width: 114,
@@ -416,5 +589,96 @@ const s = StyleSheet.create({
   taskLabelChecked: {
     color: "#8A7D6A",
     textDecorationLine: "line-through",
+  },
+  daysBoxColumn: {
+    flexDirection: "column",
+  },
+  departureLine: {
+    fontSize: 11,
+    color: "rgba(253,250,244,0.6)",
+    marginBottom: 9,
+    letterSpacing: 0.3,
+    textAlign: "center",
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 24,
+  },
+  modalCard: {
+    backgroundColor: "#FDFAF4",
+    borderRadius: 20,
+    padding: 24,
+    width: "100%",
+    maxWidth: 380,
+  },
+  modalTitle: {
+    fontFamily: SERIF,
+    fontSize: 24,
+    color: "#1C1A14",
+    marginBottom: 4,
+  },
+  modalSub: {
+    fontSize: 14,
+    color: "#5C534A",
+    marginBottom: 20,
+  },
+  segmentedControl: {
+    flexDirection: "row",
+    backgroundColor: "#F0EBE1",
+    borderRadius: 10,
+    padding: 4,
+    marginBottom: 16,
+  },
+  segment: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  segmentActive: {
+    backgroundColor: "#4A5C48",
+  },
+  segmentText: {
+    fontSize: 15,
+    color: "#5C534A",
+    fontWeight: "500",
+  },
+  segmentTextActive: {
+    color: "#FDFAF4",
+    fontWeight: "600",
+  },
+  datePicker: {
+    height: 200,
+    marginBottom: 16,
+  },
+  modalActions: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 12,
+  },
+  modalCancel: {
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 10,
+    backgroundColor: "#F0EBE1",
+  },
+  modalCancelText: {
+    fontSize: 15,
+    color: "#5C534A",
+    fontWeight: "500",
+  },
+  modalSave: {
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 10,
+    backgroundColor: "#4A5C48",
+  },
+  modalSaveText: {
+    fontSize: 15,
+    color: "#FDFAF4",
+    fontWeight: "600",
   },
 });
