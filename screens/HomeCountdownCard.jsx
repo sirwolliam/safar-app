@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions, Modal } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { CalendarBlank, CaretRight } from "phosphor-react-native";
+import { CalendarBlank, CaretRight, Sparkle } from "phosphor-react-native";
 
 const SERIF = "SourceSerif4-Regular";
 const SW = Dimensions.get("window").width;
@@ -18,7 +18,7 @@ const PILLAR_COLORS = {
 // ── Phase definitions ──
 const PHASES = [
   { key: "early",    label: "Early",       fullLabel: "Early Preparation",     description: "You have time to plan carefully. Visas, flights, and accommodation are usually the first priorities." },
-  { key: "focused",  label: "Focused",     fullLabel: "Focused Preparation",   description: "A good stretch for learning the rites, memorizing key duas, and shaping your packing list." },
+  { key: "focused",  label: "Focused",     fullLabel: "Focused Preparation",   description: "A good stretch for learning the steps, memorizing key duas, and shaping your packing list." },
   { key: "final",    label: "Final",       fullLabel: "Final Preparation",     description: "The trip is getting close. Packing, guides, and a word with family often come into focus around now." },
   { key: "onway",    label: "On your way", fullLabel: "On Your Way",           description: "Almost there. Documents, essentials, and a check-in with your group are worth a last look." },
   { key: "onsite",   label: "Pilgrimage",  fullLabel: "Pilgrimage",            description: "You are here. The duas and guides are ready when you need them." },
@@ -121,121 +121,128 @@ export default function HomeCountdownCard({ navigation }) {
 
   if (!loaded) return null;
 
-  if (!hasDate) {
-    return (
-      <TouchableOpacity
-        style={s.inviteCard}
-        onPress={() => navigation?.navigate?.("SafarAssist")}
-        activeOpacity={0.85}
-      >
-        <View style={s.inviteContent}>
-          <Text style={s.inviteEyebrow}>GET STARTED</Text>
-          <Text style={s.inviteHeadline}>Ready to plan your Hajj or Umrah?</Text>
-          <Text style={s.inviteSub}>Add your trip details for a personalized preparation timeline, tips, and reminders.</Text>
-        </View>
-        <CaretRight size={20} color="#C8A96A" weight="regular" />
-      </TouchableOpacity>
-    );
-  }
-
-  const phaseIdx = phaseIndexForDays(daysOut);
+  const phaseIdx = hasDate ? phaseIndexForDays(daysOut) : 0;
   const phase = PHASES[phaseIdx];
 
   return (
-    <View style={s.wrap}>
-      {/* ─── CARD 1: PHASE HEADER ─── */}
-      <View style={s.headerCard}>
-        <View style={s.topRow}>
-          <View style={s.eyebrowPill}>
-            <Text style={s.eyebrowText}>YOUR JOURNEY</Text>
-          </View>
-          <View style={s.phaseTagBox}>
-            <Text style={s.phaseTagText}>Phase {phaseIdx + 1} of 5</Text>
-          </View>
-        </View>
-
-        <Text style={s.phaseName}>{phase.fullLabel}</Text>
-        <Text style={s.phaseDescription}>{phase.description}</Text>
-
-        <View style={s.middleRow}>
-          <View style={s.daysBoxColumn}>
-            <Text style={s.departureLine}>Departure · {formattedDate}</Text>
-            <TouchableOpacity
-              style={s.daysBox}
-              onPress={openTripModal}
-              activeOpacity={0.85}
-            >
-              <View style={s.daysIconWrap}>
-                <CalendarBlank size={36} color="#C8A96A" weight="regular" />
+    <>
+      {hasDate ? (
+        <View style={s.wrap}>
+          {/* ─── CARD 1: PHASE HEADER ─── */}
+          <View style={s.headerCard}>
+            <View style={s.topRow}>
+              <View style={s.eyebrowPill}>
+                <Text style={s.eyebrowText}>YOUR JOURNEY</Text>
               </View>
-              <Text style={s.daysNum}>{daysOut}</Text>
-              <View style={s.daysLabelStack}>
-                <Text style={s.daysLabel}>days until</Text>
-                <Text style={s.daysLabel}>your {pilgrimageLabel}</Text>
+              <View style={s.phaseTagBox}>
+                <Text style={s.phaseTagText}>Phase {phaseIdx + 1} of 5</Text>
               </View>
-            </TouchableOpacity>
-          </View>
-
-          <View style={s.kaabaWrap} pointerEvents="none">
-            <Image source={require("../assets/kaaba_framed.png")} style={s.kaabaImage} resizeMode="contain" />
-          </View>
-        </View>
-
-        <View style={s.timelineRow}>
-          {PHASES.map((p, i) => (
-            <View key={p.key} style={s.timelineCell}>
-              <View style={[s.timelineDot, i === phaseIdx && s.timelineDotActive, i < phaseIdx && s.timelineDotPast]} />
-              <Text style={[s.timelineLabel, i === phaseIdx && s.timelineLabelActive]}>{p.label}</Text>
             </View>
-          ))}
-        </View>
-      </View>
 
-      {/* ─── CARD 2: CHECKLIST MECHANIC ─── */}
-      <View style={s.checklistCard}>
-        <View style={s.checklistHeaderStrip}>
-          <View style={s.checklistTopRow}>
-            <View style={s.checklistLabelGroup}>
-              <Text style={s.thisWeekLabel}>This week</Text>
-              <Text style={s.thisWeekSub}>Things to focus on</Text>
-            </View>
-            <TouchableOpacity
-              style={s.viewAllBtn}
-              onPress={() => navigation?.getParent?.()?.navigate?.("Plan", { screen: "Checklists" })}
-              activeOpacity={0.7}
-            >
-              <Text style={s.viewAllText}>View all</Text>
-              <CaretRight size={14} color="#5C534A" weight="regular" />
-            </TouchableOpacity>
-          </View>
-          <Text style={s.thisWeekFraming}>{TEST_WEEKLY_FRAMING}</Text>
-        </View>
-        <View style={s.checklistBody}>
-          {TEST_TASKS.map((task) => {
-            const isChecked = !!checked[task.id];
-            return (
-              <TouchableOpacity
-                key={task.id}
-                style={s.taskRow}
-                onPress={() => openPillarTab(task.pillar)}
-                activeOpacity={0.8}
-              >
+            <Text style={s.phaseName}>{phase.fullLabel}</Text>
+            <Text style={s.phaseDescription}>{phase.description}</Text>
+
+            <View style={s.middleRow}>
+              <View style={s.daysBoxColumn}>
+                <Text style={s.departureLine}>Departure · {formattedDate}</Text>
                 <TouchableOpacity
-                  style={[s.checkbox, isChecked && s.checkboxChecked]}
-                  onPress={(e) => { e.stopPropagation && e.stopPropagation(); toggleCheck(task.id); }}
+                  style={s.daysBox}
+                  onPress={openTripModal}
+                  activeOpacity={0.85}
+                >
+                  <View style={s.daysIconWrap}>
+                    <CalendarBlank size={36} color="#C8A96A" weight="regular" />
+                  </View>
+                  <Text style={s.daysNum}>{daysOut}</Text>
+                  <View style={s.daysLabelStack}>
+                    <Text style={s.daysLabel}>days until</Text>
+                    <Text style={s.daysLabel}>your {pilgrimageLabel}</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+
+              <View style={s.kaabaWrap} pointerEvents="none">
+                <Image source={require("../assets/kaaba_framed.png")} style={s.kaabaImage} resizeMode="contain" />
+              </View>
+            </View>
+
+            <View style={s.timelineRow}>
+              {PHASES.map((p, i) => (
+                <View key={p.key} style={s.timelineCell}>
+                  <View style={[s.timelineDot, i === phaseIdx && s.timelineDotActive, i < phaseIdx && s.timelineDotPast]} />
+                  <Text style={[s.timelineLabel, i === phaseIdx && s.timelineLabelActive]}>{p.label}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+
+          {/* ─── CARD 2: CHECKLIST MECHANIC ─── */}
+          <View style={s.checklistCard}>
+            <View style={s.checklistHeaderStrip}>
+              <View style={s.checklistTopRow}>
+                <View style={s.checklistLabelGroup}>
+                  <Text style={s.thisWeekLabel}>This week</Text>
+                  <Text style={s.thisWeekSub}>Things to focus on</Text>
+                </View>
+                <TouchableOpacity
+                  style={s.viewAllBtn}
+                  onPress={() => navigation?.getParent?.()?.navigate?.("Plan", { screen: "Checklists" })}
                   activeOpacity={0.7}
                 >
-                  {isChecked ? <Text style={s.checkboxCheck}>{"✓"}</Text> : null}
+                  <Text style={s.viewAllText}>View all</Text>
+                  <CaretRight size={14} color="#5C534A" weight="regular" />
                 </TouchableOpacity>
+              </View>
+              <Text style={s.thisWeekFraming}>{TEST_WEEKLY_FRAMING}</Text>
+            </View>
+            <View style={s.checklistBody}>
+              {TEST_TASKS.map((task) => {
+                const isChecked = !!checked[task.id];
+                return (
+                  <TouchableOpacity
+                    key={task.id}
+                    style={s.taskRow}
+                    onPress={() => openPillarTab(task.pillar)}
+                    activeOpacity={0.8}
+                  >
+                    <TouchableOpacity
+                      style={[s.checkbox, isChecked && s.checkboxChecked]}
+                      onPress={(e) => { e.stopPropagation && e.stopPropagation(); toggleCheck(task.id); }}
+                      activeOpacity={0.7}
+                    >
+                      {isChecked ? <Text style={s.checkboxCheck}>{"✓"}</Text> : null}
+                    </TouchableOpacity>
 
-                <View style={[s.pillarDot, { backgroundColor: PILLAR_COLORS[task.pillar] }]} />
-                <Text style={[s.taskLabel, isChecked && s.taskLabelChecked]}>{task.label}</Text>
-                <CaretRight size={16} color="#8A7D6A" weight="regular" />
-              </TouchableOpacity>
-            );
-          })}
+                    <View style={[s.pillarDot, { backgroundColor: PILLAR_COLORS[task.pillar] }]} />
+                    <Text style={[s.taskLabel, isChecked && s.taskLabelChecked]}>{task.label}</Text>
+                    <CaretRight size={16} color="#8A7D6A" weight="regular" />
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
         </View>
-      </View>
+      ) : (
+        <TouchableOpacity
+          style={s.inviteCard}
+          onPress={openTripModal}
+          activeOpacity={0.85}
+        >
+          <View style={s.inviteTopRow}>
+            <View style={s.inviteContent}>
+              <Text style={s.inviteEyebrow}>GET STARTED</Text>
+              <Text style={s.inviteHeadline}>{"Ready to plan your\nHajj or Umrah?"}</Text>
+              <Text style={s.inviteSub}>Add your trip details for a personalized preparation timeline, tips, and reminders.</Text>
+            </View>
+            <View style={s.inviteKaabaWrap}>
+              <Image source={require("../assets/kaaba_framed.png")} style={s.inviteKaabaImage} resizeMode="contain" />
+            </View>
+          </View>
+          <View style={s.inviteArrowWrap}>
+            <CaretRight size={20} color="#C8A96A" weight="regular" />
+          </View>
+        </TouchableOpacity>
+      )}
 
       <Modal
         visible={modalOpen}
@@ -275,6 +282,24 @@ export default function HomeCountdownCard({ navigation }) {
               textColor="#1C1A14"
             />
 
+            <TouchableOpacity
+              style={s.modalImportRow}
+              onPress={() => {
+                setModalOpen(false);
+                navigation?.navigate?.("SafarAssist");
+              }}
+              activeOpacity={0.85}
+            >
+              <View style={s.modalImportIconWrap}>
+                <Sparkle size={25} color="#C8A96A" weight="regular" />
+              </View>
+              <View style={s.modalImportTextWrap}>
+                <Text style={s.modalImportLabel}>Import your booking details</Text>
+                <Text style={s.modalImportSub}>Quickly bring in your travel details from email, notes, or docs.</Text>
+              </View>
+              <CaretRight size={16} color="#C8A96A" weight="regular" />
+            </TouchableOpacity>
+
             <View style={s.modalActions}>
               <TouchableOpacity style={s.modalCancel} onPress={cancelTripModal} activeOpacity={0.85}>
                 <Text style={s.modalCancelText}>Cancel</Text>
@@ -286,7 +311,7 @@ export default function HomeCountdownCard({ navigation }) {
           </View>
         </View>
       </Modal>
-    </View>
+    </>
   );
 }
 
@@ -297,8 +322,6 @@ const s = StyleSheet.create({
     marginBottom: 12,
   },
   inviteCard: {
-    flexDirection: "row",
-    alignItems: "center",
     backgroundColor: "#4A5C48",
     borderRadius: 16,
     borderWidth: 1,
@@ -308,9 +331,32 @@ const s = StyleSheet.create({
     marginTop: 12,
     marginBottom: 12,
   },
+  inviteTopRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   inviteContent: {
     flex: 1,
-    marginRight: 12,
+    marginRight: 8,
+  },
+  inviteKaabaWrap: {
+    marginLeft: 8,
+    marginRight: 14,
+    marginTop: -15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  inviteKaabaImage: {
+    width: 108,
+    height: 108,
+  },
+  inviteArrowWrap: {
+    position: "absolute",
+    right: 16,
+    bottom: 14,
   },
   inviteEyebrow: {
     fontSize: 12,
@@ -680,5 +726,39 @@ const s = StyleSheet.create({
     fontSize: 15,
     color: "#FDFAF4",
     fontWeight: "600",
+  },
+  modalImportRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#4A5C48",
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#C8A96A",
+    padding: 19,
+    marginBottom: 28,
+  },
+  modalImportIconWrap: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: "rgba(253,250,244,0.15)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 12,
+  },
+  modalImportTextWrap: {
+    flex: 1,
+    marginRight: 8,
+  },
+  modalImportLabel: {
+    fontSize: 15,
+    color: "#FDFAF4",
+    fontWeight: "500",
+    marginBottom: 2,
+  },
+  modalImportSub: {
+    fontSize: 12,
+    color: "rgba(253,250,244,0.75)",
+    lineHeight: 16,
   },
 });

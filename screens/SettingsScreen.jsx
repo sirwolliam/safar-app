@@ -10,7 +10,7 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { colors, spacing, radius, shadows, typography } from "../theme";
 import { useAccessibility } from "../AccessibilityContext";
-import { CaretLeft, Info, CaretRight } from "phosphor-react-native";
+import { CaretLeft, Info, CaretRight, Trash } from "phosphor-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import HeaderPatternBg from "../HeaderPatternBg";
 
@@ -114,6 +114,27 @@ export default function SettingsScreen({ navigation }) {
     );
   };
 
+  const clearTripData = () => {
+    Alert.alert(
+      "Clear trip data?",
+      "This removes your departure date and pilgrimage type only. Other data stays. This is a temporary testing button.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Clear",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await AsyncStorage.removeItem("safar_departure_date_v1");
+              await AsyncStorage.removeItem("safar_journey_type_v1");
+            } catch (e) {}
+            Alert.alert("Cleared", "Trip data removed. Restart the app or go to Home to see the invitation card.");
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <View style={s.safe}>
       <StatusBar barStyle="light-content" />
@@ -192,6 +213,11 @@ export default function SettingsScreen({ navigation }) {
             label="Restart Setup"
             sub="Go through the welcome and journey setup again"
             onPress={resetOnboarding}
+          />
+          <SettingRow
+            label="Clear Trip Data (Test)"
+            sub="Testing: clears trip date and pilgrimage type"
+            onPress={clearTripData}
             isLast
           />
         </View>
