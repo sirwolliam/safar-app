@@ -24,6 +24,9 @@ export default function ChecklistDetailScreen({ navigation, route }) {
   const category = CHECKLIST_ITEMS[activeCategoryId];
 
   const [checkedMap, setCheckedMap] = useState({});
+  const [highlightedId, setHighlightedId] = useState(route?.params?.itemId ?? null);
+  const scrollRef = React.useRef(null);
+  const itemPositions = React.useRef({});
 
   useFocusEffect(
     React.useCallback(() => {
@@ -41,6 +44,20 @@ export default function ChecklistDetailScreen({ navigation, route }) {
     }, [activeCategoryId])
   );
 
+  React.useEffect(() => {
+    const targetId = route?.params?.itemId;
+    if (!targetId) return;
+    setHighlightedId(targetId);
+    const scrollTimer = setTimeout(() => {
+      const y = itemPositions.current[targetId];
+      if (y != null && scrollRef.current) {
+        scrollRef.current.scrollTo({ y: Math.max(0, y - 80), animated: true });
+      }
+    }, 400);
+    const clearTimer = setTimeout(() => setHighlightedId(null), 2800);
+    return () => { clearTimeout(scrollTimer); clearTimeout(clearTimer); };
+  }, [route?.params?.itemId, activeCategoryId]);
+
   if (!category) {
     return (
       <View style={s.safe}>
@@ -56,6 +73,10 @@ export default function ChecklistDetailScreen({ navigation, route }) {
   const checkedCount = Object.values(checkedMap).filter(Boolean).length;
   const totalCount = category.items.length;
 
+  function captureItemY(itemId, y) {
+    itemPositions.current[itemId] = y;
+  }
+
   function handleToggle(item) {
     const next = !checkedMap[item.id];
     setCheckedMap((prev) => ({ ...prev, [item.id]: next }));
@@ -67,8 +88,9 @@ export default function ChecklistDetailScreen({ navigation, route }) {
     return (
       <TouchableOpacity
         key={item.id}
-        style={s.itemRow}
+        style={item.id === highlightedId ? [s.itemRow, s.itemRowHighlighted] : s.itemRow}
         onPress={() => handleToggle(item)}
+        onLayout={(e) => captureItemY(item.id, e.nativeEvent.layout.y)}
         activeOpacity={0.7}
       >
         <View style={checked ? [s.checkbox, s.checkboxChecked, { backgroundColor: CATEGORY_COLORS[activeCategoryId], borderColor: CATEGORY_COLORS[activeCategoryId] }] : s.checkbox}>
@@ -133,6 +155,7 @@ export default function ChecklistDetailScreen({ navigation, route }) {
       </View>
 
       <ScrollView
+        ref={scrollRef}
         style={s.scroll}
         contentContainerStyle={s.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -161,6 +184,7 @@ const s = StyleSheet.create({
   listCard:        { backgroundColor: "#FDFAF4", borderRadius: 16, borderWidth: 1, borderColor: "#DDD5C0", overflow: "hidden" },
   sectionHeading:  { fontSize: 13, fontWeight: "700", letterSpacing: 1, color: "#8A7D6A", marginTop: 20, marginBottom: 8, marginHorizontal: 20 },
   itemRow:         { flexDirection: "row", alignItems: "center", paddingVertical: 14, paddingHorizontal: 20, borderBottomWidth: 1, borderBottomColor: "#EDE4D4" },
+  itemRowHighlighted: { backgroundColor: "#F3E9D2" },
   checkbox:        { width: 24, height: 24, borderRadius: 12, borderWidth: 2, borderColor: "#C8BFB2", alignItems: "center", justifyContent: "center", marginRight: 14, flexShrink: 0 },
   checkboxChecked: { backgroundColor: "#4A5C48", borderColor: "#4A5C48" },
   itemLabel:       { flex: 1, fontSize: 15, color: "#1A1410" },
