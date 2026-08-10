@@ -9,7 +9,6 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { colors, spacing, radius, shadows } from "../theme";
-import GuideCarousel, { UMRAH_STEPS } from "./GuideCarousel";
 
 const SERIF       = "SourceSerif4-Regular";
 const STORAGE_KEY = "safar_umrah_checklist_v1";
@@ -28,8 +27,7 @@ const UMRAH_CHECKLIST = [
 ];
 
 export default function UmrahGuideScreen({ navigation }) {
-  const [done,         setDone]         = useState({});
-  const [showCarousel, setShowCarousel] = useState(false);
+  const [done, setDone] = useState({});
 
   useEffect(() => {
     AsyncStorage.getItem(STORAGE_KEY)
@@ -62,7 +60,7 @@ export default function UmrahGuideScreen({ navigation }) {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
 
         {/* ── 1. Hero — opens GuideCarousel ── */}
-        <TouchableOpacity style={s.heroCard} onPress={() => setShowCarousel(true)} activeOpacity={0.9}>
+        <TouchableOpacity style={s.heroCard} onPress={() => navigation.navigate("LessonFlow", { lessonId: "umrah-01" })} activeOpacity={0.9}>
           <ImageBackground
             source={require("../assets/ihram.jpg")}
             style={s.heroCardBg}
@@ -213,12 +211,6 @@ export default function UmrahGuideScreen({ navigation }) {
         <View style={{ height:spacing(5) }} />
       </ScrollView>
 
-      <GuideCarousel
-        visible={showCarousel}
-        steps={UMRAH_STEPS}
-        title={"My Umrah Guide"}
-        onClose={() => setShowCarousel(false)}
-      />
     </SafeAreaView>
   );
 }
