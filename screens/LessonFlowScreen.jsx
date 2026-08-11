@@ -366,6 +366,30 @@ function InsightBlock({ block }) {
   );
 }
 
+function ClosingBlock({ block, navigation, insets, guide }) {
+  return (
+    <ImageBackground source={block.image} style={bs.coverWrap} resizeMode="cover">
+      <CoverScrim width={SW} height={SH} />
+      <View style={[bs.coverTopRow, { paddingTop: (insets?.top ?? 0) + 12 }]}>
+        <TouchableOpacity style={bs.coverIconBtn} onPress={() => navigation?.navigate?.("LessonList", { guide })} activeOpacity={0.8}>
+          <IconBack color="#FFFFFF" size={20} />
+        </TouchableOpacity>
+        <TouchableOpacity style={bs.coverIconBtn} activeOpacity={0.8}>
+          <BookmarkSimple size={18} color="#FFFFFF" weight="regular" />
+        </TouchableOpacity>
+      </View>
+      <View style={bs.closingCenter}>
+        <Text style={bs.closingQuote}>{block.quote}</Text>
+      </View>
+      <View style={bs.closingRefs}>
+        {block.references.map((r, i) => (
+          <Text key={i} style={bs.closingRefText}>{r}</Text>
+        ))}
+      </View>
+    </ImageBackground>
+  );
+}
+
 const BLOCK_COMPONENTS = {
   cover: CoverBlock,
   cardList: CardListBlock,
@@ -376,6 +400,7 @@ const BLOCK_COMPONENTS = {
   duaList: DuaListBlock,
   companionTool: CompanionToolBlock,
   insight: InsightBlock,
+  closing: ClosingBlock,
 };
 
 export default function LessonFlowScreen({ navigation, route }) {
@@ -401,6 +426,7 @@ export default function LessonFlowScreen({ navigation, route }) {
   const isLast = current === total - 1;
   const activeBlock = blocks[current];
   const isCoverActive = activeBlock.type === "cover";
+  const hasFullBleedImage = activeBlock.type === "cover" || activeBlock.type === "closing";
 
   const goTo = (idx) => {
     if (idx < 0 || idx >= total) return;
@@ -426,7 +452,7 @@ export default function LessonFlowScreen({ navigation, route }) {
 
   return (
     <View style={s.safe}>
-      {!isCoverActive ? (
+      {!hasFullBleedImage ? (
         <>
           <View style={s.headerZone} onLayout={(e) => setHeaderH(e.nativeEvent.layout.height)}>
             <HeaderPattern width={SW} height={headerH} />
@@ -473,14 +499,14 @@ export default function LessonFlowScreen({ navigation, route }) {
         }}
       />
 
-      <View style={[s.footerOverlay, { paddingBottom: 9 + insets.bottom, backgroundColor: isCoverActive ? "transparent" : BG }]} pointerEvents="box-none">
+      <View style={[s.footerOverlay, { paddingBottom: 9 + insets.bottom, backgroundColor: hasFullBleedImage ? "transparent" : BG }]} pointerEvents="box-none">
         <View style={s.pagerRow}>
           <TouchableOpacity onPress={() => goTo(current - 1)} disabled={isFirst} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-            <Text style={[isCoverActive ? s.pagerArrowOnImage : s.pagerArrow, isFirst ? (isCoverActive ? s.pagerArrowDisabledOnImage : s.pagerArrowDisabled) : null]}>{"‹"}</Text>
+            <Text style={[hasFullBleedImage ? s.pagerArrowOnImage : s.pagerArrow, isFirst ? (hasFullBleedImage ? s.pagerArrowDisabledOnImage : s.pagerArrowDisabled) : null]}>{"‹"}</Text>
           </TouchableOpacity>
-          <Text style={isCoverActive ? s.pagerLabelOnImage : s.pagerLabel}>{(current + 1) + " of " + total}</Text>
+          <Text style={hasFullBleedImage ? s.pagerLabelOnImage : s.pagerLabel}>{(current + 1) + " of " + total}</Text>
           <TouchableOpacity onPress={() => goTo(current + 1)} disabled={isLast} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-            <CaretRight size={16} color={isLast ? (isCoverActive ? "rgba(255,255,255,0.35)" : "#DDD5C0") : (isCoverActive ? "#FFFFFF" : GOLD)} weight="bold" />
+            <CaretRight size={16} color={isLast ? (hasFullBleedImage ? "rgba(255,255,255,0.35)" : "#DDD5C0") : (hasFullBleedImage ? "#FFFFFF" : GOLD)} weight="bold" />
           </TouchableOpacity>
         </View>
 
@@ -590,6 +616,10 @@ const bs = StyleSheet.create({
   insightCard: { width: "100%", backgroundColor: "#F3E9D2", borderRadius: 18, borderWidth: 1, borderColor: "#E4D3A8", padding: 22, alignItems: "center" },
   insightIconWrap: { width: 44, height: 44, borderRadius: 22, backgroundColor: "rgba(191,159,96,0.18)", alignItems: "center", justifyContent: "center", marginBottom: 14 },
   insightText: { fontSize: 18, fontStyle: "italic", color: DARK_TEXT, lineHeight: 26, textAlign: "center" },
+  closingCenter: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 36 },
+  closingQuote: { fontFamily: SERIF, fontSize: 26, fontStyle: "italic", color: "#FFFFFF", textAlign: "center", lineHeight: 36 },
+  closingRefs: { paddingHorizontal: 28, paddingBottom: 140, gap: 4 },
+  closingRefText: { fontSize: 11, color: "rgba(255,255,255,0.65)", textAlign: "center", lineHeight: 16 },
 
   coverWrap: { flex: 1 },
   coverTopRow: { flexDirection: "row", justifyContent: "space-between", paddingHorizontal: 20 },
