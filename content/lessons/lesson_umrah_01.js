@@ -27,7 +27,8 @@ export const LESSON_UMRAH_01 = {
       "The Prophet Muhammad ﷺ demonstrated how Muslims perform Umrah, preserving it for future generations.",
     ]},
     { type: "bulletList", title: "What You'll Learn\nin this Umrah Guide", icon: "Star", bullets: ["Preparation", "Ihram", "Talbiyah", "Tawaf", "Maqam Ibrahim", "Zamzam", "Sa'i", "Halq/Taqsir", "Completing Umrah"] },
-    { type: "qaCardList", title: "Things to Remember", intro: "Umrah is an act of worship. Its purpose is to draw closer to Allah, seek forgiveness, and strengthen your faith.", closing: "You don't need to know everything before you begin. You just need to begin learning.", cards: [
+    { type: "qaCardList", title: "Things to Remember", closing: "You don't need to know everything before you begin. You just need to begin learning.", cards: [
+      { id: "t0", question: "Umrah is an act of worship.", answer: "Its purpose is to draw closer to Allah, seek forgiveness, and strengthen your faith." },
       { id: "t1", question: "Umrah can be performed throughout the year.", answer: "Unlike Hajj, it is not restricted to a specific set of days." },
       { id: "t2", question: "Understanding comes before memorization.", answer: "You don't need to memorize everything before beginning your journey." },
       { id: "t3", question: "The rituals have a history.", answer: "Umrah connects you to the legacy of Ibrahim (AS), Hajar (AS), and the Prophet Muhammad ﷺ." },

@@ -16,9 +16,10 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path, Defs, LinearGradient, Stop, Mask, Rect, Polygon } from "react-native-svg";
 import { PATTERN_PATH } from "./headerPatternPath";
 import {
-  CaretRight, BookmarkSimple, Clock, Question, MoonStars, BookOpen, Heart, Star, ListChecks,
+  CaretRight, BookmarkSimple, Clock, Question, MoonStars, BookOpen, Heart, Star, ListChecks, Sparkle, HandsPraying,
 } from "phosphor-react-native";
 import { LESSONS } from "../content/lessons";
+import { updateLessonProgress } from "../lessonProgressStore";
 
 const SERIF = "SourceSerif4-Regular";
 const { width: SW, height: SH } = Dimensions.get("window");
@@ -29,7 +30,7 @@ const MID_TEXT  = "#4A3F30";
 const MUTED     = "#8A7D6A";
 const GOLD      = "#BF9F60";
 
-const ICON_MAP = { Question, MoonStars, BookOpen, Heart, Star, ListChecks };
+const ICON_MAP = { Question, MoonStars, BookOpen, Heart, Star, ListChecks, HandsPraying };
 
 function StarOrnament({ size = 20, color = GOLD }) {
   const c = size / 2;
@@ -127,7 +128,7 @@ function HeroIcon({ name, image }) {
   const Icon = ICON_MAP[name] || BookOpen;
   return (
     <View style={bs.heroIconWrap}>
-      <Icon size={40} color={GOLD} weight="regular" />
+      <Icon size={24} color={GOLD} weight="regular" />
     </View>
   );
 }
@@ -141,11 +142,11 @@ function SmallIcon({ name }) {
   );
 }
 
-function CoverBlock({ block, navigation, insets }) {
+function CoverBlock({ block, navigation, insets, guide }) {
   const content = (
     <>
       <View style={[bs.coverTopRow, { paddingTop: (insets?.top ?? 0) + 12 }]}>
-        <TouchableOpacity style={bs.coverIconBtn} onPress={() => navigation?.goBack?.()} activeOpacity={0.8}>
+        <TouchableOpacity style={bs.coverIconBtn} onPress={() => navigation?.navigate?.("LessonList", { guide })} activeOpacity={0.8}>
           <IconBack color={block.image ? "#FFFFFF" : MID_TEXT} size={20} />
         </TouchableOpacity>
         <TouchableOpacity style={bs.coverIconBtn} activeOpacity={0.8}>
@@ -217,20 +218,22 @@ function NarrativeTextBlock({ block }) {
   const paragraphs = block.paragraphs;
   return (
     <ScrollView style={bs.blockWrap} contentContainerStyle={bs.scrollContent} showsVerticalScrollIndicator={false}>
-      <View style={block.image ? { marginTop: -33, alignItems: "center", width: "100%" } : { alignItems: "center", width: "100%" }}>
+      <View style={block.image ? { marginTop: -18, alignItems: "center", width: "100%" } : { alignItems: "center", width: "100%" }}>
         <HeroIcon name={block.icon} image={block.image} />
         <View style={bs.narrativeWrap}>
           {paragraphs.map((p, i) => {
             const isHeading = typeof p !== "string";
-            const next = paragraphs[i + 1];
-            const nextIsHeading = next != null && typeof next !== "string";
             const isLast = i === paragraphs.length - 1;
-            const marginBottom = isLast ? 0 : nextIsHeading ? 22 : 8;
-            return isHeading ? (
-              <Text key={i} style={[bs.narrativeHeading, { marginBottom }]}>{p.heading}</Text>
-            ) : (
-              <Text key={i} style={[bs.narrativeParagraph, { marginBottom }]}>{p}</Text>
-            );
+            const marginBottom = isLast ? 0 : 10;
+            if (isHeading) {
+              return (
+                <React.Fragment key={i}>
+                  {i > 0 ? <View style={bs.scholarDivider} /> : null}
+                  <Text style={[bs.narrativeHeading, { marginBottom }]}>{p.heading}</Text>
+                </React.Fragment>
+              );
+            }
+            return <Text key={i} style={[bs.narrativeParagraph, { marginBottom }]}>{p}</Text>;
           })}
         </View>
       </View>
@@ -242,12 +245,14 @@ function BulletListBlock({ block }) {
   return (
     <ScrollView style={bs.blockWrap} contentContainerStyle={bs.scrollContent} showsVerticalScrollIndicator={false}>
       <View style={bs.bulletGrid}>
-        {block.bullets.map((b, i) => (
-          <View key={i} style={bs.bulletTile}>
-            <Text style={bs.bulletTileNumber}>{i + 1}</Text>
-            <Text style={bs.bulletTileText}>{b}</Text>
-          </View>
-        ))}
+        {block.bullets.map((b, i) => {
+          const opacity = ((i + 1) * 0.10).toFixed(2);
+          return (
+            <View key={i} style={[bs.bulletTile, { backgroundColor: "rgba(191,159,96," + opacity + ")" }]}>
+              <Text style={bs.bulletTileText}>{b}</Text>
+            </View>
+          );
+        })}
       </View>
     </ScrollView>
   );
@@ -256,14 +261,106 @@ function BulletListBlock({ block }) {
 function NumberedStepsBlock({ block }) {
   return (
     <ScrollView style={bs.blockWrap} contentContainerStyle={bs.scrollContent} showsVerticalScrollIndicator={false}>
-      <HeroIcon name={block.icon} />
       <View style={{ width: "100%", gap: 14 }}>
-        {block.steps.map((step, i) => (
-          <View key={i} style={bs.stepRow}>
-            <Text style={bs.stepNum}>{i + 1}.</Text>
-            <Text style={bs.stepText}>{step}</Text>
+        {block.steps.map((step, i) => {
+          const isRich = typeof step !== "string";
+          return (
+            <View key={i} style={isRich ? bs.stepCard : bs.stepRow}>
+              {isRich ? (
+                <>
+                  <Text style={bs.stepCardLabel}>{"STEP " + (i + 1)}</Text>
+                  <Text style={bs.stepCardHeading}>{step.heading}</Text>
+                  {step.tagline ? <Text style={bs.stepCardTagline}>{step.tagline}</Text> : null}
+                  <Text style={bs.stepCardBody}>{step.body}</Text>
+                  {step.bullets ? (
+                    <View style={bs.stepCardBullets}>
+                      {step.bullets.map((b, bi) => (
+                        <View key={bi} style={bs.stepCardBulletRow}>
+                          <Text style={bs.stepCardBulletDot}>{"•"}</Text>
+                          <Text style={bs.stepCardBulletText}>{b}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  ) : null}
+                </>
+              ) : (
+                <>
+                  <Text style={bs.stepNum}>{i + 1}.</Text>
+                  <Text style={bs.stepText}>{step}</Text>
+                </>
+              )}
+            </View>
+          );
+        })}
+      </View>
+    </ScrollView>
+  );
+}
+
+function DuaListBlock({ block, navigation }) {
+  const handleCtaPress = () => {
+    if (block.ctaMode === "root") {
+      navigation?.navigate?.(block.ctaScreen, block.ctaParams);
+    } else {
+      navigation?.getParent?.()?.navigate?.(block.ctaTab || "Learn", { screen: block.ctaScreen, params: block.ctaParams });
+    }
+  };
+  return (
+    <ScrollView style={bs.blockWrap} contentContainerStyle={bs.scrollContent} showsVerticalScrollIndicator={false}>
+      <HeroIcon name="HandsPraying" />
+      <View style={{ width: "100%", gap: 12 }}>
+        {block.duas.map((d, i) => (
+          <View key={i} style={bs.bulletRow}>
+            <Text style={bs.bulletText}>{d}</Text>
           </View>
         ))}
+      </View>
+      {block.ctaLabel && block.ctaScreen ? (
+        <TouchableOpacity style={bs.duaCta} onPress={handleCtaPress} activeOpacity={0.85}>
+          <Text style={bs.duaCtaText}>{block.ctaLabel}</Text>
+          <CaretRight size={16} color={GOLD} weight="bold" />
+        </TouchableOpacity>
+      ) : null}
+    </ScrollView>
+  );
+}
+
+function CompanionToolBlock({ block, navigation }) {
+  return (
+    <ScrollView style={bs.blockWrap} contentContainerStyle={bs.scrollContent} showsVerticalScrollIndicator={false}>
+      <TouchableOpacity
+        style={bs.companionCard}
+        onPress={() => {
+          if (block.ctaMode === "root") {
+            navigation?.navigate?.(block.ctaScreen, block.ctaParams);
+          } else {
+            navigation?.getParent?.()?.navigate?.(block.ctaTab || "Plan", { screen: block.ctaScreen, params: block.ctaParams });
+          }
+        }}
+        activeOpacity={0.88}
+      >
+        <View style={bs.companionIconWrap}>
+          <Sparkle size={26} color="#FFFFFF" weight="fill" />
+        </View>
+        <Text style={bs.companionTitle}>{block.title}</Text>
+        <Text style={bs.companionBody}>{block.description}</Text>
+        <View style={bs.companionCtaRow}>
+          <Text style={bs.companionCtaText}>{block.ctaLabel}</Text>
+          <CaretRight size={16} color="#FFFFFF" weight="bold" />
+        </View>
+      </TouchableOpacity>
+    </ScrollView>
+  );
+}
+
+function InsightBlock({ block }) {
+  return (
+    <ScrollView style={bs.blockWrap} contentContainerStyle={bs.scrollContent} showsVerticalScrollIndicator={false}>
+      <View style={bs.insightCard}>
+        <View style={bs.insightIconWrap}>
+          <Sparkle size={20} color={GOLD} weight="fill" />
+        </View>
+        <Text style={bs.insightText}>{block.text}</Text>
       </View>
     </ScrollView>
   );
@@ -276,6 +373,9 @@ const BLOCK_COMPONENTS = {
   narrativeText: NarrativeTextBlock,
   bulletList: BulletListBlock,
   numberedSteps: NumberedStepsBlock,
+  duaList: DuaListBlock,
+  companionTool: CompanionToolBlock,
+  insight: InsightBlock,
 };
 
 export default function LessonFlowScreen({ navigation, route }) {
@@ -306,10 +406,15 @@ export default function LessonFlowScreen({ navigation, route }) {
     if (idx < 0 || idx >= total) return;
     flatRef.current?.scrollToIndex({ index: idx, animated: true });
     setCurrent(idx);
+    updateLessonProgress(lessonId, idx, total);
   };
 
   const onViewRef = useRef(({ viewableItems }) => {
-    if (viewableItems.length > 0) setCurrent(viewableItems[0].index ?? 0);
+    if (viewableItems.length > 0) {
+      const idx = viewableItems[0].index ?? 0;
+      setCurrent(idx);
+      updateLessonProgress(lessonId, idx, total);
+    }
   }).current;
 
   const continueLabel = isFirst ? "Begin Lesson" : "Continue";
@@ -330,7 +435,7 @@ export default function LessonFlowScreen({ navigation, route }) {
             <View style={s.headerStar}>
               <StarOrnament size={22} color={GOLD} />
             </View>
-            <Text style={s.lessonEyebrow}>{lesson.title.toUpperCase()}</Text>
+            <Text style={s.lessonEyebrow}>{(lesson.eyebrowTitle || lesson.title).toUpperCase()}</Text>
             <Text style={s.lessonNumberLabel}>{"LESSON " + lesson.lessonNumber}</Text>
             {activeBlock.lessonBadge ? (
               <Text style={s.stageLabel}>{activeBlock.lessonBadge}</Text>
@@ -339,7 +444,7 @@ export default function LessonFlowScreen({ navigation, route }) {
           </View>
 
           <View style={[s.topNav, { top: insets.top + 8 }]}>
-            <TouchableOpacity style={s.navCircle} onPress={() => goTo(current - 1)} activeOpacity={0.8}>
+            <TouchableOpacity style={s.navCircle} onPress={() => navigation.navigate("LessonList", { guide: lesson.guide })} activeOpacity={0.8}>
               <IconBack color={MID_TEXT} size={20} />
             </TouchableOpacity>
           </View>
@@ -362,13 +467,13 @@ export default function LessonFlowScreen({ navigation, route }) {
           if (!BlockComponent) return <View style={{ width: SW }} />;
           return (
             <View style={{ width: SW }}>
-              <BlockComponent block={item} navigation={navigation} insets={insets} />
+              <BlockComponent block={item} navigation={navigation} insets={insets} guide={lesson.guide} />
             </View>
           );
         }}
       />
 
-      <View style={[s.footerOverlay, { paddingBottom: 9 + insets.bottom }]} pointerEvents="box-none">
+      <View style={[s.footerOverlay, { paddingBottom: 9 + insets.bottom, backgroundColor: isCoverActive ? "transparent" : BG }]} pointerEvents="box-none">
         <View style={s.pagerRow}>
           <TouchableOpacity onPress={() => goTo(current - 1)} disabled={isFirst} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
             <Text style={[isCoverActive ? s.pagerArrowOnImage : s.pagerArrow, isFirst ? (isCoverActive ? s.pagerArrowDisabledOnImage : s.pagerArrowDisabled) : null]}>{"‹"}</Text>
@@ -383,7 +488,7 @@ export default function LessonFlowScreen({ navigation, route }) {
           <View style={s.lastScreenButtons}>
             {nextLesson ? (
               <TouchableOpacity style={s.continueBtn} onPress={() => navigation.replace("LessonFlow", { lessonId: nextLessonId })} activeOpacity={0.88}>
-                <Text style={s.continueBtnText}>{"Next Lesson: " + nextLesson.title}</Text>
+                <Text style={s.continueBtnText}>{"Next Lesson:\n" + nextLesson.title}</Text>
               </TouchableOpacity>
             ) : null}
             <TouchableOpacity style={s.secondaryBtn} onPress={() => navigation?.goBack?.()} activeOpacity={0.8}>
@@ -407,14 +512,14 @@ const s = StyleSheet.create({
   headerZone: { alignItems: "center", paddingBottom: 26, overflow: "hidden", backgroundColor: BG, position: "relative" },
   headerStar: { marginBottom: 5, zIndex: 2 },
   stageLabel: { fontSize: 11, fontWeight: "700", color: GOLD, letterSpacing: 2, textTransform: "uppercase", marginBottom: 6 },
-  lessonEyebrow: { fontSize: 11, fontWeight: "700", color: GOLD, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 2 },
+  lessonEyebrow: { fontSize: 11, fontWeight: "700", color: GOLD, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 2, textAlign: "center" },
   lessonNumberLabel: { fontFamily: SERIF, fontSize: 15, fontWeight: "400", color: MUTED, textAlign: "center", marginBottom: 6 },
-  duaTitle: { fontFamily: SERIF, fontSize: 30, fontWeight: "600", color: DARK_TEXT, textAlign: "center", lineHeight: 38, paddingHorizontal: 32, marginTop: 40 },
+  duaTitle: { fontFamily: SERIF, fontSize: 30, fontWeight: "600", color: DARK_TEXT, textAlign: "center", lineHeight: 38, paddingHorizontal: 32, marginTop: 30 },
 
   topNav: { position: "absolute", left: 0, right: 0, flexDirection: "row", justifyContent: "flex-start", paddingHorizontal: 16, zIndex: 20 },
   navCircle: { width: 40, height: 40, borderRadius: 20, backgroundColor: "rgba(255,255,255,0.75)", alignItems: "center", justifyContent: "center", shadowColor: "#2A1A08", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.08, shadowRadius: 4, elevation: 2 },
 
-  footerOverlay: { position: "absolute", left: 0, right: 0, bottom: 0, paddingHorizontal: 20, paddingTop: 10, backgroundColor: "transparent" },
+  footerOverlay: { position: "absolute", left: 0, right: 0, bottom: 0, paddingHorizontal: 20, paddingTop: 10 },
   pagerRow: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 14, marginBottom: 14 },
   pagerArrow: { fontSize: 20, color: GOLD, lineHeight: 24 },
   pagerArrowDisabled: { color: "#DDD5C0" },
@@ -423,7 +528,7 @@ const s = StyleSheet.create({
   pagerLabel: { fontSize: 13, color: MID_TEXT, fontWeight: "500", minWidth: 60, textAlign: "center" },
   pagerLabelOnImage: { fontSize: 13, color: "#FFFFFF", fontWeight: "500", minWidth: 60, textAlign: "center" },
   continueBtn: { backgroundColor: "#A28752", borderRadius: 30, paddingVertical: 16, alignItems: "center", justifyContent: "center" },
-  continueBtnText: { fontFamily: SERIF, fontSize: 16, color: "#FFFFFF", fontWeight: "600" },
+  continueBtnText: { fontFamily: SERIF, fontSize: 16, color: "#FFFFFF", fontWeight: "600", textAlign: "center" },
   lastScreenButtons: { gap: 10 },
   secondaryBtn: { paddingVertical: 12, alignItems: "center", justifyContent: "center" },
   secondaryBtnText: { fontFamily: SERIF, fontSize: 15, color: MID_TEXT, fontWeight: "500" },
@@ -431,9 +536,9 @@ const s = StyleSheet.create({
 
 const bs = StyleSheet.create({
   blockWrap: { flex: 1, backgroundColor: BG },
-  scrollContent: { paddingHorizontal: 28, paddingTop: 30, paddingBottom: 220, alignItems: "center" },
+  scrollContent: { paddingHorizontal: 28, paddingTop: 20, paddingBottom: 220, alignItems: "center" },
 
-  heroIconWrap: { width: 88, height: 88, borderRadius: 44, backgroundColor: "#EFEAE0", alignItems: "center", justifyContent: "center", marginBottom: 24 },
+  heroIconWrap: { width: 54, height: 54, borderRadius: 27, backgroundColor: "#EFEAE0", alignItems: "center", justifyContent: "center", marginBottom: 12, marginTop: -15 },
   kaabaImageWrap: { alignItems: "center", justifyContent: "center", marginBottom: 16 },
   kaabaImage: { width: 120, height: 120 },
   smallIconWrap: { width: 44, height: 44, borderRadius: 22, backgroundColor: "#EFEAE0", alignItems: "center", justifyContent: "center", marginRight: 14 },
@@ -451,9 +556,10 @@ const bs = StyleSheet.create({
   narrativeWrap: { width: "100%" },
   narrativeHeading: { fontSize: 19, fontWeight: "700", color: DARK_TEXT, lineHeight: 26, textAlign: "center" },
   narrativeParagraph: { fontSize: 19, color: DARK_TEXT, lineHeight: 28, textAlign: "center" },
+  scholarDivider: { width: 60, height: 1, backgroundColor: GOLD, opacity: 0.5, alignSelf: "center", marginTop: 15, marginBottom: 15 },
 
-  bulletGrid: { width: "100%", flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", gap: 12, marginTop: -15 },
-  bulletTile: { width: "48%", alignItems: "center", backgroundColor: "#FFFFFF", borderRadius: 14, borderWidth: 1, borderColor: "#E4DAC5", paddingVertical: 18, paddingHorizontal: 10, shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 8, elevation: 3 },
+  bulletGrid: { width: "100%", gap: 12, marginTop: -15 },
+  bulletTile: { width: "100%", alignItems: "center", borderRadius: 14, borderWidth: 1, borderColor: "#E4DAC5", paddingVertical: 18, paddingHorizontal: 16, shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 8, elevation: 3 },
   bulletTileNumber: { fontSize: 12, fontWeight: "700", color: GOLD, letterSpacing: 0.5, marginBottom: 6 },
   bulletTileText: { fontSize: 18, color: DARK_TEXT, textAlign: "center", lineHeight: 24 },
 
@@ -464,6 +570,26 @@ const bs = StyleSheet.create({
   stepRow: { flexDirection: "row", alignItems: "flex-start" },
   stepNum: { fontSize: 15, color: DARK_TEXT, fontWeight: "700", marginRight: 8, minWidth: 20 },
   stepText: { flex: 1, fontSize: 15, color: DARK_TEXT, lineHeight: 21 },
+  stepCard: { backgroundColor: "#FFFFFF", borderRadius: 14, borderWidth: 1, borderColor: "#E4DAC5", padding: 16, shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 8, elevation: 3 },
+  stepCardLabel: { fontSize: 11, fontWeight: "700", color: GOLD, letterSpacing: 1.2, marginBottom: 4 },
+  stepCardHeading: { fontSize: 19, fontWeight: "700", color: DARK_TEXT, marginBottom: 6 },
+  stepCardBody: { fontSize: 17, color: "#5C534A", lineHeight: 24 },
+  stepCardTagline: { fontSize: 14, fontStyle: "italic", color: GOLD, marginBottom: 8 },
+  stepCardBullets: { marginTop: 10, gap: 6 },
+  stepCardBulletRow: { flexDirection: "row", alignItems: "flex-start" },
+  stepCardBulletDot: { fontSize: 14, color: "#8A7D6A", marginRight: 6 },
+  stepCardBulletText: { flex: 1, fontSize: 14, color: "#5C534A", lineHeight: 20 },
+  duaCta: { flexDirection: "row", alignItems: "center", justifyContent: "center", marginTop: 20, paddingVertical: 10 },
+  duaCtaText: { fontSize: 15, fontWeight: "600", color: GOLD, marginRight: 6 },
+  companionCard: { width: "100%", backgroundColor: "#4A5C48", borderRadius: 18, padding: 24, alignItems: "flex-start" },
+  companionIconWrap: { width: 48, height: 48, borderRadius: 24, backgroundColor: "rgba(255,255,255,0.15)", alignItems: "center", justifyContent: "center", marginBottom: 16 },
+  companionTitle: { fontFamily: SERIF, fontSize: 20, color: "#FFFFFF", marginBottom: 8 },
+  companionBody: { fontSize: 15, color: "rgba(255,255,255,0.85)", lineHeight: 21, marginBottom: 18 },
+  companionCtaRow: { flexDirection: "row", alignItems: "center", alignSelf: "stretch", justifyContent: "space-between", borderTopWidth: 1, borderTopColor: "rgba(255,255,255,0.2)", paddingTop: 14 },
+  companionCtaText: { fontSize: 15, fontWeight: "600", color: "#FFFFFF" },
+  insightCard: { width: "100%", backgroundColor: "#F3E9D2", borderRadius: 18, borderWidth: 1, borderColor: "#E4D3A8", padding: 22, alignItems: "center" },
+  insightIconWrap: { width: 44, height: 44, borderRadius: 22, backgroundColor: "rgba(191,159,96,0.18)", alignItems: "center", justifyContent: "center", marginBottom: 14 },
+  insightText: { fontSize: 18, fontStyle: "italic", color: DARK_TEXT, lineHeight: 26, textAlign: "center" },
 
   coverWrap: { flex: 1 },
   coverTopRow: { flexDirection: "row", justifyContent: "space-between", paddingHorizontal: 20 },

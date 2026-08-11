@@ -36,6 +36,7 @@ import DhikrScreen         from "./screens/DhikrScreen";
 import UmrahGuideScreen    from "./screens/UmrahGuideScreen";
 import HajjGuideScreen     from "./screens/HajjGuideScreen";
 import LessonFlowScreen   from "./screens/LessonFlowScreen";
+import LessonListScreen   from "./screens/LessonListScreen";
 import GroupDetailScreen   from "./screens/GroupDetailScreen";
 import ConnectionsScreen   from "./screens/ConnectionsScreen";
 import WhatToExpectScreen  from "./screens/WhatToExpectScreen";
@@ -218,6 +219,7 @@ function LearnNavigator() {
       <LearnStack.Screen name="UmrahGuide"             component={UmrahGuideScreen}      />
       <LearnStack.Screen name="HajjGuide"              component={HajjGuideScreen}       />
       <LearnStack.Screen name="LessonFlow"             component={LessonFlowScreen}      />
+      <LearnStack.Screen name="LessonList"            component={LessonListScreen}      />
       <LearnStack.Screen name="Guides"                 component={GuidesHubScreen}       />
       <LearnStack.Screen name="WhatToExpect"           component={WhatToExpectScreen}    />
       <LearnStack.Screen name="Media"                  component={MediaScreen}           />

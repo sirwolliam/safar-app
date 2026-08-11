@@ -60,7 +60,7 @@ export default function UmrahGuideScreen({ navigation }) {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
 
         {/* ── 1. Hero — opens GuideCarousel ── */}
-        <TouchableOpacity style={s.heroCard} onPress={() => navigation.navigate("LessonFlow", { lessonId: "umrah-01" })} activeOpacity={0.9}>
+        <TouchableOpacity style={s.heroCard} onPress={() => navigation.navigate("LessonList", { guide: "umrah" })} activeOpacity={0.9}>
           <ImageBackground
             source={require("../assets/ihram.jpg")}
             style={s.heroCardBg}
