@@ -15,6 +15,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import HeaderPatternBg from "../HeaderPatternBg";
 import { getCurrentUser } from "../firebase";
 import { PRAYER_METHODS, PRAYER_SCHOOLS, PRAYER_METHOD_KEY, PRAYER_SCHOOL_KEY, PRAYER_NOTIFY_KEY } from "../prayerSettings";
+import TripDetailsEditor from "../TripDetailsEditor";
 
 let ImagePicker;
 try { ImagePicker = require("expo-image-picker"); } catch (_) {}
@@ -39,9 +40,17 @@ const AVATARS = [
   { key: "flower",   src: require("../assets/avatars/avatar-flower.png")   },
   { key: "wave",     src: require("../assets/avatars/avatar-wave.png")     },
 ];
-const AVATAR_KEY = "safar_avatar_v1";
+const AVATAR_KEY    = "safar_avatar_v1";
+const DEPARTURE_KEY = "safar_departure_date_v1";
 
 const SERIF = "SourceSerif4-Regular";
+
+function formatDeparture(iso) {
+  if (!iso) return "";
+  const dt = new Date(iso + "T00:00:00");
+  if (isNaN(dt.getTime())) return "";
+  return dt.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+}
 const SW = Dimensions.get("window").width;
 
 const ABOUT_CONTENT = "Safar is your companion for every step of your sacred Hajj or Umrah journey.\n\nBuild a personalised step-by-step plan, pin your hotel, guide and travel group, practice the most important duas, and carry the guidance of scholars in your pocket.\n\nShare milestones with fellow pilgrims, track your progress through every ibadah, and arrive prepared, calm and confident.\n\nMay Allah accept your journey. آمين";
@@ -129,10 +138,11 @@ export default function SettingsScreen({ navigation }) {
   const [userName,      setUserName]      = useState("Pilgrim");
   const [journeyType,   setJourneyType]   = useState("");
   const [userEmail,     setUserEmail]     = useState("");
-  const [showEditSheet, setShowEditSheet] = useState(false);
-  const [editName,      setEditName]      = useState("");
-  const [editEmail,     setEditEmail]     = useState("");
-  const [editJourney,   setEditJourney]   = useState("");
+  const [departureDate,  setDepartureDate]  = useState(null);
+  const [showEditSheet,  setShowEditSheet]  = useState(false);
+  const [showTripEditor, setShowTripEditor] = useState(false);
+  const [editName,       setEditName]       = useState("");
+  const [editEmail,      setEditEmail]      = useState("");
 
   const initials = userName
     .split(" ")
@@ -148,15 +158,17 @@ export default function SettingsScreen({ navigation }) {
 
   useEffect(() => {
     async function loadProfile() {
-      const [name, journey, avatar] =
+      const [name, journey, avatar, dep] =
         await Promise.all([
           AsyncStorage.getItem("safar_user_name_v1"),
           AsyncStorage.getItem("safar_journey_type_v1"),
           AsyncStorage.getItem(AVATAR_KEY),
+          AsyncStorage.getItem(DEPARTURE_KEY),
         ]);
       setUserName(name ?? "Pilgrim");
       setJourneyType(journey ?? "");
       setAvatarKey(avatar ?? null);
+      setDepartureDate(dep ?? null);
 
       const user = getCurrentUser();
       setUserEmail(user?.email ?? "");
@@ -204,7 +216,6 @@ export default function SettingsScreen({ navigation }) {
   function openEditSheet() {
     setEditName(userName);
     setEditEmail(userEmail);
-    setEditJourney(journeyType);
     setShowEditSheet(true);
   }
 
@@ -238,10 +249,6 @@ export default function SettingsScreen({ navigation }) {
     if (trimmedEmail) {
       await AsyncStorage.setItem("safar_user_email_v1", trimmedEmail);
       setUserEmail(trimmedEmail);
-    }
-    if (editJourney) {
-      await AsyncStorage.setItem("safar_journey_type_v1", editJourney);
-      setJourneyType(editJourney);
     }
     setShowEditSheet(false);
   }
@@ -336,6 +343,19 @@ export default function SettingsScreen({ navigation }) {
           </TouchableOpacity>
         </View>
 
+        {/* Trip Details */}
+        <Text style={s.sectionLabel}>TRIP DETAILS</Text>
+        <View style={s.card}>
+          <SettingRow
+            label="Journey & Departure"
+            sub={journeyLabel
+              ? journeyLabel + (departureDate && formatDeparture(departureDate) ? " · " + formatDeparture(departureDate) : "")
+              : "Tap to set your journey details"}
+            onPress={() => setShowTripEditor(true)}
+            isLast
+          />
+        </View>
+
         {/* Display */}
         <Text style={s.sectionLabel}>DISPLAY</Text>
         <View style={s.card}>
@@ -368,22 +388,25 @@ export default function SettingsScreen({ navigation }) {
             sub={PRAYER_METHODS.find(m => m.code === prayerMethod)?.label}
             onPress={() => setShowMethodPicker(true)}
           />
-          <View style={es.editField}>
-            <Text style={[es.editFieldLabel, { paddingHorizontal: 18, paddingTop: 14 }]}>Asr Calculation</Text>
-            <View style={[es.editJourneyRow, { paddingHorizontal: 18, marginBottom: 14 }]}>
-              {PRAYER_SCHOOLS.map((sc) => (
-                <TouchableOpacity
-                  key={sc.code}
-                  style={prayerSchool === sc.code ? [es.editJourneyPill, es.editJourneyPillActive] : es.editJourneyPill}
-                  onPress={() => selectPrayerSchool(sc.code)}
-                  activeOpacity={0.75}
-                >
-                  <Text style={prayerSchool === sc.code ? [es.editJourneyText, es.editJourneyTextActive] : es.editJourneyText} numberOfLines={1}>
-                    {sc.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+          <View style={{ borderBottomWidth: 1, borderBottomColor: "#C8BFB2" }}>
+            <Text style={[es.editFieldLabel, { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 4 }]}>
+              Asr Calculation
+            </Text>
+            {PRAYER_SCHOOLS.map((sc, idx) => (
+              <TouchableOpacity
+                key={sc.code}
+                style={idx < PRAYER_SCHOOLS.length - 1 ? [sr.row, sr.rowBorder] : sr.row}
+                onPress={() => selectPrayerSchool(sc.code)}
+                activeOpacity={0.75}
+              >
+                <View style={sr.info}>
+                  <Text style={sr.label}>{sc.label}</Text>
+                </View>
+                {prayerSchool === sc.code ? (
+                  <View style={es.pickerCheck}><Text style={es.pickerCheckText}>{"✓"}</Text></View>
+                ) : null}
+              </TouchableOpacity>
+            ))}
           </View>
           <SettingRow
             label="Prayer Time Reminders"
@@ -450,6 +473,17 @@ export default function SettingsScreen({ navigation }) {
       </ScrollView>
 
       <AboutSafarModal visible={showAbout} onClose={() => setShowAbout(false)} />
+
+      <TripDetailsEditor
+        visible={showTripEditor}
+        onClose={() => setShowTripEditor(false)}
+        initialJourneyType={journeyType}
+        initialDepartureDate={departureDate}
+        onSaved={({ journeyType: jt, departureISO: iso }) => {
+          setJourneyType(jt);
+          setDepartureDate(iso);
+        }}
+      />
 
       <Modal
         visible={showMethodPicker}
@@ -524,22 +558,6 @@ export default function SettingsScreen({ navigation }) {
                   autoCapitalize="none"
                   autoCorrect={false}
                 />
-              </View>
-
-              <Text style={es.editFieldLabel}>Journey</Text>
-              <View style={es.editJourneyRow}>
-                {["umrah", "hajj", "learn"].map((type) => (
-                  <TouchableOpacity
-                    key={type}
-                    style={editJourney === type ? [es.editJourneyPill, es.editJourneyPillActive] : es.editJourneyPill}
-                    onPress={() => setEditJourney(type)}
-                    activeOpacity={0.75}
-                  >
-                    <Text style={editJourney === type ? [es.editJourneyText, es.editJourneyTextActive] : es.editJourneyText}>
-                      {type === "umrah" ? "Umrah" : type === "hajj" ? "Hajj" : "Learning"}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
               </View>
 
               <View style={es.editDivider} />

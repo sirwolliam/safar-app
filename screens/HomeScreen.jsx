@@ -18,6 +18,7 @@ import { toggleBookmarkCard, isBookmarkedOnBoard } from "../bookmarkStore";
 import Svg, { Path, Defs, LinearGradient as SvgGrad, Stop, Mask, Rect, Polygon } from "react-native-svg";
 import { PATTERN_PATH } from "./headerPatternPath";
 import HomeCountdownCard from "./HomeCountdownCard";
+import TripDetailsEditor from "../TripDetailsEditor";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
 import {
@@ -38,6 +39,7 @@ const USER_NAME_KEY       = "safar_user_name_v1";
 const PLAN_STARTED_KEY    = "safar_plan_started_v1";
 const INTRO_DISMISSED_KEY = "safar_intro_dismissed_v1";
 const CALENDAR_KEY        = "safar_calendar_v1";
+const JOURNEY_TYPE_KEY    = "safar_journey_type_v1";
 
 // Same mapping as CalendarScreen.jsx — not exported from that file so duplicated here
 const CAL_CATEGORIES = [
@@ -448,6 +450,9 @@ export default function HomeScreen({ navigation }) {
   const [duaPinned, setDuaPinned]           = useState(false);
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [eventsPage, setEventsPage]         = useState(0);
+  const [departureISO, setDepartureISO]     = useState(null);
+  const [journeyType, setJourneyType]       = useState("");
+  const [showTripEditor, setShowTripEditor] = useState(false);
   const heroRef   = useRef(null);
   const heroTimer = useRef(null);
   const insets    = useSafeAreaInsets();
@@ -493,9 +498,16 @@ export default function HomeScreen({ navigation }) {
 
         const dep = await AsyncStorage.getItem(DEPARTURE_KEY);
         if (dep) {
-          const diff = Math.ceil((new Date(dep) - new Date()) / 86400000);
-          if (diff > 0) setDaysAway(diff);
+          const parsedDep = new Date(dep);
+          if (!isNaN(parsedDep.getTime())) {
+            setDepartureISO(dep);
+            const diff = Math.ceil((parsedDep - new Date()) / 86400000);
+            if (diff > 0) setDaysAway(diff);
+          }
         }
+
+        const jt = await AsyncStorage.getItem(JOURNEY_TYPE_KEY);
+        if (jt) setJourneyType(jt);
 
         const plan = await AsyncStorage.getItem(PLAN_STARTED_KEY);
         if (plan === "true") setPlanStarted(true);
@@ -803,7 +815,16 @@ export default function HomeScreen({ navigation }) {
             />
             <View style={s.journeyCardOverlay}>
               <View style={{ flex: 1 }}>
-                <Text style={s.journeyCardEyebrow}>MY JOURNEY</Text>
+                <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 6 }}>
+                  <Text style={[s.journeyCardEyebrow, { marginBottom: 0, flex: 1 }]}>MY JOURNEY</Text>
+                  <TouchableOpacity
+                    onPress={() => setShowTripEditor(true)}
+                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    activeOpacity={0.75}
+                  >
+                    <NotePencil size={15} color="rgba(200,169,106,0.90)" weight="regular" />
+                  </TouchableOpacity>
+                </View>
                 <Text style={s.journeyCardTitle}>
                   {daysAway !== null
                     ? `${daysAway} days until departure`
@@ -1016,6 +1037,25 @@ export default function HomeScreen({ navigation }) {
           </View>
         </TouchableOpacity>
       </Modal>
+
+      <TripDetailsEditor
+        visible={showTripEditor}
+        onClose={() => setShowTripEditor(false)}
+        initialJourneyType={journeyType}
+        initialDepartureDate={departureISO}
+        onSaved={({ journeyType: jt, departureISO: iso }) => {
+          setJourneyType(jt);
+          setDepartureISO(iso);
+          if (iso) {
+            const parsedDep = new Date(iso);
+            setDaysAway(!isNaN(parsedDep.getTime()) && Math.ceil((parsedDep - new Date()) / 86400000) > 0
+              ? Math.ceil((parsedDep - new Date()) / 86400000)
+              : null);
+          } else {
+            setDaysAway(null);
+          }
+        }}
+      />
     </SafeAreaView>
   );
 }
