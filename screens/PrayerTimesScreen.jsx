@@ -12,6 +12,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import HeaderPatternBg from "../HeaderPatternBg";
+import { PRAYER_METHODS, PRAYER_SCHOOLS, PRAYER_METHOD_KEY, PRAYER_SCHOOL_KEY, PRAYER_NOTIFY_KEY } from "../prayerSettings";
 let Notifications;
 try { Notifications = require("expo-notifications"); } catch (_) {}
 
@@ -85,10 +86,20 @@ export default function PrayerTimesScreen({ navigation, route }) {
   const [today,        setToday]        = useState(new Date());
   const [notifyEnabled,  setNotifyEnabled]  = useState(false);
   const [method,       setMethod]       = useState(4); // 4 = Umm al-Qura (Makkah)
+  const [school,       setSchool]       = useState(0); // 0 = Standard, 1 = Hanafi
 
   useEffect(() => {
     AsyncStorage.getItem(STORAGE_KEY).then(v => {
       if (v) { const saved = JSON.parse(v); setLocation(saved); }
+    }).catch(() => {});
+    Promise.all([
+      AsyncStorage.getItem(PRAYER_METHOD_KEY),
+      AsyncStorage.getItem(PRAYER_SCHOOL_KEY),
+      AsyncStorage.getItem(PRAYER_NOTIFY_KEY),
+    ]).then(([m, sc, n]) => {
+      if (m != null) setMethod(Number(m));
+      if (sc != null) setSchool(Number(sc));
+      if (n != null) setNotifyEnabled(n === "true");
     }).catch(() => {});
   }, []);
 
@@ -97,19 +108,23 @@ export default function PrayerTimesScreen({ navigation, route }) {
       Alert.alert("Dev build required", "Prayer time notifications need expo-notifications.\n\nnpx expo install expo-notifications");
       return;
     }
-    const { status } = await Notifications.requestPermissionsAsync();
-    if (status !== "granted") {
-      Alert.alert("Permission needed", "Allow notifications to get prayer time reminders.");
-      return;
+    if (!notifyEnabled) {
+      const { status } = await Notifications.requestPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("Permission needed", "Allow notifications to get prayer time reminders.");
+        return;
+      }
     }
-    setNotifyEnabled(v => !v);
+    const next = !notifyEnabled;
+    setNotifyEnabled(next);
+    AsyncStorage.setItem(PRAYER_NOTIFY_KEY, next ? "true" : "false").catch(() => {});
   };
 
     const fetchTimes = useCallback(async (loc) => {
     setLoading(true); setError(null);
     try {
       const d = new Date();
-      const url = `https://api.aladhan.com/v1/timings/${d.getDate()}-${d.getMonth()+1}-${d.getFullYear()}?latitude=${loc.lat}&longitude=${loc.lng}&method=${method}`;
+      const url = `https://api.aladhan.com/v1/timings/${d.getDate()}-${d.getMonth()+1}-${d.getFullYear()}?latitude=${loc.lat}&longitude=${loc.lng}&method=${method}&school=${school}`;
       const res = await fetch(url);
       const data = await res.json();
       if (data.code === 200) {
@@ -123,7 +138,7 @@ export default function PrayerTimesScreen({ navigation, route }) {
     } finally {
       setLoading(false);
     }
-  }, [method]);
+  }, [method, school]);
 
   useEffect(() => { fetchTimes(location); }, [location, fetchTimes]);
 
@@ -274,7 +289,7 @@ export default function PrayerTimesScreen({ navigation, route }) {
 
             {/* Method note */}
             <Text style={s.methodNote}>
-              {"Calculation: Umm al-Qura University, Makkah · Times are indicative — verify locally."}
+              {`Calculation: ${PRAYER_METHODS.find(m => m.code === method)?.label ?? "Umm al-Qura University, Makkah"} · Asr: ${PRAYER_SCHOOLS.find(sc => sc.code === school)?.label ?? "Standard"} · Times are indicative — verify locally.`}
             </Text>
           </>
         )}
