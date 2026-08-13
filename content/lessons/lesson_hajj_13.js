@@ -1,0 +1,96 @@
+import hajjLesson13Cover from "../../assets/lesson_images/hajj_lesson13.png";
+
+export const LESSON_HAJJ_13 = {
+  id: "hajj-13",
+  guide: "hajj",
+  lessonNumber: 13,
+  totalLessons: 16,
+  title: "Sacrifice & Renewal",
+  blocks: [
+    { type: "cover", image: hajjLesson13Cover, lessonBadge: "LESSON 13 OF 16", title: "Sacrifice & Renewal", subtitle: "Discover the meaning of the sacrifice, shaving or trimming the hair, and the transition toward completing your Hajj.", readingMinutes: 10 },
+    { type: "cardList", title: "After This Lesson You'll Understand", cards: [
+      { id: "c1", icon: "Question", label: "Why an animal sacrifice is offered during Hajj." },
+      { id: "c2", icon: "Heart", label: "The connection between the rite and Prophet Ibrahim (AS)." },
+      { id: "c3", icon: "MoonStars", label: "The significance of shaving or trimming the hair." },
+      { id: "c4", icon: "Star", label: "How these acts symbolize renewal and gratitude." },
+      { id: "c5", icon: "BookOpen", label: "How outward rites can point toward lasting inward transformation." },
+    ]},
+    { type: "narrativeText", title: "Overview", icon: "BookOpen", paragraphs: [
+      "After stoning Jamrat al-'Aqabah, pilgrims perform—or arrange for—the sacrifice (Hady). Men then shave their heads or trim their hair, while women trim a small portion of their hair.",
+      "These acts mark an important turning point in Hajj and are outward signs of an inward transformation.",
+    ]},
+    { type: "narrativeText", title: "Why It Matters", icon: "Heart", paragraphs: [
+      "The sacrifice is not about the animal itself. It is about remembering Ibrahim's (AS) willingness to obey Allah in an unimaginable test. When Allah replaced Isma'il (AS) with a ram, the story demonstrates sincere obedience alongside Allah's wisdom and mercy.",
+      "Cutting the hair is likewise more than a practical step; it symbolizes leaving behind an old chapter and emerging spiritually renewed.",
+    ]},
+    { type: "narrativeText", title: "Historical Context", icon: "BookOpen", paragraphs: [
+      "The Qur'an recounts how Ibrahim (AS) saw in a dream that he was commanded to sacrifice his son. Both father and son submitted to Allah's command. Before the sacrifice took place, Allah replaced Isma'il (AS) with a ram. This event is commemorated each year during Eid al-Adha, which coincides with the major rites of Hajj.",
+    ]},
+    { type: "narrativeText", title: "The Sacrifice (Hady)", icon: "Star", paragraphs: [
+      "Pilgrims eligible to offer a sacrifice do so as part of the rites of Hajj. Today this is commonly arranged through authorized services, ensuring the meat is distributed to those in need.",
+      "The emphasis is on fulfilling the rite with sincerity rather than witnessing the sacrifice personally.",
+    ]},
+    { type: "narrativeText", title: "Shaving or Trimming the Hair", icon: "MoonStars", paragraphs: [
+      "Men may shave the entire head or trim the hair, with shaving traditionally regarded as more virtuous. Women trim only a small portion of their hair. This marks the end of one stage of Ihram and symbolizes renewal.",
+    ]},
+    { type: "narrativeText", title: "Leaving Ihram", icon: "BookOpen", paragraphs: [
+      "After these rites, many of the restrictions of Ihram are lifted, marking an important transition toward the final stages of Hajj.",
+    ]},
+    { type: "cardList", title: "Things to Remember", cards: [
+      { id: "t1", icon: "Star", label: "The sacrifice commemorates Ibrahim's (AS) obedience." },
+      { id: "t2", icon: "Heart", label: "Allah values sincerity over outward spectacle." },
+      { id: "t3", icon: "MoonStars", label: "Cutting the hair symbolizes a new beginning." },
+      { id: "t4", icon: "Question", label: "Hajj transforms the outward journey and inward heart." },
+      { id: "t5", icon: "BookOpen", label: "Hady honors Ibrahim's (AS) legacy." },
+      { id: "t6", icon: "ListChecks", label: "Hair cutting marks spiritual renewal and a partial release from Ihram." },
+      { id: "t7", icon: "Star", label: "Eid al-Adha and Hajj are deeply connected." },
+      { id: "t8", icon: "Heart", label: "The outward rites are brief; their intended effect should last." },
+    ]},
+    { type: "cardList", title: "Key Takeaways", cards: [
+      { id: "k1", icon: "Star", label: "Hady honors the legacy of Ibrahim (AS)." },
+      { id: "k2", icon: "MoonStars", label: "Hair cutting marks a meaningful transition." },
+      { id: "k3", icon: "Heart", label: "The sacrifice and hair cutting can symbolize renewal and gratitude." },
+      { id: "k4", icon: "BookOpen", label: "The story of Ibrahim (AS) and Isma'il (AS) is central to the sacrifice." },
+      { id: "k5", icon: "Question", label: "The goal is not simply to finish another ritual." },
+      { id: "k6", icon: "ListChecks", label: "The question begins shifting from 'What do I need to do?' to 'Who will I be when I return home?'" },
+    ]},
+    { type: "insight", title: "Insight", text: "Hair grows back. Animals are replaced. But a heart changed by sincere worship can remain transformed forever. Perhaps that is why one of the final outward acts of Hajj is so simple. It quietly reminds us that the greatest changes are often invisible." },
+    { type: "insight", title: "Reflection", text: "Imagine looking in the mirror after shaving or trimming your hair. The person staring back looks slightly different. But what do you hope has changed inside? Which quality do you hope to carry home from Hajj?" },
+    { type: "cardList", title: "Practice", cards: [
+      { id: "p1", icon: "Star", label: "Reflect on Ibrahim's (AS) complete trust in Allah." },
+      { id: "p2", icon: "Heart", label: "Ask: 'What does obedience look like in my own life?'" },
+      { id: "p3", icon: "MoonStars", label: "Identify one quality you hope Hajj strengthens." },
+      { id: "p4", icon: "Question", label: "Identify one old habit or attitude you hope to leave behind." },
+      { id: "p5", icon: "BookOpen", label: "Think about how gratitude can become part of everyday life after Hajj." },
+      { id: "p6", icon: "ListChecks", label: "Plan to revisit this reflection after returning home." },
+      { id: "p7", icon: "Star", label: "Consider how outward completion can mark the beginning of inward change." },
+    ]},
+    { type: "insight", title: "A Moment to Notice", text: "After the hair is cut, many pilgrims instinctively touch their heads. Some smile. Others embrace family members. There is a quiet sense that something has changed. No announcement is made. Yet the heart recognizes the moment." },
+    { type: "qaCardList", title: "Common Questions", cards: [
+      { id: "q1", question: "Do I have to personally perform the sacrifice?", answer: "In most cases today, pilgrims arrange it through approved organizations that perform it on their behalf according to required guidelines." },
+      { id: "q2", question: "Why do men shave while women trim?", answer: "The Prophet ﷺ guided men to shave or trim, while women trim only a small portion of their hair." },
+      { id: "q3", question: "What changes after cutting the hair?", answer: "Many restrictions of Ihram are lifted, marking an important transition before the remaining rites are completed." },
+      { id: "q4", question: "Why is sacrifice connected to Ibrahim (AS)?", answer: "It commemorates his willingness to obey Allah during an extraordinary test involving Isma'il (AS)." },
+      { id: "q5", question: "What is Hady?", answer: "Hady is the sacrifice performed or arranged as part of the rites of Hajj for pilgrims who are eligible to offer it." },
+      { id: "q6", question: "Does the pilgrim need to watch the sacrifice?", answer: "No. It can be fulfilled through authorized services, and sincerity matters more than personally witnessing it." },
+      { id: "q7", question: "What does shaving or trimming symbolize?", answer: "It marks a transition and symbolizes renewal." },
+      { id: "q8", question: "Why is Eid al-Adha connected to Hajj?", answer: "The sacrifice and major rites occur around Eid al-Adha, commemorating the story of Ibrahim (AS) and Isma'il (AS)." },
+      { id: "q9", question: "What should I reflect on after cutting my hair?", answer: "Ask what you hope has changed inside and which quality you want to carry home." },
+      { id: "q10", question: "Is the sacrifice mainly about the animal?", answer: "No. Its meaning centers on obedience, sincerity, wisdom, and mercy." },
+      { id: "q11", question: "What should remain after these rites?", answer: "Obedience, gratitude, humility, trust, and renewed commitment are meant to continue beyond the physical rite." },
+      { id: "q12", question: "What is the bigger lesson?", answer: "Completion is also renewal: the outward journey moves toward completion while inward transformation continues." },
+    ]},
+    { type: "narrativeText", title: "Scholar Notes", icon: "BookOpen", paragraphs: [
+      "Scholars explain that the sacrifice and cutting of the hair are reminders that acts of worship should leave a lasting effect on the believer. The outward rites conclude quickly, but obedience, gratitude, humility, and trust are meant to endure throughout life.",
+    ]},
+    { type: "narrativeText", title: "References", icon: "BookOpen", paragraphs: [
+      "Qur'an — Surah As-Saffat (37:99–113)",
+      "Qur'an — Surah Al-Hajj (22:34–37)",
+      "Hadith — Sahih al-Bukhari, Book of Hajj",
+      "Hadith — Sahih Muslim, Book of Hajj",
+      "Classical Scholarship — Imam an-Nawawi; Ibn Hajar al-'Asqalani; Ibn Qudamah",
+      "Contemporary Guidance — Saudi Ministry of Hajj & Umrah; General Authority for the Care of the Two Holy Mosques",
+    ]},
+    { type: "insight", title: "My Notes Prompt", icon: "NotePencil", text: "If Hajj were to change just one thing about your character, what would you pray that it would be? Write it here. Then return after you come home and see how Allah answered that prayer." },
+  ],
+};

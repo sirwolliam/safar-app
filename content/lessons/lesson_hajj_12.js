@@ -1,0 +1,90 @@
+import hajjLesson12Cover from "../../assets/lesson_images/hajj_lesson12.png";
+
+export const LESSON_HAJJ_12 = {
+  id: "hajj-12",
+  guide: "hajj",
+  lessonNumber: 12,
+  totalLessons: 16,
+  title: "Jamarat",
+  blocks: [
+    { type: "cover", image: hajjLesson12Cover, lessonBadge: "LESSON 12 OF 16", title: "Jamarat", subtitle: "Learn the meaning behind the symbolic stoning of the pillars and the lessons of steadfast faith, obedience, and resisting temptation.", readingMinutes: 10 },
+    { type: "cardList", title: "After This Lesson You'll Understand", cards: [
+      { id: "c1", icon: "Question", label: "What Jamarat is." },
+      { id: "c2", icon: "Star", label: "Why pilgrims throw pebbles." },
+      { id: "c3", icon: "BookOpen", label: "The historical origins of the rite." },
+      { id: "c4", icon: "Heart", label: "The spiritual lessons behind this act of worship." },
+      { id: "c5", icon: "MoonStars", label: "How to approach Jamarat with humility, intention, patience, and consideration." },
+    ]},
+    { type: "narrativeText", title: "Overview", icon: "BookOpen", paragraphs: [
+      "On the morning of the 10th of Dhul Hijjah, pilgrims return to Mina to perform Ramy al-Jamarat—the symbolic throwing of pebbles. Using the pebbles gathered in Muzdalifah, pilgrims throw seven pebbles at the largest pillar, Jamrat al-'Aqabah.",
+      "Over the following days, they return to stone all three pillars. While the action is simple, its meaning is profound. This is not an act of anger. It is a declaration of faith.",
+    ]},
+    { type: "narrativeText", title: "Why It Matters", icon: "Heart", paragraphs: [
+      "The rite commemorates the steadfast obedience of Prophet Ibrahim (AS). As Ibrahim (AS) prepared to fulfill Allah's command, Satan attempted to discourage him from obeying. At three locations, Ibrahim (AS) rejected these temptations.",
+      "The symbolic stoning reminds every pilgrim that the struggle between obedience and temptation exists in every generation—including our own.",
+    ]},
+    { type: "narrativeText", title: "Historical Context", icon: "BookOpen", paragraphs: [
+      "The Prophet Muhammad ﷺ performed the rite during his Farewell Pilgrimage, following the tradition of Prophet Ibrahim (AS). Millions of pilgrims continue this practice each year.",
+    ]},
+    { type: "narrativeText", title: "Understanding the Rite", icon: "Star", paragraphs: [
+      "The pebbles are small and their size is unimportant; sincerity behind the action is what matters. On the 10th of Dhul Hijjah, pilgrims throw seven pebbles at Jamrat al-'Aqabah, saying 'Allahu Akbar' with each throw.",
+      "During the Days of Tashriq, pilgrims return to Mina and stone all three Jamarat in the prescribed order.",
+    ]},
+    { type: "narrativeText", title: "A Symbolic Act", icon: "MoonStars", paragraphs: [
+      "The pillars themselves are not the focus. The rite symbolizes rejecting temptation and renewing one's commitment to obey Allah. The outward action is simple; its intended effect is inward.",
+    ]},
+    { type: "cardList", title: "Things to Remember", cards: [
+      { id: "t1", icon: "Star", label: "Jamarat commemorates Ibrahim's (AS) faith." },
+      { id: "t2", icon: "Heart", label: "The act is symbolic, not an expression of anger." },
+      { id: "t3", icon: "MoonStars", label: "The inward intention matters more than the outward motion." },
+      { id: "t4", icon: "Question", label: "Patience and consideration for fellow pilgrims are essential." },
+      { id: "t5", icon: "BookOpen", label: "The struggle represented by Jamarat continues in everyday life." },
+      { id: "t6", icon: "ListChecks", label: "The rite should lead toward changed character, not merely completed actions." },
+    ]},
+    { type: "cardList", title: "Key Takeaways", cards: [
+      { id: "k1", icon: "Star", label: "Jamarat is rooted in Ibrahim's (AS) story." },
+      { id: "k2", icon: "MoonStars", label: "The rite symbolizes resisting temptation." },
+      { id: "k3", icon: "Heart", label: "Pilgrims perform it with remembrance of Allah." },
+      { id: "k4", icon: "BookOpen", label: "The outward action points to an inward commitment." },
+      { id: "k5", icon: "Question", label: "Hajj can help pilgrims identify habits and attachments they want to leave behind." },
+      { id: "k6", icon: "ListChecks", label: "From this stage onward, the focus increasingly shifts to who the pilgrim is becoming." },
+    ]},
+    { type: "insight", title: "Insight", text: "Seven pebbles cannot defeat temptation. But a heart committed to Allah can. The real struggle of Jamarat is not against a pillar of stone. It is against pride, anger, arrogance, despair, and anything that pulls us away from our Creator." },
+    { type: "insight", title: "Reflection", text: "As you imagine throwing each pebble, what habit, fear, distraction, or attachment would you most like to leave behind in order to draw closer to Allah? You do not have to name all seven. Even one sincere intention can become the beginning of lasting change." },
+    { type: "cardList", title: "Practice", cards: [
+      { id: "p1", icon: "Star", label: "Make a private list of qualities you hope to strengthen." },
+      { id: "p2", icon: "Heart", label: "Make a private list of habits or distractions you hope to overcome." },
+      { id: "p3", icon: "MoonStars", label: "Reflect on one temptation that repeatedly pulls you away from worship." },
+      { id: "p4", icon: "Question", label: "Think about how patience changes the way you respond under pressure." },
+      { id: "p5", icon: "BookOpen", label: "Remember that safety and consideration for other pilgrims are part of the spirit of Hajj." },
+      { id: "p6", icon: "ListChecks", label: "Ask how this rite could change your behavior after returning home." },
+    ]},
+    { type: "insight", title: "A Moment to Notice", text: "Watch pilgrims as they leave Jamarat. Very few celebrate. Most continue quietly. The pebbles remain behind, but many carry away something invisible: renewed determination to live differently." },
+    { type: "qaCardList", title: "Common Questions", cards: [
+      { id: "q1", question: "Am I throwing stones at Satan?", answer: "No. The rite is symbolic. It commemorates Ibrahim's (AS) rejection of temptation and reminds pilgrims to reject anything that distances them from Allah." },
+      { id: "q2", question: "Why are only small pebbles used?", answer: "The Prophet ﷺ used small pebbles, teaching moderation and preventing harm. The purpose is not force, but faithful obedience." },
+      { id: "q3", question: "What if the area is crowded?", answer: "Always prioritize safety, patience, and consideration for others. Harming another pilgrim contradicts the spirit of Hajj." },
+      { id: "q4", question: "How many pebbles are thrown on the 10th?", answer: "Seven pebbles are thrown at Jamrat al-'Aqabah on the 10th of Dhul Hijjah." },
+      { id: "q5", question: "What happens on the following days?", answer: "During the Days of Tashriq, pilgrims return to Mina and stone all three Jamarat in the prescribed order." },
+      { id: "q6", question: "Does the size of the pebble matter?", answer: "No. The size is unimportant; the sincerity behind the act is what matters." },
+      { id: "q7", question: "Why is Jamarat connected to Ibrahim (AS)?", answer: "It commemorates his steadfast rejection of attempts to discourage him from obeying Allah." },
+      { id: "q8", question: "What should I think about while performing the rite?", answer: "Reflect on what you want to reject in your own life—such as pride, anger, fear, distraction, or unhealthy attachment." },
+      { id: "q9", question: "Is the rite supposed to be an angry act?", answer: "No. It is a declaration of faith rather than an act of anger." },
+      { id: "q10", question: "What is the deeper lesson?", answer: "Every believer faces moments when obedience to Allah requires resisting temptation, ego, or distraction." },
+      { id: "q11", question: "Why does intention matter?", answer: "Inward intention is more important than outward motion." },
+      { id: "q12", question: "What should remain after Jamarat?", answer: "The hope is that the pilgrim carries away renewed determination to live differently." },
+    ]},
+    { type: "narrativeText", title: "Scholar Notes", icon: "BookOpen", paragraphs: [
+      "Scholars consistently explain that the wisdom of Jamarat lies in what it cultivates within the believer. The outward action is simple, but the inward lesson is lifelong: obedience to Allah requires resisting temptation, ego, or distraction.",
+    ]},
+    { type: "narrativeText", title: "References", icon: "BookOpen", paragraphs: [
+      "Qur'an — Surah Al-Hajj (22:27–37)",
+      "Qur'an — Surah As-Saffat (37:99–113)",
+      "Hadith — Sahih al-Bukhari, Book of Hajj",
+      "Hadith — Sahih Muslim, Book of Hajj",
+      "Classical Scholarship — Imam an-Nawawi; Ibn Hajar al-'Asqalani; Ibn Qudamah",
+      "Contemporary Guidance — Saudi Ministry of Hajj & Umrah; General Authority for the Care of the Two Holy Mosques",
+    ]},
+    { type: "insight", title: "My Notes Prompt", icon: "NotePencil", text: "If you could leave one burden behind during Hajj and return home without it, what would it be? Write it here. You don't have to share it with anyone. This page is between you and Allah." },
+  ],
+};

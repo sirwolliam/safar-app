@@ -16,7 +16,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path, Defs, LinearGradient, Stop, Mask, Rect, Polygon } from "react-native-svg";
 import { PATTERN_PATH } from "./headerPatternPath";
 import {
-  CaretRight, BookmarkSimple, Clock, Question, MoonStars, BookOpen, Heart, Star, ListChecks, Sparkle, HandsPraying,
+  CaretRight, BookmarkSimple, Clock, Question, MoonStars, BookOpen, Heart, Star, ListChecks, Sparkle, HandsPraying, NotePencil,
 } from "phosphor-react-native";
 import { LESSONS } from "../content/lessons";
 import { updateLessonProgress } from "../lessonProgressStore";
@@ -30,7 +30,7 @@ const MID_TEXT  = "#4A3F30";
 const MUTED     = "#8A7D6A";
 const GOLD      = "#BF9F60";
 
-const ICON_MAP = { Question, MoonStars, BookOpen, Heart, Star, ListChecks, HandsPraying };
+const ICON_MAP = { Question, MoonStars, BookOpen, Heart, Star, ListChecks, HandsPraying, NotePencil };
 
 function StarOrnament({ size = 20, color = GOLD }) {
   const c = size / 2;
@@ -354,11 +354,12 @@ function CompanionToolBlock({ block, navigation }) {
 }
 
 function InsightBlock({ block }) {
+  const Icon = block.icon && ICON_MAP[block.icon] ? ICON_MAP[block.icon] : Sparkle;
   return (
     <ScrollView style={bs.blockWrap} contentContainerStyle={bs.scrollContent} showsVerticalScrollIndicator={false}>
       <View style={bs.insightCard}>
         <View style={bs.insightIconWrap}>
-          <Sparkle size={20} color={GOLD} weight="fill" />
+          <Icon size={20} color={GOLD} weight="fill" />
         </View>
         <Text style={bs.insightText}>{block.text}</Text>
       </View>
@@ -390,6 +391,23 @@ function ClosingBlock({ block, navigation, insets, guide }) {
   );
 }
 
+function MomentBlock({ block, navigation, insets, guide }) {
+  return (
+    <ImageBackground source={block.image} style={bs.coverWrap} resizeMode="cover">
+      <CoverScrim width={SW} height={SH} />
+      <View style={[bs.coverTopRow, { paddingTop: (insets?.top ?? 0) + 12 }]}>
+        <TouchableOpacity style={bs.coverIconBtn} onPress={() => navigation?.navigate?.("LessonList", { guide })} activeOpacity={0.8}>
+          <IconBack color="#FFFFFF" size={20} />
+        </TouchableOpacity>
+        <View style={{ width: 36 }} />
+      </View>
+      <View style={bs.closingCenter}>
+        <Text style={bs.closingQuote}>{block.quote}</Text>
+      </View>
+    </ImageBackground>
+  );
+}
+
 const BLOCK_COMPONENTS = {
   cover: CoverBlock,
   cardList: CardListBlock,
@@ -401,6 +419,7 @@ const BLOCK_COMPONENTS = {
   companionTool: CompanionToolBlock,
   insight: InsightBlock,
   closing: ClosingBlock,
+  moment: MomentBlock,
 };
 
 export default function LessonFlowScreen({ navigation, route }) {
@@ -426,7 +445,7 @@ export default function LessonFlowScreen({ navigation, route }) {
   const isLast = current === total - 1;
   const activeBlock = blocks[current];
   const isCoverActive = activeBlock.type === "cover";
-  const hasFullBleedImage = activeBlock.type === "cover" || activeBlock.type === "closing";
+  const hasFullBleedImage = activeBlock.type === "cover" || activeBlock.type === "closing" || activeBlock.type === "moment";
 
   const goTo = (idx) => {
     if (idx < 0 || idx >= total) return;
@@ -493,7 +512,7 @@ export default function LessonFlowScreen({ navigation, route }) {
           if (!BlockComponent) return <View style={{ width: SW }} />;
           return (
             <View style={{ width: SW }}>
-              <BlockComponent block={item} navigation={navigation} insets={insets} guide={lesson.guide} />
+              <BlockComponent block={item} navigation={navigation} insets={insets} guide={lesson.guide} onStepBack={() => goTo(current - 1)} />
             </View>
           );
         }}
@@ -517,7 +536,7 @@ export default function LessonFlowScreen({ navigation, route }) {
                 <Text style={s.continueBtnText}>{"Next Lesson:\n" + nextLesson.title}</Text>
               </TouchableOpacity>
             ) : null}
-            <TouchableOpacity style={s.secondaryBtn} onPress={() => navigation?.goBack?.()} activeOpacity={0.8}>
+            <TouchableOpacity style={s.secondaryBtn} onPress={() => navigation?.navigate?.("LessonList", { guide: lesson.guide })} activeOpacity={0.8}>
               <Text style={s.secondaryBtnText}>Return to Lesson Menu</Text>
             </TouchableOpacity>
           </View>

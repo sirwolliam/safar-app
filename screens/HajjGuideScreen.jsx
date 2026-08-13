@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { colors, spacing, radius, shadows } from "../theme";
-import GuideCarousel, { HAJJ_STEPS } from "./GuideCarousel";
+
 
 const SERIF       = "SourceSerif4-Regular";
 const STORAGE_KEY = "safar_hajj_checklist_v1";
@@ -30,8 +30,7 @@ const HAJJ_CHECKLIST = [
 ];
 
 export default function HajjGuideScreen({ navigation }) {
-  const [done,         setDone]         = useState({});
-  const [showCarousel, setShowCarousel] = useState(false);
+  const [done, setDone] = useState({});
 
   useEffect(() => {
     AsyncStorage.getItem(STORAGE_KEY)
@@ -64,7 +63,7 @@ export default function HajjGuideScreen({ navigation }) {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
 
         {/* ── 1. Hero — opens GuideCarousel (only link to carousel) ── */}
-        <TouchableOpacity style={s.heroCard} onPress={() => setShowCarousel(true)} activeOpacity={0.9}>
+        <TouchableOpacity style={s.heroCard} onPress={() => navigation.navigate("LessonList", { guide: "hajj" })} activeOpacity={0.9}>
           <ImageBackground
             source={require("../assets/tawaf2.jpg")}
             style={s.heroCardBg}
@@ -215,12 +214,6 @@ export default function HajjGuideScreen({ navigation }) {
         <View style={{ height:spacing(5) }} />
       </ScrollView>
 
-      <GuideCarousel
-        visible={showCarousel}
-        steps={HAJJ_STEPS}
-        title={"My Hajj Guide"}
-        onClose={() => setShowCarousel(false)}
-      />
     </SafeAreaView>
   );
 }

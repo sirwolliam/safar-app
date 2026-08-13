@@ -1,0 +1,91 @@
+import hajjLesson11Cover from "../../assets/lesson_images/hajj_lesson11.png";
+
+export const LESSON_HAJJ_11 = {
+  id: "hajj-11",
+  guide: "hajj",
+  lessonNumber: 11,
+  totalLessons: 16,
+  title: "Muzdalifah",
+  blocks: [
+    { type: "cover", image: hajjLesson11Cover, lessonBadge: "LESSON 11 OF 16", title: "Muzdalifah", subtitle: "Spend the night beneath the open sky, gathering pebbles, remembering Allah, and preparing for the next stage of Hajj.", readingMinutes: 9 },
+    { type: "cardList", title: "After This Lesson You'll Understand", cards: [
+      { id: "c1", icon: "Question", label: "Why pilgrims travel to Muzdalifah after Arafah." },
+      { id: "c2", icon: "BookOpen", label: "What happens during the night in Muzdalifah." },
+      { id: "c3", icon: "Star", label: "The significance of gathering pebbles." },
+      { id: "c4", icon: "MoonStars", label: "How this quiet pause prepares pilgrims for what lies ahead." },
+      { id: "c5", icon: "Heart", label: "How simplicity, rest, remembrance, and preparation can become meaningful parts of worship." },
+    ]},
+    { type: "narrativeText", title: "Overview", icon: "BookOpen", paragraphs: [
+      "After sunset on the Day of Arafah, pilgrims leave the plain and travel to Muzdalifah, an open area between Arafah and Mina. Here they spend the night beneath the sky, combining prayers, resting, remembering Allah, and collecting small pebbles that will later be used at Jamarat.",
+      "Unlike the emotion of Arafah or the movement of Tawaf, Muzdalifah is defined by simplicity. It is a night of stillness.",
+    ]},
+    { type: "narrativeText", title: "Why It Matters", icon: "Heart", paragraphs: [
+      "Muzdalifah reminds us that worship is not always found in movement. Sometimes it is found in stillness.",
+      "After Arafah, pilgrims rest, reflect, and quietly prepare for what lies ahead. This sacred pause teaches patience, gratitude, and trust in Allah's plan.",
+    ]},
+    { type: "narrativeText", title: "Historical Context", icon: "BookOpen", paragraphs: [
+      "Following the Farewell Pilgrimage, the Prophet Muhammad ﷺ departed Arafah after sunset and spent the night in Muzdalifah before returning to Mina the next morning. Pilgrims continue to follow this practice today.",
+    ]},
+    { type: "narrativeText", title: "The Night at Muzdalifah", icon: "MoonStars", paragraphs: [
+      "Pilgrims travel from Arafah to Muzdalifah after sunset. Upon arrival, Maghrib and 'Isha are combined in accordance with the Sunnah before pilgrims settle for the night.",
+      "Unlike Mina's tent city, Muzdalifah is largely open, and many pilgrims rest outdoors beneath the night sky.",
+    ]},
+    { type: "narrativeText", title: "Gathering Pebbles", icon: "Star", paragraphs: [
+      "Pilgrims collect small pebbles that will later be used for the rite of stoning at Jamarat. The act is simple, but it connects this quiet night directly to the worship of the following day.",
+    ]},
+    { type: "cardList", title: "Things to Remember", cards: [
+      { id: "t1", icon: "Star", label: "Muzdalifah follows Arafah after sunset." },
+      { id: "t2", icon: "MoonStars", label: "It is a night of remembrance, rest, and preparation." },
+      { id: "t3", icon: "ListChecks", label: "Pilgrims collect small pebbles for Jamarat." },
+      { id: "t4", icon: "Heart", label: "The night is largely open and simple." },
+      { id: "t5", icon: "BookOpen", label: "Muzdalifah teaches patience, gratitude, and trust." },
+      { id: "t6", icon: "Question", label: "Preparation can be an act of worship." },
+      { id: "t7", icon: "Star", label: "The pebbles connect this night to the next stage of Hajj." },
+    ]},
+    { type: "cardList", title: "Key Takeaways", cards: [
+      { id: "k1", icon: "Star", label: "Muzdalifah follows directly after Arafah." },
+      { id: "k2", icon: "MoonStars", label: "Pilgrims combine prayers and spend the night there." },
+      { id: "k3", icon: "Heart", label: "Pebbles are gathered for the coming rites." },
+      { id: "k4", icon: "BookOpen", label: "The night offers time for reflection and renewal." },
+      { id: "k5", icon: "Question", label: "The emotional rhythm shifts from Arafah's surrender to Muzdalifah's peace." },
+      { id: "k6", icon: "ListChecks", label: "The lesson of simplicity is as important as the physical acts." },
+    ]},
+    { type: "insight", title: "Insight", text: "The most valuable thing pilgrims collect in Muzdalifah is not the pebbles. It is perspective. After the crowds of Makkah, after the awe of the Ka'bah, after the tears of Arafah, there is only the earth beneath you, the stars above you, and the quiet certainty that Allah has been with you through every step." },
+    { type: "insight", title: "Reflection", text: "Imagine lying beneath the open sky in Muzdalifah. The conversations around you begin to fade. The stars become brighter. The excitement of tomorrow is still ahead. What thoughts do you think would fill your heart in that quiet moment?" },
+    { type: "cardList", title: "Practice", cards: [
+      { id: "p1", icon: "BookOpen", label: "Learn why pebbles are collected in Muzdalifah." },
+      { id: "p2", icon: "ListChecks", label: "Review the sequence of the next day's rites." },
+      { id: "p3", icon: "MoonStars", label: "Spend a few minutes outside away from distractions, reflecting on Allah's creation." },
+      { id: "p4", icon: "Heart", label: "Use quiet time for sincere du'a." },
+      { id: "p5", icon: "Star", label: "Practice being comfortable with simplicity rather than constant stimulation." },
+      { id: "p6", icon: "Question", label: "Reflect on what you are grateful for after reaching Arafah." },
+      { id: "p7", icon: "BookOpen", label: "Think about what you want to carry from Arafah into the next stage." },
+    ]},
+    { type: "insight", title: "A Moment to Notice", text: "Look up. For one night, your ceiling is the sky. There are no walls, no decorations, and no comforts beyond what Allah has provided. Sometimes the simplest moments leave the deepest memories." },
+    { type: "qaCardList", title: "Common Questions", cards: [
+      { id: "q1", question: "Why do pilgrims stay in Muzdalifah?", answer: "Pilgrims spend the night there following the example of the Prophet Muhammad ﷺ, using the time for prayer, rest, remembrance, and preparation." },
+      { id: "q2", question: "Why are pebbles collected here?", answer: "The pebbles gathered in Muzdalifah are later used for the rite of stoning at Jamarat in Mina." },
+      { id: "q3", question: "Is Muzdalifah a place of major rituals?", answer: "There are no large ceremonial acts here, but the stay itself is an important part of the sequence of Hajj and offers time for reflection and preparation." },
+      { id: "q4", question: "What is the atmosphere of Muzdalifah?", answer: "Unlike Mina's tent city, Muzdalifah is largely open, and many pilgrims rest outdoors beneath the night sky." },
+      { id: "q5", question: "What happens after arriving?", answer: "Maghrib and 'Isha are combined according to the Sunnah before pilgrims settle for the night." },
+      { id: "q6", question: "Why is simplicity emphasized?", answer: "Muzdalifah is a lesson in contentment, humility, patience, gratitude, and trust." },
+      { id: "q7", question: "What should I reflect on during the night?", answer: "Reflect on Allah's creation, gratitude, and the journey from Arafah toward the rites ahead." },
+      { id: "q8", question: "Are the pebbles themselves special?", answer: "Gathering them is meaningful because it is part of preparing for the coming rite, not because the pebbles themselves carry special power." },
+      { id: "q9", question: "Why does Muzdalifah come after Arafah?", answer: "It creates a transition from the intense worship of Arafah into a quieter period of rest and preparation." },
+      { id: "q10", question: "What is the difference between Mina and Muzdalifah?", answer: "Mina is a tent city; Muzdalifah is a largely open environment beneath the sky." },
+      { id: "q11", question: "What emotional lesson does Muzdalifah carry?", answer: "It is often described as a shift from Arafah's surrender into Muzdalifah's peace." },
+      { id: "q12", question: "What comes next?", answer: "Pilgrims prepare to return toward Mina and the Jamarat rites." },
+    ]},
+    { type: "narrativeText", title: "Scholar Notes", icon: "BookOpen", paragraphs: [
+      "Scholars often describe Muzdalifah as a lesson in contentment and simplicity. The night encourages pilgrims to let go of comfort and routine, embracing the humility that defines Hajj. Even gathering a handful of pebbles becomes meaningful when done with sincere intention.",
+    ]},
+    { type: "narrativeText", title: "References", icon: "BookOpen", paragraphs: [
+      "Qur'an — Surah Al-Baqarah (2:198–200)",
+      "Hadith — Sahih al-Bukhari, Book of Hajj",
+      "Hadith — Sahih Muslim, Book of Hajj",
+      "Classical Scholarship — Imam an-Nawawi; Ibn Hajar al-'Asqalani; Ibn Qudamah",
+      "Contemporary Guidance — Saudi Ministry of Hajj & Umrah; General Authority for the Care of the Two Holy Mosques",
+    ]},
+    { type: "insight", title: "My Notes Prompt", icon: "NotePencil", text: "Imagine yourself resting beneath the night sky in Muzdalifah. What are you most grateful for at this point in your journey? Write down a few thoughts before continuing." },
+  ],
+};
