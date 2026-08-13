@@ -6,12 +6,12 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
   View, Text, ScrollView, TouchableOpacity,
-  StyleSheet, Linking, Image, PanResponder, Dimensions,
+  StyleSheet, Linking, Image, PanResponder, Dimensions, Modal,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { CaretLeft, CaretRight, HandsPraying, MapPin, MapTrifold } from "phosphor-react-native";
+import { CaretLeft, CaretRight, HandsPraying, MapPin, MapTrifold, X, ArrowsOut } from "phosphor-react-native";
 import { getDuaById } from "../dua-content";
 import { useAccessibility } from "../AccessibilityContext";
 import HeaderPatternBg from "../HeaderPatternBg";
@@ -29,48 +29,57 @@ const MAKKAH_SITES = [
     id: "kaaba", name: "Al-Kabah", arabic: "الكَعبَة",
     sub: "The Most Sacred House", duas: 12,
     photo: require("../assets/kaaba-map.jpg"),
+    locatorMap: require("../assets/SP_kaaba.png"),
+    locatorMapPortrait: require("../assets/SP_kaaba_portrait.png"),
     description: "The Kabah is the most sacred structure in Islam, the direction every Muslim worldwide faces in prayer, and the focal point of Tawaf during Hajj and Umrah. Tradition holds it was built by Prophet Ibrahim and his son Ismail as the first house dedicated to the oneness of Allah. It is draped year-round in the Kiswah, a black silk covering embroidered with gold Quranic calligraphy.",
   },
   {
     id: "hijr", name: "Hijr Ismail", arabic: "حِجر إِسماعيل",
     sub: "Sanctuary of the Prophet Ismail ﷺ", duas: 4,
     photo: require("../assets/hijr-ismail-map.jpg"),
+    locatorMap: require("../assets/SP_hijr_ismail.png"),
     description: "This low, semicircular wall on the Kabah's northwest side is understood by many scholars to have been part of the Kabah's original structure, left out only when the Quraysh rebuilt it with limited funds (Sahih Muslim). Islamic tradition holds it as the resting place of Ismail and his mother Hajar. Because it's considered part of the Kabah itself, pilgrims must walk entirely around it during Tawaf rather than cutting through.",
   },
   {
     id: "maqam", name: "Maqam Ibrahim", arabic: "مَقَامُ إبْرَاهِيم",
     sub: "Station of Prophet Ibrahim", duas: 5,
     photo: require("../assets/maqam-ibrahim-map.jpg"),
+    locatorMap: require("../assets/SP_maqam_ibrahim.png"),
     description: "This stone is believed to bear the footprints of Prophet Ibrahim, used as he stood to build the Kabah's upper walls. The Quran instructs believers to take the station of Ibrahim as a place of prayer (2:125), and it's Sunnah to pray two rakahs behind it after Tawaf. The stone is preserved today inside a small glass and gold enclosure just steps from the Kabah.",
   },
   {
     id: "zamzam", name: "Zamzam", arabic: "زَمْزَم",
     sub: "The Blessed Well", duas: 4,
     photo: require("../assets/zamzam-map.jpg"),
+    locatorMap: require("../assets/SP_zamzam.png"),
     description: "This well traces back to Hajar, left with her infant son Ismail in the barren valley of Makkah, searching desperately for water. Tradition holds the well sprang forth beneath the infant's feet as a mercy from Allah, and it has never run dry since. The Prophet ﷺ described its water as blessed, serving whatever intention it is drunk with (Sunan Ibn Majah).",
   },
   {
     id: "yemeni", name: "Yemeni Corner", arabic: "الرُكن اليَمانِي",
     sub: "Second of the two blessed corners", duas: 3,
     photo: require("../assets/yemeni-corner-map.jpg"),
+    locatorMap: require("../assets/SP_yemeni.png"),
     description: "This is the southwestern corner of the Kabah, named for facing Yemen, sitting just before the Black Stone along the path of Tawaf. The Prophet ﷺ said that touching the Black Stone and the Yemeni Corner erases sins (Musnad Ahmad). It's Sunnah to touch it if the crowd allows — without kissing it, and without gesturing toward it if unreachable.",
   },
   {
     id: "safa", name: "Safa & Marwah", arabic: "الصَّفَا وَالْمَرْوَة",
     sub: "Place of Say — 7 passes", duas: 8,
     photo: require("../assets/safa-marwah-map.jpg"),
+    locatorMap: require("../assets/SP_safa_marwa.png"),
     description: "These two hills near the Kabah are connected by a gallery where pilgrims perform Say — walking briskly between them seven times, commemorating Hajar's search for water for her infant son. The Quran affirms both hills as being among the symbols of Allah (2:158). Say is an essential act of both Hajj and Umrah, performed immediately after Tawaf.",
   },
   {
     id: "jabalnur", name: "Jabal an-Nur", arabic: "جَبَل النُّور",
     sub: "Site of the first revelation — Cave of Hira", duas: 0,
     photo: require("../assets/jabal-nur-map.jpg"),
+    locatorMap: require("../assets/SP_jabal_an_nur.png"),
     description: "This mountain rises about 3km from the Grand Mosque, and near its summit sits the small cave where the Prophet ﷺ used to retreat for solitary reflection before prophethood. It was here that the Angel Jibril first appeared to him, delivering the opening words of Surah al-Alaq — the first revelation of the Quran. The climb is steep, taking most visitors well over an hour each way.",
   },
   {
     id: "multazam", name: "Al-Multazam", arabic: "الملتزم",
     sub: "Where pilgrims press and supplicate", duas: 0,
     photo: require("../assets/multazam-map.jpg"),
+    locatorMap: require("../assets/SP_al_mutazam.png"),
     description: "This is the section of the Kabah's wall between the Black Stone and the door, about two meters wide, named for the Arabic word for \"clinging.\" Ibn Abbas identified this exact spot by name (Muwatta Malik), and it's Sunnah to press one's chest, face, and hands against it while making dua. Scholars describe it as a place where supplication is especially heard.",
   },
 ];
@@ -164,6 +173,7 @@ const createOlcStyles = () => StyleSheet.create({
 
 // ── Site card — stepper removed, card starts at body content ─────────────────
 function SiteCard({ site, onViewDuas, isVisited, onToggleVisited, navigation, styles, colors }) {
+  const [showFullMap, setShowFullMap] = useState(false);
   if (!site) return null;
   const extra   = MADINAH_INFO[site.id];
   const hasDuas = Array.isArray(site.relatedDuas) && site.relatedDuas.length > 0;
@@ -197,22 +207,28 @@ function SiteCard({ site, onViewDuas, isVisited, onToggleVisited, navigation, st
           <Text style={styles.desc}>{site.description}</Text>
         ) : null}
 
-        {/* ── 4. Locator map thumbnail (small position map — distinct from hero photo) ── */}
+        {/* ── 4. Locator map — full self-contained infographic, tap to enlarge ── */}
         {site.locatorMap ? (
-          <View style={styles.locator}>
+          <TouchableOpacity style={styles.locator} onPress={() => setShowFullMap(true)} activeOpacity={0.9}>
             <Image source={site.locatorMap} style={styles.locatorImg} resizeMode="cover" />
-            <View style={[styles.locatorPin, site.markerPos
-              ? { left: `${(site.markerPos.x * 100).toFixed(1)}%`, top: `${(site.markerPos.y * 100).toFixed(1)}%` }
-              : { left: "50%", top: "50%" }
-            ]}>
-              <MapPin size={12} color={colors.primary} weight="fill" />
+            <View style={styles.locatorExpandHint}>
+              <ArrowsOut size={14} color="#FFFFFF" weight="bold" />
             </View>
-          </View>
+          </TouchableOpacity>
         ) : (
           <View style={styles.locatorFallback}>
             <MapTrifold size={24} color={colors.primary} weight="duotone" />
           </View>
         )}
+
+        <Modal visible={showFullMap} transparent animationType="fade" onRequestClose={() => setShowFullMap(false)}>
+          <TouchableOpacity style={styles.mapModalBackdrop} activeOpacity={1} onPress={() => setShowFullMap(false)}>
+            <Image source={site.locatorMapPortrait || site.locatorMap} style={styles.mapModalImg} resizeMode="contain" />
+            <TouchableOpacity style={styles.mapModalCloseBtn} onPress={() => setShowFullMap(false)} activeOpacity={0.8}>
+              <X size={20} color="#FFFFFF" weight="bold" />
+            </TouchableOpacity>
+          </TouchableOpacity>
+        </Modal>
 
         {/* ── 5. Citation ── */}
         {site.citation ? (
@@ -283,10 +299,13 @@ const createScStyles = (C) => StyleSheet.create({
   desc:           { fontSize: 14, color: C.text, lineHeight: 22, marginBottom: 12 },
   detail:         { fontSize: 12, color: C.text, lineHeight: 18, marginBottom: 10, fontStyle: "italic" },
   citation:       { fontSize: 11, color: "#5A8A72", fontWeight: "600", marginBottom: 10 },
-  locator:        { width: "100%", height: 80, borderRadius: 8, overflow: "hidden", marginBottom: 12 },
-  locatorImg:     { width: "100%", height: 80 },
-  locatorPin:     { position: "absolute", marginLeft: -6, marginTop: -12 },
-  locatorFallback:{ width: "100%", height: 80, borderRadius: 8, backgroundColor: C.primary + "18", alignItems: "center", justifyContent: "center", marginBottom: 12 },
+  locator:           { width: "100%", height: 180, borderRadius: 12, overflow: "hidden", marginBottom: 12, position: "relative" },
+  locatorImg:        { width: "100%", height: 180 },
+  locatorExpandHint: { position: "absolute", bottom: 8, right: 8, width: 28, height: 28, borderRadius: 14, backgroundColor: "rgba(0,0,0,0.45)", alignItems: "center", justifyContent: "center" },
+  locatorFallback:   { width: "100%", height: 80, borderRadius: 8, backgroundColor: C.primary + "18", alignItems: "center", justifyContent: "center", marginBottom: 12 },
+  mapModalBackdrop:  { flex: 1, backgroundColor: "rgba(10,8,6,0.94)", alignItems: "center", justifyContent: "center" },
+  mapModalImg:       { width: SW - 24, height: "75%" },
+  mapModalCloseBtn:  { position: "absolute", top: 56, right: 20, width: 40, height: 40, borderRadius: 20, backgroundColor: "rgba(255,255,255,0.15)", alignItems: "center", justifyContent: "center" },
   relatedSection: { marginTop: 8, borderTopWidth: 1, borderTopColor: C.border, paddingTop: 12 },
   duaRow:         { flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: C.border },
   duaRowTitle:    { flex: 1, fontSize: 14, color: C.primary, fontWeight: "500" },
