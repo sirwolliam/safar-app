@@ -62,7 +62,7 @@ export default function HajjGuideScreen({ navigation }) {
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
 
-        {/* ── 1. Hero — opens GuideCarousel (only link to carousel) ── */}
+        {/* ── 1. Hero — opens Lesson Flow ── */}
         <TouchableOpacity style={s.heroCard} onPress={() => navigation.navigate("LessonList", { guide: "hajj" })} activeOpacity={0.9}>
           <ImageBackground
             source={require("../assets/tawaf2.jpg")}
@@ -76,7 +76,7 @@ export default function HajjGuideScreen({ navigation }) {
             </View>
             <View style={s.heroCardBottom}>
               <Text style={s.heroCardTitle}>Visual Step-by-Step Guide</Text>
-              <Text style={s.heroCardSub}>12 steps with images, descriptions and tips</Text>
+              <Text style={s.heroCardSub}>16 lessons — from your first steps to returning home</Text>
             </View>
           </ImageBackground>
         </TouchableOpacity>
@@ -149,7 +149,7 @@ export default function HajjGuideScreen({ navigation }) {
           <TouchableOpacity
             style={[s.halfCard, { marginRight:6 }]}
             activeOpacity={0.88}
-            onPress={() => navigation?.navigate?.("Map")}
+            onPress={() => navigation?.navigate?.("SacredPlaces")}
           >
             <ImageBackground
               source={require("../assets/kaaba_map.png")}
@@ -168,7 +168,7 @@ export default function HajjGuideScreen({ navigation }) {
           <TouchableOpacity
             style={[s.halfCard, { marginLeft:6 }]}
             activeOpacity={0.88}
-            onPress={() => navigation?.navigate?.("Map")}
+            onPress={() => navigation?.navigate?.("MapStepList", { guide: "hajj" })}
           >
             <ImageBackground
               source={require("../assets/06_mina_gradient.jpg")}

@@ -56,6 +56,7 @@ import QiblaScreen         from "./screens/QiblaScreen";
 import PilgrimageDuasScreen from "./screens/PilgrimageDuasScreen";
 import SafarAssistScreen   from "./screens/SafarAssistScreen";
 import SacredPlacesScreen  from "./screens/SacredPlacesScreen";
+import MapStepListScreen   from "./screens/MapStepListScreen";
 import NotificationsScreen from "./screens/NotificationsScreen";
 import CalendarScreen      from "./screens/CalendarScreen";
 import PillarIntroScreen   from "./screens/PillarIntroScreen";
@@ -225,6 +226,7 @@ function LearnNavigator() {
       <LearnStack.Screen name="Media"                  component={MediaScreen}           />
       <LearnStack.Screen name="SacredPlaces"           component={SacredPlacesScreen}    />
       <LearnStack.Screen name="Map"                    component={MapScreen}             />
+      <LearnStack.Screen name="MapStepList"            component={MapStepListScreen}      />
       <LearnStack.Screen name="IslamicReferences"      component={IslamicReferencesScreen} />
       <LearnStack.Screen name="QuizHub"                component={QuizHubScreen}         />
       <LearnStack.Screen name="Quiz"                   component={QuizScreen}            />

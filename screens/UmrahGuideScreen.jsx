@@ -59,7 +59,7 @@ export default function UmrahGuideScreen({ navigation }) {
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
 
-        {/* ── 1. Hero — opens GuideCarousel ── */}
+        {/* ── 1. Hero — opens Lesson Flow ── */}
         <TouchableOpacity style={s.heroCard} onPress={() => navigation.navigate("LessonList", { guide: "umrah" })} activeOpacity={0.9}>
           <ImageBackground
             source={require("../assets/ihram.jpg")}
@@ -73,7 +73,7 @@ export default function UmrahGuideScreen({ navigation }) {
             </View>
             <View style={s.heroCardBottom}>
               <Text style={s.heroCardTitle}>Visual Step-by-Step Guide</Text>
-              <Text style={s.heroCardSub}>7 steps with images, descriptions and tips</Text>
+              <Text style={s.heroCardSub}>10 lessons — from your first steps to returning home</Text>
             </View>
           </ImageBackground>
         </TouchableOpacity>
@@ -146,7 +146,7 @@ export default function UmrahGuideScreen({ navigation }) {
           <TouchableOpacity
             style={[s.halfCard, { marginRight:6 }]}
             activeOpacity={0.88}
-            onPress={() => navigation?.navigate?.("Map")}
+            onPress={() => navigation?.navigate?.("MapStepList", { guide: "umrah" })}
           >
             <ImageBackground
               source={require("../assets/kaaba_map.png")}
@@ -165,7 +165,7 @@ export default function UmrahGuideScreen({ navigation }) {
           <TouchableOpacity
             style={[s.halfCard, { marginLeft:6 }]}
             activeOpacity={0.88}
-            onPress={() => navigation?.navigate?.("Map")}
+            onPress={() => navigation?.navigate?.("SacredPlaces")}
           >
             <ImageBackground
               source={require("../assets/medina.png")}

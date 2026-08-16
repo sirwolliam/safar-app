@@ -1,401 +1,316 @@
 /**
  * MapScreen.jsx — Safar
  *
- * Three-layer layout (top to bottom):
- *   1. Toggle (top bar)
- *   2. Photo strip — "what it looks like" — changes per step, crossfades
- *   3. Map — full screen background, spatial context
- *   4. Card — slim, step info + inline du'as link
- *
- * No scrolling — everything fits in one screen.
+ * Layout (top to bottom, scrollable):
+ *   1. Ornate header — matches MyContactsScreen exactly: pattern band, back
+ *      button, big title (Umrah Map / Hajj Map), small subhead = current step name
+ *   2. Stepper — arrows + pips, fixed below header
+ *   3. Map — full device width, true aspect ratio, tap to expand + pinch-zoom/pan
+ *   4. Site photo — landscape card
+ *   5. Step card — pill, title, description, Full Guide + Duas buttons
  */
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useMemo } from "react";
 import {
-  View, Text, Image, TouchableOpacity,
-  StyleSheet, Dimensions, Animated, StatusBar,
+  View, Text, Image, ScrollView, TouchableOpacity,
+  StyleSheet, Dimensions, StatusBar, PanResponder, Modal,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ArrowLeft, HandsPraying, CaretLeft, CaretRight } from "phosphor-react-native";
-import { spacing, radius } from "../theme";
+import { CaretLeft, HandsPraying, BookOpen, CaretRight, ArrowsOut, X } from "phosphor-react-native";
+import { spacing } from "../theme";
+import HeaderPatternBg from "../HeaderPatternBg";
 
-const { width: SW, height: SH } = Dimensions.get("window");
+const { width: SW } = Dimensions.get("window");
 
-const PHOTO_H  = 160;   // photo strip height
-const SAGE     = "#2D4A34";
+const SAGE     = "#4A5C48";
+const CARD_BG  = "#FDFAF4";
 const GOLD     = "#B8922A";
-const GOLD_L   = "#C8A96A";
 const BORDER   = "rgba(200,185,160,0.45)";
 const TEXT     = "#1C1A14";
 const MUTED    = "#7A7060";
 const SERIF    = "SourceSerif4-Regular";
+const BG       = "#EDE8DC";
 
 // ── Umrah steps ───────────────────────────────────────────────────────────────
 const UMRAH_STEPS = [
   {
-    id:"enter",  step:1, label:"Enter Haram",
-    title:"Enter Masjid al-Haram",
-    date:null, distance:null, duaMode:"umrah",
-    desc:"Enter with your right foot reciting the dua of entry. When the Kabah comes into view, pause \u2014 this is among the most answered moments for dua in the pilgrimage.",
-    dot:{ x:0.45, y:0.22 },
-    photo: require("../assets/arrival.jpg"),
-    map:   require("../assets/Umrah_map_test1.png"),
-  },
-  {
-    id:"tawaf",  step:2, label:"Tawaf",
-    title:"Tawaf \u2014 7 Circuits",
-    date:null, distance:"~1.2km total", duaMode:"umrah",
-    desc:"Circumambulate the Kabah seven times counter-clockwise from the Black Stone. Recite Bismi-llahi Allahu Akbar at each start.",
-    dot:{ x:0.26, y:0.52 },
-    photo: require("../assets/tawaf2.jpg"),
-    map:   require("../assets/Umrah_map_test1.png"),
-  },
-  {
-    id:"maqam",  step:3, label:"Maqam Ibrahim",
-    title:"Prayer at Maqam Ibrahim",
-    date:null, distance:null, duaMode:"umrah",
-    desc:"Pray two rakahs with Maqam Ibrahim between you and the Kabah. Recite Surah al-Kafirun then al-Ikhlas. Then drink Zamzam and make dua.",
-    dot:{ x:0.44, y:0.58 },
-    photo: require("../assets/maqam_ibrahim_map.png"),
-    map:   require("../assets/Umrah_map_test1.png"),
-  },
-  {
-    id:"safa",   step:4, label:"Safa",
-    title:"Sai \u2014 Begin at Safa",
-    date:null, distance:"~450m per length", duaMode:"umrah",
-    desc:"Ascend Safa, face the Kabah and make dua three times. Then begin walking toward Marwah. Men walk briskly between the green lights.",
-    dot:{ x:0.79, y:0.52 },
-    photo: require("../assets/sayi.jpg"),
-    map:   require("../assets/Umrah_map_test1.png"),
-  },
-  {
-    id:"sai",    step:5, label:"Sai",
-    title:"Sai \u2014 7 Lengths",
-    date:null, distance:"~3.15km total", duaMode:"umrah",
-    desc:"Walk seven lengths between Safa and Marwah. Begin at Safa, end at Marwah on the seventh. Make dua and dhikr throughout.",
-    dot:{ x:0.79, y:0.62 },
-    photo: require("../assets/sayi.jpg"),
-    map:   require("../assets/Umrah_map_test1.png"),
-  },
-  {
-    id:"halq",   step:6, label:"Halq / Taqseer",
-    title:"Halq or Taqseer",
-    date:null, distance:null, duaMode:"umrah",
-    desc:"Shave the head (Halq) or shorten the hair (Taqseer) to exit Ihram. Men: shaving carries greater reward. Women: trim a fingertip\u2019s length. Umrah complete.",
-    dot:{ x:0.67, y:0.72 },
+    id:"ihram", step:1, label:"Ihram",
+    title:"Ihram",
+    lessonId:"umrah-03", duaMode:"umrah",
+    desc:"Ihram is the sacred state you enter before your Umrah begins — not just white garments, but a state of worship, humility, and devotion. Prepare before reaching the Miqat, make your intention, and begin reciting the Talbiyah as you enter this state.",
     photo: require("../assets/ihram.jpg"),
-    map:   require("../assets/Umrah_map_test1.png"),
+    map: require("../assets/map_umrah_01_miqaat.png"),
+  },
+  {
+    id:"enter", step:2, label:"Enter Haram",
+    title:"Entering Masjid al-Haram",
+    lessonId:"umrah-05", duaMode:"umrah",
+    desc:"After months of anticipation, you've reached the city that holds the Ka'bah — the first house built for the worship of Allah. Take your time, stay patient in the crowds, and continue the Talbiyah until Tawaf begins.",
+    photo: require("../assets/arrival.jpg"),
+    map: require("../assets/map_umrah_02_entering_haram.png"),
+  },
+  {
+    id:"tawaf", step:3, label:"Tawaf",
+    title:"Tawaf",
+    lessonId:"umrah-06", duaMode:"umrah",
+    desc:"Tawaf is walking around the Ka'bah seven times, counter-clockwise, beginning and ending at the Black Stone. There's no required du'a for each circuit — just your own sincere remembrance of Allah, at a calm, unhurried pace.",
+    photo: require("../assets/tawaf2.jpg"),
+    map: require("../assets/map_umrah_03_tawaf.png"),
+  },
+  {
+    id:"maqam", step:4, label:"Maqam Ibrahim",
+    title:"Maqam Ibrahim & Zamzam",
+    lessonId:"umrah-07", duaMode:"umrah",
+    desc:"After Tawaf, pray two rak'ahs near Maqam Ibrahim if space allows — anywhere in the mosque is fine if it's crowded. Then drink from the Zamzam well, the same blessed spring that answered Hajar's search for water for her son Isma'il.",
+    photo: require("../assets/maqam_ibrahim_map.png"),
+    map: require("../assets/map_umrah_04_maqam_zamzam.png"),
+  },
+  {
+    id:"sai", step:5, label:"Safa & Marwah",
+    title:"Safa & Marwah (Sa'i)",
+    lessonId:"umrah-08", duaMode:"umrah",
+    desc:"Sa'i retraces Hajar's search for water for her infant son — seven journeys on foot between the hills of Safa and Marwah. Walk calmly and make personal du'a; men pick up the pace only briefly between the two green markers.",
+    photo: require("../assets/sayi.jpg"),
+    map: require("../assets/map_umrah_05_safa_marwah.png"),
+  },
+  {
+    id:"halq", step:6, label:"Halq / Taqseer",
+    title:"Halq or Taqseer",
+    lessonId:"umrah-09", duaMode:"umrah",
+    desc:"Umrah concludes with cutting or shaving the hair — Halq (shaving) or Taqseer (trimming) for men, a small trim for women. Once that's done, the restrictions of Ihram are lifted and your Umrah is complete.",
+    photo: require("../assets/Umrah_05_completion_gradient.jpg"),
+    map: require("../assets/map_umrah_06_halq_taqseer.png"),
     note:"Tawaf al-Wada before leaving Makkah is recommended Sunnah, not a required step of Umrah.",
   },
 ];
 
 const HAJJ_STEPS = [
   {
-    id:"ihram",      step:1, label:"Ihram",
+    id:"ihram", step:1, label:"Ihram",
     title:"Enter Ihram",
-    date:"8th Dhul Hijjah", distance:null, duaMode:"hajj",
+    date:"8th Dhul Hijjah", duaMode:"hajj",
     desc:"At the Miqat make your intention, wear Ihram garments and recite the Talbiyah: Labbayk Allahumma labbayk.",
-    dot:{ x:0.20, y:0.48 },
     photo: require("../assets/ihram.jpg"),
-    map:   require("../assets/Umrah_map_test1.png"),
+    map: require("../assets/Umrah_map_test1.png"),
   },
   {
-    id:"mina",       step:2, label:"Mina",
+    id:"mina", step:2, label:"Mina",
     title:"Travel to Mina",
     date:"8th Dhul Hijjah", distance:"~8km from Makkah", duaMode:"hajj",
-    desc:"Travel to Mina. Pray all five prayers here shortening four rakah prayers to two. Spend the night in worship before the Day of Arafat.",
-    dot:{ x:0.47, y:0.42 },
+    desc:"Travel to Mina. Pray all five prayers here, shortening four-rakah prayers to two. Spend the night in worship before the Day of Arafat.",
     photo: require("../assets/arrival.jpg"),
-    map:   require("../assets/Umrah_map_test1.png"),
+    map: require("../assets/Umrah_map_test1.png"),
   },
   {
-    id:"arafat",     step:3, label:"Arafat",
-    title:"Wuquf at arafah",
+    id:"arafat", step:3, label:"Arafat",
+    title:"Wuquf at Arafah",
     date:"9th Dhul Hijjah", distance:"~14km from Makkah", duaMode:"hajj",
-    desc:"The most important day of Hajj. Stand at arafah from midday to sunset in continuous dua and dhikr. The Prophet \u0635 said: \u2018Hajj is arafah.\u2019",
-    dot:{ x:0.78, y:0.42 },
+    desc:"The most important day of Hajj. Stand at Arafah from midday to sunset in continuous du'a and dhikr. The Prophet ﷺ said: 'Hajj is Arafah.'",
     photo: require("../assets/arafah.jpg"),
-    map:   require("../assets/Umrah_map_test1.png"),
+    map: require("../assets/Umrah_map_test1.png"),
   },
   {
     id:"muzdalifah", step:4, label:"Muzdalifah",
     title:"Night in Muzdalifah",
-    date:"Night of 9th", distance:"~9km from Arafat", duaMode:"hajj",
-    desc:"After sunset travel to Muzdalifah. Combine Maghrib and Isha. Sleep under the open sky. Collect 49\u201370 pebbles for the Jamarat.",
-    dot:{ x:0.50, y:0.62 },
+    date:"Night of the 9th", distance:"~9km from Arafat", duaMode:"hajj",
+    desc:"After sunset, travel to Muzdalifah. Combine Maghrib and Isha. Sleep under the open sky. Collect pebbles for the Jamarat.",
     photo: require("../assets/arrival.jpg"),
-    map:   require("../assets/Umrah_map_test1.png"),
+    map: require("../assets/Umrah_map_test1.png"),
   },
   {
-    id:"jamarat",    step:5, label:"Jamarat",
-    title:"Rami \u2014 Stone the Jamarat",
-    date:"10th\u201312th", distance:"In Mina", duaMode:"hajj",
-    desc:"Return to Mina. On the 10th throw 7 pebbles at Jamarat al-Aqabah. On 11th and 12th stone all three pillars in order. Say Allahu Akbar with each throw.",
-    dot:{ x:0.42, y:0.42 },
+    id:"jamarat", step:5, label:"Jamarat",
+    title:"Rami — Stone the Jamarat",
+    date:"10th–12th", distance:"In Mina", duaMode:"hajj",
+    desc:"Return to Mina. On the 10th, throw seven pebbles at Jamarat al-Aqabah. On the 11th and 12th, stone all three pillars in order, saying 'Allahu Akbar' with each throw.",
     photo: require("../assets/arrival.jpg"),
-    map:   require("../assets/Umrah_map_test1.png"),
+    map: require("../assets/Umrah_map_test1.png"),
   },
   {
-    id:"ifadah",     step:6, label:"Tawaf + Farewell",
+    id:"ifadah", step:6, label:"Tawaf + Farewell",
     title:"Tawaf al-Ifadah + Farewell",
     date:"10th Dhul Hijjah", distance:"Return to Makkah", duaMode:"hajj",
-    desc:"Perform Tawaf al-Ifadah then Sai. All Ihram restrictions are fully lifted. Perform Tawaf al-Wada before leaving Makkah.",
-    dot:{ x:0.20, y:0.48 },
+    desc:"Perform Tawaf al-Ifadah, then Sa'i. All Ihram restrictions are fully lifted. Perform Tawaf al-Wada before leaving Makkah.",
     photo: require("../assets/tawaf2.jpg"),
-    map:   require("../assets/Umrah_map_test1.png"),
+    map: require("../assets/Umrah_map_test1.png"),
   },
 ];
 
-// ── Crossfading photo strip ───────────────────────────────────────────────────
-function PhotoStrip({ source, stepId }) {
-  const opacity = useRef(new Animated.Value(1)).current;
-  const prevId  = useRef(stepId);
-
-  useEffect(() => {
-    if (prevId.current === stepId) return;
-    prevId.current = stepId;
-    opacity.setValue(0);
-    Animated.timing(opacity, { toValue:1, duration:350, useNativeDriver:true }).start();
-  }, [stepId]);
-
-  return (
-    <Animated.View style={[s.photoStrip, { opacity }]}>
-      <Image source={source} style={s.photoImg} resizeMode="cover"/>
-      {/* Bottom fade into map */}
-      <View style={s.photoFade}/>
-    </Animated.View>
-  );
-}
-
-// ── Pulsing dot ───────────────────────────────────────────────────────────────
-function PulsingDot({ x, y }) {
-  const ring = useRef(new Animated.Value(1)).current;
-  const opac = useRef(new Animated.Value(0.75)).current;
-
-  useEffect(() => {
-    const a = Animated.loop(Animated.parallel([
-      Animated.sequence([
-        Animated.timing(ring, { toValue:2.2, duration:900, useNativeDriver:true }),
-        Animated.timing(ring, { toValue:1,   duration:900, useNativeDriver:true }),
-      ]),
-      Animated.sequence([
-        Animated.timing(opac, { toValue:0,    duration:900, useNativeDriver:true }),
-        Animated.timing(opac, { toValue:0.75, duration:900, useNativeDriver:true }),
-      ]),
-    ]));
-    a.start();
-    return () => a.stop();
-  }, [x, y]);
-
-  return (
-    <View pointerEvents="none" style={[StyleSheet.absoluteFill, { zIndex:10 }]}>
-      <View style={{ position:"absolute", left:x-20, top:y-20, width:40, height:40, alignItems:"center", justifyContent:"center" }}>
-        <Animated.View style={{
-          position:"absolute", width:40, height:40, borderRadius:20,
-          borderWidth:2.5, borderColor:GOLD_L,
-          opacity:opac, transform:[{ scale:ring }],
-        }}/>
-        <View style={{
-          width:14, height:14, borderRadius:7, backgroundColor:GOLD,
-          borderWidth:3, borderColor:"#fff",
-          shadowColor:"#000", shadowOffset:{width:0,height:2},
-          shadowOpacity:0.45, shadowRadius:5, elevation:6,
-        }}/>
-      </View>
-    </View>
-  );
-}
-
-// ── Screen ────────────────────────────────────────────────────────────────────
-export default function MapScreen({ navigation }) {
+export default function MapScreen({ navigation, route }) {
   const insets = useSafeAreaInsets();
-  const [mode, setMode] = useState("Umrah");
-  const [idx,  setIdx]  = useState(0);
+  const guide  = route?.params?.guide === "hajj" ? "hajj" : "umrah";
+  const [idx, setIdx] = useState(route?.params?.stepIndex ?? 0);
+  const [showFullMap, setShowFullMap] = useState(false);
 
-  const steps   = mode === "Hajj" ? HAJJ_STEPS : UMRAH_STEPS;
+  const steps   = guide === "hajj" ? HAJJ_STEPS : UMRAH_STEPS;
   const total   = steps.length;
   const current = steps[idx];
 
-  const switchMode = (m) => { setMode(m); setIdx(0); };
+  const mapDims = useMemo(() => {
+    const src = Image.resolveAssetSource(current.map);
+    if (src?.width && src?.height) {
+      return { width: SW, height: SW * (src.height / src.width) };
+    }
+    return { width: SW, height: SW * 0.62 };
+  }, [current.map]);
 
-  // Map area starts below: status bar + inset + toggle bar + photo strip
-  const topBarH   = insets.top + 54;
-  const mapOffset = topBarH + PHOTO_H;
-  const mapH      = SH - mapOffset;
-
-  // Dot pixel position — map is full screen so use SH directly
-  const dotX = current.dot.x * SW;
-  const dotY = current.dot.y * SH;
+  const swipePan = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 20 && Math.abs(g.dx) > Math.abs(g.dy),
+      onPanResponderRelease: (_, g) => {
+        if (g.dx < -40) setIdx(i => Math.min(total - 1, i + 1));
+        else if (g.dx > 40) setIdx(i => Math.max(0, i - 1));
+      },
+    })
+  ).current;
 
   return (
-    <View style={[s.root, { backgroundColor:"#EDE8DC" }]}>
-      <StatusBar barStyle="dark-content" translucent backgroundColor="transparent"/>
+    <View style={s.safe}>
+      <StatusBar barStyle="light-content" />
 
-      {/* ── Layer 1: Map — true full-screen background ── */}
-      <Image
-        source={current.map}
-        style={[StyleSheet.absoluteFill, { width:SW, height:SH }]}
-        resizeMode="cover"
-      />
+      {/* Header — matches MyContactsScreen exactly */}
+      <View style={s.header}>
+        <HeaderPatternBg width={SW} />
+        <View style={[s.headerTopRow, { paddingTop: insets.top + 10 }]}>
+          <TouchableOpacity style={s.backBtn} onPress={() => navigation.goBack()} activeOpacity={0.85}>
+            <CaretLeft size={18} color="#1A1712" weight="bold" />
+          </TouchableOpacity>
+          <View style={{ width: 36 }} />
+        </View>
+        <View style={s.headerCenter}>
+          <Text style={s.pageTitle}>{guide === "hajj" ? "Hajj Map" : "Umrah Map"}</Text>
+          <Text style={s.pageSubtitle}>{current.title}</Text>
+        </View>
+      </View>
 
-      {/* ── Layer 2: Pulsing dot on map ── */}
-      <PulsingDot x={dotX} y={dotY}/>
-
-      {/* ── Layer 3: Top bar — back + toggle ── */}
-      <View style={[s.topBar, { paddingTop: insets.top + 8 }]}>
-        <TouchableOpacity style={s.backBtn} onPress={() => navigation.goBack()} activeOpacity={0.85}>
-          <ArrowLeft size={20} color={TEXT} weight="regular"/>
+      <View style={s.stepperRow}>
+        <TouchableOpacity
+          style={[s.arrow, idx === 0 && s.arrowDim]}
+          onPress={() => setIdx(i => Math.max(0, i - 1))}
+          disabled={idx === 0} activeOpacity={0.8}
+          hitSlop={{ top:14, bottom:14, left:14, right:14 }}
+        >
+          <CaretLeft size={16} color={idx === 0 ? MUTED : SAGE} weight="bold" />
         </TouchableOpacity>
 
-        <View style={s.toggle}>
-          {["Umrah","Hajj"].map(m => (
-            <TouchableOpacity
-              key={m}
-              style={[s.tBtn, mode===m && s.tBtnOn]}
-              onPress={() => switchMode(m)}
-              activeOpacity={0.85}
-            >
-              <Text style={[s.tTxt, mode===m && s.tTxtOn]}>{m}</Text>
+        <View style={s.pipRow}>
+          {steps.map((_, i) => (
+            <TouchableOpacity key={i} onPress={() => setIdx(i)}
+              hitSlop={{ top:8, bottom:8, left:6, right:6 }} activeOpacity={0.7}>
+              <View style={[s.pip, i === idx && s.pipOn]} />
             </TouchableOpacity>
           ))}
         </View>
 
-        <View style={{ width:44 }}/>
+        <TouchableOpacity
+          style={[s.arrow, idx === total - 1 && s.arrowDim]}
+          onPress={() => setIdx(i => Math.min(total - 1, i + 1))}
+          disabled={idx === total - 1} activeOpacity={0.8}
+          hitSlop={{ top:14, bottom:14, left:14, right:14 }}
+        >
+          <CaretRight size={16} color={idx === total - 1 ? MUTED : SAGE} weight="bold" />
+        </TouchableOpacity>
       </View>
 
-      {/* ── Layer 4: Photo strip — overlays map, sits under top bar ── */}
-      <View style={[s.photoWrap, { top: topBarH - 2 }]}>
-        <PhotoStrip source={current.photo} stepId={current.id}/>
-        <View style={s.separator}/>
-      </View>
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: insets.bottom + 32 }}
+        showsVerticalScrollIndicator={false}
+        {...swipePan.panHandlers}
+      >
+        <TouchableOpacity
+          style={[s.mapWrap, { height: mapDims.height }]}
+          onPress={() => setShowFullMap(true)}
+          activeOpacity={0.92}
+        >
+          <Image source={current.map} style={{ width: mapDims.width, height: mapDims.height }} resizeMode="cover" />
+          <View style={s.mapExpandHint}>
+            <ArrowsOut size={16} color="#FFFFFF" weight="bold" />
+          </View>
+        </TouchableOpacity>
 
-      {/* ── Layer 5: Bottom overlay — stepper + slim card ── */}
-      <View style={[s.bottom, { paddingBottom: insets.bottom + 10 }]}>
-
-        {/* Stepper */}
-        <View style={s.stepperRow}>
-          <TouchableOpacity
-            style={[s.arrow, idx===0 && s.arrowDim]}
-            onPress={() => setIdx(i => Math.max(0,i-1))}
-            disabled={idx===0} activeOpacity={0.8}
-            hitSlop={{top:14,bottom:14,left:14,right:14}}
-          >
-            <CaretLeft size={16} color={idx===0 ? MUTED : SAGE} weight="bold"/>
-          </TouchableOpacity>
-
-          <View style={s.pipRow}>
-            {steps.map((_,i) => (
-              <TouchableOpacity key={i} onPress={() => setIdx(i)}
-                hitSlop={{top:8,bottom:8,left:6,right:6}} activeOpacity={0.7}>
-                <View style={[s.pip, i===idx && s.pipOn]}/>
-              </TouchableOpacity>
-            ))}
+        <View style={s.padded}>
+          <View style={s.photoCard}>
+            <Image source={current.photo} style={s.photoImg} resizeMode="cover" />
           </View>
 
-          <TouchableOpacity
-            style={[s.arrow, idx===total-1 && s.arrowDim]}
-            onPress={() => setIdx(i => Math.min(total-1,i+1))}
-            disabled={idx===total-1} activeOpacity={0.8}
-            hitSlop={{top:14,bottom:14,left:14,right:14}}
-          >
-            <CaretRight size={16} color={idx===total-1 ? MUTED : SAGE} weight="bold"/>
-          </TouchableOpacity>
-        </View>
-
-        {/* Slim card */}
-        <View style={s.card}>
-          {/* Top row: pill + meta */}
-          <View style={s.cardTop}>
-            <View style={s.stepPill}>
-              <Text style={s.stepPillTxt}>{"Step " + current.step + " of " + total}</Text>
+          <View style={s.card}>
+            <View style={s.cardTop}>
+              <View style={s.stepPill}>
+                <Text style={s.stepPillTxt}>{"Step " + current.step + " of " + total}</Text>
+              </View>
+              {current.distance ? <Text style={s.meta}>{current.distance}</Text> : null}
+              {current.date ? <Text style={s.meta}>{current.date}</Text> : null}
             </View>
-            {current.distance
-              ? <Text style={s.meta}>{current.distance}</Text>
-              : null}
-            {current.date
-              ? <Text style={s.meta}>{current.date}</Text>
-              : null}
+
+            <Text style={s.title}>{current.title}</Text>
+            <Text style={s.desc}>{current.desc}</Text>
+
+            {current.note ? (
+              <Text style={s.note}>{"Note: " + current.note}</Text>
+            ) : null}
+
+            <View style={s.buttonsRow}>
+              {current.lessonId ? (
+                <TouchableOpacity
+                  onPress={() => navigation?.navigate?.("LessonFlow", { lessonId: current.lessonId })}
+                  activeOpacity={0.85}
+                  style={s.btnPrimary}
+                >
+                  <BookOpen size={18} color="#FFFFFF" weight="regular" />
+                  <Text style={s.btnPrimaryTxt}>Full Guide</Text>
+                </TouchableOpacity>
+              ) : null}
+
+              <TouchableOpacity
+                onPress={() => navigation?.navigate?.("PilgrimageDuas", { mode: current.duaMode })}
+                activeOpacity={0.85}
+                style={current.lessonId ? s.btnSecondary : [s.btnSecondary, { flex:1 }]}
+              >
+                <HandsPraying size={18} color={SAGE} weight="regular" />
+                <Text style={s.btnSecondaryTxt}>Duas</Text>
+              </TouchableOpacity>
+            </View>
           </View>
+        </View>
+      </ScrollView>
 
-          {/* Title */}
-          <Text style={s.title}>{current.title}</Text>
-
-          {/* Description — 2 lines max to keep card slim */}
-          <Text style={s.desc} numberOfLines={2}>{current.desc}</Text>
-
-          {/* Optional note */}
-          {current.note
-            ? <Text style={s.note} numberOfLines={2}>{"\u2139\uFE0F  " + current.note}</Text>
-            : null}
-
-          {/* Inline du'as link — no button */}
-          <TouchableOpacity
-            onPress={() => navigation?.navigate?.("PilgrimageDuas", { mode: current.duaMode })}
-            activeOpacity={0.7}
-            style={s.duaLink}
-            hitSlop={{top:8,bottom:8,left:0,right:0}}
+      <Modal visible={showFullMap} transparent animationType="fade" onRequestClose={() => setShowFullMap(false)}>
+        <View style={s.mapModalBackdrop}>
+          <ScrollView
+            style={{ flex:1, width:"100%" }}
+            contentContainerStyle={s.mapModalScrollContent}
+            minimumZoomScale={1}
+            maximumZoomScale={4}
+            showsHorizontalScrollIndicator={false}
+            showsVerticalScrollIndicator={false}
           >
-            <HandsPraying size={14} color={SAGE} weight="thin"/>
-            <Text style={s.duaLinkTxt}>{"Duas for " + current.label + "  \u2192"}</Text>
+            <Image source={current.map} style={{ width: mapDims.width, height: mapDims.height }} resizeMode="contain" />
+          </ScrollView>
+          <TouchableOpacity style={s.mapModalCloseBtn} onPress={() => setShowFullMap(false)} activeOpacity={0.8}>
+            <X size={20} color="#FFFFFF" weight="bold" />
           </TouchableOpacity>
         </View>
-
-      </View>
+      </Modal>
     </View>
   );
 }
 
 // ── Styles ────────────────────────────────────────────────────────────────────
 const s = StyleSheet.create({
-  root: { flex:1 },
+  safe: { flex:1, backgroundColor:BG },
 
-  // Map layer style removed — map uses StyleSheet.absoluteFill directly
+  header:      { backgroundColor:SAGE, minHeight:160, position:"relative", overflow:"hidden", paddingHorizontal:20, paddingBottom:16 },
+  headerTopRow:{ flexDirection:"row", alignItems:"center", justifyContent:"space-between" },
+  backBtn:     { width:36, height:36, borderRadius:18, backgroundColor:CARD_BG, borderWidth:1, borderColor:"#D4D0CA", alignItems:"center", justifyContent:"center" },
+  headerCenter:{ alignItems:"center", marginTop:16 },
+  pageTitle:   { fontFamily:SERIF, fontSize:38, color:CARD_BG },
+  pageSubtitle:{ fontSize:14, color:"rgba(255,255,255,0.75)", marginTop:1 },
 
-  // Top bar
-  topBar: {
-    position:"absolute", left:0, right:0, zIndex:30,
-    flexDirection:"row", alignItems:"center", justifyContent:"space-between",
-    paddingHorizontal:spacing(2), paddingBottom:10,
-    backgroundColor:"rgba(237,232,220,0.92)",
-  },
-  backBtn: {
-    width:38, height:38, borderRadius:19,
-    backgroundColor:"rgba(253,250,244,0.95)",
-    borderWidth:1, borderColor:BORDER,
-    alignItems:"center", justifyContent:"center",
-  },
-  toggle:   { flexDirection:"row", backgroundColor:"rgba(237,232,220,0.95)", borderRadius:50, padding:3, borderWidth:1, borderColor:BORDER },
-  tBtn:     { paddingHorizontal:20, paddingVertical:7, borderRadius:50 },
-  tBtnOn:   { backgroundColor:SAGE },
-  tTxt:     { fontFamily:SERIF, fontSize:14, color:MUTED },
-  tTxtOn:   { color:"#fff" },
-
-  // Photo strip
-  photoWrap:  { position:"absolute", left:0, right:0, height:PHOTO_H, zIndex:20 },
-  photoStrip: { width:SW, height:PHOTO_H },
-  photoImg:   { width:"100%", height:"100%" },
-  photoFade:  {
-    position:"absolute", bottom:0, left:0, right:0, height:40,
-    // Fade from transparent to the parchment map background
-    backgroundColor:"transparent",
-    // React Native doesn't support gradient here without expo-linear-gradient,
-    // using a semi-transparent overlay instead
-  },
-  separator:  { height:1, backgroundColor:"rgba(180,165,140,0.40)" },
-
-  // Bottom overlay
-  bottom: {
-    position:"absolute", left:0, right:0, bottom:0, zIndex:30,
-  },
-
-  // Stepper
   stepperRow: {
     flexDirection:"row", alignItems:"center", justifyContent:"space-between",
-    paddingHorizontal:spacing(2), marginBottom:8,
+    paddingHorizontal:spacing(2.5), paddingVertical:10,
   },
-  arrow:    {
+  arrow: {
     width:36, height:36, borderRadius:18,
-    backgroundColor:"rgba(253,250,244,0.92)",
-    borderWidth:1, borderColor:BORDER,
+    backgroundColor:CARD_BG, borderWidth:1, borderColor:BORDER,
     alignItems:"center", justifyContent:"center",
   },
   arrowDim: { opacity:0.35 },
@@ -403,28 +318,61 @@ const s = StyleSheet.create({
   pip:      { width:7, height:7, borderRadius:4, backgroundColor:"rgba(45,74,52,0.25)" },
   pipOn:    { width:22, backgroundColor:SAGE },
 
-  // Card — slim
-  card: {
-    marginHorizontal:spacing(2),
-    backgroundColor:"rgba(253,250,244,0.97)",
-    borderRadius:18,
+  mapWrap: { width:SW, backgroundColor:"#E4DDCC", position:"relative", marginBottom:16 },
+  mapExpandHint: {
+    position:"absolute", bottom:10, right:10,
+    width:32, height:32, borderRadius:16,
+    backgroundColor:"rgba(0,0,0,0.45)",
+    alignItems:"center", justifyContent:"center",
+  },
+  mapModalBackdrop: { flex:1, backgroundColor:"rgba(10,8,6,0.94)", alignItems:"center", justifyContent:"center" },
+  mapModalScrollContent: { flexGrow:1, alignItems:"center", justifyContent:"center" },
+  mapModalCloseBtn: {
+    position:"absolute", top:56, right:20,
+    width:40, height:40, borderRadius:20,
+    backgroundColor:"rgba(255,255,255,0.15)",
+    alignItems:"center", justifyContent:"center",
+  },
+
+  padded: { paddingHorizontal:spacing(2.5) },
+
+  photoCard: {
+    borderRadius:16, overflow:"hidden", marginBottom:16,
     borderWidth:1, borderColor:BORDER,
-    paddingHorizontal:spacing(2),
-    paddingTop:14,
-    paddingBottom:14,
+    shadowColor:"#1C1408", shadowOffset:{ width:0, height:3 },
+    shadowOpacity:0.08, shadowRadius:10, elevation:6,
+  },
+  photoImg: { width:"100%", height:180 },
+
+  card: {
+    backgroundColor:CARD_BG,
+    borderRadius:20,
+    borderWidth:1, borderColor:BORDER,
+    padding:spacing(2.25),
     shadowColor:"#1C1408",
-    shadowOffset:{ width:0, height:-3 },
+    shadowOffset:{ width:0, height:3 },
     shadowOpacity:0.08,
     shadowRadius:10,
-    elevation:10,
+    elevation:6,
   },
-  cardTop:    { flexDirection:"row", alignItems:"center", gap:8, marginBottom:7, flexWrap:"wrap" },
-  stepPill:   { backgroundColor:SAGE, borderRadius:50, paddingHorizontal:11, paddingVertical:3 },
-  stepPillTxt:{ fontSize:11, color:"#fff", fontWeight:"600" },
-  meta:       { fontSize:11, color:GOLD, fontWeight:"600" },
-  title:      { fontFamily:SERIF, fontSize:18, color:TEXT, marginBottom:5, lineHeight:24 },
-  desc:       { fontSize:13, color:"#3A3228", lineHeight:19, marginBottom:8 },
-  note:       { fontSize:11, color:MUTED, fontStyle:"italic", lineHeight:16, marginBottom:8 },
-  duaLink:    { flexDirection:"row", alignItems:"center", gap:6 },
-  duaLinkTxt: { fontSize:13, color:SAGE, fontWeight:"600" },
+  cardTop:    { flexDirection:"row", alignItems:"center", gap:8, marginBottom:10, flexWrap:"wrap" },
+  stepPill:   { backgroundColor:SAGE, borderRadius:50, paddingHorizontal:12, paddingVertical:4 },
+  stepPillTxt:{ fontSize:12, color:"#fff", fontWeight:"600" },
+  meta:       { fontSize:12, color:GOLD, fontWeight:"600" },
+  title:      { fontFamily:SERIF, fontSize:24, color:TEXT, marginBottom:10, lineHeight:30 },
+  desc:       { fontSize:16, color:"#3A3228", lineHeight:24, marginBottom:12 },
+  note:       { fontSize:13, color:MUTED, fontStyle:"italic", lineHeight:19, marginBottom:12 },
+
+  buttonsRow: { flexDirection:"row", gap:10, marginTop:4 },
+  btnPrimary: {
+    flex:1, flexDirection:"row", alignItems:"center", justifyContent:"center", gap:8,
+    backgroundColor:SAGE, borderRadius:14, paddingVertical:14,
+  },
+  btnPrimaryTxt:   { fontSize:15, fontWeight:"700", color:"#FFFFFF" },
+  btnSecondary: {
+    flex:1, flexDirection:"row", alignItems:"center", justifyContent:"center", gap:8,
+    backgroundColor:"#FFFFFF", borderRadius:14, paddingVertical:14,
+    borderWidth:1.5, borderColor:SAGE,
+  },
+  btnSecondaryTxt: { fontSize:15, fontWeight:"700", color:SAGE },
 });

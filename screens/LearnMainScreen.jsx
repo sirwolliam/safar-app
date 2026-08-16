@@ -15,9 +15,22 @@ const HEADER_IMAGE = require("../assets/hub-headers/learn-header.png");
 const GRADIENT = ["transparent", "transparent", "rgba(28,43,30,0.68)", "rgba(28,43,30,0.96)"];
 const GRADIENT_LOCS = [0, 0.44, 0.72, 1];
 
+const GUIDES = [
+  {
+    key: "umrah", label: "Umrah Guide", sub: "Every step of Umrah, in order",
+    nav: "stack", target: "UmrahGuide",
+    image: require("../assets/umrah_guide_card.png"),
+    tags: ["Guide", "Duas", "Map", "Checklist"],
+  },
+  {
+    key: "hajj", label: "Hajj Guide", sub: "The full pilgrimage, day by day",
+    nav: "stack", target: "HajjGuide",
+    image: require("../assets/hajj_guide_card.jpg"),
+    tags: ["Guide", "Duas", "Map", "Checklist"],
+  },
+];
+
 const ROWS = [
-  { key: "umrah",  Icon: Compass,  label: "Umrah Guide",    sub: "Every step of Umrah, in order",              nav: "stack", target: "UmrahGuide"  },
-  { key: "hajj",   Icon: Cube,     label: "Hajj Guide",     sub: "The full pilgrimage, day by day",            nav: "stack", target: "HajjGuide"   },
   { key: "expect", Icon: BookOpen, label: "What to Expect", sub: "Crowds, climate, what it really feels like", nav: "stack", target: "WhatToExpect" },
   { key: "sacred",     Icon: MapPin,   label: "Sacred Places",       sub: "Map of the holy sites",                      nav: "stack", target: "SacredPlaces"      },
   { key: "dualib",     Icon: Books,    label: "Dua Library",         sub: "Supplications for every moment",             nav: "tab",   tab: "Practice", screen: "MyDuas" },
@@ -90,6 +103,34 @@ export default function LearnMainScreen({ navigation }) {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
+        {GUIDES.map((item) => (
+          <TouchableOpacity
+            key={item.key}
+            style={styles.guideCard}
+            activeOpacity={0.9}
+            onPress={() => goRow(item, navigation)}
+          >
+            <Image source={item.image} style={StyleSheet.absoluteFillObject} resizeMode="cover" />
+            <LinearGradient
+              colors={["transparent", "rgba(20,16,10,0.80)"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 0, y: 1 }}
+              style={StyleSheet.absoluteFillObject}
+            />
+            <View style={styles.guideCardInner}>
+              <Text style={styles.guideCardTitle}>{item.label}</Text>
+              <Text style={styles.guideCardSub}>{item.sub}</Text>
+              <View style={styles.tagRow}>
+                {item.tags.map((t) => (
+                  <View key={t} style={styles.tagPill}>
+                    <Text style={styles.tagPillText}>{t}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          </TouchableOpacity>
+        ))}
+
         {ROWS.map((item) => (
           <TouchableOpacity
             key={item.key}
@@ -133,6 +174,14 @@ const styles = StyleSheet.create({
   headerSub:     { fontSize: 15, color: "rgba(255,255,255,0.82)", lineHeight: 22, maxWidth: "88%" },
   scroll:        { flex: 1 },
   scrollContent: { paddingTop: 10, paddingHorizontal: 0 },
+  guideCard:      { height: 190, borderRadius: 20, overflow: "hidden", position: "relative", marginHorizontal: 16, marginBottom: 14, backgroundColor: "#1A1410", shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.12, shadowRadius: 10, elevation: 4 },
+  guideCardInner: { position: "absolute", left: 0, right: 0, bottom: 0, padding: 18 },
+  guideCardTitle: { fontFamily: SERIF, fontSize: 26, color: "#FFFFFF", fontWeight: "600", marginBottom: 4 },
+  guideCardSub:   { fontSize: 14, color: "rgba(255,255,255,0.85)", lineHeight: 20, marginBottom: 10 },
+  tagRow:         { flexDirection: "row", flexWrap: "wrap", gap: 6 },
+  tagPill:        { backgroundColor: "rgba(255,255,255,0.18)", borderRadius: 50, paddingHorizontal: 10, paddingVertical: 4, borderWidth: 1, borderColor: "rgba(255,255,255,0.30)" },
+  tagPillText:    { fontSize: 10, fontWeight: "700", color: "#FFFFFF", letterSpacing: 0.3 },
+
   row:           { flexDirection: "row", alignItems: "center", paddingHorizontal: 18, paddingVertical: 16, backgroundColor: "#FDFAF4", borderRadius: 16, marginHorizontal: 16, marginBottom: 12, borderWidth: 1, borderColor: "#EDE4D4", shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 8, elevation: 3 },
   rowIcon:       { width: 52, height: 52, borderRadius: 14, alignItems: "center", justifyContent: "center", marginRight: 16 },
   rowIconDim:    { opacity: 0.4 },

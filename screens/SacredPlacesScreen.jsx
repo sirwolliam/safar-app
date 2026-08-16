@@ -38,6 +38,7 @@ const MAKKAH_SITES = [
     sub: "Sanctuary of the Prophet Ismail ﷺ", duas: 4,
     photo: require("../assets/hijr-ismail-map.jpg"),
     locatorMap: require("../assets/SP_hijr_ismail.png"),
+    locatorMapPortrait: require("../assets/SP_hijr_ismail_portrait.png"),
     description: "This low, semicircular wall on the Kabah's northwest side is understood by many scholars to have been part of the Kabah's original structure, left out only when the Quraysh rebuilt it with limited funds (Sahih Muslim). Islamic tradition holds it as the resting place of Ismail and his mother Hajar. Because it's considered part of the Kabah itself, pilgrims must walk entirely around it during Tawaf rather than cutting through.",
   },
   {
@@ -45,6 +46,7 @@ const MAKKAH_SITES = [
     sub: "Station of Prophet Ibrahim", duas: 5,
     photo: require("../assets/maqam-ibrahim-map.jpg"),
     locatorMap: require("../assets/SP_maqam_ibrahim.png"),
+    locatorMapPortrait: require("../assets/SP_maqam_ibrahim_portrait.png"),
     description: "This stone is believed to bear the footprints of Prophet Ibrahim, used as he stood to build the Kabah's upper walls. The Quran instructs believers to take the station of Ibrahim as a place of prayer (2:125), and it's Sunnah to pray two rakahs behind it after Tawaf. The stone is preserved today inside a small glass and gold enclosure just steps from the Kabah.",
   },
   {
@@ -52,6 +54,7 @@ const MAKKAH_SITES = [
     sub: "The Blessed Well", duas: 4,
     photo: require("../assets/zamzam-map.jpg"),
     locatorMap: require("../assets/SP_zamzam.png"),
+    locatorMapPortrait: require("../assets/SP_zamzam_portrait.png"),
     description: "This well traces back to Hajar, left with her infant son Ismail in the barren valley of Makkah, searching desperately for water. Tradition holds the well sprang forth beneath the infant's feet as a mercy from Allah, and it has never run dry since. The Prophet ﷺ described its water as blessed, serving whatever intention it is drunk with (Sunan Ibn Majah).",
   },
   {
@@ -59,6 +62,7 @@ const MAKKAH_SITES = [
     sub: "Second of the two blessed corners", duas: 3,
     photo: require("../assets/yemeni-corner-map.jpg"),
     locatorMap: require("../assets/SP_yemeni.png"),
+    locatorMapPortrait: require("../assets/SP_yemeni_portrait.png"),
     description: "This is the southwestern corner of the Kabah, named for facing Yemen, sitting just before the Black Stone along the path of Tawaf. The Prophet ﷺ said that touching the Black Stone and the Yemeni Corner erases sins (Musnad Ahmad). It's Sunnah to touch it if the crowd allows — without kissing it, and without gesturing toward it if unreachable.",
   },
   {
@@ -66,6 +70,7 @@ const MAKKAH_SITES = [
     sub: "Place of Say — 7 passes", duas: 8,
     photo: require("../assets/safa-marwah-map.jpg"),
     locatorMap: require("../assets/SP_safa_marwa.png"),
+    locatorMapPortrait: require("../assets/SP_safa_marwa_portrait.png"),
     description: "These two hills near the Kabah are connected by a gallery where pilgrims perform Say — walking briskly between them seven times, commemorating Hajar's search for water for her infant son. The Quran affirms both hills as being among the symbols of Allah (2:158). Say is an essential act of both Hajj and Umrah, performed immediately after Tawaf.",
   },
   {
@@ -73,6 +78,7 @@ const MAKKAH_SITES = [
     sub: "Site of the first revelation — Cave of Hira", duas: 0,
     photo: require("../assets/jabal-nur-map.jpg"),
     locatorMap: require("../assets/SP_jabal_an_nur.png"),
+    locatorMapPortrait: require("../assets/SP_jabal_an_nur_portrait.png"),
     description: "This mountain rises about 3km from the Grand Mosque, and near its summit sits the small cave where the Prophet ﷺ used to retreat for solitary reflection before prophethood. It was here that the Angel Jibril first appeared to him, delivering the opening words of Surah al-Alaq — the first revelation of the Quran. The climb is steep, taking most visitors well over an hour each way.",
   },
   {
@@ -80,6 +86,7 @@ const MAKKAH_SITES = [
     sub: "Where pilgrims press and supplicate", duas: 0,
     photo: require("../assets/multazam-map.jpg"),
     locatorMap: require("../assets/SP_al_mutazam.png"),
+    locatorMapPortrait: require("../assets/SP_al_mutazam_portrait.png"),
     description: "This is the section of the Kabah's wall between the Black Stone and the door, about two meters wide, named for the Arabic word for \"clinging.\" Ibn Abbas identified this exact spot by name (Muwatta Malik), and it's Sunnah to press one's chest, face, and hands against it while making dua. Scholars describe it as a place where supplication is especially heard.",
   },
 ];
@@ -406,7 +413,7 @@ export default function SacredPlacesScreen({ navigation }) {
           </TouchableOpacity>
           <View style={{ width: 36 }} />
         </View>
-        <Text style={s.headerTitle}>Sacred Places</Text>
+        <Text style={s.headerTitle}>{"Ziyarah\n(Sacred Places)"}</Text>
       </View>
 
       {/* ── City toggle — below header, outside ScrollView ── */}
