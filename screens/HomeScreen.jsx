@@ -889,7 +889,7 @@ export default function HomeScreen({ navigation }) {
               activeOpacity={0.78}
             >
               <View style={s.gridIconWrap}>
-                <Icon size={24} color="#FFFFFF" weight="regular" />
+                <Icon size={24} color="#4A5C48" weight="regular" />
               </View>
               <Text style={s.gridLabel}>{label}</Text>
             </TouchableOpacity>
@@ -1000,7 +1000,7 @@ export default function HomeScreen({ navigation }) {
           activeOpacity={0.85}
         >
           <View style={s.settingsTileIconBox}>
-            <Gear size={22} color="#FDFAF4" weight="regular" />
+            <Gear size={22} color="#4A5C48" weight="regular" />
           </View>
           <View style={s.settingsTileText}>
             <Text style={s.settingsTileLabel}>Settings</Text>
@@ -1549,7 +1549,7 @@ const s = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     gap: 8,
-    backgroundColor: "rgba(28,43,30,0.55)",
+    backgroundColor: "rgba(253,250,244,0.5)",
     borderRadius: 16,
     borderWidth: 1,
     borderColor: "#DDD5C0",
@@ -1565,14 +1565,14 @@ const s = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#4A5C48",
+    backgroundColor: "#4A5C4812",
     alignItems: "center",
     justifyContent: "center",
   },
   gridLabel: {
     fontSize: 13,
     fontWeight: "600",
-    color: "#FDFAF4",
+    color: "#1A1410",
     textAlign: "center",
     lineHeight: 17,
   },
@@ -2207,7 +2207,7 @@ const s = StyleSheet.create({
   settingsTile: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(28,43,30,0.55)",
+    backgroundColor: "rgba(253,250,244,0.5)",
     borderRadius: 12,
     borderWidth: 1,
     borderColor: "#E0D8CC",
@@ -2220,7 +2220,7 @@ const s = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 10,
-    backgroundColor: "#4A5C48",
+    backgroundColor: "#4A5C4812",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 12,
@@ -2230,18 +2230,18 @@ const s = StyleSheet.create({
   },
   settingsTileLabel: {
     fontSize: 16,
-    color: "#FDFAF4",
+    color: "#1A1410",
     fontWeight: "500",
     marginBottom: 2,
   },
   settingsTileSub: {
     fontSize: 13,
-    color: "rgba(253,250,244,0.75)",
+    color: "#5C534A",
     lineHeight: 18,
   },
   settingsTileArrow: {
     fontSize: 22,
-    color: "rgba(253,250,244,0.85)",
+    color: "#8A7D6A",
     marginLeft: 8,
   },
 });
