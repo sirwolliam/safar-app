@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions, Modal } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { CalendarBlank, CaretRight, Sparkle } from "phosphor-react-native";
+import { CalendarBlank, CaretRight, Sparkle, FileText, Package, HandsPraying, House } from "phosphor-react-native";
 import { CHECKLIST_ITEMS, getChecklistProgress, setItemChecked } from "../checklistStore";
 import { useFocusEffect } from "@react-navigation/native";
 
@@ -18,13 +18,20 @@ const PHASES = [
   { key: "onsite",   label: "Pilgrimage",  fullLabel: "Pilgrimage",            description: "You are here. The duas and guides are ready when you need them." },
 ];
 
-const PHASE_FRAMING = [
-  "Passport renewals, bookings, and the intention behind the trip are natural starting points this far out.",
-  "Visas, insurance, and a few conversations at home tend to fill this stretch.",
-  "Packing, prayer items, and last practical details usually take shape around now.",
-  "The final printouts, the last bag items, and a word with those staying behind.",
-  "Whatever's left is small — the rest is between you and what you came here for.",
-];
+// Same mapping as ChecklistsScreen.jsx / ChecklistDetailScreen.jsx — not exported from those files so duplicated here
+const CATEGORY_ICONS = {
+  "documents":      FileText,
+  "packing":        Package,
+  "spiritual":      HandsPraying,
+  "before-leaving": House,
+};
+
+const CATEGORY_COLORS = {
+  "documents":      "#2E4560",
+  "packing":        "#3A2F1E",
+  "spiritual":      "#C8A96A",
+  "before-leaving": "#4A5C48",
+};
 
 function phaseIndexForDays(daysOut) {
   if (daysOut > 90) return 0;
@@ -188,7 +195,6 @@ export default function HomeCountdownCard({ navigation }) {
               {PHASES.map((p, i) => (
                 <View key={p.key} style={s.timelineCell}>
                   <View style={[s.timelineDot, i === phaseIdx && s.timelineDotActive, i < phaseIdx && s.timelineDotPast]} />
-                  <Text style={[s.timelineLabel, i === phaseIdx && s.timelineLabelActive]}>{p.label}</Text>
                 </View>
               ))}
             </View>
@@ -200,7 +206,10 @@ export default function HomeCountdownCard({ navigation }) {
               <View style={s.checklistTopRow}>
                 <View style={s.checklistLabelGroup}>
                   <Text style={s.thisWeekLabel}>This week</Text>
-                  <Text style={s.thisWeekSub}>Things to focus on</Text>
+                  <Text style={s.thisWeekSub}>
+                    <Text style={s.thisWeekCount}>{activeTasks.length} </Text>
+                    things to focus on
+                  </Text>
                 </View>
                 <TouchableOpacity
                   style={s.viewAllBtn}
@@ -211,11 +220,11 @@ export default function HomeCountdownCard({ navigation }) {
                   <CaretRight size={14} color="#5C534A" weight="regular" />
                 </TouchableOpacity>
               </View>
-              <Text style={s.thisWeekFraming}>{PHASE_FRAMING[phaseIdx]}</Text>
             </View>
             <View style={s.checklistBody}>
               {activeTasks.map((task) => {
                 const isChecked = task.checked;
+                const CategoryIcon = CATEGORY_ICONS[task.categoryId];
                 return (
                   <TouchableOpacity
                     key={task.id}
@@ -223,6 +232,10 @@ export default function HomeCountdownCard({ navigation }) {
                     onPress={() => navigation?.getParent?.()?.navigate?.("Plan", { screen: "ChecklistDetail", params: { categoryId: task.categoryId, itemId: task.id } })}
                     activeOpacity={0.8}
                   >
+                    <View style={[s.categoryIconBox, { backgroundColor: CATEGORY_COLORS[task.categoryId] }]}>
+                      {CategoryIcon ? <CategoryIcon size={18} color={task.categoryId === "spiritual" ? "#4A3410" : "#C8A96A"} weight="regular" /> : null}
+                    </View>
+
                     <TouchableOpacity
                       style={[s.checkbox, isChecked ? s.checkboxChecked : null]}
                       onPress={(e) => { e.stopPropagation && e.stopPropagation(); toggleTaskChecked(task); }}
@@ -399,7 +412,9 @@ const s = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
     borderColor: "#4A5C48",
-    padding: 20,
+    paddingTop: 20,
+    paddingHorizontal: 20,
+    paddingBottom: 18,
     marginBottom: 10,
     position: "relative",
     overflow: "hidden",
@@ -507,13 +522,12 @@ const s = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginTop: 4,
-    paddingVertical: 10,
+    marginTop: 9,
+    paddingTop: 0,
+    paddingBottom: 0,
     paddingHorizontal: 4,
     borderTopWidth: 1,
     borderTopColor: "rgba(200,169,106,0.3)",
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(200,169,106,0.3)",
   },
   timelineCell: {
     alignItems: "center",
@@ -523,48 +537,39 @@ const s = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: "transparent",
+    backgroundColor: "#4A5C48",
     borderWidth: 1.5,
     borderColor: "rgba(200,169,106,0.4)",
-    marginBottom: 6,
+    marginTop: -6,
   },
   timelineDotActive: {
     backgroundColor: "#C8A96A",
     borderColor: "#C8A96A",
   },
   timelineDotPast: {
-    backgroundColor: "transparent",
+    backgroundColor: "#4A5C48",
     borderColor: "#C8A96A",
     opacity: 0.7,
-  },
-  timelineLabel: {
-    fontSize: 10,
-    color: "rgba(253,250,244,0.6)",
-    textAlign: "center",
-  },
-  timelineLabelActive: {
-    color: "#C8A96A",
-    fontWeight: "600",
   },
   checklistCard: {
     backgroundColor: "#FDFAF4",
     borderRadius: 16,
     borderWidth: 1,
     borderColor: "#E0D8CC",
-    paddingBottom: 5,
+    paddingBottom: 2,
     overflow: "hidden",
   },
   checklistHeaderStrip: {
     backgroundColor: "transparent",
     paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 10,
+    paddingTop: 12,
+    paddingBottom: 7,
   },
   checklistTopRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 4,
+    marginBottom: 1,
   },
   checklistLabelGroup: {
     flex: 1,
@@ -579,20 +584,18 @@ const s = StyleSheet.create({
     fontWeight: "600",
     textTransform: "uppercase",
     letterSpacing: 1.2,
-    marginBottom: 6,
-  },
-  thisWeekFraming: {
-    fontFamily: SERIF,
-    fontSize: 20,
-    color: "#1C1A14",
-    lineHeight: 26,
-    marginBottom: 2,
+    marginBottom: 4,
   },
   thisWeekSub: {
     fontSize: 13,
     color: "#5C534A",
     marginTop: 0,
     marginBottom: 4,
+  },
+  thisWeekCount: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#5C534A",
   },
   viewAllBtn: {
     flexDirection: "row",
@@ -617,10 +620,18 @@ const s = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: "#F0EBE1",
   },
+  categoryIconBox: {
+    width: 26,
+    height: 26,
+    borderRadius: 7,
+    marginRight: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   checkbox: {
-    width: 22,
-    height: 22,
-    borderRadius: 6,
+    width: 26,
+    height: 26,
+    borderRadius: 7,
     borderWidth: 1.5,
     borderColor: "#C8BFB2",
     marginRight: 10,
@@ -634,7 +645,7 @@ const s = StyleSheet.create({
   },
   checkboxCheck: {
     color: "#FDFAF4",
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: "700",
   },
   taskLabel: {
