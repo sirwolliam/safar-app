@@ -18,6 +18,10 @@ import { toggleBookmarkCard, isBookmarkedOnBoard } from "../bookmarkStore";
 import Svg, { Path, Defs, LinearGradient as SvgGrad, Stop, Mask, Rect, Polygon } from "react-native-svg";
 import { PATTERN_PATH } from "./headerPatternPath";
 import HomeCountdownCard from "./HomeCountdownCard";
+import HomeJourneyHero from "./HomeJourneyHero";
+import HomePrioritiesCard from "./HomePrioritiesCard";
+import HomeHeroSlideshowCompact from "./HomeHeroSlideshowCompact";
+import { sharedCardStyles } from "./sharedCardStyles";
 import TripDetailsEditor from "../TripDetailsEditor";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
@@ -27,11 +31,14 @@ import {
   ArrowRight, BookOpen, Moon, ListChecks, Users,
   PlayCircle, Wrench, Note, Gear, Info,
   SunHorizon, Compass, Heartbeat, NotePencil, CalendarBlank,
-  CaretLeft, CaretRight,
+  CaretLeft, CaretRight, CloudSun,
 } from "phosphor-react-native";
 
 const SERIF = "SourceSerif4-Regular";
 const { width: SW, height: SH } = Dimensions.get("window");
+
+const MONTH_ABBR = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const WEEKDAY_FULL = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 // ── Storage keys ──────────────────────────────────────────────────────────────
 const DEPARTURE_KEY       = "safar_departure_date_v1";
@@ -52,46 +59,6 @@ const CAL_CATEGORIES = [
 function getCalCat(id) {
   return CAL_CATEGORIES.find(c => c.id === id) ?? CAL_CATEGORIES[0];
 }
-
-// ── Hero slides ───────────────────────────────────────────────────────────────
-const HERO_SLIDES = [
-  {
-    id: "welcome",
-    image: require("../assets/kaaba_mixed.png"),
-    scrim: "rgba(8,20,12,0.28)",
-    tag: "WELCOME TO SAFAR",
-    headline: "Your companion for Hajj and Umrah",
-    sub: "Step-by-step guides, duas, smart checklists, and tools to help – one app for every step of Hajj and Umrah.",
-    cta: "Learn more",
-    ctaIsAbout: true,
-    ctaScreen: null,
-    showGreeting: false,
-  },
-  {
-    id: "media",
-    image: require("../assets/hero-media.png"),
-    scrim: "rgba(12,8,4,0.55)",
-    tag: "HELPFUL VIDEOS, PODCASTS, AND ARTICLES",
-    headline: "Learn. Prepare. Be ready.",
-    sub: "Scholarly guides, travel tips, and inspirational content to help you before, during, and after your journey.",
-    cta: "Explore Media",
-    ctaIsAbout: false,
-    ctaScreen: { tab: "Learn", screen: "Media" },
-    showGreeting: false,
-  },
-  {
-    id: "duas",
-    image: require("../assets/hero_duas.jpg"),
-    scrim: "rgba(8,16,12,0.26)",
-    tag: "DUAS & WORSHIP",
-    headline: "Duas for Every Moment",
-    sub: "A growing library of verified duas for every occasion — with audio so you can learn and practice before you go.",
-    cta: "View duas",
-    ctaIsAbout: false,
-    ctaScreen: { tab: "Practice", screen: "MyDuas" },
-    showGreeting: false,
-  },
-];
 
 // ── Prayer times (static placeholder — replace with live API / Adhan lib) ─────
 // In production: use the 'adhan' npm package with device location for live times.
@@ -155,12 +122,12 @@ function getHijriDate() {
 
 // Gregorian date formatted
 function getGregorianLabel() {
-  return new Date().toLocaleDateString("en-GB", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
+  const now = new Date();
+  const weekday = WEEKDAY_FULL[now.getDay()];
+  const day = now.getDate();
+  const month = MONTH_ABBR[now.getMonth()];
+  const year = now.getFullYear();
+  return `${weekday}, ${day} ${month} ${year}`;
 }
 
 // ── Today's du'a ──────────────────────────────────────────────────────────────
@@ -391,10 +358,10 @@ function EventsCard({ events, page, onPageChange, navigation }) {
 
 const ec = StyleSheet.create({
   card: {
-    marginHorizontal: 13,
+    marginHorizontal: 8,
     marginTop: 18,
     borderWidth: 1,
-    borderColor: "#C8BFB2",
+    borderColor: "rgba(200, 191, 178, 0.5)",
     borderRadius: 16,
     backgroundColor: "#FDFAF4",
     overflow: "hidden",
@@ -439,7 +406,6 @@ const ec = StyleSheet.create({
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function HomeScreen({ navigation }) {
-  const [heroSlide, setHeroSlide]           = useState(0);
   const [showAbout, setShowAbout]           = useState(false);
   const [showSources, setShowSources]       = useState(false);
   const [userName, setUserName]             = useState("");
@@ -453,13 +419,8 @@ export default function HomeScreen({ navigation }) {
   const [departureISO, setDepartureISO]     = useState(null);
   const [journeyType, setJourneyType]       = useState("");
   const [showTripEditor, setShowTripEditor] = useState(false);
-  const heroRef   = useRef(null);
-  const heroTimer = useRef(null);
   const insets    = useSafeAreaInsets();
 
-  // ORIGINAL: const HERO_H = Math.round(SH * 0.60) + 35;
-  // V2: Math.round(SH * 0.42)
-  const HERO_H = Math.round(SH * 0.52);
   const displayName = userName || "Pilgrim";
 
   useFocusEffect(useCallback(() => {
@@ -476,18 +437,6 @@ export default function HomeScreen({ navigation }) {
       } catch (_) {}
     }).catch(() => {});
   }, []));
-
-  // Auto-advance hero every 5s
-  useEffect(() => {
-    heroTimer.current = setInterval(() => {
-      setHeroSlide((prev) => {
-        const next = (prev + 1) % HERO_SLIDES.length;
-        heroRef.current?.scrollToIndex({ index: next, animated: true });
-        return next;
-      });
-    }, 12000);
-    return () => clearInterval(heroTimer.current);
-  }, []);
 
   // Load persisted state
   useEffect(() => {
@@ -537,17 +486,6 @@ export default function HomeScreen({ navigation }) {
     setIntroDismissed(false);
   };
 
-  const handleHeroCta = (slide) => {
-    if (slide.ctaIsAbout) { setShowAbout(true); return; }
-    if (slide.ctaScreen) {
-      if (typeof slide.ctaScreen === "string") {
-        navigation?.navigate?.(slide.ctaScreen);
-      } else {
-        navigation?.getParent?.()?.navigate?.(slide.ctaScreen.tab, { screen: slide.ctaScreen.screen, initial: false, params: { returnToTab: "Home" } });
-      }
-    }
-  };
-
   // Contextual CTA
   const ctxLabel  = planStarted
     ? "Continue: Umrah Guide, Step 2 \u2192"
@@ -558,84 +496,6 @@ export default function HomeScreen({ navigation }) {
   const { current: currentPrayer, next: nextPrayer } = getPrayerInfo();
   const hijri    = getHijriDate();
   const gregorian = getGregorianLabel();
-
-  // ── Hero slide renderer ───────────────────────────────────────────────────
-  const renderSlide = ({ item: slide }) => {
-    const isKaaba = slide.id === "welcome";
-    return (
-      <View style={{ width: SW, height: HERO_H, overflow: "hidden" }}>
-
-        {/* Ka'bah slide: custom Image so we can scale + shift it */}
-        {isKaaba ? (
-          <Image
-            source={slide.image}
-            style={{
-              position:  "absolute",
-              width:     SW * 1.15,
-              height:    HERO_H * 1.20,
-              top:       -HERO_H * 0.12 - 30,
-              left:      -(SW * 0.075),
-              resizeMode:"cover",
-            }}
-          />
-        ) : (
-          <Image
-            source={slide.image}
-            style={{ position:"absolute", width:SW, height:HERO_H, resizeMode:"cover" }}
-          />
-        )}
-
-        {/* Very light scrim — keeps photo bright */}
-        <View style={[StyleSheet.absoluteFill, { backgroundColor:"rgba(0,0,0,0.08)" }]} />
-
-        {/* Floating panel */}
-        <View style={s.heroPanel}>
-          <Text style={s.heroTag}>{slide.tag}</Text>
-
-          {slide.showGreeting ? (
-            <TouchableOpacity activeOpacity={0.85} onPress={() => setShowAbout(true)}>
-              <Text style={s.heroPanelGreeting} numberOfLines={1} adjustsFontSizeToFit>
-                {displayName}
-              </Text>
-            </TouchableOpacity>
-          ) : null}
-
-          {slide.headline ? (
-            <Text style={s.heroPanelHeadline} numberOfLines={2}>
-              {slide.headline}
-            </Text>
-          ) : null}
-
-          <Text style={s.heroPanelSub} numberOfLines={2}>
-            {slide.sub}
-          </Text>
-
-          <TouchableOpacity
-            style={s.heroPanelCta}
-            activeOpacity={0.85}
-            onPress={() => handleHeroCta(slide)}
-          >
-            <Text style={s.heroPanelCtaTxt}>{slide.cta}{"  \u2192"}</Text>
-          </TouchableOpacity>
-
-          <View style={s.heroDots}>
-            {HERO_SLIDES.map((_, i) => (
-              <TouchableOpacity
-                key={i}
-                onPress={() => {
-                  heroRef.current?.scrollToIndex({ index: i, animated: true });
-                  setHeroSlide(i);
-                }}
-              >
-                <View style={[s.dot, i === heroSlide ? s.dotActive : null]} />
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-
-      </View>
-    );
-  };
 
   // ── Prayer + calendar card (shown after intro is dismissed) ───────────────
   const PrayerCard = () => (
@@ -648,7 +508,11 @@ export default function HomeScreen({ navigation }) {
       <View style={s.prayerContentRow}>
         {/* Left: dates */}
         <View style={s.prayerDateCol}>
-          <Text style={s.prayerGregorian}>{gregorian}</Text>
+          <Text style={sharedCardStyles.eyebrowText}>TODAY</Text>
+          <View style={s.prayerDateRow}>
+            <CalendarBlank size={14} color="#8A7D6A" weight="regular" />
+            <Text style={s.prayerGregorian}>{gregorian}</Text>
+          </View>
           <Text style={s.prayerHijri}>
             {hijri.day}{" "}{hijri.month}{" "}{hijri.year}{" AH"}
           </Text>
@@ -685,7 +549,7 @@ export default function HomeScreen({ navigation }) {
         </View>
         <View style={s.prayerWeatherVertDiv} />
         <View style={s.prayerWeatherCity}>
-          <SunHorizon size={18} color="#C8A96A" weight="regular" />
+          <CloudSun size={18} color="#C8A96A" weight="regular" />
           <Text style={s.prayerWeatherLabel}>Madinah</Text>
           <Text style={s.prayerWeatherTemp}>34°C</Text>
         </View>
@@ -712,38 +576,10 @@ export default function HomeScreen({ navigation }) {
           </View>
         </View>
 
-        {/* ── HOME COUNTDOWN CARD (Phase 3a — hardcoded test data) ── */}
-        <HomeCountdownCard navigation={navigation} />
-
-        {/* ── HERO CAROUSEL ── */}
-        <FlatList
-          ref={heroRef}
-          data={HERO_SLIDES}
-          renderItem={renderSlide}
-          keyExtractor={(item) => item.id}
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          onMomentumScrollEnd={(e) => {
-            const idx = Math.round(e.nativeEvent.contentOffset.x / SW);
-            setHeroSlide(idx);
-          }}
-          style={{ height: HERO_H }}
-          getItemLayout={(_, index) => ({
-            length: SW,
-            offset: SW * index,
-            index,
-          })}
-        />
-
-        {upcomingEvents.length > 0 ? (
-          <EventsCard
-            events={upcomingEvents}
-            page={eventsPage}
-            onPageChange={setEventsPage}
-            navigation={navigation}
-          />
-        ) : null}
+        {/* ── HOME JOURNEY HERO (testing new photo-background treatment) ── */}
+        <View style={{ marginTop: 8 }}>
+          <HomeJourneyHero navigation={navigation} />
+        </View>
 
         {/* ══════════════════════════════════════════════════════════════════
             OPTION C CARD
@@ -784,6 +620,28 @@ export default function HomeScreen({ navigation }) {
             </TouchableOpacity>
           </View>
         )}
+
+        {/* ── HOME PRIORITIES CARD ── */}
+        <View style={{ marginTop: 16 }}>
+          <HomePrioritiesCard navigation={navigation} />
+        </View>
+
+        {/* ── HERO CAROUSEL (compact) ── */}
+        <View style={{ marginTop: 16 }}>
+          <HomeHeroSlideshowCompact
+            navigation={navigation}
+            onShowAbout={() => setShowAbout(true)}
+          />
+        </View>
+
+        {upcomingEvents.length > 0 ? (
+          <EventsCard
+            events={upcomingEvents}
+            page={eventsPage}
+            onPageChange={setEventsPage}
+            navigation={navigation}
+          />
+        ) : null}
 
         {/* ══════════════════════════════════════════════════════════════════
             MY JOURNEY CARD
@@ -867,7 +725,7 @@ export default function HomeScreen({ navigation }) {
         </View>
         </View>
 
-        <View style={{ backgroundColor: "#D4C9B4", paddingTop: 8 }}>
+        <View style={{ marginTop: 8 }}>
         {/* ══════════════════════════════════════════════════════════════════
             MY SHORTCUTS ICON GRID — 2×4
         ══════════════════════════════════════════════════════════════════ */}
@@ -1065,7 +923,7 @@ const s = StyleSheet.create({
 
   safe: {
     flex: 1,
-    backgroundColor: "#E8DDD0",
+    backgroundColor: "#FDFAF4",
   },
 
   // ── Hero: top-left — salam 14pt, no letterSpacing, always white ──────────
@@ -1121,93 +979,12 @@ const s = StyleSheet.create({
     lineHeight: 12,
   },
 
-  // ── Hero: bottom floating glass panel ────────────────────────────────────
-  heroPanel: {
-    position:          "absolute",
-    bottom:            20,
-    left:              18,
-    right:             18,
-    backgroundColor:   "rgba(8,20,12,0.57)",
-    borderRadius:      16,
-    paddingTop:        16,
-    paddingBottom:     14,
-    paddingHorizontal: 18,
-  },
-  heroTag: {
-    fontSize:      12,
-    color:         "rgba(200,169,106,0.90)",
-    fontWeight:    "700",
-    letterSpacing: 1.5,
-    textTransform: "uppercase",
-    marginBottom:  6,
-  },
-  heroPanelGreeting: {
-    fontSize:     22,
-    color:        "#FFFFFF",
-    fontWeight:   "400",
-    lineHeight:   28,
-    marginBottom: 4,
-  },
-  heroPanelHeadline: {
-    fontSize:     22,
-    color:        "#FFFFFF",
-    fontWeight:   "400",
-    lineHeight:   28,
-    marginBottom: 4,
-  },
-  heroPanelSub: {
-    fontSize:     13,
-    color:        "rgba(235,228,210,0.92)",
-    lineHeight:   19,
-    fontWeight:   "400",
-    marginBottom: 12,
-  },
-  heroPanelCta: {
-    backgroundColor: "#4A5C48",
-    borderRadius:    9,
-    paddingVertical: 11,
-    alignItems:      "center",
-    marginBottom:    10,
-  },
-  heroPanelCtaTxt: {
-    fontSize:      15,
-    color:         "#FFFFFF",
-    fontWeight:    "600",
-    letterSpacing: 0.3,
-  },
-
-  // ── Hero: dot indicators inside panel ─────────────────────────────────────
-  heroDots: {
-    flexDirection:  "row",
-    justifyContent: "center",
-    gap:            6,
-  },
-  dot: {
-    width:           5,
-    height:          5,
-    borderRadius:    3,
-    backgroundColor: "rgba(255,255,255,0.30)",
-  },
-  dotActive: {
-    backgroundColor: "#C8A96A",
-    width:           18,
-  },
-
-  // ── Old hero styles kept for reference — no longer used ──────────────────
-  slideContent:   { position:"absolute", bottom:14, left:22, right:22 },
-  tagText:        { fontSize:10, color:"rgba(255,255,255,0.92)", fontWeight:"700", textTransform:"uppercase", marginBottom:8 },
-  heroGreeting:   { fontFamily:SERIF, fontSize:45, color:"#FFFFFF", fontWeight:"400", lineHeight:50, marginBottom:6 },
-  heroHeadline:   { fontFamily:SERIF, fontSize:32, color:"#FFFFFF", fontWeight:"600", lineHeight:40, marginBottom:8 },
-  heroSub:        { fontSize:17, color:"rgba(255,255,255,0.88)", lineHeight:25, fontWeight:"400", marginBottom:16 },
-  heroCta:        { alignSelf:"flex-start", backgroundColor:"rgba(255,255,255,0.75)", borderRadius:4, paddingHorizontal:12, paddingVertical:5 },
-  heroCtaText:    { fontSize:12, color:"#4A5C48", fontWeight:"700" },
-
   // ── Intro card (before dismiss) ───────────────────────────────────────────
   introCard: {
-    marginHorizontal: 20,
-    marginTop: 18,
+    marginHorizontal: 8,
+    marginTop: 16,
     borderWidth: 1,
-    borderColor: "#C8BFB2",
+    borderColor: "rgba(200, 191, 178, 0.5)",
     borderRadius: 16,
     backgroundColor: "#FDFAF4",
     padding: 18,
@@ -1254,10 +1031,10 @@ const s = StyleSheet.create({
 
   // ── Prayer / calendar card (after dismiss — same outer footprint) ─────────
   prayerCard: {
-    marginHorizontal: 13,
-    marginTop: 18,
+    marginHorizontal: 8,
+    marginTop: 16,
     borderWidth: 1,
-    borderColor: "#C8BFB2",
+    borderColor: "rgba(200, 191, 178, 0.5)",
     borderRadius: 16,
     backgroundColor: "#FDFAF4",
     overflow: "hidden",
@@ -1278,16 +1055,21 @@ const s = StyleSheet.create({
     justifyContent: "center",
     gap: 5,
   },
+  prayerDateRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
   prayerGregorian: {
     fontSize: 12,
-    color: "#8A7D6A",
-    fontWeight: "500",
+    color: "#1C1A14",
+    fontWeight: "700",
     lineHeight: 17,
   },
   prayerHijri: {
     fontSize: 13,
     color: "#8A7D6A",
-    fontWeight: "600",
+    fontWeight: "400",
     lineHeight: 18,
   },
 
@@ -1361,7 +1143,7 @@ const s = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 16,
     paddingVertical: 10,
-    backgroundColor: "#F0EBE1",
+    backgroundColor: "rgba(122, 145, 118, 0.15)",
   },
   prayerWeatherCity: {
     flex: 1,
@@ -2009,8 +1791,10 @@ const s = StyleSheet.create({
   // ── Du'a card ─────────────────────────────────────────────────────────────
   duaCard: {
     backgroundColor: "#FDFAF4",
-    marginHorizontal: 14,
-    borderRadius: 18,
+    marginHorizontal: 8,
+    borderWidth: 1,
+    borderColor: "rgba(200, 191, 178, 0.5)",
+    borderRadius: 16,
     paddingHorizontal: 22,
     paddingTop: 28,
     paddingBottom: 22,
@@ -2197,7 +1981,7 @@ const s = StyleSheet.create({
   },
 
   // ── Top bar (parchment greeting + countdown above hero) ───────────────────
-  topBar:         { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", backgroundColor: "#F5F0E8", paddingHorizontal: 20, paddingBottom: 6 },
+  topBar:         { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", paddingHorizontal: 20, paddingBottom: 6 },
   topBarLeft:     { flex: 1 },
   topBarSalam:    { fontSize: 14, color: "#8A7D6A", fontWeight: "500", lineHeight: 18 },
   topBarName:     { fontFamily: "SourceSerif4-Regular", fontSize: 20, color: "#1A1410", fontWeight: "600", lineHeight: 25, marginTop: 2 },

@@ -3,3 +3,5 @@ node_modules/
 .expo/
 *.DS_Store
 versions/
+dist/
+dist/

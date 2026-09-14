@@ -1,272 +1,279 @@
 /**
  * UmrahGuideScreen.jsx — Safar
- * Hero → carousel, Umrah Du'as, Pilgrimage Map, Sacred Places, Checklist
+ * Dashboard layout: hero → countdown → journey path → start learning →
+ * along the way (resource grid) → how ready → verse card
  */
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
-  SafeAreaView, View, Text, ScrollView, TouchableOpacity,
-  ImageBackground, StyleSheet,
+  View, Text, ScrollView, TouchableOpacity,
+  Image, StyleSheet, StatusBar, Dimensions,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useFocusEffect } from "@react-navigation/native";
+import { LinearGradient } from "expo-linear-gradient";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { CalendarBlank, CaretRight, BookOpen, GraduationCap } from "phosphor-react-native";
 import { colors, spacing, radius, shadows } from "../theme";
 
-const SERIF       = "SourceSerif4-Regular";
-const STORAGE_KEY = "safar_umrah_checklist_v1";
+const SERIF    = "SourceSerif4-Regular";
+const GOLD     = "#C8A96A";
+const GOLD_TXT = "#7A5A10";
+const SAGE     = "#2D4A34";
+const SW       = Dimensions.get("window").width;
+const TILE_W   = Math.floor((SW - spacing(4) - 14) / 3);
 
-const UMRAH_CHECKLIST = [
-  { id:"uc1",  text:"Obtain a valid Umrah visa" },
-  { id:"uc2",  text:"Book flights and accommodation near the Haram" },
-  { id:"uc3",  text:"Pack Ihram garments and travel essentials" },
-  { id:"uc4",  text:"Learn the steps, duas and intentions for each act" },
-  { id:"uc5",  text:"Memorise the Talbiyah and dua for entering Ihram" },
-  { id:"uc6",  text:"Get any required vaccinations (meningitis, flu)" },
-  { id:"uc7",  text:"Plan visits to sacred sites in Makkah and Madinah" },
-  { id:"uc8",  text:"Pack comfortable walking shoes and unscented toiletries" },
-  { id:"uc9",  text:"Arrange travel insurance and emergency contacts" },
-  { id:"uc10", text:"Notify your bank of travel and exchange currency to SAR" },
-];
+const STORAGE_KEY = "safar_umrah_checklist_v1";
+const CHECKLIST_TOTAL = 10;
+
+const STEPS = ["Prepare", "Ihram", "Tawaf", "Saʿi", "Complete"];
+
+function pad(n) { return String(n).padStart(2, "0"); }
+
+function computeCountdown(iso) {
+  const ms = new Date(iso).getTime() - Date.now();
+  if (ms <= 0) return { d: "00", h: "00", m: "00", s: "00" };
+  const t = Math.floor(ms / 1000);
+  return { d: pad(Math.floor(t / 86400)), h: pad(Math.floor((t % 86400) / 3600)), m: pad(Math.floor((t % 3600) / 60)), s: pad(t % 60) };
+}
 
 export default function UmrahGuideScreen({ navigation }) {
-  const [done, setDone] = useState({});
+  const insets = useSafeAreaInsets();
+  const [tripDate, setTripDate]     = useState(null);
+  const [countdown, setCountdown]   = useState({ d: "--", h: "--", m: "--", s: "--" });
+  const [doneCount, setDoneCount]   = useState(0);
+  const timerRef = useRef(null);
 
   useEffect(() => {
-    AsyncStorage.getItem(STORAGE_KEY)
-      .then(v => { if (v) setDone(JSON.parse(v)); })
-      .catch(() => {});
+    AsyncStorage.getItem("safar_departure_date_v1").then(v => { if (v) setTripDate(v); }).catch(() => {});
   }, []);
 
-  const toggle = (id) => {
-    const next = { ...done, [id]: !done[id] };
-    setDone(next);
-    AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(next)).catch(() => {});
-  };
+  useFocusEffect(useCallback(() => {
+    AsyncStorage.getItem(STORAGE_KEY).then(v => {
+      if (v) setDoneCount(Object.values(JSON.parse(v)).filter(Boolean).length);
+    }).catch(() => {});
+  }, []));
 
-  const completedCount = Object.values(done).filter(Boolean).length;
+  useEffect(() => {
+    if (!tripDate) return;
+    const tick = () => setCountdown(computeCountdown(tripDate));
+    tick();
+    timerRef.current = setInterval(tick, 1000);
+    return () => clearInterval(timerRef.current);
+  }, [tripDate]);
+
+  const goPlan = () => navigation?.getParent?.()?.navigate?.("Plan");
 
   return (
-    <SafeAreaView style={s.safe}>
+    <View style={s.root}>
+      <StatusBar barStyle="dark-content" />
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom + 32 }}>
 
-      <View style={s.header}>
-        <TouchableOpacity style={s.backBtn} onPress={() => navigation?.goBack?.()} activeOpacity={0.8}>
-          <Text style={s.backArrow}>{"‹"}</Text>
-        </TouchableOpacity>
-        <View style={s.headerCenter}>
-          <Text style={s.headerTitle}>My Umrah Guide</Text>
-          <Text style={s.headerSub}>Step-by-step pilgrimage guide</Text>
-        </View>
-        <View style={{ width:36 }} />
-      </View>
-
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
-
-        {/* ── 1. Hero — opens Lesson Flow ── */}
-        <TouchableOpacity style={s.heroCard} onPress={() => navigation.navigate("LessonList", { guide: "umrah" })} activeOpacity={0.9}>
-          <ImageBackground
-            source={require("../assets/ihram.jpg")}
-            style={s.heroCardBg}
-            resizeMode="cover"
-          >
-            <View style={s.heroCardScrim} />
-            <View style={s.heroCardTop}>
-              <View style={s.badge}><Text style={s.badgeTxt}>UMRAH 101</Text></View>
-              <Text style={s.heroArrow}>{"›"}</Text>
-            </View>
-            <View style={s.heroCardBottom}>
-              <Text style={s.heroCardTitle}>Visual Step-by-Step Guide</Text>
-              <Text style={s.heroCardSub}>10 lessons — from your first steps to returning home</Text>
-            </View>
-          </ImageBackground>
-        </TouchableOpacity>
-
-        {/* ── 2. Umrah Du'as — full width ── */}
-        <TouchableOpacity
-          style={s.fullCard}
-          activeOpacity={0.88}
-          onPress={() => navigation?.navigate?.("PilgrimageDuas", { mode:"umrah" })}
-        >
-          <ImageBackground
-            source={require("../assets/journey3.png")}
-            style={{ flex:1 }}
-            imageStyle={{ borderRadius:14 }}
-            resizeMode="cover"
-          >
-            <View style={[s.fullCardScrim, { backgroundColor:"rgba(10,24,16,0.42)" }]} />
-            <View style={s.fullCardInner}>
-              <Text style={s.fullCardEyebrow}>{"DUAS"}</Text>
-              <Text style={s.fullCardTitle}>{"Umrah Duas"}</Text>
-              <Text style={s.fullCardSub}>{"23 duas for every step of your Umrah"}</Text>
-            </View>
-          </ImageBackground>
-        </TouchableOpacity>
-
-        {/* ── 3. Watch & Listen ── */}
-        <TouchableOpacity
-          style={s.fullCard}
-          activeOpacity={0.88}
-          onPress={() => navigation?.navigate?.("Media", { filter:"umrah" })}
-        >
-          <ImageBackground
-            source={require("../assets/focus_mode.jpg")}
-            style={{ flex:1 }}
-            imageStyle={{ borderRadius:14 }}
-            resizeMode="cover"
-          >
-            <View style={[s.fullCardScrim, { backgroundColor:"rgba(10,16,24,0.48)" }]} />
-            <View style={s.fullCardInner}>
-              <Text style={s.fullCardEyebrow}>VIDEOS & PODCASTS</Text>
-              <Text style={s.fullCardTitle}>Watch & Listen</Text>
-              <Text style={s.fullCardSub}>Curated videos, podcasts and articles for Umrah</Text>
-            </View>
-          </ImageBackground>
-        </TouchableOpacity>
-
-        {/* ── 4. Shop Essentials ── */}
-        <TouchableOpacity
-          style={s.fullCard}
-          activeOpacity={0.88}
-          onPress={() => navigation?.navigate?.("Shop", { category:"all" })}
-        >
-          <ImageBackground
-            source={require("../assets/what_to_expect.jpg")}
-            style={{ flex:1 }}
-            imageStyle={{ borderRadius:14 }}
-            resizeMode="cover"
-          >
-            <View style={[s.fullCardScrim, { backgroundColor:"rgba(10,20,14,0.50)" }]} />
-            <View style={s.fullCardInner}>
-              <Text style={s.fullCardEyebrow}>ESSENTIALS</Text>
-              <Text style={s.fullCardTitle}>Shop Umrah Essentials</Text>
-              <Text style={s.fullCardSub}>Ihram, sandals, duas books and more</Text>
-            </View>
-          </ImageBackground>
-        </TouchableOpacity>
-
-        {/* ── 5 & 6. Half-width cards ── */}
-        <View style={s.halfRow}>
-          <TouchableOpacity
-            style={[s.halfCard, { marginRight:6 }]}
-            activeOpacity={0.88}
-            onPress={() => navigation?.navigate?.("MapStepList", { guide: "umrah" })}
-          >
-            <ImageBackground
-              source={require("../assets/kaaba_map.png")}
-              style={{ flex:1 }}
-              imageStyle={{ borderRadius:14 }}
-              resizeMode="cover"
-            >
-              <View style={[s.halfScrim, { backgroundColor:"rgba(8,14,24,0.44)" }]} />
-              <View style={s.halfInner}>
-                <Text style={s.halfEyebrow}>ROUTE MAP</Text>
-                <Text style={s.halfTitle}>{"Pilgrimage\nMap"}</Text>
-              </View>
-            </ImageBackground>
+        {/* ── HERO ── */}
+        <View style={[s.hero, { paddingTop: insets.top + 12 }]}>
+          <TouchableOpacity style={s.backBtn} onPress={() => navigation?.goBack?.()} activeOpacity={0.8}>
+            <Text style={s.backArrow}>{"‹"}</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[s.halfCard, { marginLeft:6 }]}
-            activeOpacity={0.88}
-            onPress={() => navigation?.navigate?.("SacredPlaces")}
-          >
-            <ImageBackground
-              source={require("../assets/medina.png")}
-              style={{ flex:1 }}
-              imageStyle={{ borderRadius:14 }}
-              resizeMode="cover"
-            >
-              <View style={[s.halfScrim, { backgroundColor:"rgba(10,20,30,0.40)" }]} />
-              <View style={s.halfInner}>
-                <Text style={s.halfEyebrow}>EXPLORE</Text>
-                <Text style={s.halfTitle}>{"Sacred\nPlaces"}</Text>
-              </View>
-            </ImageBackground>
-          </TouchableOpacity>
-        </View>
-
-        {/* ── 5. Checklist ── */}
-        <View style={s.sectionHeader}>
-          <Text style={s.sectionTitle}>My Umrah Checklist</Text>
-          <Text style={s.sectionCount}>{completedCount}/{UMRAH_CHECKLIST.length} done</Text>
-        </View>
-        <View style={s.progWrap}>
-          <View style={s.progTrack}>
-            <View style={[s.progFill, { width: ((completedCount / UMRAH_CHECKLIST.length) * 100) + "%" }]} />
+          <View style={s.heroRow}>
+            <View style={s.heroLeft}>
+              <View style={s.guidePill}><Text style={s.guidePillTxt}>UMRAH GUIDE</Text></View>
+              <Text style={s.heroHeadline}>{"Your journey\nof devotion,\nmade simple."}</Text>
+              <Text style={s.heroSub}>{"Everything you need to learn, prepare, and perform Umrah with confidence."}</Text>
+            </View>
+            <View style={s.heroImgWrap}>
+              <Image source={require("../assets/kaaba_mixed.png")} style={s.heroImg} resizeMode="cover" />
+              <LinearGradient colors={[colors.background, "transparent"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={s.heroFade} />
+            </View>
           </View>
         </View>
-        <View style={s.checklist}>
-          {UMRAH_CHECKLIST.map((item, idx) => (
-            <TouchableOpacity
-              key={item.id}
-              style={idx < UMRAH_CHECKLIST.length - 1 ? [s.checkRow, s.checkRowBorder] : s.checkRow}
-              onPress={() => toggle(item.id)}
-              activeOpacity={0.8}
-            >
-              <View style={done[item.id] ? [s.checkBox, s.checkBoxDone] : s.checkBox}>
-                {done[item.id] ? <Text style={s.checkMark}>{"✓"}</Text> : null}
-              </View>
-              <Text style={done[item.id] ? [s.checkTxt, s.checkTxtDone] : s.checkTxt}>{item.text}</Text>
+
+        <View style={s.body}>
+
+          {/* ── COUNTDOWN ── */}
+          <View style={s.card}>
+            <Text style={s.countLabel}>UMRAH COUNTDOWN</Text>
+            <Text style={s.countSub}>Your journey begins in</Text>
+            <View style={s.countRow}>
+              {[{ v: countdown.d, u: "DAYS" }, { v: countdown.h, u: "HRS" }, { v: countdown.m, u: "MINS" }, { v: countdown.s, u: "SECS" }].map((c, i) => (
+                <React.Fragment key={c.u}>
+                  {i > 0 ? <Text style={s.countColon}>{":"}</Text> : null}
+                  <View style={s.countBlock}>
+                    <Text style={s.countNum}>{c.v}</Text>
+                    <Text style={s.countUnit}>{c.u}</Text>
+                  </View>
+                </React.Fragment>
+              ))}
+              <View style={{ flex: 1 }} />
+              <Image source={require("../assets/kaaba_framed.png")} style={s.countImg} resizeMode="contain" />
+            </View>
+            <TouchableOpacity style={s.updateRow} onPress={goPlan} activeOpacity={0.8}>
+              <CalendarBlank size={13} color={GOLD_TXT} weight="regular" />
+              <Text style={[s.updateTxt, { color: GOLD_TXT }]}>Edit date</Text>
+              <View style={{ flex: 1 }} />
+              <CaretRight size={13} color={GOLD_TXT} weight="bold" />
             </TouchableOpacity>
-          ))}
+          </View>
+
+          {/* ── JOURNEY PATH ── */}
+          <Text style={s.sectionTitle}>Your Umrah journey</Text>
+          <Text style={s.sectionSub}>Follow the path to completion.</Text>
+          <View style={s.stepsRow}>
+            {STEPS.map((step, i) => (
+              <React.Fragment key={step}>
+                <View style={s.stepItem}>
+                  <View style={s.stepDot} />
+                  <Text style={s.stepLbl}>{step}</Text>
+                </View>
+                {i < STEPS.length - 1 ? <View style={s.stepLine} /> : null}
+              </React.Fragment>
+            ))}
+          </View>
+
+          {/* ── START LEARNING ── */}
+          <TouchableOpacity style={s.learnCard} onPress={() => navigation.navigate("LessonList", { guide: "umrah" })} activeOpacity={0.88}>
+            <View style={[s.iconCircle, { backgroundColor: SAGE }]}>
+              <BookOpen size={24} color="#FDFAF4" weight="regular" />
+            </View>
+            <View style={s.learnText}>
+              <Text style={s.learnTitle}>Start your learning path</Text>
+              <Text style={s.learnSub}>Step-by-step lessons for every stage of Umrah.</Text>
+            </View>
+            <View style={s.learnArrow}>
+              <CaretRight size={18} color={colors.subtext} weight="bold" />
+            </View>
+          </TouchableOpacity>
+
+          {/* ── ALONG THE WAY ── */}
+          <Text style={s.sectionTitle}>Along the way</Text>
+          <Text style={s.sectionSub}>Essential tools and resources for your journey.</Text>
+          <View style={s.grid}>
+            <TouchableOpacity style={s.tile} activeOpacity={0.8} onPress={() => navigation?.navigate?.("PilgrimageDuas", { mode: "umrah" })}>
+              <Text style={s.tileTitle}>Duas</Text>
+              <Text style={s.tileDesc}>{"Essential duas\nfor every stage."}</Text>
+              <CaretRight size={11} color={colors.subtext} weight="bold" style={{ alignSelf: "flex-end", marginTop: 6 }} />
+            </TouchableOpacity>
+            <TouchableOpacity style={s.tile} activeOpacity={0.8} onPress={() => navigation?.navigate?.("Media", { filter: "umrah" })}>
+              <Text style={s.tileTitle}>Videos & Media</Text>
+              <Text style={s.tileDesc}>{"Watch, listen and\nlearn more."}</Text>
+              <CaretRight size={11} color={colors.subtext} weight="bold" style={{ alignSelf: "flex-end", marginTop: 6 }} />
+            </TouchableOpacity>
+            <TouchableOpacity style={s.tile} activeOpacity={0.8} onPress={() => navigation?.navigate?.("Shop", { category: "all" })}>
+              <Text style={s.tileTitle}>Essentials</Text>
+              <Text style={s.tileDesc}>{"Hand-picked items\nfor your journey."}</Text>
+              <CaretRight size={11} color={colors.subtext} weight="bold" style={{ alignSelf: "flex-end", marginTop: 6 }} />
+            </TouchableOpacity>
+            <TouchableOpacity style={s.tile} activeOpacity={0.8} onPress={() => navigation?.navigate?.("MapStepList", { guide: "umrah" })}>
+              <Text style={s.tileTitle}>Pilgrimage Map</Text>
+              <Text style={s.tileDesc}>{"See where each\nstep takes place."}</Text>
+              <CaretRight size={11} color={colors.subtext} weight="bold" style={{ alignSelf: "flex-end", marginTop: 6 }} />
+            </TouchableOpacity>
+            <TouchableOpacity style={s.tile} activeOpacity={0.8} onPress={() => navigation?.navigate?.("SacredPlaces")}>
+              <Text style={s.tileTitle}>Sacred Places</Text>
+              <Text style={s.tileDesc}>{"Places to know\nand visit."}</Text>
+              <CaretRight size={11} color={colors.subtext} weight="bold" style={{ alignSelf: "flex-end", marginTop: 6 }} />
+            </TouchableOpacity>
+            <TouchableOpacity style={s.tile} activeOpacity={0.8} onPress={goPlan}>
+              <Text style={s.tileTitle}>Umrah Checklist</Text>
+              <Text style={s.tileDesc}>{doneCount + " of " + CHECKLIST_TOTAL + " tasks\ncompleted"}</Text>
+              <View style={s.tileBar}><View style={[s.tileBarFill, { width: ((doneCount / CHECKLIST_TOTAL) * 100) + "%" }]} /></View>
+            </TouchableOpacity>
+          </View>
+
+          {/* ── HOW READY ── */}
+          <View style={s.quizCard}>
+            <View style={[s.iconCircle, { backgroundColor: SAGE }]}>
+              <GraduationCap size={22} color="#FDFAF4" weight="regular" />
+            </View>
+            <View style={s.quizText}>
+              <Text style={s.quizTitle}>How ready are you?</Text>
+              <Text style={s.quizSub}>{"Test your knowledge in Practice."}</Text>
+            </View>
+            <TouchableOpacity style={[s.quizBtn, { backgroundColor: GOLD }]} activeOpacity={0.85} onPress={() => navigation?.getParent?.()?.navigate?.("Practice")}>
+              <Text style={s.quizBtnTxt}>Take Quiz</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* ── VERSE CARD ── */}
+          <View style={s.verseCard}>
+            <Image source={require("../assets/kaaba_sunset.png")} style={StyleSheet.absoluteFillObject} resizeMode="cover" />
+            <LinearGradient colors={["rgba(20,14,6,0.70)", "rgba(20,14,6,0.90)"]} style={StyleSheet.absoluteFillObject} />
+            <Text style={s.verseOpen}>{"“"}</Text>
+            <Text style={s.verseArabic}>{"وَأَتِمُوا الْحَجَّ وَالْعُمْرَةَ لِللَّهِ"}</Text>
+            <Text style={s.verseTr}>{"“And complete the Hajj and Umrah for Allah.”"}</Text>
+            <Text style={s.verseRef}>{"– Quran 2:196"}</Text>
+          </View>
+
         </View>
-
-        <View style={{ height:spacing(5) }} />
       </ScrollView>
-
-    </SafeAreaView>
+    </View>
   );
 }
 
 const s = StyleSheet.create({
-  safe:   { flex:1, backgroundColor:colors.background },
-  scroll: { paddingHorizontal:spacing(2.5), paddingTop:spacing(1.5) },
+  root: { flex: 1, backgroundColor: colors.background },
 
-  header:        { flexDirection:"row", alignItems:"center", paddingHorizontal:spacing(2.5), paddingVertical:spacing(1.75), backgroundColor:colors.background },
-  backBtn:       { width:36, height:36, borderRadius:18, backgroundColor:colors.card, borderWidth:1, borderColor:colors.border, alignItems:"center", justifyContent:"center", ...shadows.card },
-  backArrow:     { fontSize:22, color:colors.text, lineHeight:26 },
-  headerCenter:  { flex:1, alignItems:"center" },
-  headerTitle:   { fontFamily:SERIF, fontSize:28, color:colors.text, fontWeight:"400" },
-  headerSub:     { fontSize:13, color:colors.subtext, marginTop:2 },
+  hero:      { backgroundColor: colors.background, paddingHorizontal: spacing(2), paddingBottom: spacing(2) },
+  backBtn:   { width: 36, height: 36, borderRadius: 18, backgroundColor: "rgba(0,0,0,0.07)", alignItems: "center", justifyContent: "center", marginBottom: 10 },
+  backArrow: { fontSize: 24, color: colors.text, lineHeight: 28, marginTop: -2 },
+  heroRow:   { flexDirection: "row", alignItems: "flex-start" },
+  heroLeft:  { flex: 1, paddingRight: 8 },
+  guidePill: { alignSelf: "flex-start", backgroundColor: GOLD, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 5, marginBottom: 12 },
+  guidePillTxt: { fontSize: 11, fontWeight: "700", color: "#FDFAF4", letterSpacing: 0.6 },
+  heroHeadline: { fontFamily: SERIF, fontSize: 28, color: colors.text, lineHeight: 35, marginBottom: 10, fontWeight: "600" },
+  heroSub:   { fontSize: 13, color: colors.subtext, lineHeight: 19 },
+  heroImgWrap: { width: 144, height: 188, position: "relative" },
+  heroImg:   { width: "100%", height: "100%", borderRadius: 16 },
+  heroFade:  { position: "absolute", top: 0, bottom: 0, left: 0, width: 36 },
 
-  // Hero — no borderRadius
-  heroCard:        { overflow:"hidden", height:220, marginBottom:spacing(2), ...shadows.card },
-  heroCardBg:      { flex:1, justifyContent:"space-between" },
-  heroCardScrim:   { ...StyleSheet.absoluteFillObject, backgroundColor:"rgba(10,8,4,0.46)" },
-  heroCardTop:     { flexDirection:"row", justifyContent:"space-between", alignItems:"center", padding:spacing(2) },
-  badge:           { backgroundColor:"#fff", borderRadius:radius.pill, paddingHorizontal:spacing(1.75), paddingVertical:spacing(0.75) },
-  badgeTxt:        { fontFamily:SERIF, fontSize:13, color:colors.primary, fontWeight:"700" },
-  heroArrow:       { fontSize:28, color:"rgba(255,255,255,0.7)" },
-  heroCardBottom:  { padding:spacing(2.5), paddingTop:0 },
-  heroCardTitle:   { fontFamily:SERIF, fontSize:26, color:"#fff", fontWeight:"400", marginBottom:5 },
-  heroCardSub:     { fontSize:14, color:"rgba(255,255,255,0.75)" },
+  body: { paddingHorizontal: spacing(2) },
 
-  // Full-width Du'as card
-  fullCard:        { height:130, borderRadius:14, overflow:"hidden", marginBottom:spacing(1.5), ...shadows.card },
-  fullCardScrim:   { ...StyleSheet.absoluteFillObject, borderRadius:14 },
-  fullCardInner:   { flex:1, justifyContent:"flex-end", padding:16 },
-  fullCardEyebrow: { fontSize:9, color:"rgba(255,255,255,0.68)", fontWeight:"700", textTransform:"uppercase", marginBottom:4 },
-  fullCardTitle:   { fontFamily:SERIF, fontSize:22, color:"#FFFFFF", fontWeight:"600", marginBottom:3 },
-  fullCardSub:     { fontSize:13, color:"rgba(255,255,255,0.75)" },
+  card:     { backgroundColor: colors.card, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, padding: spacing(2), marginBottom: spacing(2.5), ...shadows.xs },
+  countTop: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 4 },
+  countLabel: { fontSize: 11, fontWeight: "700", letterSpacing: 1.1, color: GOLD_TXT },
+  editBtn:  { flexDirection: "row", alignItems: "center", gap: 4 },
+  editTxt:  { fontSize: 12, color: colors.subtext },
+  countSub: { fontSize: 13, color: colors.subtext, marginBottom: 10 },
+  countRow: { flexDirection: "row", alignItems: "flex-end", marginBottom: 10 },
+  countBlock: { alignItems: "center" },
+  countNum: { fontFamily: SERIF, fontSize: 30, color: colors.text, fontWeight: "600" },
+  countUnit:{ fontSize: 9, fontWeight: "700", color: colors.subtext, letterSpacing: 0.4, marginTop: 2 },
+  countColon: { fontSize: 26, color: colors.subtext, marginHorizontal: 5, marginBottom: 14, lineHeight: 34 },
+  countImg: { width: 95, height: 95, marginLeft: 8, marginBottom: -4 },
+  updateRow:{ flexDirection: "row", alignItems: "center", gap: 6, borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 10 },
+  updateTxt:{ fontSize: 13, color: GOLD_TXT, fontWeight: "500" },
 
-  // Half-width cards row
-  halfRow:    { flexDirection:"row", marginBottom:spacing(2.5) },
-  halfCard:   { flex:1, height:130, borderRadius:14, overflow:"hidden", ...shadows.card },
-  halfScrim:  { ...StyleSheet.absoluteFillObject, borderRadius:14 },
-  halfInner:  { flex:1, justifyContent:"flex-end", padding:14 },
-  halfEyebrow:{ fontSize:9, color:"rgba(255,255,255,0.65)", fontWeight:"700", textTransform:"uppercase", marginBottom:4 },
-  halfTitle:  { fontFamily:SERIF, fontSize:18, color:"#FFFFFF", fontWeight:"600", lineHeight:23 },
+  sectionTitle: { fontFamily: SERIF, fontSize: 20, color: colors.text, marginBottom: 3, marginTop: spacing(1.5) },
+  sectionSub:   { fontSize: 13, color: colors.subtext, marginBottom: 12 },
 
-  // Checklist
-  sectionHeader: { flexDirection:"row", alignItems:"center", justifyContent:"space-between", marginBottom:spacing(1) },
-  sectionTitle:  { fontFamily:SERIF, fontSize:20, color:colors.text },
-  sectionCount:  { fontSize:13, color:colors.subtext },
-  progWrap:      { marginBottom:spacing(1.5) },
-  progTrack:     { height:4, backgroundColor:colors.border, borderRadius:2, overflow:"hidden" },
-  progFill:      { height:"100%", backgroundColor:colors.primary, borderRadius:2 },
-  checklist:     { backgroundColor:colors.card, borderRadius:radius.lg, borderWidth:1, borderColor:colors.border, overflow:"hidden", ...shadows.card },
-  checkRow:      { flexDirection:"row", alignItems:"center", gap:spacing(1.5), padding:spacing(1.75) },
-  checkRowBorder:{ borderBottomWidth:1, borderBottomColor:colors.border },
-  checkBox:      { width:24, height:24, borderRadius:12, borderWidth:1.5, borderColor:colors.border, alignItems:"center", justifyContent:"center", flexShrink:0 },
-  checkBoxDone:  { backgroundColor:colors.primary, borderColor:colors.primary },
-  checkMark:     { fontSize:12, color:"#fff", fontWeight:"700" },
-  checkTxt:      { flex:1, fontFamily:SERIF, fontSize:15, color:colors.text, lineHeight:21 },
-  checkTxtDone:  { color:colors.subtext, textDecorationLine:"line-through" },
+  stepsRow: { flexDirection: "row", alignItems: "center", marginBottom: spacing(2.5), paddingHorizontal: 2 },
+  stepItem: { alignItems: "center" },
+  stepDot:  { width: 10, height: 10, borderRadius: 5, backgroundColor: GOLD, marginBottom: 6 },
+  stepLine: { flex: 1, height: 1.5, backgroundColor: GOLD, opacity: 0.35, marginBottom: 16 },
+  stepLbl:  { fontSize: 10, color: colors.subtext, textAlign: "center", maxWidth: 50 },
+
+  learnCard:  { flexDirection: "row", alignItems: "center", backgroundColor: colors.card, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, padding: spacing(1.75), marginBottom: spacing(2.5), ...shadows.xs },
+  iconCircle: { width: 46, height: 46, borderRadius: 13, alignItems: "center", justifyContent: "center", marginRight: 14 },
+  learnText:  { flex: 1 },
+  learnTitle: { fontFamily: SERIF, fontSize: 16, color: colors.text, marginBottom: 3 },
+  learnSub:   { fontSize: 12, color: colors.subtext, lineHeight: 17 },
+  learnArrow: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.background, alignItems: "center", justifyContent: "center" },
+
+  grid: { flexDirection: "row", flexWrap: "wrap", gap: 7, marginBottom: spacing(2.5) },
+  tile: { width: TILE_W, backgroundColor: colors.card, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, padding: 10, minHeight: 88, ...shadows.xs },
+  tileTitle: { fontSize: 13, fontWeight: "700", color: colors.text, marginBottom: 4, lineHeight: 17 },
+  tileDesc:  { fontSize: 11, color: colors.subtext, lineHeight: 15, flex: 1 },
+  tileBar:     { height: 3, backgroundColor: colors.border, borderRadius: 2, marginTop: 8, overflow: "hidden" },
+  tileBarFill: { height: "100%", backgroundColor: GOLD, borderRadius: 2 },
+
+  quizCard: { flexDirection: "row", alignItems: "center", backgroundColor: colors.card, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, padding: spacing(1.75), marginBottom: spacing(2.5), ...shadows.xs },
+  quizText: { flex: 1 },
+  quizTitle:{ fontFamily: SERIF, fontSize: 16, color: colors.text, marginBottom: 2 },
+  quizSub:  { fontSize: 12, color: colors.subtext },
+  quizBtn:  { borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10 },
+  quizBtnTxt: { fontSize: 13, fontWeight: "700", color: "#FDFAF4" },
+
+  verseCard:  { borderRadius: radius.lg, overflow: "hidden", padding: spacing(2.5), minHeight: 150, justifyContent: "center", ...shadows.card },
+  verseOpen:  { fontFamily: SERIF, fontSize: 36, color: GOLD, lineHeight: 36, marginBottom: -2 },
+  verseArabic:{ fontFamily: SERIF, fontSize: 20, color: "#FDFAF4", textAlign: "right", lineHeight: 34, marginBottom: 8 },
+  verseTr:    { fontFamily: SERIF, fontSize: 14, color: "rgba(255,255,255,0.88)", fontStyle: "italic", lineHeight: 21, marginBottom: 4 },
+  verseRef:   { fontSize: 12, color: "rgba(255,255,255,0.60)" },
 });
