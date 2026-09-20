@@ -19,8 +19,10 @@ import Svg, { Path, Defs, LinearGradient as SvgGrad, Stop, Mask, Rect, Polygon }
 import { PATTERN_PATH } from "./headerPatternPath";
 import HomeCountdownCard from "./HomeCountdownCard";
 import HomeJourneyHero from "./HomeJourneyHero";
+import HomeGuidesCard from "./HomeGuidesCard";
 import HomePrioritiesCard from "./HomePrioritiesCard";
-import HomeHeroSlideshowCompact from "./HomeHeroSlideshowCompact";
+import HomeDailyLessonCard from "./HomeDailyLessonCard";
+import HomeHeroSlideshowClassic from "./HomeHeroSlideshowClassic";
 import { sharedCardStyles } from "./sharedCardStyles";
 import TripDetailsEditor from "../TripDetailsEditor";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -571,14 +573,27 @@ export default function HomeScreen({ navigation }) {
             <Text style={s.topBarSalam}>{"As-salamu alaykum"}</Text>
             <Text style={s.topBarName}>{displayName}</Text>
           </View>
-          <View style={s.topBarRight}>
-            {/* Wordmark placeholder — logo to be added here later */}
+          <View style={s.topBarRightStack}>
+            <Text style={s.wordmarkPlaceholder}>safar</Text>
+            <TouchableOpacity
+              style={s.journeyPill}
+              onPress={() => setShowTripEditor(true)}
+              activeOpacity={0.85}
+            >
+              <Text style={s.journeyPillText}>
+                {journeyType === "hajj" ? "Hajj" : journeyType === "umrah" ? "Umrah" : "Learning"}
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
 
         {/* ── HOME JOURNEY HERO (testing new photo-background treatment) ── */}
         <View style={{ marginTop: 8 }}>
-          <HomeJourneyHero navigation={navigation} />
+          {(journeyType === "umrah" || journeyType === "hajj") && departureISO ? (
+            <HomeJourneyHero navigation={navigation} onEditTrip={() => setShowTripEditor(true)} />
+          ) : (
+            <HomeGuidesCard navigation={navigation} />
+          )}
         </View>
 
         {/* ══════════════════════════════════════════════════════════════════
@@ -621,15 +636,21 @@ export default function HomeScreen({ navigation }) {
           </View>
         )}
 
+        {/* ── HOME DAILY LESSON CARD ── */}
+        <View style={{ marginTop: 16 }}>
+          <HomeDailyLessonCard navigation={navigation} />
+        </View>
+
         {/* ── HOME PRIORITIES CARD ── */}
         <View style={{ marginTop: 16 }}>
           <HomePrioritiesCard navigation={navigation} />
         </View>
 
-        {/* ── HERO CAROUSEL (compact) ── */}
+        {/* ── HERO CAROUSEL (classic) ── */}
         <View style={{ marginTop: 16 }}>
-          <HomeHeroSlideshowCompact
+          <HomeHeroSlideshowClassic
             navigation={navigation}
+            displayName={displayName}
             onShowAbout={() => setShowAbout(true)}
           />
         </View>
@@ -986,7 +1007,7 @@ const s = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(200, 191, 178, 0.5)",
     borderRadius: 16,
-    backgroundColor: "#FDFAF4",
+    backgroundColor: "#F9F4E8",
     padding: 18,
     shadowColor: "#4A2E10",
     shadowOffset: { width: 0, height: 2 },
@@ -1036,7 +1057,7 @@ const s = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(200, 191, 178, 0.5)",
     borderRadius: 16,
-    backgroundColor: "#FDFAF4",
+    backgroundColor: "#F9F4E8",
     overflow: "hidden",
     shadowColor: "#4A2E10",
     shadowOffset: { width: 0, height: 2 },
@@ -1096,7 +1117,7 @@ const s = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: "#B8922A",
+    backgroundColor: "#7A9176",
   },
   // Next prayer dot — muted
   prayerNextDot: {
@@ -1143,7 +1164,7 @@ const s = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 16,
     paddingVertical: 10,
-    backgroundColor: "rgba(122, 145, 118, 0.15)",
+    backgroundColor: "rgba(122, 145, 118, 0.19)",
   },
   prayerWeatherCity: {
     flex: 1,
@@ -1986,6 +2007,31 @@ const s = StyleSheet.create({
   topBarSalam:    { fontSize: 14, color: "#8A7D6A", fontWeight: "500", lineHeight: 18 },
   topBarName:     { fontFamily: "SourceSerif4-Regular", fontSize: 20, color: "#1A1410", fontWeight: "600", lineHeight: 25, marginTop: 2 },
   topBarRight:    { flexDirection: "row", alignItems: "baseline", paddingTop: 2 },
+  topBarRightStack: {
+    alignItems: "flex-end",
+    gap: 4,
+  },
+  wordmarkPlaceholder: {
+    fontFamily: "SourceSerif4-Regular",
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#1A1410",
+    letterSpacing: 0.5,
+  },
+  journeyPill: {
+    backgroundColor: "transparent",
+    borderWidth: 1,
+    borderColor: "#7A9176",
+    paddingHorizontal: 12,
+    paddingVertical: 3,
+    borderRadius: 20,
+  },
+  journeyPillText: {
+    fontSize: 12,
+    color: "#7A9176",
+    fontWeight: "600",
+    letterSpacing: 0.3,
+  },
   topBarDaysNum:  { fontSize: 20, color: "#1A1410", fontWeight: "700", lineHeight: 22 },
   topBarDaysLabel:{ fontSize: 13, color: "#8A7D6A", fontWeight: "500", lineHeight: 18 },
   settingsTile: {

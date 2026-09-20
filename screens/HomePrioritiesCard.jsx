@@ -134,7 +134,7 @@ const s = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(200, 191, 178, 0.5)",
     borderRadius: 16,
-    backgroundColor: "#FDFAF4",
+    backgroundColor: "#F9F4E8",
   },
   headerRow: {
     flexDirection: "row",
@@ -179,7 +179,7 @@ const s = StyleSheet.create({
     alignItems: "center",
     borderWidth: 1,
     borderColor: "rgba(200, 191, 178, 0.35)",
-    backgroundColor: "rgba(122, 145, 118, 0.08)",
+    backgroundColor: "rgba(122, 145, 118, 0.13)",
     borderRadius: 14,
     paddingVertical: 11,
     paddingHorizontal: 10,

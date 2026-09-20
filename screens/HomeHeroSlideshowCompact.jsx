@@ -1,27 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import { View, Text, TouchableOpacity, Image, FlatList, StyleSheet, Dimensions } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import { sharedCardStyles } from "./sharedCardStyles";
 import { HERO_SLIDES } from "./HomeHeroSlideshowClassic";
 
-const SERIF = "SourceSerif4-Regular";
 const SW = Dimensions.get("window").width;
-
-// Visible card sizing — inset 8px each side, matching the marginHorizontal: 8
-// convention used by every other card on Home.
 const CARD_W = SW - 16;
 const CARD_H = 210;
-const IMAGE_W = Math.round(CARD_W * 0.49);
-const TEXT_COL_W = Math.round(CARD_W * 0.52);
-const GRADIENT_W = 60;
-
-// NOTE: FlatList paging/offset math (getItemLayout, snapToInterval, the scroll-end
-// index calc) must use SW, not CARD_W. Each rendered item's actual footprint in the
-// scroll content is CARD_W + marginHorizontal*2 = SW (RN flexbox margins don't
-// collapse), so SW is the true per-slide advance distance. Using CARD_W there would
-// under-measure by 16px per slide and the snap position would drift out of sync with
-// the dot indicator as the user pages through.
-const PAGE_W = SW;
+const TEXT_COL_W = Math.round(SW * 0.33);   // hard 33% cap
+const PAGE_W = SW;                            // FlatList paging math must use SW, not CARD_W (item footprint includes the 8px margin on each side)
 
 export default function HomeHeroSlideshowCompact({ navigation, onShowAbout }) {
   const [heroSlide, setHeroSlide] = useState(0);
@@ -56,13 +42,7 @@ export default function HomeHeroSlideshowCompact({ navigation, onShowAbout }) {
       <View style={s.card}>
         <Image
           source={slide.image}
-          style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: IMAGE_W, resizeMode: "cover" }}
-        />
-        <LinearGradient
-          colors={["#4A5C48", "rgba(74,92,72,0)"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={{ position: "absolute", left: CARD_W - IMAGE_W, top: 0, bottom: 0, width: GRADIENT_W }}
+          style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0, resizeMode: "cover" }}
         />
 
         <View style={s.textCol}>
@@ -126,50 +106,55 @@ const s = StyleSheet.create({
     marginHorizontal: 8,
     borderRadius: 16,
     overflow: "hidden",
-    backgroundColor: "#4A5C48",
     position: "relative",
+    backgroundColor: "#4A5C48",
   },
   textCol: {
     position: "absolute",
-    left: 0,
-    top: 0,
-    bottom: 0,
+    left: 16,
+    top: 16,
+    bottom: 16,
     width: TEXT_COL_W,
-    padding: 16,
+    justifyContent: "flex-start",
   },
   headline: {
-    fontFamily: SERIF,
-    fontSize: 20,
+    fontFamily: "SourceSerif4-Regular",
+    fontSize: 18,
     color: "#FDFAF4",
-    lineHeight: 26,
+    lineHeight: 23,
     marginTop: 6,
+    textShadowColor: "rgba(0,0,0,0.5)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
   sub: {
-    fontSize: 12,
-    color: "rgba(253,250,244,0.85)",
-    lineHeight: 17,
+    fontSize: 11,
+    color: "#FDFAF4",
+    lineHeight: 15,
     marginTop: 6,
+    opacity: 0.92,
+    textShadowColor: "rgba(0,0,0,0.5)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
   cta: {
     alignSelf: "flex-start",
-    paddingHorizontal: 14,
-    paddingVertical: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
     borderRadius: 20,
     backgroundColor: "#FDFAF4",
     marginTop: 12,
   },
   ctaText: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "600",
     color: "#1C1A14",
   },
   dots: {
     position: "absolute",
     bottom: 14,
-    left: 0,
-    right: 0,
+    left: 16,
     flexDirection: "row",
-    justifyContent: "center",
     gap: 6,
   },
   dot: {

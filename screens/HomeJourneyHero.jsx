@@ -8,7 +8,7 @@ import { sharedCardStyles } from "./sharedCardStyles";
 const SERIF = "SourceSerif4-Regular";
 const SW = Dimensions.get("window").width;
 const CARD_W = SW - 16;
-const CARD_H = Math.round(CARD_W / 1.1);
+const CARD_H = Math.round(CARD_W / 1.25);
 const TITLE_MAX_W = Math.round(CARD_W * 0.5);
 const DESC_MAX_W = Math.round(CARD_W * 0.55);
 
@@ -17,7 +17,7 @@ const DESC_MAX_W = Math.round(CARD_W * 0.55);
 // fully untouched and reusable elsewhere.
 const PHASES = [
   { key: "early",    label: "Early",       fullLabel: "Early Preparation",     description: "You have time to plan carefully. Visas, flights, and accommodation are usually the first priorities." },
-  { key: "focused",  label: "Focused",     fullLabel: "Focused Preparation",   description: "A good stretch for learning the steps, memorizing key duas,\nand shaping your packing list." },
+  { key: "focused",  label: "Focused",     fullLabel: "Focused Preparation",   description: "A good stretch for learning the steps, memorizing key duas, and shaping your packing list." },
   { key: "final",    label: "Final",       fullLabel: "Final Preparation",     description: "The trip is getting close. Packing, guides, and a word with family often come into focus around now." },
   { key: "onway",    label: "On your way", fullLabel: "On Your Way",           description: "Almost there. Documents, essentials, and a check-in with your group are worth a last look." },
   { key: "onsite",   label: "Pilgrimage",  fullLabel: "Pilgrimage",            description: "You are here. The duas and guides are ready when you need them." },
@@ -31,7 +31,7 @@ function phaseIndexForDays(daysOut) {
   return 4;
 }
 
-export default function HomeJourneyHero({ navigation }) {
+export default function HomeJourneyHero({ navigation, onEditTrip }) {
   const [tripDate, setTripDate] = React.useState(null);
   const [pilgrimageType, setPilgrimageType] = React.useState(null);
   const [loaded, setLoaded] = React.useState(false);
@@ -99,7 +99,7 @@ export default function HomeJourneyHero({ navigation }) {
           <Text style={s.departureLine}>  Departure · {formattedDate}</Text>
         </View>
 
-        <TouchableOpacity style={s.daysBox} activeOpacity={0.85}>
+        <TouchableOpacity style={s.daysBox} activeOpacity={0.85} onPress={onEditTrip}>
           <View style={s.daysIconWrap}>
             <CalendarBlank size={24} color="#C8A96A" weight="regular" />
           </View>
@@ -109,14 +109,6 @@ export default function HomeJourneyHero({ navigation }) {
             <Text style={s.daysLabel}>your {pilgrimageLabel}</Text>
           </View>
         </TouchableOpacity>
-
-        <View style={s.timelineRow}>
-          {PHASES.map((p, i) => (
-            <View key={p.key} style={s.timelineCell}>
-              <View style={[s.timelineDot, i === phaseIdx && s.timelineDotActive, i < phaseIdx && s.timelineDotPast]} />
-            </View>
-          ))}
-        </View>
       </View>
     </View>
   );
@@ -133,10 +125,10 @@ const s = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingTop: 20,
+    paddingTop: 16,
     paddingLeft: 16,
     paddingRight: 20,
-    paddingBottom: 18,
+    paddingBottom: 14,
     justifyContent: "space-between",
   },
   topRow: {
@@ -160,7 +152,7 @@ const s = StyleSheet.create({
     fontFamily: SERIF,
     fontSize: 28,
     color: "#1A1410",
-    marginTop: 12,
+    marginTop: 8,
     marginBottom: 4,
     lineHeight: 34,
     maxWidth: TITLE_MAX_W,
@@ -174,7 +166,7 @@ const s = StyleSheet.create({
   departureRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 14,
+    marginTop: 12,
   },
   departureLine: {
     fontSize: 13,
@@ -190,7 +182,7 @@ const s = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 10,
     backgroundColor: "#4A5C48",
-    marginTop: 10,
+    marginTop: 8,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.15,
@@ -218,25 +210,4 @@ const s = StyleSheet.create({
     fontSize: 12,
     color: "rgba(253,250,244,0.75)",
   },
-  timelineRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginTop: 19,
-    paddingHorizontal: 4,
-    borderTopWidth: 1,
-    borderTopColor: "rgba(200,169,106,0.5)",
-  },
-  timelineCell: { alignItems: "center", flex: 1 },
-  timelineDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: "#FDFAF4",
-    borderWidth: 1.5,
-    borderColor: "rgba(200,169,106,0.5)",
-    marginTop: -6,
-  },
-  timelineDotActive: { backgroundColor: "#C8A96A", borderColor: "#C8A96A" },
-  timelineDotPast:   { backgroundColor: "#FDFAF4", borderColor: "#C8A96A", opacity: 0.85 },
 });

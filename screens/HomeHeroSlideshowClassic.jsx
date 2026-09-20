@@ -2,17 +2,17 @@ import React, { useState, useEffect, useRef } from "react";
 import { View, Text, TouchableOpacity, Image, FlatList, StyleSheet, Dimensions } from "react-native";
 
 const SERIF = "SourceSerif4-Regular";
-const { width: SW, height: SH } = Dimensions.get("window");
+const { width: SW } = Dimensions.get("window");
 
 // ── Hero slides ───────────────────────────────────────────────────────────────
 export const HERO_SLIDES = [
   {
     id: "welcome",
-    image: require("../assets/kaaba_mixed.png"),
+    image: require("../assets/hero_kaaba.png"),
     scrim: "rgba(8,20,12,0.28)",
     tag: "WELCOME TO SAFAR",
-    headline: "Your companion for Hajj and Umrah",
-    sub: "Step-by-step guides, duas, smart checklists, and tools to help – one app for every step of Hajj and Umrah.",
+    headline: "Your companion for\nHajj and Umrah",
+    sub: "Step-by-step guides, duas, smart\nchecklists and tools to help. One app\nfor every step of Hajj and Umrah.",
     cta: "Learn more",
     ctaIsAbout: true,
     ctaScreen: null,
@@ -20,11 +20,11 @@ export const HERO_SLIDES = [
   },
   {
     id: "media",
-    image: require("../assets/hero-media.png"),
+    image: require("../assets/hero_media.png"),
     scrim: "rgba(12,8,4,0.55)",
-    tag: "HELPFUL VIDEOS, PODCASTS, AND ARTICLES",
-    headline: "Learn. Prepare. Be ready.",
-    sub: "Scholarly guides, travel tips, and inspirational content to help you before, during, and after your journey.",
+    tag: "HELPFUL MEDIA",
+    headline: "Be Ready.",
+    sub: "Scholarly guides, travel tips,\nand inspirational content to\nhelp you before, during, and\nafter your journey.",
     cta: "Explore Media",
     ctaIsAbout: false,
     ctaScreen: { tab: "Learn", screen: "Media" },
@@ -32,11 +32,11 @@ export const HERO_SLIDES = [
   },
   {
     id: "duas",
-    image: require("../assets/hero_duas.jpg"),
+    image: require("../assets/hero_dua.png"),
     scrim: "rgba(8,16,12,0.26)",
     tag: "DUAS & WORSHIP",
     headline: "Duas for Every Moment",
-    sub: "A growing library of verified duas for every occasion — with audio so you can learn and practice before you go.",
+    sub: "A growing library of verified duas\nfor every occasion - with audio\nso you can learn and practice\nbefore you go.",
     cta: "View duas",
     ctaIsAbout: false,
     ctaScreen: { tab: "Practice", screen: "MyDuas" },
@@ -48,10 +48,6 @@ export default function HomeHeroSlideshowClassic({ navigation, displayName, onSh
   const [heroSlide, setHeroSlide] = useState(0);
   const heroRef   = useRef(null);
   const heroTimer = useRef(null);
-
-  // ORIGINAL: const HERO_H = Math.round(SH * 0.60) + 35;
-  // V2: Math.round(SH * 0.42)
-  const HERO_H = Math.round(SH * 0.52);
 
   // Auto-advance hero every 5s
   useEffect(() => {
@@ -80,30 +76,30 @@ export default function HomeHeroSlideshowClassic({ navigation, displayName, onSh
   const renderSlide = ({ item: slide }) => {
     const isKaaba = slide.id === "welcome";
     return (
-      <View style={{ width: SW, height: HERO_H, overflow: "hidden" }}>
+      <View style={{ width: SW - 16, aspectRatio: 1.8, overflow: "hidden", marginHorizontal: 8, borderRadius: 16 }}>
 
         {/* Ka'bah slide: custom Image so we can scale + shift it */}
         {isKaaba ? (
           <Image
             source={slide.image}
             style={{
-              position:  "absolute",
-              width:     SW * 1.15,
-              height:    HERO_H * 1.20,
-              top:       -HERO_H * 0.12 - 30,
-              left:      -(SW * 0.075),
-              resizeMode:"cover",
+              position:   "absolute",
+              width:      "115%",
+              height:     "120%",
+              top:        "-12%",
+              left:       "-7.5%",
+              resizeMode: "cover",
             }}
           />
         ) : (
           <Image
             source={slide.image}
-            style={{ position:"absolute", width:SW, height:HERO_H, resizeMode:"cover" }}
+            style={{ position: "absolute", width: "100%", height: "100%", resizeMode: "cover" }}
           />
         )}
 
         {/* Very light scrim — keeps photo bright */}
-        <View style={[StyleSheet.absoluteFill, { backgroundColor:"rgba(0,0,0,0.08)" }]} />
+        <View style={[StyleSheet.absoluteFill, { backgroundColor:"rgba(0,0,0,0.20)" }]} />
 
         {/* Floating panel */}
         <View style={s.heroPanel}>
@@ -118,15 +114,17 @@ export default function HomeHeroSlideshowClassic({ navigation, displayName, onSh
           ) : null}
 
           {slide.headline ? (
-            <Text style={s.heroPanelHeadline} numberOfLines={2}>
+            <Text style={s.heroPanelHeadline}>
               {slide.headline}
             </Text>
           ) : null}
 
-          <Text style={s.heroPanelSub} numberOfLines={2}>
+          <Text style={s.heroPanelSub}>
             {slide.sub}
           </Text>
+        </View>
 
+        <View style={s.heroBottomRow}>
           <TouchableOpacity
             style={s.heroPanelCta}
             activeOpacity={0.85}
@@ -167,7 +165,7 @@ export default function HomeHeroSlideshowClassic({ navigation, displayName, onSh
         const idx = Math.round(e.nativeEvent.contentOffset.x / SW);
         setHeroSlide(idx);
       }}
-      style={{ height: HERO_H }}
+      style={{ aspectRatio: 1.8, width: SW }}
       getItemLayout={(_, index) => ({
         length: SW,
         offset: SW * index,
@@ -180,54 +178,62 @@ export default function HomeHeroSlideshowClassic({ navigation, displayName, onSh
 const s = StyleSheet.create({
   // ── Hero: bottom floating glass panel ────────────────────────────────────
   heroPanel: {
-    position:          "absolute",
-    bottom:            20,
-    left:              18,
-    right:             18,
-    backgroundColor:   "rgba(8,20,12,0.57)",
-    borderRadius:      16,
-    paddingTop:        16,
-    paddingBottom:     14,
-    paddingHorizontal: 18,
+    position: "absolute",
+    top:      22,
+    left:     14,
+    right:    14,
   },
   heroTag: {
-    fontSize:      12,
-    color:         "rgba(200,169,106,0.90)",
+    fontSize:      10,
+    color:         "#FDFAF4",
     fontWeight:    "700",
-    letterSpacing: 1.5,
+    letterSpacing: 1.2,
     textTransform: "uppercase",
-    marginBottom:  6,
+    marginBottom:  10,
+    textShadowColor:  "rgba(0,0,0,0.5)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
   heroPanelGreeting: {
-    fontSize:     22,
+    fontSize:     18,
     color:        "#FFFFFF",
     fontWeight:   "400",
-    lineHeight:   28,
+    lineHeight:   22,
     marginBottom: 4,
   },
   heroPanelHeadline: {
-    fontSize:     22,
-    color:        "#FFFFFF",
+    fontSize:     18,
+    color:        "rgba(235,228,210,0.92)",
     fontWeight:   "400",
-    lineHeight:   28,
+    lineHeight:   22,
     marginBottom: 4,
   },
   heroPanelSub: {
-    fontSize:     13,
-    color:        "rgba(235,228,210,0.92)",
+    fontSize:     14,
+    color:        "#FFFFFF",
     lineHeight:   19,
     fontWeight:   "400",
-    marginBottom: 12,
+    marginBottom: 10,
+  },
+  heroBottomRow: {
+    position:       "absolute",
+    bottom:         17,
+    left:           14,
+    right:          14,
+    flexDirection:  "row",
+    justifyContent: "space-between",
+    alignItems:     "center",
   },
   heroPanelCta: {
     backgroundColor: "#4A5C48",
     borderRadius:    9,
-    paddingVertical: 11,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
     alignItems:      "center",
-    marginBottom:    10,
+    alignSelf:       "flex-start",
   },
   heroPanelCtaTxt: {
-    fontSize:      15,
+    fontSize:      13,
     color:         "#FFFFFF",
     fontWeight:    "600",
     letterSpacing: 0.3,
@@ -235,9 +241,9 @@ const s = StyleSheet.create({
 
   // ── Hero: dot indicators inside panel ─────────────────────────────────────
   heroDots: {
-    flexDirection:  "row",
-    justifyContent: "center",
+    flexDirection: "row",
     gap:            6,
+    marginRight:    20,
   },
   dot: {
     width:           5,
@@ -246,7 +252,7 @@ const s = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.30)",
   },
   dotActive: {
-    backgroundColor: "#C8A96A",
+    backgroundColor: "#FFFFFF",
     width:           18,
   },
 
