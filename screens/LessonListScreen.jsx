@@ -65,14 +65,19 @@ export default function LessonListScreen({ navigation, route }) {
       >
         {rows.map(({ n, lessonId, lesson }, idx) => {
           const isLastRow = idx === rows.length - 1;
+          // Eyebrow number comes from the lessonId suffix ("hajj-02" → 2), not the array index.
+          const lessonNum = parseInt(lessonId.split("-").pop(), 10);
           if (!lesson) {
             return (
               <React.Fragment key={lessonId}>
                 <View style={[s.card, s.cardLocked]}>
-                <View style={[s.numberBadge, s.numberBadgeLocked]}>
-                  <Text style={s.numberBadgeTextLocked}>{n}</Text>
+                <View style={s.badgeColumn}>
+                  <View style={[s.numberBadge, s.numberBadgeLocked]}>
+                    <Text style={s.numberBadgeTextLocked}>{n}</Text>
+                  </View>
                 </View>
                 <View style={s.rowInfo}>
+                  <Text style={s.eyebrow}>{"LESSON " + lessonNum}</Text>
                   <Text style={s.rowLabelLocked}>{"Lesson " + n}</Text>
                   <Text style={s.progressTextLocked}>Coming soon</Text>
                 </View>
@@ -95,14 +100,17 @@ export default function LessonListScreen({ navigation, route }) {
               onPress={() => navigation.navigate("LessonFlow", { lessonId })}
               activeOpacity={0.75}
             >
-              <View style={s.numberBadge}>
-                {isCompleted ? (
-                  <Check size={18} color="#FFFFFF" weight="bold" />
-                ) : (
-                  <Text style={s.numberBadgeText}>{n}</Text>
-                )}
+              <View style={s.badgeColumn}>
+                <View style={s.numberBadge}>
+                  {isCompleted ? (
+                    <Check size={16} color="#FFFFFF" weight="bold" />
+                  ) : (
+                    <Text style={s.numberBadgeText}>{n}</Text>
+                  )}
+                </View>
               </View>
               <View style={s.rowInfo}>
+                <Text style={s.eyebrow}>{"LESSON " + lessonNum}</Text>
                 <Text style={s.rowLabel}>{lesson.title}</Text>
                 <Text style={isCompleted ? [s.progressText, s.progressDone] : isStarted ? [s.progressText, s.progressActive] : s.progressText}>
                   {isCompleted ? "Completed" : isStarted ? (prog.furthestIndex + 1) + " of " + total + " screens" : (lesson.blocks[0]?.readingMinutes || 4) + " min read"}
@@ -140,10 +148,24 @@ const s = StyleSheet.create({
   card:         { flexDirection: "row", alignItems: "center", backgroundColor: "#FDFAF4", borderRadius: 16, borderWidth: 1, borderColor: "#DDD5C0", padding: 16, marginHorizontal: 16, marginBottom: 4, shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 8, elevation: 3 },
   connector:    { width: 2, height: 14, backgroundColor: GOLD, opacity: 0.4, marginLeft: 51, marginBottom: 4 },
   cardLocked:   { opacity: 0.5 },
-  numberBadge:      { width: 40, height: 40, borderRadius: 20, backgroundColor: GOLD, alignItems: "center", justifyContent: "center", marginRight: 14, flexShrink: 0 },
+  numberBadge:      { width: 36, height: 36, borderRadius: 18, backgroundColor: GOLD, alignItems: "center", justifyContent: "center" },
   numberBadgeLocked:{ backgroundColor: "#DDD5C0" },
-  numberBadgeText:      { fontFamily: SERIF, fontSize: 16, color: "#FFFFFF", fontWeight: "600" },
-  numberBadgeTextLocked:{ fontFamily: SERIF, fontSize: 16, color: "#8A7D6A", fontWeight: "600" },
+  numberBadgeText:      { fontFamily: SERIF, fontSize: 14, color: "#FFFFFF", fontWeight: "600" },
+  numberBadgeTextLocked:{ fontFamily: SERIF, fontSize: 14, color: "#8A7D6A", fontWeight: "600" },
+  badgeColumn: {
+    alignItems: "center",
+    marginRight: 14,
+    flexShrink: 0,
+  },
+  // Gold eyebrow above the lesson title (sharedCardStyles.eyebrowText is 12px / #C8A96A, so not reused).
+  eyebrow: {
+    fontSize: 10,
+    fontWeight: "700",
+    letterSpacing: 1.2,
+    textTransform: "uppercase",
+    color: "#B48A3C",
+    marginBottom: 5,
+  },
   rowInfo:      { flex: 1 },
   rowLabel:     { fontFamily: SERIF, fontSize: 20, color: "#1A1410", marginBottom: 4, fontWeight: "700" },
   rowLabelLocked:{ fontSize: 16, color: "#8A7D6A", marginBottom: 4, fontWeight: "500" },

@@ -115,7 +115,7 @@ export default function TripDetailsEditor({
 
             {isLearn ? null : (
               <>
-                <Text style={s.sectionLabelSpaced}>DEPARTURE YEAR</Text>
+                <Text style={s.sectionLabel}>DEPARTURE DATE</Text>
                 <View style={s.pillRow}>
                   {YEARS.map((y) => (
                     <TouchableOpacity
@@ -131,7 +131,6 @@ export default function TripDetailsEditor({
                   ))}
                 </View>
 
-                <Text style={s.sectionLabel}>DEPARTURE MONTH</Text>
                 <View style={s.monthGrid}>
                   {MONTHS.map((name, idx) => {
                     const m = idx + 1;
@@ -150,7 +149,6 @@ export default function TripDetailsEditor({
                   })}
                 </View>
 
-                <Text style={s.sectionLabel}>DEPARTURE DAY</Text>
                 <View style={s.dayGrid}>
                   {Array.from({ length: dayCount }, (_, i) => i + 1).map((d) => (
                     <TouchableOpacity
@@ -188,39 +186,38 @@ export default function TripDetailsEditor({
 
 const s = StyleSheet.create({
   backdrop:        { flex: 1, backgroundColor: "rgba(26,20,16,0.60)", justifyContent: "flex-end" },
-  sheet:           { backgroundColor: "#FDFAF4", borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingTop: 16, paddingBottom: 40, maxHeight: "90%" },
-  content:         { paddingHorizontal: 24, paddingBottom: 16 },
-  handle:          { width: 36, height: 4, borderRadius: 2, backgroundColor: "#DDD5C0", alignSelf: "center", marginBottom: 20 },
-  title:           { fontFamily: "SourceSerif4-Regular", fontSize: 22, color: "#1A1410", fontWeight: "600", marginBottom: 20 },
-  sectionLabel:       { fontSize: 10, fontWeight: "700", letterSpacing: 1.5, color: "#8A7D6A", textTransform: "uppercase", marginBottom: 10, marginTop: 4 },
-  sectionLabelSpaced: { fontSize: 10, fontWeight: "700", letterSpacing: 1.5, color: "#8A7D6A", textTransform: "uppercase", marginBottom: 10, marginTop: 32 },
+  sheet:           { backgroundColor: "#FDFAF4", borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingTop: 12, paddingBottom: 24, maxHeight: "90%" },
+  content:         { paddingHorizontal: 24, paddingBottom: 12 },
+  handle:          { width: 36, height: 4, borderRadius: 2, backgroundColor: "#DDD5C0", alignSelf: "center", marginBottom: 12 },
+  title:           { fontFamily: "SourceSerif4-Regular", fontSize: 22, color: "#1A1410", fontWeight: "600", marginBottom: 14 },
+  sectionLabel:    { fontSize: 10, fontWeight: "700", letterSpacing: 1.5, color: "#8A7D6A", textTransform: "uppercase", marginBottom: 8, marginTop: 2 },
 
-  journeyRow:        { flexDirection: "row", gap: 10, marginBottom: 6 },
-  journeyPill:       { flex: 1, paddingVertical: 14, borderRadius: 12, alignItems: "center", backgroundColor: "#F0EBE1", borderWidth: 1, borderColor: "#DDD5C0" },
+  journeyRow:        { flexDirection: "row", gap: 10, marginBottom: 14 },
+  journeyPill:       { flex: 1, paddingVertical: 10, borderRadius: 12, alignItems: "center", backgroundColor: "#F0EBE1", borderWidth: 1, borderColor: "#DDD5C0" },
   journeyPillActive: { backgroundColor: "#4A5C48", borderWidth: 2, borderColor: "#C8A96A" },
   journeyText:       { fontSize: 13, fontWeight: "600", color: "#5C534A" },
   journeyTextActive: { fontSize: 16, fontWeight: "800", color: "#F5EFDD", letterSpacing: 0.3 },
 
-  pillRow:         { flexDirection: "row", gap: 8, marginBottom: 20 },
-  pill:            { flex: 1, paddingVertical: 10, borderRadius: 10, alignItems: "center", backgroundColor: "#F0EBE1", borderWidth: 1, borderColor: "#DDD5C0" },
+  pillRow:         { flexDirection: "row", gap: 8, marginBottom: 10 },
+  pill:            { flex: 1, paddingVertical: 8, borderRadius: 10, alignItems: "center", backgroundColor: "#F0EBE1", borderWidth: 1, borderColor: "#DDD5C0" },
   pillActive:      { backgroundColor: "#4A5C48", borderColor: "#4A5C48" },
   pillText:        { fontSize: 14, fontWeight: "600", color: "#5C534A" },
   pillTextActive:  { color: "#FFFFFF" },
 
-  monthGrid:       { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 20 },
-  monthCell:       { width: "30%", flexGrow: 1, paddingVertical: 10, borderRadius: 10, alignItems: "center", backgroundColor: "#F0EBE1", borderWidth: 1, borderColor: "#DDD5C0" },
+  monthGrid:       { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 10 },
+  monthCell:       { width: "23%", flexGrow: 1, paddingVertical: 8, borderRadius: 10, alignItems: "center", backgroundColor: "#F0EBE1", borderWidth: 1, borderColor: "#DDD5C0" },
   monthText:       { fontSize: 13, fontWeight: "600", color: "#5C534A" },
 
-  dayGrid:         { flexDirection: "row", flexWrap: "wrap", gap: 6, marginBottom: 20 },
-  dayCell:         { width: 42, height: 42, borderRadius: 10, alignItems: "center", justifyContent: "center", backgroundColor: "#F0EBE1", borderWidth: 1, borderColor: "#DDD5C0" },
+  dayGrid:         { flexDirection: "row", flexWrap: "wrap", gap: 4 },
+  dayCell:         { width: 36, height: 36, borderRadius: 10, alignItems: "center", justifyContent: "center", backgroundColor: "#F0EBE1", borderWidth: 1, borderColor: "#DDD5C0" },
   dayText:         { fontSize: 14, fontWeight: "600", color: "#5C534A" },
 
   cellActive:      { backgroundColor: "#4A5C48", borderColor: "#4A5C48" },
   cellTextActive:  { color: "#FFFFFF" },
 
-  selectedLabelWrap: { backgroundColor: "#E2EDE6", borderRadius: 14, borderWidth: 1.5, borderColor: "#4A5C48", paddingVertical: 16, paddingHorizontal: 20, marginTop: 18, marginBottom: 20, alignItems: "center" },
-  selectedLabel:   { fontFamily: "SourceSerif4-Regular", fontSize: 24, fontWeight: "700", color: "#1E3D30", textAlign: "center", letterSpacing: 0.3 },
-  saveBtn:         { backgroundColor: "#1A1410", borderRadius: 14, paddingVertical: 16, alignItems: "center" },
+  selectedLabelWrap: { marginTop: 12, marginBottom: 14, alignItems: "center" },
+  selectedLabel:   { fontFamily: "SourceSerif4-Regular", fontSize: 16, fontWeight: "600", color: "#4A5C48", textAlign: "center", letterSpacing: 0.3 },
+  saveBtn:         { backgroundColor: "#1A1410", borderRadius: 14, paddingVertical: 14, alignItems: "center" },
   saveBtnDisabled: { opacity: 0.40 },
   saveBtnText:     { fontSize: 15, fontWeight: "600", color: "#C8A96A", letterSpacing: 0.3 },
 });

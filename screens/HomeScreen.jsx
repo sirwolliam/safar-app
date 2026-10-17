@@ -23,8 +23,10 @@ import HomeGuidesCard from "./HomeGuidesCard";
 import HomePrioritiesCard from "./HomePrioritiesCard";
 import HomeDailyLessonCard from "./HomeDailyLessonCard";
 import HomeHeroSlideshowClassic from "./HomeHeroSlideshowClassic";
+import ExploreTiles from "../components/ExploreTiles";
 import { sharedCardStyles } from "./sharedCardStyles";
 import TripDetailsEditor from "../TripDetailsEditor";
+import { colors } from "../theme";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
 import {
@@ -41,6 +43,21 @@ const { width: SW, height: SH } = Dimensions.get("window");
 
 const MONTH_ABBR = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const WEEKDAY_FULL = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+// ── Explore your pilgrimage tiles (Learn has its own set via the same ExploreTiles) ──
+const goLearn = (navigation, screen) =>
+  navigation?.getParent?.()?.navigate?.("Learn", { screen, initial: false, params: { returnToTab: "Home" } });
+
+const EXPLORE_TILES = [
+  { label: "Umrah Guide", subtitle: "Step by step",            circleColor: "#2D4A34", image: require("../assets/explore_cards/umrah.png"),
+    go: (navigation) => goLearn(navigation, "UmrahGuide") },
+  { label: "Hajj Guide",  subtitle: "Each day explained",      circleColor: "#B48A3C", image: require("../assets/explore_cards/hajj.png"),
+    go: (navigation) => goLearn(navigation, "HajjGuide") },
+  { label: "Ziyarah",     subtitle: "Sacred places",           circleColor: "#2D4A34", image: require("../assets/explore_cards/ziyarah.png"),
+    go: (navigation) => navigation?.navigate?.("SacredPlaces") },
+  { label: "Duas",        subtitle: "Essential supplications", circleColor: "#B48A3C", image: require("../assets/explore_cards/duas.png"),
+    go: (navigation) => navigation?.navigate?.("PilgrimageDuas") },
+];
 
 // ── Storage keys ──────────────────────────────────────────────────────────────
 const DEPARTURE_KEY       = "safar_departure_date_v1";
@@ -361,7 +378,6 @@ function EventsCard({ events, page, onPageChange, navigation }) {
 const ec = StyleSheet.create({
   card: {
     marginHorizontal: 8,
-    marginTop: 18,
     borderWidth: 1,
     borderColor: "rgba(200, 191, 178, 0.5)",
     borderRadius: 16,
@@ -564,7 +580,7 @@ export default function HomeScreen({ navigation }) {
       <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 52 }}
+        contentContainerStyle={s.scrollContent}
       >
 
         {/* ── TOP BAR ── */}
@@ -587,14 +603,16 @@ export default function HomeScreen({ navigation }) {
           </View>
         </View>
 
-        {/* ── HOME JOURNEY HERO (testing new photo-background treatment) ── */}
-        <View style={{ marginTop: 8 }}>
-          {(journeyType === "umrah" || journeyType === "hajj") && departureISO ? (
-            <HomeJourneyHero navigation={navigation} onEditTrip={() => setShowTripEditor(true)} />
-          ) : (
-            <HomeGuidesCard navigation={navigation} />
-          )}
-        </View>
+        {/* ── CARD STACK — every card is spaced by s.cardStack (gap 16).
+            Cards must not carry their own vertical margins. ── */}
+        <View style={s.cardStack}>
+
+        {/* ── HOME JOURNEY HERO / GUIDES ── */}
+        {(journeyType === "umrah" || journeyType === "hajj") && departureISO ? (
+          <HomeJourneyHero navigation={navigation} onEditTrip={() => setShowTripEditor(true)} />
+        ) : (
+          <HomeGuidesCard navigation={navigation} />
+        )}
 
         {/* ══════════════════════════════════════════════════════════════════
             OPTION C CARD
@@ -637,23 +655,23 @@ export default function HomeScreen({ navigation }) {
         )}
 
         {/* ── HOME DAILY LESSON CARD ── */}
-        <View style={{ marginTop: 16 }}>
-          <HomeDailyLessonCard navigation={navigation} />
-        </View>
+        <HomeDailyLessonCard navigation={navigation} />
 
         {/* ── HOME PRIORITIES CARD ── */}
-        <View style={{ marginTop: 16 }}>
-          <HomePrioritiesCard navigation={navigation} />
-        </View>
+        <HomePrioritiesCard navigation={navigation} />
+
+        {/* ── EXPLORE YOUR PILGRIMAGE ── */}
+        <ExploreTiles
+          tiles={EXPLORE_TILES.map((tile) => ({ ...tile, onPress: () => tile.go(navigation) }))}
+          viewAllOnPress={() => console.log("explore view all pressed")}
+        />
 
         {/* ── HERO CAROUSEL (classic) ── */}
-        <View style={{ marginTop: 16 }}>
-          <HomeHeroSlideshowClassic
-            navigation={navigation}
-            displayName={displayName}
-            onShowAbout={() => setShowAbout(true)}
-          />
-        </View>
+        <HomeHeroSlideshowClassic
+          navigation={navigation}
+          displayName={displayName}
+          onShowAbout={() => setShowAbout(true)}
+        />
 
         {upcomingEvents.length > 0 ? (
           <EventsCard
@@ -664,116 +682,35 @@ export default function HomeScreen({ navigation }) {
           />
         ) : null}
 
-        {/* ══════════════════════════════════════════════════════════════════
-            MY JOURNEY CARD
-        ══════════════════════════════════════════════════════════════════ */}
-        <View style={{ marginTop: 20, marginBottom: 16 }}>
-        <View style={s.journeyCard}>
-          <View style={s.journeyCardImg}>
-            <Image
-              source={require("../assets/myboard.jpg")}
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                width: "100%",
-                height: "100%",
-              }}
-              resizeMode="cover"
-            />
-            <LinearGradient
-              colors={["transparent", "rgba(42,31,14,0.95)"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 0, y: 1 }}
-              style={[StyleSheet.absoluteFillObject, {
-                borderTopLeftRadius: 18,
-                borderTopRightRadius: 18,
-              }]}
-            />
-            <View style={s.journeyCardOverlay}>
-              <View style={{ flex: 1 }}>
-                <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 6 }}>
-                  <Text style={[s.journeyCardEyebrow, { marginBottom: 0, flex: 1 }]}>MY JOURNEY</Text>
-                  <TouchableOpacity
-                    onPress={() => setShowTripEditor(true)}
-                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                    activeOpacity={0.75}
-                  >
-                    <NotePencil size={15} color="rgba(200,169,106,0.90)" weight="regular" />
-                  </TouchableOpacity>
-                </View>
-                <Text style={s.journeyCardTitle}>
-                  {daysAway !== null
-                    ? `${daysAway} days until departure`
-                    : "Plan your pilgrimage"}
-                </Text>
-                <Text style={s.journeyCardSub}>
-                  Track your preparation, notes, checklists, and contacts in one place.
-                </Text>
-              </View>
-            </View>
-            <TouchableOpacity
-              style={s.cardCornerBtn}
-              onPress={() => navigation?.getParent?.()?.navigate?.("Plan", { screen: "MyBoard", initial: false, params: { returnToTab: "Home" } })}
-              activeOpacity={0.85}
-            >
-              <ArrowRight size={16} color="#FFFFFF" weight="regular" />
-            </TouchableOpacity>
-          </View>
+        {/* My Journey card moved to HomeMyJourneyCard.jsx (parked, not imported). */}
 
-          {/* Quick links row */}
-          <View style={s.journeyLinks}>
+        <View>
+          {/* ══════════════════════════════════════════════════════════════════
+              QUICK ACCESS ICON GRID — 1×4
+          ══════════════════════════════════════════════════════════════════ */}
+          <View style={s.shortcutsHeader}>
+            <Text style={sharedCardStyles.eyebrowText}>QUICK ACCESS</Text>
+          </View>
+          <View style={s.gridWrap}>
             {[
-              { label:"Board",     onPress: () => navigation?.getParent?.()?.navigate?.("Plan",    { screen: "MyBoard",    initial: false, params: { returnToTab: "Home" } }) },
-              { label:"Checklist", onPress: () => navigation?.getParent?.()?.navigate?.("Plan",    { screen: "Checklists", initial: false, params: { returnToTab: "Home" } }) },
-              { label:"Contacts",  onPress: () => navigation?.getParent?.()?.navigate?.("Connect", { screen: "MyContacts", initial: false, params: { returnToTab: "Home" } }) },
-              { label:"Groups",    onPress: () => navigation?.getParent?.()?.navigate?.("Connect", { screen: "Groups",     initial: false, params: { returnToTab: "Home" } }) },
-            ].map((item, i, arr) => (
-              <React.Fragment key={item.label}>
-                <TouchableOpacity
-                  style={s.journeyLink}
-                  onPress={item.onPress}
-                  activeOpacity={0.75}
-                >
-                  <Text style={s.journeyLinkTxt}>{item.label}</Text>
-                </TouchableOpacity>
-                {i < arr.length - 1 ? <View style={s.journeyLinkDiv} /> : null}
-              </React.Fragment>
+              { label: "Qibla",    Icon: Compass,       onPress: () => navigation?.getParent?.()?.navigate?.("Practice", { screen: "Qibla",    initial: false, params: { returnToTab: "Home" } }) },
+              { label: "Calendar", Icon: CalendarBlank, onPress: () => navigation?.getParent?.()?.navigate?.("Plan",     { screen: "Calendar", initial: false, params: { returnToTab: "Home" } }) },
+              { label: "Dhikr",    Icon: Heartbeat,    onPress: () => navigation?.getParent?.()?.navigate?.("Practice", { screen: "Dhikr",    initial: false, params: { returnToTab: "Home" } }) },
+              { label: "Notes",    Icon: NotePencil,   onPress: () => navigation?.getParent?.()?.navigate?.("Plan",     { screen: "Notes",    initial: false, params: { returnToTab: "Home" } }) },
+            ].map(({ label, Icon, onPress }) => (
+              <TouchableOpacity
+                key={label}
+                style={s.gridCell}
+                onPress={onPress}
+                activeOpacity={0.78}
+              >
+                <View style={s.gridIconWrap}>
+                  <Icon size={24} color="#4A5C48" weight="regular" />
+                </View>
+                <Text style={s.gridLabel}>{label}</Text>
+              </TouchableOpacity>
             ))}
           </View>
-        </View>
-        </View>
-
-        <View style={{ marginTop: 8 }}>
-        {/* ══════════════════════════════════════════════════════════════════
-            MY SHORTCUTS ICON GRID — 2×4
-        ══════════════════════════════════════════════════════════════════ */}
-        <View style={{ marginTop: 16 }}>
-        <View style={s.shortcutsHeader}>
-          <Text style={s.shortcutsHeaderText}>My Shortcuts</Text>
-        </View>
-        <View style={s.gridWrap}>
-          {[
-            { label: "Qibla",    Icon: Compass,       onPress: () => navigation?.getParent?.()?.navigate?.("Practice", { screen: "Qibla",    initial: false, params: { returnToTab: "Home" } }) },
-            { label: "Calendar", Icon: CalendarBlank, onPress: () => navigation?.getParent?.()?.navigate?.("Plan",     { screen: "Calendar", initial: false, params: { returnToTab: "Home" } }) },
-            { label: "Dhikr",    Icon: Heartbeat,    onPress: () => navigation?.getParent?.()?.navigate?.("Practice", { screen: "Dhikr",    initial: false, params: { returnToTab: "Home" } }) },
-            { label: "Notes",    Icon: NotePencil,   onPress: () => navigation?.getParent?.()?.navigate?.("Plan",     { screen: "Notes",    initial: false, params: { returnToTab: "Home" } }) },
-          ].map(({ label, Icon, onPress }) => (
-            <TouchableOpacity
-              key={label}
-              style={s.gridCell}
-              onPress={onPress}
-              activeOpacity={0.78}
-            >
-              <View style={s.gridIconWrap}>
-                <Icon size={24} color="#4A5C48" weight="regular" />
-              </View>
-              <Text style={s.gridLabel}>{label}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
         </View>
 
         {/* ══════════════════════════════════════════════════════════════════
@@ -822,80 +759,87 @@ export default function HomeScreen({ navigation }) {
         {/* Focus Mode + Sacred Places cards moved to parked-components.jsx
             for reuse on a future screen. */}
 
-        <View style={s.pillarsHeader}>
-          <Text style={[s.pillarsHeaderText, { fontSize: 20, fontWeight: "600", color: "#1A1712", textAlign: "center" }]}>{"Today\u2019s Dua"}</Text>
+        {/* Header + card grouped so the header sits 12px above its card. */}
+        <View>
+          <View style={s.pillarsHeader}>
+            <Text style={[s.pillarsHeaderText, { fontSize: 20, fontWeight: "600", color: "#1A1712", textAlign: "center" }]}>{"Today\u2019s Dua"}</Text>
+          </View>
+
+          <View style={s.duaCard}>
+            {/* Geometric pattern header (matches Dua Detail screen) */}
+            <View style={s.duaPatternWrap} pointerEvents="none">
+              <Svg width={SW - 40} height={90} viewBox="0 0 375 133.62" preserveAspectRatio="xMidYMin slice">
+                <Defs>
+                  <SvgGrad id="duaGrad" x1="0" y1="0" x2="0" y2="1">
+                    <Stop offset="0"   stopColor="#fff" stopOpacity="1" />
+                    <Stop offset="0.7" stopColor="#fff" stopOpacity="0.35" />
+                    <Stop offset="1"   stopColor="#fff" stopOpacity="0" />
+                  </SvgGrad>
+                  <Mask id="duaMask"><Rect width="375" height="133.62" fill="url(#duaGrad)" /></Mask>
+                </Defs>
+                <Path d={PATTERN_PATH} fill="#bf9f60" opacity="0.55" mask="url(#duaMask)" />
+              </Svg>
+            </View>
+
+            <Text style={s.duaArabicLg}>{DAILY_DUA.arabic}</Text>
+            <Text style={s.duaTranslitLg}>{DAILY_DUA.transliteration}</Text>
+            <Text style={s.duaTranslationLg}>{"\u201c" + DAILY_DUA.translation + "\u201d"}</Text>
+            <Text style={s.duaSourceLg}>{DAILY_DUA.source}</Text>
+
+            <View style={s.duaActions}>
+              <TouchableOpacity
+                style={s.duaBtn}
+                onPress={() => navigation?.navigate?.("PracticeLearn")}
+                activeOpacity={0.85}
+              >
+                <Text style={s.duaBtnText}>Practice</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[s.duaBtn, s.duaBtnOutline]}
+                activeOpacity={0.85}
+                onPress={() => {
+                  toggleBookmarkCard("dua", DAILY_DUA.id, {
+                    sourceTitle: "Dua for an Accepted Hajj",
+                    sourceArabic: DAILY_DUA.arabic,
+                    sourceTranslation: DAILY_DUA.translation,
+                  }).then(setDuaPinned);
+                }}
+              >
+                <Text style={[s.duaBtnOutlineText, { fontSize: 18, color: duaPinned ? "#C8A96A" : "#D4D0CA" }]}>
+                  {duaPinned ? "♥" : "♡"}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
 
-        <View style={s.duaCard}>
-          {/* Geometric pattern header (matches Dua Detail screen) */}
-          <View style={s.duaPatternWrap} pointerEvents="none">
-            <Svg width={SW - 40} height={90} viewBox="0 0 375 133.62" preserveAspectRatio="xMidYMin slice">
-              <Defs>
-                <SvgGrad id="duaGrad" x1="0" y1="0" x2="0" y2="1">
-                  <Stop offset="0"   stopColor="#fff" stopOpacity="1" />
-                  <Stop offset="0.7" stopColor="#fff" stopOpacity="0.35" />
-                  <Stop offset="1"   stopColor="#fff" stopOpacity="0" />
-                </SvgGrad>
-                <Mask id="duaMask"><Rect width="375" height="133.62" fill="url(#duaGrad)" /></Mask>
-              </Defs>
-              <Path d={PATTERN_PATH} fill="#bf9f60" opacity="0.55" mask="url(#duaMask)" />
-            </Svg>
-          </View>
-
-          <Text style={s.duaArabicLg}>{DAILY_DUA.arabic}</Text>
-          <Text style={s.duaTranslitLg}>{DAILY_DUA.transliteration}</Text>
-          <Text style={s.duaTranslationLg}>{"\u201c" + DAILY_DUA.translation + "\u201d"}</Text>
-          <Text style={s.duaSourceLg}>{DAILY_DUA.source}</Text>
-
-          <View style={s.duaActions}>
-            <TouchableOpacity
-              style={s.duaBtn}
-              onPress={() => navigation?.navigate?.("PracticeLearn")}
-              activeOpacity={0.85}
-            >
-              <Text style={s.duaBtnText}>Practice</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[s.duaBtn, s.duaBtnOutline]}
-              activeOpacity={0.85}
-              onPress={() => {
-                toggleBookmarkCard("dua", DAILY_DUA.id, {
-                  sourceTitle: "Dua for an Accepted Hajj",
-                  sourceArabic: DAILY_DUA.arabic,
-                  sourceTranslation: DAILY_DUA.translation,
-                }).then(setDuaPinned);
-              }}
-            >
-              <Text style={[s.duaBtnOutlineText, { fontSize: 18, color: duaPinned ? "#C8A96A" : "#D4D0CA" }]}>
-                {duaPinned ? "♥" : "♡"}
-              </Text>
-            </TouchableOpacity>
-          </View>
+        {/* Settings tile + Sources link grouped so the link stays tucked under the tile. */}
+        <View>
+          <TouchableOpacity
+            style={s.settingsTile}
+            onPress={() => navigation?.navigate?.("Settings")}
+            activeOpacity={0.85}
+          >
+            <View style={s.settingsTileIconBox}>
+              <Gear size={22} color="#4A5C48" weight="regular" />
+            </View>
+            <View style={s.settingsTileText}>
+              <Text style={s.settingsTileLabel}>Settings</Text>
+              <Text style={s.settingsTileSub}>App settings, profile, and support</Text>
+            </View>
+            <Text style={s.settingsTileArrow}>{"›"}</Text>
+          </TouchableOpacity>
+          {/* ── Compact source line + info popup ── */}
+          <TouchableOpacity
+            style={s.sourceLine}
+            onPress={() => setShowSources(true)}
+            activeOpacity={0.7}
+          >
+            <Info size={15} color="#8A7D6A" weight="regular" />
+            <Text style={s.sourceLineTxt}>Sources</Text>
+          </TouchableOpacity>
         </View>
 
-        <TouchableOpacity
-          style={s.settingsTile}
-          onPress={() => navigation?.navigate?.("Settings")}
-          activeOpacity={0.85}
-        >
-          <View style={s.settingsTileIconBox}>
-            <Gear size={22} color="#4A5C48" weight="regular" />
-          </View>
-          <View style={s.settingsTileText}>
-            <Text style={s.settingsTileLabel}>Settings</Text>
-            <Text style={s.settingsTileSub}>App settings, profile, and support</Text>
-          </View>
-          <Text style={s.settingsTileArrow}>{"›"}</Text>
-        </TouchableOpacity>
-        {/* ── Compact source line + info popup ── */}
-        <TouchableOpacity
-          style={s.sourceLine}
-          onPress={() => setShowSources(true)}
-          activeOpacity={0.7}
-        >
-          <Info size={15} color="#8A7D6A" weight="regular" />
-          <Text style={s.sourceLineTxt}>Sources</Text>
-        </TouchableOpacity>
         </View>
 
       </ScrollView>
@@ -944,8 +888,10 @@ const s = StyleSheet.create({
 
   safe: {
     flex: 1,
-    backgroundColor: "#FDFAF4",
+    backgroundColor: colors.warmBackground,
   },
+  scrollContent: { paddingBottom: 16 },
+  cardStack: { paddingTop: 16, gap: 16 },
 
   // ── Hero: top-left — salam 14pt, no letterSpacing, always white ──────────
   heroTopLeft: {
@@ -1003,7 +949,6 @@ const s = StyleSheet.create({
   // ── Intro card (before dismiss) ───────────────────────────────────────────
   introCard: {
     marginHorizontal: 8,
-    marginTop: 16,
     borderWidth: 1,
     borderColor: "rgba(200, 191, 178, 0.5)",
     borderRadius: 16,
@@ -1053,7 +998,6 @@ const s = StyleSheet.create({
   // ── Prayer / calendar card (after dismiss — same outer footprint) ─────────
   prayerCard: {
     marginHorizontal: 8,
-    marginTop: 16,
     borderWidth: 1,
     borderColor: "rgba(200, 191, 178, 0.5)",
     borderRadius: 16,
@@ -1195,7 +1139,6 @@ const s = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     marginHorizontal: 20,
-    marginTop: 22,
     marginBottom: 12,
   },
   pillarsHeaderText: {
@@ -1322,21 +1265,12 @@ const s = StyleSheet.create({
     justifyContent: "center",
   },
 
-  // ── My Shortcuts header ───────────────────────────────────────────────────
+  // ── Quick Access header (text uses sharedCardStyles.eyebrowText) ─────────
   shortcutsHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     marginHorizontal: 20,
-    marginTop: 8,
-    marginBottom: 0,
-  },
-  shortcutsHeaderText: {
-    fontFamily: SERIF,
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#1A1712",
-    textAlign: "center",
   },
 
   // ── Section dividers ──────────────────────────────────────────────────────
@@ -1345,7 +1279,6 @@ const s = StyleSheet.create({
     flexDirection: "row",
     paddingHorizontal: 14,
     paddingTop: 12,
-    paddingBottom: 8,
     gap: 10,
   },
   gridCell: {
@@ -1368,7 +1301,7 @@ const s = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#4A5C4812",
+    backgroundColor: "rgba(45, 74, 52, 0.1)",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -1380,72 +1313,6 @@ const s = StyleSheet.create({
     lineHeight: 17,
   },
 
-  // ── My Journey card ───────────────────────────────────────────────────────
-  journeyCard: {
-    marginHorizontal: 14,
-    marginTop: 12,
-    marginBottom: 4,
-    backgroundColor: "rgba(42,31,14,0.35)",
-    borderRadius: 18,
-    overflow: "hidden",
-    shadowColor: "#2A1F0E",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.15,
-    shadowRadius: 5,
-    elevation: 4,
-  },
-  journeyCardImg: {
-    height: 150,
-    overflow: "hidden",
-  },
-  journeyCardOverlay: {
-    position: "absolute",
-    bottom: 14,
-    left: 22,
-    right: 22,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  journeyCardTop: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 18,
-    paddingTop: 16,
-    paddingBottom: 14,
-  },
-  journeyCardEyebrow: {
-    fontSize: 10,
-    fontWeight: "700",
-    color: "rgba(200,169,106,0.90)",
-    letterSpacing: 1.5,
-    marginBottom: 6,
-    textTransform: "uppercase",
-  },
-  journeyCardTitle: {
-    fontSize: 22,
-    color: "#FFFFFF",
-    fontWeight: "400",
-    lineHeight: 28,
-    marginBottom: 4,
-  },
-  journeyCardSub: {
-    fontSize: 14,
-    color: "rgba(255,255,255,0.88)",
-    lineHeight: 20,
-    fontWeight: "400",
-    marginTop: 0,
-    marginBottom: 0,
-  },
-  journeyCardBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: "#4A5C48",
-    alignItems: "center",
-    justifyContent: "center",
-  },
   cardCornerBtn: {
     position: "absolute",
     top: 12,
@@ -1457,34 +1324,10 @@ const s = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  journeyLinks: {
-    flexDirection: "row",
-    borderTopWidth: 1,
-    borderTopColor: "rgba(253,250,244,0.30)",
-    paddingVertical: 14,
-  },
-  journeyLink: {
-    flex: 1,
-    paddingVertical: 12,
-    alignItems: "center",
-  },
-  journeyLinkTxt: {
-    fontSize: 13,
-    color: "#FDFAF4",
-    fontWeight: "600",
-  },
-  journeyLinkDiv: {
-    width: 1,
-    backgroundColor: "rgba(253,250,244,0.30)",
-    marginVertical: 8,
-  },
-
   // ── Focus Mode card ───────────────────────────────────────────────────────
   // ── Continuation card ─────────────────────────────────────────────────────
   continuationCard: {
     marginHorizontal: 14,
-    marginTop: 12,
-    marginBottom: 0,
     height: 150,
     borderRadius: 16,
     overflow: "hidden",
@@ -1869,7 +1712,6 @@ const s = StyleSheet.create({
     justifyContent: "center",
     gap: 6,
     marginTop: 4,
-    marginBottom: 8,
     paddingVertical: 6,
   },
   sourceLineTxt: {
@@ -2002,7 +1844,7 @@ const s = StyleSheet.create({
   },
 
   // ── Top bar (parchment greeting + countdown above hero) ───────────────────
-  topBar:         { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", paddingHorizontal: 20, paddingBottom: 6 },
+  topBar:         { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", paddingHorizontal: 20, paddingBottom: 0 },
   topBarLeft:     { flex: 1 },
   topBarSalam:    { fontSize: 14, color: "#8A7D6A", fontWeight: "500", lineHeight: 18 },
   topBarName:     { fontFamily: "SourceSerif4-Regular", fontSize: 20, color: "#1A1410", fontWeight: "600", lineHeight: 25, marginTop: 2 },
@@ -2043,8 +1885,6 @@ const s = StyleSheet.create({
     borderColor: "#E0D8CC",
     padding: 14,
     marginHorizontal: 14,
-    marginTop: 20,
-    marginBottom: 8,
   },
   settingsTileIconBox: {
     width: 40,

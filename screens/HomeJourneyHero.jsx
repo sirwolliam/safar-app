@@ -4,6 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { CalendarBlank, Airplane } from "phosphor-react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { sharedCardStyles } from "./sharedCardStyles";
+import JourneyPhasesSheet from "./JourneyPhasesSheet";
 
 const SERIF = "SourceSerif4-Regular";
 const SW = Dimensions.get("window").width;
@@ -14,13 +15,13 @@ const DESC_MAX_W = Math.round(CARD_W * 0.55);
 
 // Duplicated from HomeCountdownCard.jsx — same convention as CATEGORY_ICONS/CATEGORY_COLORS
 // in that file: small shared data kept in sync manually so HomeCountdownCard.jsx stays
-// fully untouched and reusable elsewhere.
+// fully untouched and reusable elsewhere. `short` is the one-liner shown in JourneyPhasesSheet.
 const PHASES = [
-  { key: "early",    label: "Early",       fullLabel: "Early Preparation",     description: "You have time to plan carefully. Visas, flights, and accommodation are usually the first priorities." },
-  { key: "focused",  label: "Focused",     fullLabel: "Focused Preparation",   description: "A good stretch for learning the steps, memorizing key duas, and shaping your packing list." },
-  { key: "final",    label: "Final",       fullLabel: "Final Preparation",     description: "The trip is getting close. Packing, guides, and a word with family often come into focus around now." },
-  { key: "onway",    label: "On your way", fullLabel: "On Your Way",           description: "Almost there. Documents, essentials, and a check-in with your group are worth a last look." },
-  { key: "onsite",   label: "Pilgrimage",  fullLabel: "Pilgrimage",            description: "You are here. The duas and guides are ready when you need them." },
+  { key: "early",    label: "Early",       fullLabel: "Early Preparation",     description: "You have time to plan carefully. Visas, flights, and accommodation are usually the first priorities.", short: "Visas, flights and accommodation come first" },
+  { key: "focused",  label: "Focused",     fullLabel: "Focused Preparation",   description: "A good stretch for learning the steps, memorizing key duas, and shaping your packing list.", short: "Learn the steps, key duas and your packing list" },
+  { key: "final",    label: "Final",       fullLabel: "Final Preparation",     description: "The trip is getting close. Packing, guides, and a word with family often come into focus around now.", short: "Packing, guides and time with family" },
+  { key: "onway",    label: "On your way", fullLabel: "On Your Way",           description: "Almost there. Documents, essentials, and a check-in with your group are worth a last look.", short: "Documents, essentials and a check-in with your group" },
+  { key: "onsite",   label: "Pilgrimage",  fullLabel: "Pilgrimage",            description: "You are here. The duas and guides are ready when you need them.", short: "You are here — duas and guides are ready" },
 ];
 
 function phaseIndexForDays(daysOut) {
@@ -35,6 +36,7 @@ export default function HomeJourneyHero({ navigation, onEditTrip }) {
   const [tripDate, setTripDate] = React.useState(null);
   const [pilgrimageType, setPilgrimageType] = React.useState(null);
   const [loaded, setLoaded] = React.useState(false);
+  const [phasesOpen, setPhasesOpen] = React.useState(false);
 
   const loadTrip = React.useCallback(async () => {
     try {
@@ -86,9 +88,15 @@ export default function HomeJourneyHero({ navigation, onEditTrip }) {
           <View style={s.eyebrowPill}>
             <Text style={sharedCardStyles.eyebrowText}>YOUR JOURNEY</Text>
           </View>
-          <View style={s.phaseTagBox}>
-            <Text style={s.phaseTagText}>Phase {phaseIdx + 1} of 5</Text>
-          </View>
+          <TouchableOpacity
+            style={s.phaseTagBox}
+            activeOpacity={0.8}
+            onPress={() => setPhasesOpen(true)}
+            accessibilityRole="button"
+            accessibilityLabel={`Phase ${phaseIdx + 1} of ${PHASES.length}. Show all journey phases`}
+          >
+            <Text style={s.phaseTagText}>Phase {phaseIdx + 1} of {PHASES.length}</Text>
+          </TouchableOpacity>
         </View>
 
         <Text style={s.phaseName}>{phase.fullLabel}</Text>
@@ -110,6 +118,13 @@ export default function HomeJourneyHero({ navigation, onEditTrip }) {
           </View>
         </TouchableOpacity>
       </View>
+
+      <JourneyPhasesSheet
+        visible={phasesOpen}
+        onClose={() => setPhasesOpen(false)}
+        phases={PHASES}
+        currentIndex={phaseIdx}
+      />
     </View>
   );
 }

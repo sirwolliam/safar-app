@@ -4,6 +4,7 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import ExploreTiles from "../components/ExploreTiles";
 import {
   CaretLeft, CaretRight, ArrowSquareOut,
   Compass, Cube, BookOpen, MapPin, Books,
@@ -28,6 +29,18 @@ const GUIDES = [
     image: require("../assets/hajj_guide_card.jpg"),
     tags: ["Guide", "Duas", "Map", "Checklist"],
   },
+];
+
+// "Explore your pilgrimage" tiles — Umrah/Hajj guides are omitted here since they sit at the top of Learn.
+const EXPLORE_TILES = [
+  { label: "Practice", subtitle: "Rehearse the rituals",    circleColor: "#2D4A34", image: require("../assets/explore_cards/practice.png"),
+    go: (navigation) => navigation?.getParent?.()?.navigate?.("Practice", { screen: "PracticeMain" }) },
+  { label: "Ziyarah",  subtitle: "Sacred places",           circleColor: "#B48A3C", image: require("../assets/explore_cards/ziyarah.png"),
+    go: (navigation) => navigation.navigate("SacredPlaces") },
+  { label: "Duas",     subtitle: "Essential supplications", circleColor: "#2D4A34", image: require("../assets/explore_cards/duas.png"),
+    go: (navigation) => navigation.navigate("PilgrimageDuas") },
+  { label: "Media",    subtitle: "Watch and listen",        circleColor: "#B48A3C", image: require("../assets/explore_cards/media.png"),
+    go: (navigation) => navigation.navigate("Media") },
 ];
 
 const ROWS = [
@@ -131,6 +144,13 @@ export default function LearnMainScreen({ navigation }) {
           </TouchableOpacity>
         ))}
 
+        <View style={styles.explore}>
+          <ExploreTiles
+            tiles={EXPLORE_TILES.map((tile) => ({ ...tile, onPress: () => tile.go(navigation) }))}
+            viewAllOnPress={() => console.log("explore view all pressed")}
+          />
+        </View>
+
         {ROWS.map((item) => (
           <TouchableOpacity
             key={item.key}
@@ -181,6 +201,8 @@ const styles = StyleSheet.create({
   tagRow:         { flexDirection: "row", flexWrap: "wrap", gap: 6 },
   tagPill:        { backgroundColor: "rgba(255,255,255,0.18)", borderRadius: 50, paddingHorizontal: 10, paddingVertical: 4, borderWidth: 1, borderColor: "rgba(255,255,255,0.30)" },
   tagPillText:    { fontSize: 10, fontWeight: "700", color: "#FFFFFF", letterSpacing: 0.3 },
+
+  explore:       { marginTop: 2, marginBottom: 16 },
 
   row:           { flexDirection: "row", alignItems: "center", paddingHorizontal: 18, paddingVertical: 16, backgroundColor: "#FDFAF4", borderRadius: 16, marginHorizontal: 16, marginBottom: 12, borderWidth: 1, borderColor: "#EDE4D4", shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 8, elevation: 3 },
   rowIcon:       { width: 52, height: 52, borderRadius: 14, alignItems: "center", justifyContent: "center", marginRight: 16 },

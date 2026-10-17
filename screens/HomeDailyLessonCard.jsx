@@ -5,10 +5,14 @@ import { ArrowRight } from "phosphor-react-native";
 import { LESSONS } from "../content/lessons";
 import { sharedCardStyles } from "./sharedCardStyles";
 
+const LESSON_CARD_IMAGES = {
+  "hajj-03": require("../assets/lesson_cards/hajj_3.png"),
+};
+
 const SERIF = "SourceSerif4-Regular";
 const SW = Dimensions.get("window").width;
 const CARD_W = SW - 16;
-const CARD_H = 200;
+const CARD_H = Math.round(CARD_W / 2.33); // matches image aspect exactly
 
 export default function HomeDailyLessonCard({ navigation }) {
   const lessonIds = Object.keys(LESSONS).sort();
@@ -23,13 +27,14 @@ export default function HomeDailyLessonCard({ navigation }) {
   if (!todayLesson) return null;
 
   const [guidePrefix, numStr] = todayLessonId.split("-");
-  const guideName = guidePrefix === "hajj" ? "Hajj" : "Umrah";
   const lessonNum = parseInt(numStr, 10);
   const lessonTotal = Object.keys(LESSONS).filter((k) => k.startsWith(guidePrefix + "-")).length;
 
   const coverBlock = todayLesson.blocks[0];
-  const lessonImage = coverBlock?.image || require("../assets/continue.jpg");
-  const lessonSubtitle = coverBlock?.subtitle || "";
+  const lessonImage =
+    LESSON_CARD_IMAGES[todayLessonId] ||
+    coverBlock?.image ||
+    require("../assets/continue.jpg");
 
   return (
     <TouchableOpacity
@@ -37,34 +42,25 @@ export default function HomeDailyLessonCard({ navigation }) {
       activeOpacity={0.9}
       onPress={() => navigation?.getParent?.()?.navigate?.("Learn", { screen: "LessonFlow", initial: false, params: { lessonId: todayLessonId, returnToTab: "Home" } })}
     >
-      <Image
-        source={lessonImage}
-        style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: Math.round(CARD_W * 0.55), resizeMode: "cover" }}
-      />
+      <Image source={lessonImage} style={s.image} />
 
       <LinearGradient
-        colors={["#F9F4E8", "#F9F4E8", "rgba(249,244,232,0.7)", "transparent"]}
-        locations={[0, 0.35, 0.6, 1]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
+        colors={["transparent", "transparent", "rgba(0,0,0,0.55)", "rgba(0,0,0,0.85)"]}
+        locations={[0, 0.4, 0.8, 1]}
         style={StyleSheet.absoluteFill}
       />
 
-      <View style={s.textCol}>
-        <Text style={sharedCardStyles.eyebrowText}>TODAY'S LESSON</Text>
-        <Text style={s.headline} numberOfLines={1}>{todayLesson.title}</Text>
-        {lessonSubtitle ? (
-          <Text style={s.subhead} numberOfLines={3}>{lessonSubtitle}</Text>
-        ) : null}
+      <View style={s.pill}>
+        <Text style={s.pillText}>{`Lesson ${lessonNum} of ${lessonTotal}`}</Text>
       </View>
 
-      <View style={s.lessonPill}>
-        <Text style={{ color: "#FDFAF4", fontSize: 12, fontWeight: "500" }}>{`Lesson ${lessonNum} of ${lessonTotal}`}</Text>
-      </View>
-
-      <View style={s.cta}>
-        <Text style={{ color: "#FFFFFF", fontSize: 15, fontWeight: "600", fontFamily: SERIF, marginRight: 8 }}>Learn more</Text>
-        <ArrowRight size={16} color="#FFFFFF" weight="regular" />
+      <View style={s.bottom}>
+        <Text style={s.eyebrow}>TODAY'S LESSON</Text>
+        <Text style={s.headline} numberOfLines={2}>{todayLesson.title}</Text>
+        <View style={s.ctaRow}>
+          <Text style={s.ctaText}>Learn more</Text>
+          <ArrowRight size={14} color="#FFFFFF" weight="regular" />
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -77,48 +73,19 @@ const s = StyleSheet.create({
     marginHorizontal: 8,
     borderRadius: 16,
     overflow: "hidden",
-    backgroundColor: "#F9F4E8",
-    borderWidth: 1,
-    borderColor: "rgba(200, 191, 178, 0.5)",
+    backgroundColor: "#1A1410",
     position: "relative",
   },
-  textCol: {
-    position: "absolute",
-    top: 18,
-    left: 18,
-    right: 100,
+  image: { position: "absolute", left: 0, right: 0, top: 0, bottom: 0, width: "100%", height: "100%", resizeMode: "cover" },
+  pill: {
+    position: "absolute", top: 12, right: 12,
+    paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20,
+    backgroundColor: "rgba(0,0,0,0.55)",
   },
-  headline: {
-    fontFamily: SERIF,
-    fontSize: 24,
-    color: "#1A1410",
-    marginTop: 6,
-    lineHeight: 30,
-  },
-  subhead: {
-    fontSize: 13,
-    color: "#5C534A",
-    marginTop: 8,
-    lineHeight: 18,
-  },
-  lessonPill: {
-    position: "absolute",
-    top: 14,
-    right: 14,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    backgroundColor: "rgba(58, 47, 30, 0.75)",
-  },
-  cta: {
-    position: "absolute",
-    bottom: 18,
-    left: 18,
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 18,
-    paddingVertical: 12,
-    borderRadius: 30,
-    backgroundColor: "#2D4A34",
-  },
+  pillText: { color: "#FDFAF4", fontSize: 11, fontWeight: "600", letterSpacing: 0.3 },
+  bottom: { position: "absolute", left: 16, right: 16, bottom: 14 },
+  eyebrow: { color: "rgba(255,255,255,0.85)", fontSize: 10, fontWeight: "700", letterSpacing: 1.2, marginBottom: 4 },
+  headline: { fontFamily: SERIF, fontSize: 20, color: "#FFFFFF", lineHeight: 24 },
+  ctaRow: { flexDirection: "row", alignItems: "center", marginTop: 6 },
+  ctaText: { color: "#FFFFFF", fontSize: 13, fontWeight: "600", fontFamily: SERIF, marginRight: 6 },
 });

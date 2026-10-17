@@ -136,6 +136,7 @@ Focus tab retired. Duas moved to center. Tools promoted to a tab.
 
 ### Parked components (`parked-components.jsx`)
 `FocusModeCard` and `SacredPlacesCard` — removed from Home to cut clutter, preserved for reuse. Not imported anywhere yet.
+`HomeMyJourneyCard.jsx` (screens/) — the "MY JOURNEY" / "Plan your pilgrimage" card, removed from Home 2026-09-27. Self-contained component (props: `navigation`, `daysAway`, `onEditTrip`), not imported anywhere yet.
 
 ---
 
@@ -152,13 +153,33 @@ Rationale for reduction: five slides meant most users never saw slides 4–5. Th
 ### Four Pillars grid
 2×2 grid, opacity 0.55, serif titles, each navigates to HubContainer with pillar param. Section header: "Where would you like to begin?" centered, fontSize 20, `#1A1712`.
 
+### Home background (agreed 2026-10-16)
+Home's outer `SafeAreaView` uses `colors.warmBackground` (`theme.js`) = `#F6EEDA`, a warm amber parchment wash that sits slightly darker than the cards (`#FDFAF4` / `#F9F4E8`) so they lift off the page. Card colors are unchanged. Home is the only screen using the token so far; it's there to carry the tint app-wide later.
+
+### Journey phases sheet (agreed 2026-10-16)
+The "Phase N of 5" pill on `HomeJourneyHero` opens `screens/JourneyPhasesSheet.jsx`, a "Your journey" bottom sheet with a vertical stepper of the **5 preparation phases** (same `PHASES` the pill counts, from days-to-go), not ritual steps. Each step: numbered 24px dot + connecting line, serif 16px name, one-line `short` description (13px `#6B6358`). Current = `#2D4A34` dot + SemiBold name; past = `#8A7F72` dot + dimmed name; future = outlined dot. Dismiss via swipe down, backdrop tap or X. No icons/imagery in the steps.
+
+### Card spacing (agreed 2026-09-27)
+All Home cards sit inside one `s.cardStack` View (`paddingTop: 16, gap: 16`); ScrollView content `paddingBottom: 16`; top bar `paddingBottom: 0`. Cards carry **no vertical margins** of their own — the stack owns spacing. A section header and its content are grouped in one View (header→content spacing stays internal, e.g. `marginBottom: 12`).
+
+### Explore your pilgrimage (agreed 2026-09-27, rebuilt 2026-10-16)
+Shared component `components/ExploreTiles.jsx` (replaces `screens/ExploreSection.jsx`, now in `backups/`) — used on **Home** and **Learn** so tiles stay identical. Props: `title` (default "EXPLORE YOUR PILGRIMAGE"), `viewAllOnPress`, `tiles` = `[{ label, subtitle, image, circleColor, onPress }]`.
+- Section owns 16px side padding (hosts add no horizontal margin). Header row: `sharedCardStyles.eyebrowText` (12px, 700, letterSpacing 1.2, uppercase, `#C8A96A`) — the one eyebrow style for every Home section heading + "View all →" pill (same pill as HomePrioritiesCard).
+- 2×2 grid, 8px gap. Tile: parchment card, radius 16, 1px `rgba(200,191,178,0.5)` border, aspectRatio 0.92; photo fills top 55%; 28px circle (`circleColor`, white CaretRight) top-right of the photo; serif title 17px `#1A1410`; subtitle 13px `#8A7F72`. No gradient on the photo — the solid circle stays legible.
+- Home (after Priorities card): Umrah Guide · Hajj Guide · Ziyarah · Duas (green/gold/green/gold)
+- Learn (below the guide cards): Practice · Ziyarah · Duas · Media (green/gold/green/gold). Umrah/Hajj omitted — they're the guide cards at the top of Learn.
+- Images: all from `assets/explore_cards/` (umrah, hajj, ziyarah, duas, practice, media).
+- "View all" is a placeholder (`console.log("explore view all pressed")`) on both screens until its destination is specced.
+
+### Guides card intro (`HomeGuidesCard.jsx`, agreed 2026-09-26)
+Intro headline rotates per day (replaces the old static "Take your time."). `HEADLINES` array at module level, index = day-of-year % length: "Ready when you are." · "The journey begins." · "Bismillah — let's begin." Computed once at module load, so it updates on app restart, not at midnight.
+
 ### Bottom utility zone
 Background: `#D4C9B4` (warm tan, darker than page background — creates visual zone separation from navigation above).
 
 Contains in order:
-- **My Shortcuts** (4 items horizontal row): Qibla · Prayer Times · Dhikr · Notes. Reduced from 8 items — these four are the most urgently needed during the trip. Fixed in v1, no customization (edit button removed).
+- **Quick Access** (formerly My Shortcuts; 4 items horizontal row, heading = `sharedCardStyles.eyebrowText`, icon circles sage `#2D4A34` at 10% = `rgba(45, 74, 52, 0.1)`, icons `#4A5C48`): Qibla · Calendar · Dhikr · Notes. Reduced from 8 items — these four are the most urgently needed during the trip. Fixed in v1, no customization (edit button removed).
 - **Prayer Times card** (tappable → PrayerTimes). Contains weather strip: Makkah + Madinah temp, mocked, placeholder for OpenWeatherMap API (Makkah lat: 21.3891, lon: 39.8579).
-- **My Journey card** with photo header (`myboard.jpg`, 150px), text overlay at bottom, quick links row.
 - **Continuation card** (last du'ā read).
 - **Today's Du'ā** section.
 

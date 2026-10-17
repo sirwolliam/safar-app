@@ -4,6 +4,17 @@ import { LinearGradient } from "expo-linear-gradient";
 
 const SERIF = "SourceSerif4-Regular";
 
+const HEADLINES = [
+  "Ready when you are.",
+  "The journey begins.",
+  "Bismillah — let's begin.",
+];
+
+const now = new Date();
+const startOfYear = new Date(now.getFullYear(), 0, 1);
+const dayOfYear = Math.floor((now - startOfYear) / 86400000);
+const HEADLINE = HEADLINES[dayOfYear % HEADLINES.length];
+
 // Duplicated from LearnMainScreen.jsx — kept independent so the two files can evolve separately.
 const GUIDES = [
   {
@@ -22,7 +33,12 @@ const GUIDES = [
 
 export default function HomeGuidesCard({ navigation }) {
   return (
-    <View>
+    <View style={s.wrap}>
+      <View style={s.intro}>
+        <Text style={s.introHeadline}>{HEADLINE}</Text>
+        <Text style={s.introSubhead}>Explore the guides and start learning at your own pace. Everything you need is here.</Text>
+      </View>
+
       {GUIDES.map((item) => (
         <TouchableOpacity
           key={item.key}
@@ -55,11 +71,28 @@ export default function HomeGuidesCard({ navigation }) {
 }
 
 const s = StyleSheet.create({
-  guideCard:      { height: 190, borderRadius: 20, overflow: "hidden", position: "relative", marginHorizontal: 8, marginBottom: 14, backgroundColor: "#1A1410", shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.12, shadowRadius: 10, elevation: 4 },
+  wrap: { gap: 16 },
+  intro: {
+    marginHorizontal: 8,
+    paddingHorizontal: 6,
+  },
+  introHeadline: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#2D4A34",
+    lineHeight: 28,
+    marginBottom: 6,
+  },
+  introSubhead: {
+    fontSize: 14,
+    color: "#5C534A",
+    lineHeight: 20,
+  },
+  guideCard:      { height: 190, borderRadius: 20, overflow: "hidden", position: "relative", marginHorizontal: 8, backgroundColor: "#1A1410", shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.12, shadowRadius: 10, elevation: 4 },
   guideCardInner: { position: "absolute", left: 0, right: 0, bottom: 0, padding: 18 },
   guideCardTitle: { fontFamily: SERIF, fontSize: 26, color: "#FFFFFF", fontWeight: "600", marginBottom: 4 },
   guideCardSub:   { fontSize: 14, color: "rgba(255,255,255,0.85)", lineHeight: 20, marginBottom: 10 },
   tagRow:         { flexDirection: "row", flexWrap: "wrap", gap: 6 },
-  tagPill:        { backgroundColor: "rgba(255,255,255,0.18)", borderRadius: 50, paddingHorizontal: 10, paddingVertical: 4, borderWidth: 1, borderColor: "rgba(255,255,255,0.30)" },
+  tagPill:        { backgroundColor: "rgba(0,0,0,0.35)", borderRadius: 50, paddingHorizontal: 10, paddingVertical: 4, borderWidth: 1, borderColor: "rgba(255,255,255,0.25)" },
   tagPillText:    { fontSize: 10, fontWeight: "700", color: "#FFFFFF", letterSpacing: 0.3 },
 });
