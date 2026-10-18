@@ -13,6 +13,12 @@ const JOURNEY_TYPES = [
   { key: "learn",  label: "Learning" },
 ];
 
+const JOURNEY_EXPLAINERS = {
+  umrah: { lead: "Umrah mode:",    rest: " countdown to your departure, step-by-step guide, and daily duas for your pilgrimage." },
+  hajj:  { lead: "Hajj mode:",     rest: " countdown to your departure, the 5-day journey plan, and daily duas for every stage." },
+  learn: { lead: "Learning mode:", rest: " explore all guides and content without a trip date. No countdowns, checklists, or reminders shown." },
+};
+
 const MONTHS = [
   "January","February","March","April","May","June",
   "July","August","September","October","November","December",
@@ -61,6 +67,7 @@ export default function TripDetailsEditor({
   }, [selectedMonth, selectedYear]);
 
   const isLearn = journeyType === "learn";
+  const explainer = JOURNEY_EXPLAINERS[journeyType] || JOURNEY_EXPLAINERS.umrah;
   const canSave = isLearn || (selectedMonth !== null && selectedDay !== null);
   const dayCount = selectedMonth ? daysInMonth(selectedYear, selectedMonth) : 31;
 
@@ -96,6 +103,7 @@ export default function TripDetailsEditor({
           >
             <View style={s.handle} />
             <Text style={s.title}>Trip Details</Text>
+            <Text style={s.subtitle}>Select the path that matches what you're preparing for. You can change this anytime.</Text>
 
             <Text style={s.sectionLabel}>JOURNEY TYPE</Text>
             <View style={s.journeyRow}>
@@ -112,6 +120,10 @@ export default function TripDetailsEditor({
                 </TouchableOpacity>
               ))}
             </View>
+            <Text style={s.explainer}>
+              <Text style={s.explainerLead}>{explainer.lead}</Text>
+              {explainer.rest}
+            </Text>
 
             {isLearn ? null : (
               <>
@@ -190,13 +202,16 @@ const s = StyleSheet.create({
   content:         { paddingHorizontal: 24, paddingBottom: 12 },
   handle:          { width: 36, height: 4, borderRadius: 2, backgroundColor: "#DDD5C0", alignSelf: "center", marginBottom: 12 },
   title:           { fontFamily: "SourceSerif4-Regular", fontSize: 22, color: "#1A1410", fontWeight: "600", marginBottom: 14 },
+  subtitle:        { fontSize: 14, color: "#5C534A", lineHeight: 20, marginTop: -8, marginBottom: 20 },
   sectionLabel:    { fontSize: 10, fontWeight: "700", letterSpacing: 1.5, color: "#8A7D6A", textTransform: "uppercase", marginBottom: 8, marginTop: 2 },
 
-  journeyRow:        { flexDirection: "row", gap: 10, marginBottom: 14 },
+  journeyRow:        { flexDirection: "row", gap: 10 },
   journeyPill:       { flex: 1, paddingVertical: 10, borderRadius: 12, alignItems: "center", backgroundColor: "#F0EBE1", borderWidth: 1, borderColor: "#DDD5C0" },
   journeyPillActive: { backgroundColor: "#4A5C48", borderWidth: 2, borderColor: "#C8A96A" },
   journeyText:       { fontSize: 13, fontWeight: "600", color: "#5C534A" },
   journeyTextActive: { fontSize: 16, fontWeight: "800", color: "#F5EFDD", letterSpacing: 0.3 },
+  explainer:         { fontSize: 13, color: "#5C534A", lineHeight: 18, fontStyle: "italic", marginTop: 10, marginBottom: 14 },
+  explainerLead:     { fontWeight: "700" },
 
   pillRow:         { flexDirection: "row", gap: 8, marginBottom: 10 },
   pill:            { flex: 1, paddingVertical: 8, borderRadius: 10, alignItems: "center", backgroundColor: "#F0EBE1", borderWidth: 1, borderColor: "#DDD5C0" },

@@ -51,11 +51,11 @@ const goLearn = (navigation, screen) =>
 const EXPLORE_TILES = [
   { label: "Umrah Guide", subtitle: "Step by step",            circleColor: "#2D4A34", image: require("../assets/explore_cards/umrah.png"),
     go: (navigation) => goLearn(navigation, "UmrahGuide") },
-  { label: "Hajj Guide",  subtitle: "Each day explained",      circleColor: "#B48A3C", image: require("../assets/explore_cards/hajj.png"),
+  { label: "Hajj Guide",  subtitle: "Each day explained",      circleColor: "#2D4A34", image: require("../assets/explore_cards/hajj.png"),
     go: (navigation) => goLearn(navigation, "HajjGuide") },
   { label: "Ziyarah",     subtitle: "Sacred places",           circleColor: "#2D4A34", image: require("../assets/explore_cards/ziyarah.png"),
     go: (navigation) => navigation?.navigate?.("SacredPlaces") },
-  { label: "Duas",        subtitle: "Essential supplications", circleColor: "#B48A3C", image: require("../assets/explore_cards/duas.png"),
+  { label: "Duas",        subtitle: "Essential supplications", circleColor: "#2D4A34", image: require("../assets/explore_cards/duas.png"),
     go: (navigation) => navigation?.navigate?.("PilgrimageDuas") },
 ];
 

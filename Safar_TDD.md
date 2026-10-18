@@ -166,8 +166,8 @@ All Home cards sit inside one `s.cardStack` View (`paddingTop: 16, gap: 16`); Sc
 Shared component `components/ExploreTiles.jsx` (replaces `screens/ExploreSection.jsx`, now in `backups/`) — used on **Home** and **Learn** so tiles stay identical. Props: `title` (default "EXPLORE YOUR PILGRIMAGE"), `viewAllOnPress`, `tiles` = `[{ label, subtitle, image, circleColor, onPress }]`.
 - Section owns 16px side padding (hosts add no horizontal margin). Header row: `sharedCardStyles.eyebrowText` (12px, 700, letterSpacing 1.2, uppercase, `#C8A96A`) — the one eyebrow style for every Home section heading + "View all →" pill (same pill as HomePrioritiesCard).
 - 2×2 grid, 8px gap. Tile: parchment card, radius 16, 1px `rgba(200,191,178,0.5)` border, aspectRatio 0.92; photo fills top 55%; 28px circle (`circleColor`, white CaretRight) top-right of the photo; serif title 17px `#1A1410`; subtitle 13px `#8A7F72`. No gradient on the photo — the solid circle stays legible.
-- Home (after Priorities card): Umrah Guide · Hajj Guide · Ziyarah · Duas (green/gold/green/gold)
-- Learn (below the guide cards): Practice · Ziyarah · Duas · Media (green/gold/green/gold). Umrah/Hajj omitted — they're the guide cards at the top of Learn.
+- Home (after Priorities card): Umrah Guide · Hajj Guide · Ziyarah · Duas (all circles `#2D4A34` sage, agreed 2026-10-17)
+- Learn (below the guide cards): Practice · Ziyarah · Duas · Media (all circles `#2D4A34` sage). Umrah/Hajj omitted — they're the guide cards at the top of Learn.
 - Images: all from `assets/explore_cards/` (umrah, hajj, ziyarah, duas, practice, media).
 - "View all" is a placeholder (`console.log("explore view all pressed")`) on both screens until its destination is specced.
 
