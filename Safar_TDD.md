@@ -169,7 +169,7 @@ Shared component `components/ExploreTiles.jsx` (replaces `screens/ExploreSection
 - Home (after Priorities card): Umrah Guide · Hajj Guide · Ziyarah · Duas (all circles `#2D4A34` sage, agreed 2026-10-17)
 - Learn (below the guide cards): Practice · Ziyarah · Duas · Media (all circles `#2D4A34` sage). Umrah/Hajj omitted — they're the guide cards at the top of Learn.
 - Images: all from `assets/explore_cards/` (umrah, hajj, ziyarah, duas, practice, media).
-- "View all" is a placeholder (`console.log("explore view all pressed")`) on both screens until its destination is specced.
+- "View all" (agreed 2026-10-18): on Home it opens the Learn tab (`navigate("Learn", { screen: "LearnMain" })`); on Learn the pill is hidden since the user is already on the hub. `ExploreTiles` renders the pill only when `viewAllOnPress` is a function.
 
 ### Guides card intro (`HomeGuidesCard.jsx`, agreed 2026-09-26)
 Intro headline rotates per day (replaces the old static "Take your time."). `HEADLINES` array at module level, index = day-of-year % length: "Ready when you are." · "The journey begins." · "Bismillah — let's begin." Computed once at module load, so it updates on app restart, not at midnight.

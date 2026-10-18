@@ -147,7 +147,6 @@ export default function LearnMainScreen({ navigation }) {
         <View style={styles.explore}>
           <ExploreTiles
             tiles={EXPLORE_TILES.map((tile) => ({ ...tile, onPress: () => tile.go(navigation) }))}
-            viewAllOnPress={() => console.log("explore view all pressed")}
           />
         </View>
 

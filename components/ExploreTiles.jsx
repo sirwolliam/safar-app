@@ -8,15 +8,18 @@ const SERIF = "SourceSerif4-Regular";
 // "Explore your pilgrimage" — shared by HomeScreen and LearnMainScreen so the tiles stay identical.
 // Each screen passes its own tiles: { label, subtitle, image, circleColor, onPress }.
 // The section owns its 16px side padding; hosts should not add horizontal margins.
+// "View all" pill renders only when viewAllOnPress is a function.
 export default function ExploreTiles({ title = "EXPLORE YOUR PILGRIMAGE", viewAllOnPress, tiles = [] }) {
   return (
     <View style={s.section}>
       <View style={s.headerRow}>
         <Text style={sharedCardStyles.eyebrowText}>{title}</Text>
-        <TouchableOpacity style={s.viewAllBtn} onPress={viewAllOnPress} activeOpacity={0.7}>
-          <Text style={s.viewAllText}>View all</Text>
-          <ArrowRight size={12} color="#5C534A" weight="regular" />
-        </TouchableOpacity>
+        {typeof viewAllOnPress === "function" ? (
+          <TouchableOpacity style={s.viewAllBtn} onPress={viewAllOnPress} activeOpacity={0.7}>
+            <Text style={s.viewAllText}>View all</Text>
+            <ArrowRight size={12} color="#5C534A" weight="regular" />
+          </TouchableOpacity>
+        ) : null}
       </View>
 
       <View style={s.grid}>

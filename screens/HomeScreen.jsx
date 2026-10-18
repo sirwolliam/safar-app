@@ -663,7 +663,7 @@ export default function HomeScreen({ navigation }) {
         {/* ── EXPLORE YOUR PILGRIMAGE ── */}
         <ExploreTiles
           tiles={EXPLORE_TILES.map((tile) => ({ ...tile, onPress: () => tile.go(navigation) }))}
-          viewAllOnPress={() => console.log("explore view all pressed")}
+          viewAllOnPress={() => navigation?.getParent?.()?.navigate?.("Learn", { screen: "LearnMain" })}
         />
 
         {/* ── HERO CAROUSEL (classic) ── */}
