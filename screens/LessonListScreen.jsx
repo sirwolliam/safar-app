@@ -78,8 +78,7 @@ export default function LessonListScreen({ navigation, route }) {
                 </View>
                 <View style={s.rowInfo}>
                   <Text style={s.eyebrow}>{"LESSON " + lessonNum}</Text>
-                  <Text style={s.rowLabelLocked}>{"Lesson " + n}</Text>
-                  <Text style={s.progressTextLocked}>Coming soon</Text>
+                  <Text style={s.rowLabelLocked}>Coming soon</Text>
                 </View>
               </View>
               {!isLastRow ? <View style={s.connector} /> : null}
@@ -168,9 +167,8 @@ const s = StyleSheet.create({
   },
   rowInfo:      { flex: 1 },
   rowLabel:     { fontFamily: SERIF, fontSize: 20, color: "#1A1410", marginBottom: 4, fontWeight: "700" },
-  rowLabelLocked:{ fontSize: 16, color: "#8A7D6A", marginBottom: 4, fontWeight: "500" },
+  rowLabelLocked:{ fontFamily: SERIF, fontSize: 20, color: "#8A7F72", fontWeight: "700" },
   progressText: { fontSize: 13, color: "#5C534A", fontWeight: "300" },
-  progressTextLocked:{ fontSize: 13, color: "#A79E90" },
   progressDone: { color: "#4A5C48", fontWeight: "600" },
   progressActive:{ color: GOLD, fontWeight: "600" },
   progWrap:     { marginTop: 8 },
