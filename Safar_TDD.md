@@ -159,6 +159,9 @@ Home's outer `SafeAreaView` uses `colors.warmBackground` (`theme.js`) = `#F6EEDA
 ### Journey phases sheet (agreed 2026-10-16)
 The "Phase N of 5" pill on `HomeJourneyHero` opens `screens/JourneyPhasesSheet.jsx`, a "Your journey" bottom sheet with a vertical stepper of the **5 preparation phases** (same `PHASES` the pill counts, from days-to-go), not ritual steps. Each step: numbered 24px dot + connecting line, serif 16px name, one-line `short` description (13px `#6B6358`). Current = `#2D4A34` dot + SemiBold name; past = `#8A7F72` dot + dimmed name; future = outlined dot. Dismiss via swipe down, backdrop tap or X. No icons/imagery in the steps.
 
+### Top bar (agreed 2026-10-18)
+Left column: "As-salamu alaykum" (14px) → display name (serif 20px) → journey pill (Hajj / Umrah / Learning; outlined sage `#7A9176`, `alignSelf: "flex-start"`, 6px below the name; tap opens `TripDetailsEditor`). Right column: the "safar" wordmark alone, vertically centred against the left column.
+
 ### Card spacing (agreed 2026-09-27)
 All Home cards sit inside one `s.cardStack` View (`paddingTop: 16, gap: 16`); ScrollView content `paddingBottom: 16`; top bar `paddingBottom: 0`. Cards carry **no vertical margins** of their own — the stack owns spacing. A section header and its content are grouped in one View (header→content spacing stays internal, e.g. `marginBottom: 12`).
 

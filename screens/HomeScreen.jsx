@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import {
   View,
   Text,
@@ -456,40 +456,48 @@ export default function HomeScreen({ navigation }) {
     }).catch(() => {});
   }, []));
 
-  // Load persisted state
-  useEffect(() => {
+  // Load persisted state on every focus, so edits made elsewhere (Settings name,
+  // trip details, last du'a) show up as soon as the user returns to Home.
+  // Missing keys reset to defaults so cleared values propagate too.
+  useFocusEffect(useCallback(() => {
+    let cancelled = false;
     (async () => {
       try {
-        const name = await AsyncStorage.getItem(USER_NAME_KEY);
-        if (name) setUserName(name);
+        const [name, dep, jt, plan, dismissed, lastDuaRaw] = await Promise.all([
+          AsyncStorage.getItem(USER_NAME_KEY),
+          AsyncStorage.getItem(DEPARTURE_KEY),
+          AsyncStorage.getItem(JOURNEY_TYPE_KEY),
+          AsyncStorage.getItem(PLAN_STARTED_KEY),
+          AsyncStorage.getItem(INTRO_DISMISSED_KEY),
+          AsyncStorage.getItem("SAFAR_LAST_DUA"), // last viewed du'a — for continuation card
+        ]);
+        if (cancelled) return;
 
-        const dep = await AsyncStorage.getItem(DEPARTURE_KEY);
-        if (dep) {
-          const parsedDep = new Date(dep);
-          if (!isNaN(parsedDep.getTime())) {
-            setDepartureISO(dep);
-            const diff = Math.ceil((parsedDep - new Date()) / 86400000);
-            if (diff > 0) setDaysAway(diff);
-          }
+        setUserName(name || "");
+
+        const parsedDep = dep ? new Date(dep) : null;
+        if (parsedDep && !isNaN(parsedDep.getTime())) {
+          setDepartureISO(dep);
+          const diff = Math.ceil((parsedDep - new Date()) / 86400000);
+          setDaysAway(diff > 0 ? diff : null);
+        } else {
+          setDepartureISO(null);
+          setDaysAway(null);
         }
 
-        const jt = await AsyncStorage.getItem(JOURNEY_TYPE_KEY);
-        if (jt) setJourneyType(jt);
+        setJourneyType(jt || "");
+        setPlanStarted(plan === "true");
+        setIntroDismissed(dismissed === "true");
 
-        const plan = await AsyncStorage.getItem(PLAN_STARTED_KEY);
-        if (plan === "true") setPlanStarted(true);
-
-        const dismissed = await AsyncStorage.getItem(INTRO_DISMISSED_KEY);
-        if (dismissed === "true") setIntroDismissed(true);
-
-        // Last viewed du'a — for continuation card
-        const lastDuaRaw = await AsyncStorage.getItem("SAFAR_LAST_DUA");
+        let parsedDua = null;
         if (lastDuaRaw) {
-          try { setLastDua(JSON.parse(lastDuaRaw)); } catch (_) {}
+          try { parsedDua = JSON.parse(lastDuaRaw); } catch (_) {}
         }
+        setLastDua(parsedDua);
       } catch (_) {}
     })();
-  }, []);
+    return () => { cancelled = true; };
+  }, []));
 
   const dismissIntro = async () => {
     try { await AsyncStorage.setItem(INTRO_DISMISSED_KEY, "true"); } catch (_) {}
@@ -588,9 +596,6 @@ export default function HomeScreen({ navigation }) {
           <View style={s.topBarLeft}>
             <Text style={s.topBarSalam}>{"As-salamu alaykum"}</Text>
             <Text style={s.topBarName}>{displayName}</Text>
-          </View>
-          <View style={s.topBarRightStack}>
-            <Text style={s.wordmarkPlaceholder}>safar</Text>
             <TouchableOpacity
               style={s.journeyPill}
               onPress={() => setShowTripEditor(true)}
@@ -600,6 +605,9 @@ export default function HomeScreen({ navigation }) {
                 {journeyType === "hajj" ? "Hajj" : journeyType === "umrah" ? "Umrah" : "Learning"}
               </Text>
             </TouchableOpacity>
+          </View>
+          <View style={s.topBarRight}>
+            <Text style={s.wordmarkPlaceholder}>safar</Text>
           </View>
         </View>
 
@@ -1844,15 +1852,11 @@ const s = StyleSheet.create({
   },
 
   // ── Top bar (parchment greeting + countdown above hero) ───────────────────
-  topBar:         { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", paddingHorizontal: 20, paddingBottom: 0 },
+  topBar:         { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 20, paddingBottom: 0 },
   topBarLeft:     { flex: 1 },
   topBarSalam:    { fontSize: 14, color: "#8A7D6A", fontWeight: "500", lineHeight: 18 },
   topBarName:     { fontFamily: "SourceSerif4-Regular", fontSize: 20, color: "#1A1410", fontWeight: "600", lineHeight: 25, marginTop: 2 },
-  topBarRight:    { flexDirection: "row", alignItems: "baseline", paddingTop: 2 },
-  topBarRightStack: {
-    alignItems: "flex-end",
-    gap: 4,
-  },
+  topBarRight:    { alignItems: "flex-end" },
   wordmarkPlaceholder: {
     fontFamily: "SourceSerif4-Regular",
     fontSize: 16,
@@ -1861,6 +1865,8 @@ const s = StyleSheet.create({
     letterSpacing: 0.5,
   },
   journeyPill: {
+    alignSelf: "flex-start",
+    marginTop: 6,
     backgroundColor: "transparent",
     borderWidth: 1,
     borderColor: "#7A9176",
