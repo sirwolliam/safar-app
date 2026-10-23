@@ -35,7 +35,7 @@ const GUIDES = [
 const EXPLORE_TILES = [
   { label: "Practice", subtitle: "Rehearse the rituals",    circleColor: "#2D4A34", image: require("../assets/explore_cards/practice.png"),
     go: (navigation) => navigation?.getParent?.()?.navigate?.("Practice", { screen: "PracticeMain" }) },
-  { label: "Ziyarah",  subtitle: "Sacred places",           circleColor: "#2D4A34", image: require("../assets/explore_cards/ziyarah.png"),
+  { label: "Ziyarah",  subtitle: "Historical places to visit", circleColor: "#2D4A34", image: require("../assets/explore_cards/ziyarah.png"),
     go: (navigation) => navigation.navigate("SacredPlaces") },
   { label: "Duas",     subtitle: "Essential supplications", circleColor: "#2D4A34", image: require("../assets/explore_cards/duas.png"),
     go: (navigation) => navigation.navigate("PilgrimageDuas") },
@@ -45,7 +45,7 @@ const EXPLORE_TILES = [
 
 const ROWS = [
   { key: "expect", Icon: BookOpen, label: "What to Expect", sub: "Crowds, climate, what it really feels like", nav: "stack", target: "WhatToExpect" },
-  { key: "sacred",     Icon: MapPin,   label: "Sacred Places",       sub: "Map of the holy sites",                      nav: "stack", target: "SacredPlaces"      },
+  { key: "sacred",     Icon: MapPin,   label: "Ziyarah",             sub: "Historical places to visit",                 nav: "stack", target: "SacredPlaces"      },
   { key: "dualib",     Icon: Books,    label: "Dua Library",         sub: "Supplications for every moment",             nav: "tab",   tab: "Practice", screen: "MyDuas" },
   { key: "references", Icon: Books,    label: "Islamic References",  sub: "Trusted scholarly sources",                  nav: "stack", target: "IslamicReferences" },
 ];

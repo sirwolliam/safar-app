@@ -1,7 +1,7 @@
 /**
  * SacredPlacesScreen.jsx — Safar
  * Two cities: Makkah and Madinah
- * Ornate pattern header · full-bleed photo hero · stepper overlaid on hero bottom with scrim
+ * Ornate pattern header · full-bleed photo hero · location chips overlaid on hero bottom with scrim, prev/next arrows at hero mid-height
  */
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
@@ -18,7 +18,7 @@ import HeaderPatternBg from "../HeaderPatternBg";
 
 const SERIF      = "SourceSerif4-Regular";
 const SERIF_BOLD = "SourceSerif4-SemiBold";
-const HERO_H  = 300;
+const HERO_H  = 290;
 const { width: SW } = Dimensions.get("window");
 
 const VISITED_KEY = "safar_visited_sites_v1";
@@ -402,7 +402,7 @@ export default function SacredPlacesScreen({ navigation }) {
       {/* ── Ornate pattern header (matches CalendarScreen / GroupsScreen) ── */}
       <View style={s.header}>
         <HeaderPatternBg width={SW} />
-        <View style={[s.headerTopRow, { paddingTop: insets.top + 10 }]}>
+        <View style={[s.headerTopRow, { paddingTop: insets.top + 2 }]}>
           <TouchableOpacity
             style={s.headerBtn}
             onPress={() => navigation?.goBack?.()}
@@ -411,9 +411,10 @@ export default function SacredPlacesScreen({ navigation }) {
           >
             <CaretLeft size={18} color="#1A1410" weight="bold" />
           </TouchableOpacity>
-          <View style={{ width: 36 }} />
+          <View style={{ width: 28 }} />
         </View>
-        <Text style={s.headerTitle}>{"Ziyarah\n(Sacred Places)"}</Text>
+        <Text style={s.headerTitle}>Ziyarah</Text>
+        <Text style={s.headerSubtitle}>(Historical places to visit)</Text>
       </View>
 
       {/* ── City toggle — below header, outside ScrollView ── */}
@@ -456,36 +457,38 @@ export default function SacredPlacesScreen({ navigation }) {
             />
           </View>
 
-          {/* Stepper overlaid at hero bottom: arrow · chips · arrow */}
+          {/* Location chips overlaid at hero bottom (full width) */}
           <View style={s.heroStepper}>
-            <TouchableOpacity
-              style={s.heroArrowBtn}
-              onPress={() => idx > 0 && setSelected(sites[idx - 1])}
-              disabled={idx === 0}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 6 }}
-              activeOpacity={0.7}
-            >
-              <CaretLeft size={20} color={idx === 0 ? "rgba(255,255,255,0.3)" : "#FFFFFF"} weight="bold" />
-            </TouchableOpacity>
             <View style={{ flex: 1 }}>
               <LocationChips sites={sites} selectedId={selected.id} onSelect={setSelected} styles={oLcS} />
             </View>
-            <TouchableOpacity
-              style={s.heroArrowBtn}
-              onPress={() => idx < sites.length - 1 && setSelected(sites[idx + 1])}
-              disabled={idx === sites.length - 1}
-              hitSlop={{ top: 10, bottom: 10, left: 6, right: 10 }}
-              activeOpacity={0.7}
-            >
-              <CaretRight size={20} color={idx === sites.length - 1 ? "rgba(255,255,255,0.3)" : "#FFFFFF"} weight="bold" />
-            </TouchableOpacity>
           </View>
+
+          {/* Prev / next arrows pinned to the hero's vertical centre */}
+          <TouchableOpacity
+            style={idx === 0 ? [s.heroArrowBtn, s.heroArrowLeft, s.heroArrowBtnDisabled] : [s.heroArrowBtn, s.heroArrowLeft]}
+            onPress={() => idx > 0 && setSelected(sites[idx - 1])}
+            disabled={idx === 0}
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+            activeOpacity={0.7}
+          >
+            <CaretLeft size={22} color={idx === 0 ? "rgba(255,255,255,0.4)" : "#FFFFFF"} weight="bold" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={idx === sites.length - 1 ? [s.heroArrowBtn, s.heroArrowRight, s.heroArrowBtnDisabled] : [s.heroArrowBtn, s.heroArrowRight]}
+            onPress={() => idx < sites.length - 1 && setSelected(sites[idx + 1])}
+            disabled={idx === sites.length - 1}
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+            activeOpacity={0.7}
+          >
+            <CaretRight size={22} color={idx === sites.length - 1 ? "rgba(255,255,255,0.4)" : "#FFFFFF"} weight="bold" />
+          </TouchableOpacity>
         </View>
 
         {/* ── Site card ── */}
         <SiteCard
           site={selected}
-          onViewDuas={(site) => navigation?.navigate?.("PilgrimageDuas", { mode: "umrah" })}
+          onViewDuas={(site) => navigation?.navigate?.("MainTabs", { screen: "Practice", params: { screen: "DuaList", initial: false, params: { category: "ziyarah" } } })}
           isVisited={!!visited[selected?.id]}
           onToggleVisited={toggleVisited}
           navigation={navigation}
@@ -557,13 +560,14 @@ const createStyles = (C) => StyleSheet.create({
   safe: { flex: 1, backgroundColor: C.background },
 
   // ── Ornate pattern header (matches CalendarScreen / GroupsScreen exactly) ──
-  header:        { backgroundColor: "#4A5C48", minHeight: 110, position: "relative", overflow: "hidden", paddingHorizontal: 16, paddingBottom: 8 },
+  header:        { backgroundColor: "#4A5C48", minHeight: 70, position: "relative", overflow: "hidden", paddingHorizontal: 16, paddingBottom: 10 },
   headerTopRow:  { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  headerBtn:     { width: 36, height: 36, borderRadius: 18, backgroundColor: "#FDFAF4", borderWidth: 1, borderColor: "#D4D0CA", alignItems: "center", justifyContent: "center" },
-  headerTitle:   { fontFamily: SERIF, fontSize: 38, color: "#FDFAF4", textAlign: "center", marginTop: 4 },
+  headerBtn:     { width: 28, height: 28, borderRadius: 14, backgroundColor: "#FDFAF4", borderWidth: 1, borderColor: "#D4D0CA", alignItems: "center", justifyContent: "center" },
+  headerTitle:   { fontFamily: SERIF, fontSize: 38, lineHeight: 40, color: "#FDFAF4", textAlign: "center", marginTop: -10 },
+  headerSubtitle:{ fontFamily: SERIF, fontSize: 13, lineHeight: 15, color: "#FDFAF4", opacity: 0.75, textAlign: "center", marginTop: 2 },
 
   // ── City toggle ──
-  cityToggle:        { flexDirection: "row", marginHorizontal: 20, marginTop: 12, marginBottom: 12, backgroundColor: C.card, borderRadius: 999, padding: 3, borderWidth: 1, borderColor: C.border },
+  cityToggle:        { flexDirection: "row", marginHorizontal: 20, marginTop: 6, marginBottom: 6, backgroundColor: C.card, borderRadius: 999, padding: 3, borderWidth: 1, borderColor: C.border },
   cityOpt:           { flex: 1, paddingVertical: 10, borderRadius: 999, alignItems: "center" },
   cityOptActive:     { backgroundColor: "#4A5C48" },
   cityOptText:       { fontSize: 16, color: C.subtext },
@@ -574,8 +578,11 @@ const createStyles = (C) => StyleSheet.create({
   heroImg:       { width: "100%", height: HERO_H },
   heroFallback:  { ...StyleSheet.absoluteFillObject, backgroundColor: C.primary + "18", alignItems: "center", justifyContent: "center" },
   heroScrim:     { position: "absolute", left: 0, right: 0, bottom: 0, height: 110 },
-  heroStepper:   { position: "absolute", bottom: 0, left: 0, right: 0, flexDirection: "row", alignItems: "center", paddingHorizontal: 10, paddingBottom: 10, paddingTop: 6 },
-  heroArrowBtn:  { padding: 6 },
+  heroStepper:   { position: "absolute", bottom: 0, left: 0, right: 0, flexDirection: "row", alignItems: "center", paddingHorizontal: 10, paddingBottom: 8, paddingTop: 8, backgroundColor: "rgba(0,0,0,0.5)" },
+  heroArrowBtn:  { position: "absolute", top: "50%", marginTop: -22, width: 44, height: 44, borderRadius: 22, backgroundColor: "rgba(255,255,255,0.35)", borderWidth: 1, borderColor: "rgba(255,255,255,0.45)", alignItems: "center", justifyContent: "center" },
+  heroArrowLeft:  { left: 12 },
+  heroArrowRight: { right: 12 },
+  heroArrowBtnDisabled: { backgroundColor: "rgba(255,255,255,0.15)" },
 
   // ── Warm amber note colors (#EEE4CB, #DDD0A8, #6B5020) — kept hardcoded ──
   madinahNote:     { marginHorizontal: 20, marginTop: 16, marginBottom: 4, backgroundColor: "#EEE4CB", borderRadius: 10, borderWidth: 1, borderColor: "#DDD0A8", padding: 14 },

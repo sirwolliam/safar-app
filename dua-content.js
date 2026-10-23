@@ -92,6 +92,7 @@ export const DUA_CONTENT = {
   umrah:      UMRAH_DUAS,
   umrahDuas:  UMRAH_DUAS,
   hajjDuas:   HAJJ_DUAS,
+  ziyarah:    [], // Ziyarah Duas — content not written yet ("Coming soon" state)
 
   // Discover categories — now backed by real tags
   gratitude:  byTag("gratitude"),

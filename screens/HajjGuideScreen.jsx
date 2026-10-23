@@ -160,8 +160,8 @@ export default function HajjGuideScreen({ navigation }) {
               <CaretRight size={11} color={colors.subtext} weight="bold" style={{ alignSelf: "flex-end", marginTop: 6 }} />
             </TouchableOpacity>
             <TouchableOpacity style={s.tile} activeOpacity={0.8} onPress={() => navigation?.navigate?.("SacredPlaces")}>
-              <Text style={s.tileTitle}>Sacred Places</Text>
-              <Text style={s.tileDesc}>{"Places to know\nand visit."}</Text>
+              <Text style={s.tileTitle}>Ziyarah</Text>
+              <Text style={s.tileDesc}>{"Historical places\nto visit."}</Text>
               <CaretRight size={11} color={colors.subtext} weight="bold" style={{ alignSelf: "flex-end", marginTop: 6 }} />
             </TouchableOpacity>
             <TouchableOpacity style={s.tile} activeOpacity={0.8} onPress={goPlan}>

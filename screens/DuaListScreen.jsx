@@ -23,6 +23,7 @@ const SW = Dimensions.get("window").width;
 // Keys with no matching content tag resolve to an empty array → shows "Coming soon" state.
 const CATEGORY_META = {
   pilgrimage:  { id: "hajj",      name: "Pilgrimage Duas" },
+  ziyarah:     { id: "ziyarah",   name: "Ziyarah Duas" },
   forgiveness: { id: "forgive",   name: "Forgiveness & Repentance" },
   gratitude:   { id: "gratitude", name: "Gratitude" },
   patience:    { id: "patience",  name: "Patience" },

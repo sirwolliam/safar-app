@@ -78,6 +78,13 @@ const THEMES = [
     overlay: 0.45,
   },
   {
+    key: "ziyarah",
+    label: "Ziyarah\nDuas",
+    icon: Mosque,
+    image: require("../assets/explore_cards/ziyarah.png"),
+    overlay: 0.40,
+  },
+  {
     key: "prayer",
     label: "Salah\n& Prayer",
     icon: Moon,
