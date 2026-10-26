@@ -111,7 +111,7 @@ const FAQ_SECTIONS = [
       {
         id: "dua-3",
         q: "Are the Arabic texts verified for accuracy?",
-        a: "Yes. All Arabic texts are reviewed by a qualified Arabic scholar before publishing. If you notice a discrepancy, please report it via the flag icon on any dua card or email us at support@safar.app.",
+        a: "Yes. All Arabic texts are reviewed by a qualified Arabic scholar before publishing. If you notice a discrepancy, please report it via the flag icon on any dua card or email us at hello@trysafar.app.",
       },
       {
         id: "dua-4",
@@ -528,15 +528,15 @@ export default function SupportScreen({ navigation }) {
           {/* Email */}
           <TouchableOpacity
             style={styles.contactRow}
-            onPress={() => Linking.openURL("mailto:support@safar.app")}
+            onPress={() => Linking.openURL("mailto:hello@trysafar.app")}
             activeOpacity={0.85}
           >
             <View style={styles.contactIconWrap}>
               <EnvelopeSimple size={26} color="#5A5650" weight="regular" />
             </View>
             <View style={styles.contactInfo}>
-              <Text style={styles.contactLabel}>Email support</Text>
-              <Text style={styles.contactValue}>support@safar.app</Text>
+              <Text style={styles.contactLabel}>Email us</Text>
+              <Text style={styles.contactValue}>hello@trysafar.app</Text>
             </View>
             <Text style={styles.contactArrow}>›</Text>
           </TouchableOpacity>
