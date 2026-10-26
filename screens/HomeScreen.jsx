@@ -35,7 +35,7 @@ import {
   ArrowRight, BookOpen, Moon, ListChecks, Users,
   PlayCircle, Wrench, Note, Gear, Info,
   SunHorizon, Compass, Heartbeat, NotePencil, CalendarBlank,
-  CaretLeft, CaretRight, CloudSun,
+  CaretLeft, CaretRight, CaretDown, CloudSun, MagnifyingGlass,
 } from "phosphor-react-native";
 
 const SERIF = "SourceSerif4-Regular";
@@ -45,18 +45,15 @@ const MONTH_ABBR = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep
 const WEEKDAY_FULL = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 // ── Explore your pilgrimage tiles (Learn has its own set via the same ExploreTiles) ──
-const goLearn = (navigation, screen) =>
-  navigation?.getParent?.()?.navigate?.("Learn", { screen, initial: false, params: { returnToTab: "Home" } });
-
 const EXPLORE_TILES = [
-  { label: "Umrah Guide", subtitle: "Step by step",            circleColor: "#2D4A34", image: require("../assets/explore_cards/umrah.png"),
-    go: (navigation) => goLearn(navigation, "UmrahGuide") },
-  { label: "Hajj Guide",  subtitle: "Each day explained",      circleColor: "#2D4A34", image: require("../assets/explore_cards/hajj.png"),
-    go: (navigation) => goLearn(navigation, "HajjGuide") },
-  { label: "Ziyarah",     subtitle: "Historical places to visit", circleColor: "#2D4A34", image: require("../assets/explore_cards/ziyarah.png"),
+  { label: "Practice",     subtitle: "Rehearse the rituals",       circleColor: "#2D4A34", image: require("../assets/explore_cards/practice.png"),
+    go: (navigation) => navigation?.getParent?.()?.navigate?.("Practice", { screen: "PracticeMain" }) },
+  { label: "Ziyarah",      subtitle: "Historical places to visit", circleColor: "#2D4A34", image: require("../assets/explore_cards/ziyarah.png"),
     go: (navigation) => navigation?.navigate?.("SacredPlaces") },
-  { label: "Duas",        subtitle: "Essential supplications", circleColor: "#2D4A34", image: require("../assets/explore_cards/duas.png"),
-    go: (navigation) => navigation?.navigate?.("PilgrimageDuas") },
+  { label: "Safar Assist", subtitle: "Your pilgrim AI companion",  circleColor: "#2D4A34", image: require("../assets/explore_cards/safar_assist.png"),
+    go: (navigation) => navigation?.navigate?.("SafarAssist") },
+  { label: "Checklists",   subtitle: "Pack and prepare",           circleColor: "#2D4A34", image: require("../assets/explore_cards/checklists.png"),
+    go: (navigation) => navigation?.getParent?.()?.navigate?.("Plan", { screen: "Checklists", initial: false, params: { returnToTab: "Home" } }) },
 ];
 
 // ── Storage keys ──────────────────────────────────────────────────────────────
@@ -604,10 +601,14 @@ export default function HomeScreen({ navigation }) {
               <Text style={s.journeyPillText}>
                 {journeyType === "hajj" ? "Hajj" : journeyType === "umrah" ? "Umrah" : "Learning"}
               </Text>
+              <CaretDown size={12} color="#7A9176" weight="bold" />
             </TouchableOpacity>
           </View>
           <View style={s.topBarRight}>
             <Text style={s.wordmarkPlaceholder}>safar</Text>
+            <TouchableOpacity onPress={() => navigation?.navigate?.("Search")} activeOpacity={0.7} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+              <MagnifyingGlass size={22} color="#1A1410" weight="regular" />
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -662,11 +663,18 @@ export default function HomeScreen({ navigation }) {
           </View>
         )}
 
+        {/* ── GUIDES (trip profiles only — Learning shows them at the top with the headline) ── */}
+        {(journeyType === "umrah" || journeyType === "hajj") && departureISO ? (
+          <HomeGuidesCard navigation={navigation} showHeadline={false} journeyType={journeyType} />
+        ) : null}
+
+        {/* ── HOME PRIORITIES CARD (trip profiles only — nothing to prioritize without a date) ── */}
+        {(journeyType === "umrah" || journeyType === "hajj") && departureISO ? (
+          <HomePrioritiesCard navigation={navigation} />
+        ) : null}
+
         {/* ── HOME DAILY LESSON CARD ── */}
         <HomeDailyLessonCard navigation={navigation} />
-
-        {/* ── HOME PRIORITIES CARD ── */}
-        <HomePrioritiesCard navigation={navigation} />
 
         {/* ── EXPLORE YOUR PILGRIMAGE ── */}
         <ExploreTiles
@@ -872,6 +880,7 @@ export default function HomeScreen({ navigation }) {
       <TripDetailsEditor
         visible={showTripEditor}
         onClose={() => setShowTripEditor(false)}
+        navigation={navigation}
         initialJourneyType={journeyType}
         initialDepartureDate={departureISO}
         onSaved={({ journeyType: jt, departureISO: iso }) => {
@@ -1856,7 +1865,7 @@ const s = StyleSheet.create({
   topBarLeft:     { flex: 1 },
   topBarSalam:    { fontSize: 14, color: "#8A7D6A", fontWeight: "500", lineHeight: 18 },
   topBarName:     { fontFamily: "SourceSerif4-Regular", fontSize: 20, color: "#1A1410", fontWeight: "600", lineHeight: 25, marginTop: 2 },
-  topBarRight:    { alignItems: "flex-end" },
+  topBarRight:    { flexDirection: "row", alignItems: "center", gap: 14 },
   wordmarkPlaceholder: {
     fontFamily: "SourceSerif4-Regular",
     fontSize: 16,
@@ -1866,6 +1875,9 @@ const s = StyleSheet.create({
   },
   journeyPill: {
     alignSelf: "flex-start",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
     marginTop: 6,
     backgroundColor: "transparent",
     borderWidth: 1,

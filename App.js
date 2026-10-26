@@ -56,6 +56,7 @@ import QiblaScreen         from "./screens/QiblaScreen";
 import PilgrimageDuasScreen from "./screens/PilgrimageDuasScreen";
 import SafarAssistScreen   from "./screens/SafarAssistScreen";
 import SacredPlacesScreen  from "./screens/SacredPlacesScreen";
+import SearchScreen        from "./screens/SearchScreen";
 import MapStepListScreen   from "./screens/MapStepListScreen";
 import NotificationsScreen from "./screens/NotificationsScreen";
 import CalendarScreen      from "./screens/CalendarScreen";
@@ -329,6 +330,7 @@ export default function App() {
           <Stack.Screen name="PilgrimageDuas" component={PilgrimageDuasScreen} />
           <Stack.Screen name="SafarAssist"    component={SafarAssistScreen}    />
           <Stack.Screen name="SacredPlaces"   component={SacredPlacesScreen}   />
+          <Stack.Screen name="Search"         component={SearchScreen}         />
         </Stack.Navigator>
         <ToastHost />
       </NavigationContainer>

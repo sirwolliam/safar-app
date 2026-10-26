@@ -31,15 +31,20 @@ const GUIDES = [
   },
 ];
 
-export default function HomeGuidesCard({ navigation }) {
+// showHeadline=false hides the welcome headline + subhead (used below the journey hero on trip profiles).
+// journeyType="hajj" puts the Hajj Guide first; "umrah" or anything else keeps the default Umrah-first order.
+export default function HomeGuidesCard({ navigation, showHeadline = true, journeyType }) {
+  const guides = journeyType === "hajj" ? [...GUIDES].reverse() : GUIDES;
   return (
     <View style={s.wrap}>
-      <View style={s.intro}>
-        <Text style={s.introHeadline}>{HEADLINE}</Text>
-        <Text style={s.introSubhead}>Explore the guides and start learning at your own pace. Everything you need is here.</Text>
-      </View>
+      {showHeadline ? (
+        <View style={s.intro}>
+          <Text style={s.introHeadline}>{HEADLINE}</Text>
+          <Text style={s.introSubhead}>Explore the guides and start learning at your own pace. Everything you need is here.</Text>
+        </View>
+      ) : null}
 
-      {GUIDES.map((item) => (
+      {guides.map((item) => (
         <TouchableOpacity
           key={item.key}
           style={s.guideCard}

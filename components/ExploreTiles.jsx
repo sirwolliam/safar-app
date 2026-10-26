@@ -28,7 +28,11 @@ export default function ExploreTiles({ title = "EXPLORE YOUR PILGRIMAGE", viewAl
             {row.map((tile) => (
               <TouchableOpacity key={tile.label} style={s.tile} onPress={tile.onPress} activeOpacity={0.85}>
                 <View style={s.photoWrap}>
-                  <Image source={tile.image} style={s.photo} resizeMode="cover" />
+                  {tile.image ? (
+                    <Image source={tile.image} style={s.photo} resizeMode="cover" />
+                  ) : (
+                    <View style={s.photoPlaceholder} />
+                  )}
                   {/* Solid circle reads on any photo, so no gradient overlay is needed. */}
                   <View style={[s.arrow, { backgroundColor: tile.circleColor }]}>
                     <CaretRight size={14} color="#FFFFFF" weight="bold" />
@@ -36,7 +40,7 @@ export default function ExploreTiles({ title = "EXPLORE YOUR PILGRIMAGE", viewAl
                 </View>
                 <View style={s.body}>
                   <Text style={s.tileTitle} numberOfLines={1}>{tile.label}</Text>
-                  <Text style={s.tileSub} numberOfLines={2}>{tile.subtitle}</Text>
+                  <Text style={s.tileSub} numberOfLines={1}>{tile.subtitle}</Text>
                 </View>
               </TouchableOpacity>
             ))}
@@ -96,12 +100,18 @@ const s = StyleSheet.create({
     elevation: 2,
   },
   photoWrap: {
-    height: "55%",
+    height: "70%",
     width: "100%",
   },
   photo: {
     width: "100%",
     height: "100%",
+  },
+  // Shown when a tile has no image yet.
+  photoPlaceholder: {
+    width: "100%",
+    height: "100%",
+    backgroundColor: "#E6DED0",
   },
   arrow: {
     position: "absolute",
@@ -116,7 +126,7 @@ const s = StyleSheet.create({
   body: {
     flex: 1,
     paddingHorizontal: 12,
-    paddingTop: 10,
+    paddingTop: 8,
   },
   tileTitle: {
     fontFamily: SERIF,

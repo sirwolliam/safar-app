@@ -24,7 +24,7 @@ const { width: SW } = Dimensions.get("window");
 const VISITED_KEY = "safar_visited_sites_v1";
 
 // ── Site data ─────────────────────────────────────────────────────────────────
-const MAKKAH_SITES = [
+export const MAKKAH_SITES = [
   {
     id: "kaaba", name: "Al-Kabah", arabic: "الكَعبَة",
     sub: "The Most Sacred House", duas: 12,
@@ -91,7 +91,7 @@ const MAKKAH_SITES = [
   },
 ];
 
-const MADINAH_SITES = [
+export const MADINAH_SITES = [
   {
     id: "nabawi", name: "Al-Masjid an-Nabawi", arabic: "المسجد النبوي",
     sub: "The Prophet's Mosque", duas: 8, official: true,
@@ -352,7 +352,7 @@ const createFnStyles = () => StyleSheet.create({
 });
 
 // ── Main screen ───────────────────────────────────────────────────────────────
-export default function SacredPlacesScreen({ navigation }) {
+export default function SacredPlacesScreen({ navigation, route }) {
   const { colors } = useAccessibility();
   const insets = useSafeAreaInsets();
   const s    = useMemo(() => createStyles(colors),   [colors]);
@@ -367,6 +367,18 @@ export default function SacredPlacesScreen({ navigation }) {
   useEffect(() => {
     AsyncStorage.getItem(VISITED_KEY).then(v => { if (v) setVisited(JSON.parse(v)); }).catch(() => {});
   }, []);
+
+  // Deep link from global search: open on a specific site (and its city).
+  const preselectedSiteId = route?.params?.preselectedSiteId;
+  useEffect(() => {
+    if (!preselectedSiteId) return;
+    const makkahSite  = MAKKAH_SITES.find(x => x.id === preselectedSiteId);
+    const madinahSite = MADINAH_SITES.find(x => x.id === preselectedSiteId);
+    const site = makkahSite || madinahSite;
+    if (!site) return;
+    setCity(makkahSite ? "Makkah" : "Madinah");
+    setSelected(site);
+  }, [preselectedSiteId]);
 
   const sites = city === "Makkah" ? MAKKAH_SITES : MADINAH_SITES;
   const idx   = sites.findIndex(s => s.id === selected.id);

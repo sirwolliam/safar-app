@@ -3,6 +3,7 @@ import {
   Modal, View, Text, TouchableOpacity, ScrollView, StyleSheet,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Gear } from "phosphor-react-native";
 
 const JOURNEY_KEY   = "safar_journey_type_v1";
 const DEPARTURE_KEY = "safar_departure_date_v1";
@@ -31,6 +32,7 @@ function daysInMonth(year, month) {
 export default function TripDetailsEditor({
   visible,
   onClose,
+  navigation,
   initialJourneyType,
   initialDepartureDate,
   onSaved,
@@ -190,6 +192,17 @@ export default function TripDetailsEditor({
               <Text style={s.saveBtnText}>Save</Text>
             </TouchableOpacity>
           </ScrollView>
+          {/* Settings shortcut — only when the host passes navigation (Home does; Settings itself doesn't). */}
+          {navigation ? (
+            <TouchableOpacity
+              style={s.gearBtn}
+              onPress={() => { onClose?.(); navigation?.navigate?.("Settings"); }}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              activeOpacity={0.7}
+            >
+              <Gear size={20} color="#5C534A" weight="regular" />
+            </TouchableOpacity>
+          ) : null}
         </View>
       </TouchableOpacity>
     </Modal>
@@ -201,6 +214,7 @@ const s = StyleSheet.create({
   sheet:           { backgroundColor: "#FDFAF4", borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingTop: 12, paddingBottom: 24, maxHeight: "90%" },
   content:         { paddingHorizontal: 24, paddingBottom: 12 },
   handle:          { width: 36, height: 4, borderRadius: 2, backgroundColor: "#DDD5C0", alignSelf: "center", marginBottom: 12 },
+  gearBtn:         { position: "absolute", top: 16, right: 20 },
   title:           { fontFamily: "SourceSerif4-Regular", fontSize: 22, color: "#1A1410", fontWeight: "600", marginBottom: 14 },
   subtitle:        { fontSize: 14, color: "#5C534A", lineHeight: 20, marginTop: -8, marginBottom: 20 },
   sectionLabel:    { fontSize: 10, fontWeight: "700", letterSpacing: 1.5, color: "#8A7D6A", textTransform: "uppercase", marginBottom: 8, marginTop: 2 },

@@ -1,24 +1,29 @@
 import React, { useState } from "react";
 import {
-  View, Text, ScrollView, TouchableOpacity, StyleSheet, Dimensions,
+  View, Text, ScrollView, TouchableOpacity, StyleSheet, Image,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 import { CaretLeft, CaretRight, Check } from "phosphor-react-native";
 import { LESSONS } from "../content/lessons";
 import { getAllLessonProgress } from "../lessonProgressStore";
-import HeaderPatternBg from "../HeaderPatternBg";
+import { LinearGradient } from "expo-linear-gradient";
 
 const SERIF = "SourceSerif4-Regular";
 const GOLD = "#BF9F60";
 
 const GUIDE_META = {
-  umrah: { title: "Umrah Guide", totalLessons: 10 },
-  hajj:  { title: "Hajj Guide",  totalLessons: 16 },
+  umrah: { title: "Umrah Lessons", totalLessons: 10 },
+  hajj:  { title: "Hajj Lessons",  totalLessons: 16 },
+};
+
+// Placeholder headers until dedicated hajj_/umrah_lessons_header.png exist (hajj_guide_card.jpg is too small at 382px).
+const HEADER_IMAGES = {
+  hajj:  require("../assets/explore_cards/hajj.png"),
+  umrah: require("../assets/explore_cards/umrah2.png"),
 };
 
 export default function LessonListScreen({ navigation, route }) {
-  const SW = Dimensions.get("window").width;
   const insets = useSafeAreaInsets();
   const guide = route?.params?.guide || "umrah";
   const meta = GUIDE_META[guide] || GUIDE_META.umrah;
@@ -47,15 +52,21 @@ export default function LessonListScreen({ navigation, route }) {
 
   return (
     <View style={s.safe}>
+      {/* Hub-style hero, shorter (170) than the 260 hubs to read as a child page */}
       <View style={s.header}>
-        <HeaderPatternBg width={SW} />
-        <View style={[s.headerTopRow, { paddingTop: insets.top + 12 }]}>
-          <TouchableOpacity style={s.backBtn} onPress={() => navigation?.goBack?.()} activeOpacity={0.8}>
-            <CaretLeft size={20} color="#1A1712" weight="bold" />
-          </TouchableOpacity>
+        <Image source={HEADER_IMAGES[guide] || HEADER_IMAGES.umrah} style={s.headerImg} resizeMode="cover" />
+        <LinearGradient colors={["transparent", "rgba(0,0,0,0.80)"]} locations={[0, 1]} style={StyleSheet.absoluteFillObject} />
+        <TouchableOpacity style={[s.backBtn, { top: insets.top + 14 }]} onPress={() => navigation?.goBack?.()} activeOpacity={0.8}>
+          <CaretLeft size={18} color="#FFFFFF" weight="bold" />
+        </TouchableOpacity>
+        <View style={s.headerContent}>
+          <Text style={s.headerTitle}>{meta.title}</Text>
         </View>
-        <Text style={s.headerTitle}>{meta.title}</Text>
-        <Text style={s.headerSubhead}>{meta.totalLessons} lessons to help you prepare with understanding and confidence.</Text>
+      </View>
+
+      {/* Intro line below the hero, on the cream page */}
+      <View style={s.intro}>
+        <Text style={s.introText}>{meta.totalLessons} lessons to help you prepare with understanding and confidence.</Text>
       </View>
 
       <ScrollView
@@ -136,11 +147,13 @@ export default function LessonListScreen({ navigation, route }) {
 
 const s = StyleSheet.create({
   safe:         { flex: 1, backgroundColor: "#F5F0E8" },
-  header:       { backgroundColor: "#F5F0E8", minHeight: 170, position: "relative", overflow: "hidden", paddingHorizontal: 16, paddingBottom: 20 },
-  headerTopRow: { flexDirection: "row", alignItems: "center" },
-  backBtn:      { width: 36, height: 36, borderRadius: 18, backgroundColor: "#FDFAF4", borderWidth: 1, borderColor: "#D4D0CA", alignItems: "center", justifyContent: "center" },
-  headerTitle:  { fontFamily: SERIF, fontSize: 34, color: "#1A1410", textAlign: "center", marginTop: 16 },
-  headerSubhead:{ fontSize: 15, color: "#5C534A", textAlign: "center", marginTop: 6, paddingHorizontal: 24, lineHeight: 20 },
+  header:       { height: 170, position: "relative", overflow: "hidden", backgroundColor: "#1A1410" },
+  headerImg:    { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, width: "100%", height: "100%" },
+  backBtn:      { position: "absolute", left: 18, width: 36, height: 36, borderRadius: 18, backgroundColor: "rgba(0,0,0,0.35)", alignItems: "center", justifyContent: "center" },
+  headerContent:{ position: "absolute", bottom: 18, left: 20, right: 20 },
+  headerTitle:  { fontFamily: SERIF, fontSize: 30, color: "#FFFFFF", fontWeight: "600" },
+  intro:        { paddingTop: 20, paddingHorizontal: 20, paddingBottom: 16 },
+  introText:    { fontSize: 17, color: "#5C534A", lineHeight: 24, textAlign: "left" },
   scroll:       { flex: 1 },
   scrollContent:{ paddingTop: 12, paddingBottom: 24 },
 

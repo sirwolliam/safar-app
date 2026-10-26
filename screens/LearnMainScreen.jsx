@@ -8,6 +8,7 @@ import ExploreTiles from "../components/ExploreTiles";
 import {
   CaretLeft, CaretRight, ArrowSquareOut,
   Compass, Cube, BookOpen, MapPin, Books,
+  MagnifyingGlass,
 } from "phosphor-react-native";
 
 const SERIF = "SourceSerif4-Regular";
@@ -100,6 +101,13 @@ export default function LearnMainScreen({ navigation }) {
         >
           <CaretLeft size={18} color="#FFFFFF" weight="bold" />
         </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.searchBtn, { top: insets.top + 14 }]}
+          onPress={() => navigation.navigate("Search")}
+          activeOpacity={0.8}
+        >
+          <MagnifyingGlass size={18} color="#FFFFFF" weight="bold" />
+        </TouchableOpacity>
         <View style={styles.headerContent}>
           <View style={styles.titleRow}>
             <View style={styles.iconBadge}>
@@ -186,6 +194,7 @@ const styles = StyleSheet.create({
   root:          { flex: 1, backgroundColor: "#EDE6D8" },
   header:        { height: 260, overflow: "hidden", position: "relative", backgroundColor: "#1A1410" },
   backBtn:       { position: "absolute", left: 18, width: 36, height: 36, borderRadius: 18, backgroundColor: "rgba(0,0,0,0.35)", alignItems: "center", justifyContent: "center" },
+  searchBtn:     { position: "absolute", right: 18, width: 36, height: 36, borderRadius: 18, backgroundColor: "rgba(0,0,0,0.35)", alignItems: "center", justifyContent: "center" },
   headerContent: { position: "absolute", bottom: 22, left: 20, right: 20 },
   titleRow:      { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 10 },
   iconBadge:     { width: 44, height: 44, borderRadius: 22, borderWidth: 1.5, borderColor: "#C8A96A", alignItems: "center", justifyContent: "center" },
