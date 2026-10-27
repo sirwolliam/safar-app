@@ -26,6 +26,7 @@ import HomeHeroSlideshowClassic from "./HomeHeroSlideshowClassic";
 import ExploreTiles from "../components/ExploreTiles";
 import { sharedCardStyles } from "./sharedCardStyles";
 import TripDetailsEditor from "../TripDetailsEditor";
+import { SOURCE_NOTE_SHORT } from "../content/sourceStatements";
 import { colors } from "../theme";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
@@ -868,7 +869,7 @@ export default function HomeScreen({ navigation }) {
           <View style={s.sourcesSheet}>
             <Text style={s.sourcesTitle}>Sources</Text>
             <Text style={s.sourcesBody}>
-              {"Duas are drawn from Sahih al-Bukhari, Sahih Muslim, Sunan Abi Dawud, Sunan al-Tirmidhi, and established scholarly works. Practice and wording may differ across the four madhhabs (Hanafi, Maliki, Shafii, Hanbali). Consult a qualified scholar for rulings specific to your school of thought."}
+              {SOURCE_NOTE_SHORT + " Practice and wording may differ across the four madhhabs (Hanafi, Maliki, Shafii, Hanbali). Consult a qualified scholar for rulings specific to your school of thought."}
             </Text>
             <TouchableOpacity style={s.sourcesClose} onPress={() => setShowSources(false)} activeOpacity={0.85}>
               <Text style={s.sourcesCloseTxt}>Got it</Text>

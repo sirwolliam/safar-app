@@ -36,7 +36,7 @@ export const HERO_SLIDES = [
     scrim: "rgba(8,16,12,0.26)",
     tag: "DUAS & WORSHIP",
     headline: "Duas for Every Moment",
-    sub: "A growing library of verified duas\nfor every occasion - with audio\nso you can learn and practice\nbefore you go.",
+    sub: "A growing library of duas\nfor every occasion - with audio\nso you can learn and practice\nbefore you go.",
     cta: "View duas",
     ctaIsAbout: false,
     ctaScreen: { tab: "Practice", screen: "MyDuas" },

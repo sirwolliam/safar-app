@@ -15,6 +15,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CaretLeft, CaretRight } from "phosphor-react-native";
 import HeaderPatternBg from "../HeaderPatternBg";
 import { DUA_CONTENT } from "../dua-content";
+import { SOURCE_NOTE_SHORT } from "../content/sourceStatements";
 
 const SERIF = "SourceSerif4-Regular";
 const SW = Dimensions.get("window").width;
@@ -239,7 +240,7 @@ export default function DuaListScreen({ route, navigation }) {
             <View style={s.footnote}>
               <Text style={s.footnoteText}>
                 <Text style={s.footnoteBold}>{"Sources"}</Text>
-                {" — Qur'an and major hadith collections via Sunnah.com and Hisn al-Muslim. Wording may vary by madhhab."}
+                {" — " + SOURCE_NOTE_SHORT + " Wording may vary by madhhab."}
               </Text>
             </View>
           ) : null}

@@ -56,6 +56,7 @@ import {
   X,
   ClipboardText,
 } from "phosphor-react-native";
+import { SOURCE_NOTE_SHORT } from "../content/sourceStatements";
 
 const SERIF = "SourceSerif4-Regular";
 const HEADER_IMAGE = require("../assets/dua-header.png");
@@ -525,7 +526,7 @@ export default function MyDuasScreen({ navigation, route }) {
         <View style={styles.sourceFootnote}>
           <Text style={styles.sourceFootnoteText}>
             <Text style={styles.sourceFootnoteBold}>{"Sources"}</Text>
-            {" — Qur'an and major hadith collections via Sunnah.com and Hisn al-Muslim. Wording may vary by madhhab."}
+            {" — " + SOURCE_NOTE_SHORT + " Wording may vary by madhhab."}
           </Text>
         </View>
 

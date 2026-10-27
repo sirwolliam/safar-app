@@ -20,6 +20,7 @@ import {
 } from "react-native";
 import { spacing, shadows } from "../theme";
 import { UMRAH_DUAS, HAJJ_DUAS } from "../dua-content";
+import { SOURCE_NOTE_SHORT } from "../content/sourceStatements";
 
 const SERIF  = "SourceSerif4-Regular";
 const BG     = "#F5F0E8";
@@ -384,7 +385,7 @@ export default function PilgrimageDuasScreen({ route, navigation }) {
         <View style={s.footnote}>
           <Text style={s.footnoteText}>
             <Text style={s.footnoteBold}>{"Sources \u2014 "}</Text>
-            {"Duas drawn from Sahih al-Bukhari, Sahih Muslim, Sunan Abi Dawud, Sunan al-Tirmidhi and Sunan Ibn Majah. Consult a qualified scholar for rulings specific to your school of thought."}
+            {SOURCE_NOTE_SHORT + " Consult a qualified scholar for rulings specific to your school of thought."}
           </Text>
         </View>
       </ScrollView>

@@ -23,6 +23,7 @@ import {
 import { KaabahIcon } from "../KaabahIcon";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import HeaderPatternBg from "../HeaderPatternBg";
+import { SOURCE_NOTE_LONG } from "../content/sourceStatements";
 
 if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -101,7 +102,7 @@ const FAQ_SECTIONS = [
       {
         id: "dua-1",
         q: "Where do the duas in Safar come from?",
-        a: "Every dua in Safar is sourced from authenticated hadith collections — primarily Sahih al-Bukhari, Sahih Muslim, Sunan Abi Dawud, and Ibn Majah — or from established scholarly works on Hajj and Umrah. Each card displays its reference so you can verify independently.",
+        a: SOURCE_NOTE_LONG,
       },
       {
         id: "dua-2",
@@ -111,12 +112,12 @@ const FAQ_SECTIONS = [
       {
         id: "dua-3",
         q: "Are the Arabic texts verified for accuracy?",
-        a: "Yes. All Arabic texts are reviewed by a qualified Arabic scholar before publishing. If you notice a discrepancy, please report it via the flag icon on any dua card or email us at hello@trysafar.app.",
+        a: SOURCE_NOTE_LONG,
       },
       {
         id: "dua-4",
         q: "Can I suggest a dua to be added?",
-        a: "Absolutely. Tap the + icon inside the Library and select 'Suggest a Dua'. Include the Arabic text, source reference, and transliteration if possible. Our team reviews all suggestions and will notify you if it's added.",
+        a: "Email your suggestion to hello@trysafar.app and we will consider adding it.",
       },
     ],
   },
