@@ -110,11 +110,6 @@ const FAQ_SECTIONS = [
         a: "No. The Dua Library contains duas for all occasions — morning and evening adhkar, duas for family, provision, forgiveness, protection, and more. The Hajj & Umrah section is a curated subset of the full library.",
       },
       {
-        id: "dua-3",
-        q: "Are the Arabic texts verified for accuracy?",
-        a: SOURCE_NOTE_LONG,
-      },
-      {
         id: "dua-4",
         q: "Can I suggest a dua to be added?",
         a: "Email your suggestion to hello@trysafar.app and we will consider adding it.",
