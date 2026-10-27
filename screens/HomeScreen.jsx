@@ -869,7 +869,7 @@ export default function HomeScreen({ navigation }) {
           <View style={s.sourcesSheet}>
             <Text style={s.sourcesTitle}>Sources</Text>
             <Text style={s.sourcesBody}>
-              {SOURCE_NOTE_SHORT + " Practice and wording may differ across the four madhhabs (Hanafi, Maliki, Shafii, Hanbali). Consult a qualified scholar for rulings specific to your school of thought."}
+              {SOURCE_NOTE_SHORT + " Practice and wording may differ across the four madhhabs (Hanafi, Maliki, Shafii, Hanbali)."}
             </Text>
             <TouchableOpacity style={s.sourcesClose} onPress={() => setShowSources(false)} activeOpacity={0.85}>
               <Text style={s.sourcesCloseTxt}>Got it</Text>

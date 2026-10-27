@@ -540,34 +540,10 @@ export default function SupportScreen({ navigation }) {
           {/* Divider */}
           <View style={styles.contactDivider} />
 
-          {/* Live chat */}
-          <TouchableOpacity
-            style={styles.contactRow}
-            activeOpacity={0.85}
-          >
-            <View style={styles.contactIconWrap}>
-              <ChatCircleDots size={26} color="#5A5650" weight="regular" />
-            </View>
-            <View style={styles.contactInfo}>
-              <Text style={styles.contactLabel}>Live chat</Text>
-              <View style={styles.chatBadgeRow}>
-                <Text style={styles.contactValue}>Start a conversation</Text>
-                <View style={styles.onlineBadge}>
-                  <View style={styles.onlineDot} />
-                  <Text style={styles.onlineText}>Online</Text>
-                </View>
-              </View>
-            </View>
-            <Text style={styles.contactArrow}>›</Text>
-          </TouchableOpacity>
-
-          {/* Divider */}
-          <View style={styles.contactDivider} />
-
           {/* Website */}
           <TouchableOpacity
             style={styles.contactRow}
-            onPress={() => Linking.openURL("https://safar.app")}
+            onPress={() => Linking.openURL("https://trysafar.app")}
             activeOpacity={0.85}
           >
             <View style={styles.contactIconWrap}>
@@ -575,7 +551,7 @@ export default function SupportScreen({ navigation }) {
             </View>
             <View style={styles.contactInfo}>
               <Text style={styles.contactLabel}>Website</Text>
-              <Text style={styles.contactValue}>safar.app</Text>
+              <Text style={styles.contactValue}>trysafar.app</Text>
             </View>
             <Text style={styles.contactArrow}>›</Text>
           </TouchableOpacity>
@@ -583,10 +559,6 @@ export default function SupportScreen({ navigation }) {
 
         {/* ── Footer note ── */}
         <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            Our team typically responds within 24 hours.{"\n"}
-            During Hajj season, response times may be longer.
-          </Text>
           <Text style={styles.footerVersion}>Safar · Version 1.0.0</Text>
         </View>
 

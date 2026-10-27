@@ -385,7 +385,7 @@ export default function PilgrimageDuasScreen({ route, navigation }) {
         <View style={s.footnote}>
           <Text style={s.footnoteText}>
             <Text style={s.footnoteBold}>{"Sources \u2014 "}</Text>
-            {SOURCE_NOTE_SHORT + " Consult a qualified scholar for rulings specific to your school of thought."}
+            {SOURCE_NOTE_SHORT}
           </Text>
         </View>
       </ScrollView>
