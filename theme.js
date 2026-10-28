@@ -58,7 +58,7 @@ export const colors = {
   // Surfaces
   background: palette.parchment200,   // deepened for card contrast (#EDE6D8)
   backgroundAlt: palette.parchment50,
-  warmBackground: "#F6EEDA",          // warm parchment wash, darker than cards — Home screen; candidate for app-wide use
+  warmBackground: "#F1EDE4",          // warm parchment wash, darker than cards — Home screen; candidate for app-wide use
   card: palette.parchment50,
   cardAlt: palette.parchment200,
   overlay: "rgba(26,23,18,0.48)",
