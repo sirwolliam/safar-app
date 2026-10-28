@@ -16,9 +16,8 @@ import {
 } from "react-native";
 import { colors, spacing, radius, typography, shadows } from "../theme";
 import {
-  CaretLeft, MagnifyingGlass, DeviceMobile, BookOpenText, PlayCircle,
-  MapTrifold, Sparkle, Handshake, WifiHigh, EnvelopeSimple,
-  ChatCircleDots, GlobeSimple,
+  CaretLeft, MagnifyingGlass, DeviceMobile, BookOpenText, EnvelopeSimple,
+  GlobeSimple,
 } from "phosphor-react-native";
 import { KaabahIcon } from "../KaabahIcon";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -43,27 +42,22 @@ const FAQ_SECTIONS = [
       {
         id: "app-1",
         q: "How do I track my Tawaf rounds?",
-        a: "Open the Journey tab and select Tawaf. The app will guide you round by round, showing the relevant dua for each. Tap the round indicator to advance manually, or use the auto-track toggle if you have location enabled.",
+        a: "Go to Practice → Tawaf Counter. Tap “Completed a round” after each circuit; the ring and the seven numbered dots show how many rounds you have done. After the seventh round, tap again to restart. The count is not saved if you leave the screen.",
       },
       {
         id: "app-2",
         q: "Can I use Safar without an internet connection?",
-        a: "Yes. All duas, guides, and maps are stored on your device after the first download. You can use Safar fully offline inside the Haram — no connection needed.",
-      },
-      {
-        id: "app-3",
-        q: "How do I create and share a personal list?",
-        a: "Go to Lists → tap the + button → name your list and add duas from the Library. To share, open the list and tap the share icon in the top right. Your group members will receive a link to add it to their own app.",
+        a: "Duas, lessons, guides and maps are built into the app, so they work without an internet connection. Prayer times, currency rates, Safar Assist and links to outside media need a connection.",
       },
       {
         id: "app-4",
         q: "How do I turn transliteration or translation on or off?",
-        a: "There are quick toggles at the bottom of the Home screen. You can also set your default preference in Settings → Display so it applies to every card automatically.",
+        a: "When you open a dua, use the Transliteration and Translation switches at the bottom of the screen to show or hide each. They apply to that dua screen only and are switched back on the next time you open it.",
       },
       {
         id: "app-5",
         q: "Is my data backed up if I change phones?",
-        a: "Yes — as long as you're signed in with the same account, your lists, bookmarks, and journey progress sync automatically to the cloud and restore on any new device.",
+        a: "Safar does not require an account. Your bookmarks, notes and checklists are saved on this device only, so they will not carry over to a new phone.",
       },
     ],
   },
@@ -75,17 +69,17 @@ const FAQ_SECTIONS = [
       {
         id: "haj-1",
         q: "What is the correct order of Umrah practices?",
-        a: "The four steps of Umrah are: (1) Ihram — entering the sacred state with the intention and talbiyah; (2) Tawaf — seven circuits around the Kabah; (3) Say — seven trips between Safa and Marwah; (4) Tahallul — shaving or cutting the hair to exit ihram. Safar's Journey tab walks you through each step in order.",
+        a: "The four steps of Umrah are: (1) Ihram — entering the sacred state with the intention and talbiyah; (2) Tawaf — seven circuits around the Kabah; (3) Say — seven trips between Safa and Marwah; (4) Tahallul — shaving or cutting the hair to exit ihram. Learn → Umrah Guide walks you through each step in order.",
       },
       {
         id: "haj-2",
         q: "What are the pillars of Hajj I must not miss?",
-        a: "The essential pillars (arkan) of Hajj are: Ihram with intention, standing at Arafah (wuquf), Tawaf al-Ifadah, and Say. Missing any of these invalidates the Hajj. Safar's Hajj mode includes reminders and timing alerts for each pillar.",
+        a: "The essential pillars (arkan) of Hajj are: Ihram with intention, standing at Arafah (wuquf), Tawaf al-Ifadah, and Say. Missing any of these invalidates the Hajj.",
       },
       {
         id: "haj-3",
         q: "What should I do if I miss a Wajib act?",
-        a: "A wajib (obligatory but not a pillar) act that is missed or performed incorrectly generally requires a dam — the sacrifice of a sheep in Makkah. It is strongly advised to consult a qualified scholar for your specific situation. Safar can help you identify which acts are wajib in the Journey guides.",
+        a: "A wajib (obligatory but not a pillar) act that is missed or performed incorrectly generally requires a dam — the sacrifice of a sheep in Makkah. It is strongly advised to consult a qualified scholar for your specific situation.",
       },
       {
         id: "haj-4",
@@ -107,7 +101,7 @@ const FAQ_SECTIONS = [
       {
         id: "dua-2",
         q: "Are the duas specific to Hajj and Umrah only?",
-        a: "No. The Dua Library contains duas for all occasions — morning and evening adhkar, duas for family, provision, forgiveness, protection, and more. The Hajj & Umrah section is a curated subset of the full library.",
+        a: "No. The Dua Library contains duas for all occasions — duas for family, provision, forgiveness, protection, and more. The Hajj & Umrah section is a curated subset of the full library.",
       },
       {
         id: "dua-4",
@@ -117,57 +111,6 @@ const FAQ_SECTIONS = [
     ],
   },
 ];
-
-const TUTORIALS = [
-  {
-    id: "tut-1",
-    title: "Getting started with Safar",
-    type: "video",
-    duration: "2 min",
-    Icon: PlayCircle,
-  },
-  {
-    id: "tut-2",
-    title: "Setting up your Umrah journey",
-    type: "guide",
-    duration: "4 steps",
-    Icon: MapTrifold,
-  },
-  {
-    id: "tut-3",
-    title: "Building your personal dua list",
-    type: "interactive",
-    duration: "3 min",
-    Icon: Sparkle,
-  },
-  {
-    id: "tut-4",
-    title: "Sharing with your group",
-    type: "guide",
-    duration: "3 steps",
-    Icon: Handshake,
-  },
-  {
-    id: "tut-5",
-    title: "Using the Map of Sacred Places",
-    type: "video",
-    duration: "2 min",
-    Icon: PlayCircle,
-  },
-  {
-    id: "tut-6",
-    title: "Offline mode explained",
-    type: "guide",
-    duration: "2 steps",
-    Icon: WifiHigh,
-  },
-];
-
-const TYPE_LABELS = {
-  video: "Video",
-  guide: "Step-by-step",
-  interactive: "Interactive",
-};
 
 // ─── FAQ Accordion Item ───────────────────────────────────────────────────────
 function FaqItem({ item, isOpen, onToggle }) {
@@ -231,84 +174,6 @@ const faq = StyleSheet.create({
     fontWeight: "300",
     lineHeight: 14 * 1.75,
     marginTop: 10,
-  },
-});
-
-// ─── Tutorial Card ────────────────────────────────────────────────────────────
-function TutorialCard({ item }) {
-  return (
-    <TouchableOpacity style={tut.card} activeOpacity={0.85}>
-      <View style={tut.iconWrap}>
-        <item.Icon size={26} color="#2F5D50" weight="regular" />
-      </View>
-      <View style={tut.info}>
-        <Text style={tut.title}>{item.title}</Text>
-        <View style={tut.meta}>
-          <View style={tut.typePill}>
-            <Text style={tut.typeText}>{TYPE_LABELS[item.type]}</Text>
-          </View>
-          <Text style={tut.duration}>{item.duration}</Text>
-        </View>
-      </View>
-      <Text style={tut.arrow}>›</Text>
-    </TouchableOpacity>
-  );
-}
-
-const tut = StyleSheet.create({
-  card: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#D4D0CA",
-  },
-  iconWrap: {
-    width: 44,
-    height: 44,
-    borderRadius: 10,
-    backgroundColor: "#EDE6D8",
-    borderWidth: 1,
-    borderColor: "#D4D0CA",
-    alignItems: "center",
-    justifyContent: "center",
-    flexShrink: 0,
-  },
-  info: { flex: 1 },
-  title: {
-    fontSize: 16,
-    fontWeight: "400",
-    color: "#1A1712",
-    marginBottom: 5,
-    lineHeight: 16 * 1.4,
-  },
-  meta: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  typePill: {
-    backgroundColor: "rgba(47,93,80,0.10)",
-    borderRadius: 4,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-  },
-  typeText: {
-    fontSize: 12,
-    color: "#2F5D50",
-    fontWeight: "500",
-    letterSpacing: 0.3,
-  },
-  duration: {
-    fontSize: 12,
-    color: "#5A5650",
-    fontWeight: "300",
-  },
-  arrow: {
-    fontSize: 18,
-    color: "#D4D0CA",
   },
 });
 
@@ -436,19 +301,6 @@ export default function SupportScreen({ navigation }) {
             </TouchableOpacity>
           )}
         </View>
-
-        {/* ── Tutorials ── */}
-        {!isSearching && (
-          <Section title="Tutorials & guides" action="View all">
-            {TUTORIALS.map((t, i) => (
-              <TutorialCard
-                key={t.id}
-                item={t}
-                isLast={i === TUTORIALS.length - 1}
-              />
-            ))}
-          </Section>
-        )}
 
         {/* ── FAQ ── */}
         <View style={styles.faqWrap}>
@@ -756,43 +608,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#D4D0CA",
   },
-  chatBadgeRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  onlineBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    backgroundColor: "rgba(47,130,80,0.12)",
-    borderRadius: 999,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-  },
-  onlineDot: {
-    width: 5, height: 5,
-    borderRadius: 3,
-    backgroundColor: "#3A9A60",
-  },
-  onlineText: {
-    fontSize: 12,
-    color: "#3A9A60",
-    fontWeight: "500",
-  },
 
   // Footer
   footer: {
     alignItems: "center",
     paddingVertical: 16,
-    marginBottom: 8,
-  },
-  footerText: {
-    fontSize: 12,
-    color: "#5A5650",
-    fontWeight: "300",
-    textAlign: "center",
-    lineHeight: 12 * 1.8,
     marginBottom: 8,
   },
   footerVersion: {
