@@ -14,13 +14,11 @@ import { CaretLeft, Info, CaretRight, PencilSimple, Camera } from "phosphor-reac
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import HeaderPatternBg from "../HeaderPatternBg";
 import { getCurrentUser } from "../firebase";
-import { PRAYER_METHODS, PRAYER_SCHOOLS, PRAYER_METHOD_KEY, PRAYER_SCHOOL_KEY, PRAYER_NOTIFY_KEY } from "../prayerSettings";
+import { PRAYER_METHODS, PRAYER_SCHOOLS, PRAYER_METHOD_KEY, PRAYER_SCHOOL_KEY } from "../prayerSettings";
 import TripDetailsEditor from "../TripDetailsEditor";
 
 let ImagePicker;
 try { ImagePicker = require("expo-image-picker"); } catch (_) {}
-let Notifications;
-try { Notifications = require("expo-notifications"); } catch (_) {}
 
 const AVATARS = [
   { key: "kaabah",   src: require("../assets/avatars/avatar-kaabah.png")   },
@@ -131,7 +129,6 @@ export default function SettingsScreen({ navigation }) {
 
   const [prayerMethod,      setPrayerMethod]      = useState(4);
   const [prayerSchool,      setPrayerSchool]      = useState(0);
-  const [prayerNotify,      setPrayerNotify]      = useState(false);
   const [showMethodPicker,  setShowMethodPicker]  = useState(false);
 
   const [avatarKey,     setAvatarKey]     = useState(null);
@@ -173,14 +170,12 @@ export default function SettingsScreen({ navigation }) {
       const user = getCurrentUser();
       setUserEmail(user?.email ?? "");
 
-      const [m, sc, n] = await Promise.all([
+      const [m, sc] = await Promise.all([
         AsyncStorage.getItem(PRAYER_METHOD_KEY),
         AsyncStorage.getItem(PRAYER_SCHOOL_KEY),
-        AsyncStorage.getItem(PRAYER_NOTIFY_KEY),
       ]);
       if (m != null) setPrayerMethod(Number(m));
       if (sc != null) setPrayerSchool(Number(sc));
-      if (n != null) setPrayerNotify(n === "true");
     }
     loadProfile();
   }, []);
@@ -194,23 +189,6 @@ export default function SettingsScreen({ navigation }) {
   async function selectPrayerSchool(code) {
     setPrayerSchool(code);
     await AsyncStorage.setItem(PRAYER_SCHOOL_KEY, String(code));
-  }
-
-  async function togglePrayerNotify() {
-    if (!Notifications) {
-      Alert.alert("Dev build required", "Prayer time notifications need expo-notifications.\n\nnpx expo install expo-notifications");
-      return;
-    }
-    if (!prayerNotify) {
-      const { status } = await Notifications.requestPermissionsAsync();
-      if (status !== "granted") {
-        Alert.alert("Permission needed", "Allow notifications to get prayer time reminders.");
-        return;
-      }
-    }
-    const next = !prayerNotify;
-    setPrayerNotify(next);
-    await AsyncStorage.setItem(PRAYER_NOTIFY_KEY, next ? "true" : "false");
   }
 
   function openEditSheet() {
@@ -388,7 +366,7 @@ export default function SettingsScreen({ navigation }) {
             sub={PRAYER_METHODS.find(m => m.code === prayerMethod)?.label}
             onPress={() => setShowMethodPicker(true)}
           />
-          <View style={{ borderBottomWidth: 1, borderBottomColor: "#C8BFB2" }}>
+          <View>
             <Text style={[es.editFieldLabel, { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 4 }]}>
               Asr Calculation
             </Text>
@@ -408,13 +386,6 @@ export default function SettingsScreen({ navigation }) {
               </TouchableOpacity>
             ))}
           </View>
-          <SettingRow
-            label="Prayer Time Reminders"
-            sub="Get notified as prayer times approach"
-            value={prayerNotify}
-            onToggle={togglePrayerNotify}
-            isLast
-          />
         </View>
 
         {/* Account */}

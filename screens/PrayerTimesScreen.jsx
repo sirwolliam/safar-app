@@ -6,15 +6,13 @@
  */
 import React, { useState, useEffect, useCallback } from "react";
 import {
-  View, Text, Alert, ScrollView, TouchableOpacity,
+  View, Text, ScrollView, TouchableOpacity,
   StyleSheet, TextInput, ActivityIndicator, Platform, Dimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import HeaderPatternBg from "../HeaderPatternBg";
-import { PRAYER_METHODS, PRAYER_SCHOOLS, PRAYER_METHOD_KEY, PRAYER_SCHOOL_KEY, PRAYER_NOTIFY_KEY } from "../prayerSettings";
-let Notifications;
-try { Notifications = require("expo-notifications"); } catch (_) {}
+import { PRAYER_METHODS, PRAYER_SCHOOLS, PRAYER_METHOD_KEY, PRAYER_SCHOOL_KEY } from "../prayerSettings";
 
 const SERIF = "SourceSerif4-Regular";
 const STORAGE_KEY = "safar_prayer_location_v1";
@@ -84,7 +82,6 @@ export default function PrayerTimesScreen({ navigation, route }) {
   const [showPicker,   setShowPicker]   = useState(false);
   const [searchQuery,  setSearchQuery]  = useState("");
   const [today,        setToday]        = useState(new Date());
-  const [notifyEnabled,  setNotifyEnabled]  = useState(false);
   const [method,       setMethod]       = useState(4); // 4 = Umm al-Qura (Makkah)
   const [school,       setSchool]       = useState(0); // 0 = Standard, 1 = Hanafi
 
@@ -95,30 +92,11 @@ export default function PrayerTimesScreen({ navigation, route }) {
     Promise.all([
       AsyncStorage.getItem(PRAYER_METHOD_KEY),
       AsyncStorage.getItem(PRAYER_SCHOOL_KEY),
-      AsyncStorage.getItem(PRAYER_NOTIFY_KEY),
-    ]).then(([m, sc, n]) => {
+    ]).then(([m, sc]) => {
       if (m != null) setMethod(Number(m));
       if (sc != null) setSchool(Number(sc));
-      if (n != null) setNotifyEnabled(n === "true");
     }).catch(() => {});
   }, []);
-
-  const toggleNotifications = async () => {
-    if (!Notifications) {
-      Alert.alert("Dev build required", "Prayer time notifications need expo-notifications.\n\nnpx expo install expo-notifications");
-      return;
-    }
-    if (!notifyEnabled) {
-      const { status } = await Notifications.requestPermissionsAsync();
-      if (status !== "granted") {
-        Alert.alert("Permission needed", "Allow notifications to get prayer time reminders.");
-        return;
-      }
-    }
-    const next = !notifyEnabled;
-    setNotifyEnabled(next);
-    AsyncStorage.setItem(PRAYER_NOTIFY_KEY, next ? "true" : "false").catch(() => {});
-  };
 
     const fetchTimes = useCallback(async (loc) => {
     setLoading(true); setError(null);
@@ -172,10 +150,6 @@ export default function PrayerTimesScreen({ navigation, route }) {
             <Text style={s.backArrow}>{"‹"}</Text>
           </TouchableOpacity>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-            <TouchableOpacity style={notifyEnabled ? [s.notifyBtn, s.notifyBtnOn] : s.notifyBtn}
-              onPress={toggleNotifications} activeOpacity={0.85}>
-              <Text style={s.notifyBtnTxt}>{notifyEnabled ? "🔔 On" : "🔕 Notify"}</Text>
-            </TouchableOpacity>
             <TouchableOpacity style={s.refreshBtn} onPress={() => fetchTimes(location)} activeOpacity={0.8}>
               <Text style={s.refreshIcon}>↺</Text>
             </TouchableOpacity>
@@ -312,9 +286,6 @@ const s = StyleSheet.create({
   headerCenter: { alignItems:"center", marginTop:16 },
   headerRow:    { flexDirection:"row", alignItems:"center", justifyContent:"space-between" },
   headerTitle:  { fontFamily:SERIF, fontSize:38, color:"#FDFAF4", fontWeight:"400" },
-  notifyBtn:    { backgroundColor:"#FDFAF4", borderRadius:20, paddingHorizontal:12, paddingVertical:6 },
-  notifyBtnOn:  { backgroundColor:"#C8A96A", borderColor:"#C8A96A" },
-  notifyBtnTxt: { fontSize:13, color:"#1E3D30", fontWeight:"600" },
   headerSub:    { fontSize:15, color:"#FDFAF4", fontWeight:"500", marginTop:11 },
   refreshBtn:   { width:36, height:36, borderRadius:18, backgroundColor:"#FDFAF4", alignItems:"center", justifyContent:"center" },
   refreshIcon:  { fontSize:20, color:"#1E3D30" },
