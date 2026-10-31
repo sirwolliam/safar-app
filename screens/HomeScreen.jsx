@@ -28,6 +28,7 @@ import { sharedCardStyles } from "./sharedCardStyles";
 import TripDetailsEditor from "../TripDetailsEditor";
 import { SOURCE_NOTE_SHORT } from "../content/sourceStatements";
 import { colors } from "../theme";
+import { DEFAULT_LOCATION, loadPrayerSettings, refreshPrayerData, getToday, getNextPrayer } from "../prayerTimes";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
 import {
@@ -75,66 +76,6 @@ const CAL_CATEGORIES = [
 ];
 function getCalCat(id) {
   return CAL_CATEGORIES.find(c => c.id === id) ?? CAL_CATEGORIES[0];
-}
-
-// ── Prayer times (static placeholder — replace with live API / Adhan lib) ─────
-// In production: use the 'adhan' npm package with device location for live times.
-const PRAYER_SCHEDULE = [
-  { name: "Fajr",    time: "04:52" },
-  { name: "Dhuhr",   time: "12:18" },
-  { name: "Asr",     time: "15:42" },
-  { name: "Maghrib", time: "18:31" },
-  { name: "Isha",    time: "20:04" },
-];
-
-// Return current and next prayer based on current time
-function getPrayerInfo() {
-  const now  = new Date();
-  const mins = now.getHours() * 60 + now.getMinutes();
-  const withMins = PRAYER_SCHEDULE.map((p) => {
-    const [h, m] = p.time.split(":").map(Number);
-    return { ...p, totalMins: h * 60 + m };
-  });
-  let current = withMins[withMins.length - 1];
-  let next    = withMins[0];
-  for (let i = 0; i < withMins.length; i++) {
-    if (mins >= withMins[i].totalMins) {
-      current = withMins[i];
-      next    = withMins[(i + 1) % withMins.length];
-    }
-  }
-  return { current, next };
-}
-
-// Islamic calendar approximation (Hijri) — good to within ±1 day
-// For production use a proper Hijri library (e.g. 'hijri-date' or 'moment-hijri')
-function getHijriDate() {
-  const now      = new Date();
-  const julianDay =
-    Math.floor((now.getTime() - new Date(1970, 0, 1).getTime()) / 86400000) +
-    2440588;
-  const l = julianDay + 68569;
-  const n = Math.floor((4 * l) / 146097);
-  const ll = l - Math.floor((146097 * n + 3) / 4);
-  const i = Math.floor((4000 * (ll + 1)) / 1461001);
-  const lll = ll - Math.floor((1461 * i) / 4) + 31;
-  const j = Math.floor((80 * lll) / 2447);
-  const day = lll - Math.floor((2447 * j) / 80);
-  const jj = Math.floor(j / 11);
-  const month = j + 2 - 12 * jj;
-  const year  = 100 * (n - 49) + i + jj - 1;
-  const hijriYear  = Math.floor((year - 622) * (33 / 32));
-  const HIJRI_MONTHS = [
-    "Muharram","Safar","Rabi al-Awwal","Rabi al-Hkhar",
-    "Jumada al-Ul\u00e1","Jumada al-Hkhr\u00e1",
-    "Rajab","Shaban","Ramadan","Shawwal",
-    "Dhu al-Qadah","Dhu al-Hijjah",
-  ];
-  return {
-    day,
-    month: HIJRI_MONTHS[(month - 1) % 12],
-    year: hijriYear,
-  };
 }
 
 // Gregorian date formatted
@@ -435,6 +376,9 @@ export default function HomeScreen({ navigation }) {
   const [departureISO, setDepartureISO]     = useState(null);
   const [journeyType, setJourneyType]       = useState("");
   const [showTripEditor, setShowTripEditor] = useState(false);
+  // status: "loading" (no saved times yet) | "ready" | "unavailable" (no saved times, network failed)
+  const [prayerInfo, setPrayerInfo]         = useState({ status: "loading", city: DEFAULT_LOCATION.name, today: null, next: null });
+  const prayerLoadId = useRef(0);
   const insets    = useSafeAreaInsets();
 
   const displayName = userName || "Pilgrim";
@@ -497,6 +441,25 @@ export default function HomeScreen({ navigation }) {
     return () => { cancelled = true; };
   }, []));
 
+  // Prayer card: show saved times straight away, then refresh once per focus
+  // (no request is made when the current and next month are already saved).
+  const loadPrayer = useCallback(async () => {
+    const id = ++prayerLoadId.current;
+    const settings = await loadPrayerSettings();
+    const city = settings.location.name;
+    let today = await getToday(settings);
+    let next  = await getNextPrayer(settings);
+    if (id !== prayerLoadId.current) return;
+    setPrayerInfo({ status: today ? "ready" : "loading", city, today, next });
+    await refreshPrayerData(settings, { force: false });
+    today = await getToday(settings);
+    next  = await getNextPrayer(settings);
+    if (id !== prayerLoadId.current) return;
+    setPrayerInfo({ status: today ? "ready" : "unavailable", city, today, next });
+  }, []);
+
+  useFocusEffect(useCallback(() => { loadPrayer(); }, [loadPrayer]));
+
   const dismissIntro = async () => {
     try { await AsyncStorage.setItem(INTRO_DISMISSED_KEY, "true"); } catch (_) {}
     setIntroDismissed(true);
@@ -516,69 +479,87 @@ export default function HomeScreen({ navigation }) {
     : "Add your booking info \u2192";
   const ctxScreen = planStarted ? "Guides" : "SafarAssist";
 
-  // Prayer + date data (computed once per render — fine for a home screen)
-  const { current: currentPrayer, next: nextPrayer } = getPrayerInfo();
-  const hijri    = getHijriDate();
   const gregorian = getGregorianLabel();
+  const prayerHijri = prayerInfo.today ? prayerInfo.today.hijri : null;
+  const prayerNext  = prayerInfo.next;
+  // Weather strip always shows two cities: the selected one plus Madinah (or Makkah if Madinah is selected)
+  const weatherOtherCity = prayerInfo.city === "Madinah" ? "Makkah" : "Madinah";
+
+  const openCalendar    = () => navigation?.getParent?.()?.navigate?.("Plan", { screen: "Calendar", initial: false, params: { returnToTab: "Home" } });
+  const openPrayerTimes = () => navigation?.getParent?.()?.navigate?.("Practice", { screen: "PrayerTimes", initial: false, params: { returnToTab: "Home" } });
+  const retryPrayer     = () => {
+    setPrayerInfo((p) => ({ ...p, status: "loading" }));
+    loadPrayer();
+  };
+  const onPrayerPress = prayerInfo.status === "unavailable" ? retryPrayer : openPrayerTimes;
 
   // ── Prayer + calendar card (shown after intro is dismissed) ───────────────
+  // Two tap areas: the date column opens Calendar; the prayer column and the
+  // weather strip open Prayer Times. The vertical divider is not tappable.
   const PrayerCard = () => (
-    <TouchableOpacity
-      style={s.prayerCard}
-      activeOpacity={0.85}
-      onPress={() => navigation?.getParent?.()?.navigate?.("Practice", { screen: "PrayerTimes", initial: false, params: { returnToTab: "Home" } })}
-    >
+    <View style={s.prayerCard}>
       {/* Prayer + date row */}
       <View style={s.prayerContentRow}>
         {/* Left: dates */}
-        <View style={s.prayerDateCol}>
+        <TouchableOpacity style={s.prayerDateCol} activeOpacity={0.85} onPress={openCalendar}>
           <Text style={sharedCardStyles.eyebrowText}>TODAY</Text>
           <View style={s.prayerDateRow}>
             <CalendarBlank size={14} color="#8A7D6A" weight="regular" />
             <Text style={s.prayerGregorian}>{gregorian}</Text>
           </View>
-          <Text style={s.prayerHijri}>
-            {hijri.day}{" "}{hijri.month}{" "}{hijri.year}{" AH"}
-          </Text>
-        </View>
+          {prayerHijri ? (
+            <Text style={s.prayerHijri}>
+              {prayerHijri.day}{" "}{prayerHijri.month.en}{" "}{prayerHijri.year}{" AH"}
+            </Text>
+          ) : null}
+        </TouchableOpacity>
 
         {/* Divider */}
         <View style={s.prayerDividerV} />
 
         {/* Right: current + next prayer */}
-        <View style={s.prayerTimesCol}>
-          <View style={s.prayerRow}>
-            <View style={s.prayerActiveDot} />
-            <Text style={s.prayerCurrentName}>{currentPrayer.name}</Text>
-            <Text style={s.prayerCurrentTime}>{currentPrayer.time}</Text>
-          </View>
-          <View style={s.prayerDividerH} />
-          <View style={s.prayerRow}>
-            <View style={s.prayerNextDot} />
-            <Text style={s.prayerNextName}>Next · {nextPrayer.name}</Text>
-            <Text style={s.prayerNextTime}>{nextPrayer.time}</Text>
-          </View>
-        </View>
+        <TouchableOpacity style={s.prayerTimesCol} activeOpacity={0.85} onPress={onPrayerPress}>
+          {prayerInfo.status === "ready" ? (
+            <>
+              <View style={s.prayerRow}>
+                <View style={s.prayerActiveDot} />
+                <Text style={s.prayerCurrentName}>{prayerNext.current}</Text>
+                <Text style={s.prayerCurrentTime}>{prayerNext.currentTime}</Text>
+              </View>
+              <View style={s.prayerDividerH} />
+              <Text style={s.prayerCityLabel} numberOfLines={1}>{"Prayer times · " + prayerInfo.city}</Text>
+              <View style={s.prayerRow}>
+                <View style={s.prayerNextDot} />
+                <Text style={s.prayerNextName}>Next · {prayerNext.next}</Text>
+                <Text style={s.prayerNextTime}>{prayerNext.nextTime}</Text>
+              </View>
+            </>
+          ) : (
+            <Text style={s.prayerUnavailable}>
+              {prayerInfo.status === "unavailable" ? "Prayer times unavailable. Tap to retry." : "Loading prayer times…"}
+            </Text>
+          )}
+        </TouchableOpacity>
       </View>
 
-      {/* Weather strip */}
-      <View style={s.prayerWeatherLine} />
-      {/* MOCK — replace with OpenWeatherMap API call for
-          Makkah (lat: 21.3891, lon: 39.8579) */}
-      <View style={s.prayerWeatherStrip}>
-        <View style={s.prayerWeatherCity}>
-          <SunHorizon size={18} color="#C8A96A" weight="regular" />
-          <Text style={s.prayerWeatherLabel}>Makkah</Text>
-          <Text style={s.prayerWeatherTemp}>38°C</Text>
+      {/* Weather strip — temperatures not connected yet, so dashes are shown */}
+      <TouchableOpacity activeOpacity={0.85} onPress={onPrayerPress}>
+        <View style={s.prayerWeatherLine} />
+        <View style={s.prayerWeatherStrip}>
+          <View style={s.prayerWeatherCity}>
+            <SunHorizon size={18} color="#C8A96A" weight="regular" />
+            <Text style={s.prayerWeatherLabel}>{prayerInfo.city}</Text>
+            <Text style={s.prayerWeatherTemp}>{"— —"}</Text>
+          </View>
+          <View style={s.prayerWeatherVertDiv} />
+          <View style={s.prayerWeatherCity}>
+            <CloudSun size={18} color="#C8A96A" weight="regular" />
+            <Text style={s.prayerWeatherLabel}>{weatherOtherCity}</Text>
+            <Text style={s.prayerWeatherTemp}>{"— —"}</Text>
+          </View>
         </View>
-        <View style={s.prayerWeatherVertDiv} />
-        <View style={s.prayerWeatherCity}>
-          <CloudSun size={18} color="#C8A96A" weight="regular" />
-          <Text style={s.prayerWeatherLabel}>Madinah</Text>
-          <Text style={s.prayerWeatherTemp}>34°C</Text>
-        </View>
-      </View>
-    </TouchableOpacity>
+      </TouchableOpacity>
+    </View>
   );
 
   return (
@@ -1116,6 +1097,17 @@ const s = StyleSheet.create({
     color: "#5C534A",
     fontWeight: "500",
     fontVariant: ["tabular-nums"],
+  },
+  prayerCityLabel: {
+    fontSize: 10,
+    color: "#8A7D6A",
+    textAlign: "right",
+    marginBottom: 4,
+  },
+  prayerUnavailable: {
+    fontSize: 15,
+    color: "#1C1A14",
+    fontWeight: "600",
   },
   prayerWeatherLine: {
     height: 1,

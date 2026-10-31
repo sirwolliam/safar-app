@@ -4,15 +4,20 @@
  * Uses Aladhan API (free, no key needed).
  * Big numbers, generous space, calm layout.
  */
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import {
   View, Text, ScrollView, TouchableOpacity,
   StyleSheet, TextInput, ActivityIndicator, Platform, Dimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import HeaderPatternBg from "../HeaderPatternBg";
-import { PRAYER_METHODS, PRAYER_SCHOOLS, PRAYER_METHOD_KEY, PRAYER_SCHOOL_KEY } from "../prayerSettings";
+import { PRAYER_METHODS, PRAYER_SCHOOLS } from "../prayerSettings";
+import {
+  DEFAULT_METHOD, DEFAULT_SCHOOL, DEFAULT_LOCATION,
+  loadPrayerSettings, refreshPrayerData, getToday, getNextPrayer,
+} from "../prayerTimes";
 
 const SERIF = "SourceSerif4-Regular";
 const STORAGE_KEY = "safar_prayer_location_v1";
@@ -47,93 +52,68 @@ function formatTime(t) {
   return `${hr12}:${m} ${ampm}`;
 }
 
-function getNextPrayer(times) {
-  if (!times) return null;
-  const now = new Date();
-  const nowMins = now.getHours() * 60 + now.getMinutes();
-  for (const p of PRAYERS) {
-    if (p.dim) continue;
-    const t = times[p.key];
-    if (!t) continue;
-    const [h, m] = t.split(":").map(Number);
-    const pMins = h * 60 + m;
-    if (pMins > nowMins) return p.key;
-  }
-  return "Fajr"; // next day
-}
-
-function minutesUntil(timeStr) {
-  if (!timeStr) return null;
-  const now = new Date();
-  const nowMins = now.getHours() * 60 + now.getMinutes();
-  const [h, m] = timeStr.split(":").map(Number);
-  let diff = (h * 60 + m) - nowMins;
-  if (diff < 0) diff += 24 * 60;
-  return diff;
-}
-
 export default function PrayerTimesScreen({ navigation, route }) {
   const SW = Dimensions.get("window").width;
   const insets = useSafeAreaInsets();
   const [times,        setTimes]        = useState(null);
   const [loading,      setLoading]      = useState(true);
   const [error,        setError]        = useState(null);
-  const [location,     setLocation]     = useState({ name: "Makkah", lat: 21.3891, lng: 39.8579 });
+  const [location,     setLocation]     = useState(DEFAULT_LOCATION);
   const [showPicker,   setShowPicker]   = useState(false);
   const [searchQuery,  setSearchQuery]  = useState("");
-  const [today,        setToday]        = useState(new Date());
-  const [method,       setMethod]       = useState(4); // 4 = Umm al-Qura (Makkah)
-  const [school,       setSchool]       = useState(0); // 0 = Standard, 1 = Hanafi
+  const [cityDate,     setCityDate]     = useState(null); // "YYYY-MM-DD" in the city's time zone
+  const [nextInfo,     setNextInfo]     = useState(null);
+  const [offline,      setOffline]      = useState(false);
+  const [method,       setMethod]       = useState(DEFAULT_METHOD); // 4 = Umm al-Qura (Makkah)
+  const [school,       setSchool]       = useState(DEFAULT_SCHOOL); // 0 = Standard, 1 = Hanafi
+  const loadId = useRef(0);
 
-  useEffect(() => {
-    AsyncStorage.getItem(STORAGE_KEY).then(v => {
-      if (v) { const saved = JSON.parse(v); setLocation(saved); }
-    }).catch(() => {});
-    Promise.all([
-      AsyncStorage.getItem(PRAYER_METHOD_KEY),
-      AsyncStorage.getItem(PRAYER_SCHOOL_KEY),
-    ]).then(([m, sc]) => {
-      if (m != null) setMethod(Number(m));
-      if (sc != null) setSchool(Number(sc));
-    }).catch(() => {});
+  // Settings are re-read on every load so changes made in Settings show up on return
+  const load = useCallback(async ({ force = false } = {}) => {
+    const id = ++loadId.current;
+    setLoading(true); setError(null);
+    const settings = await loadPrayerSettings();
+    if (id !== loadId.current) return;
+    setLocation(settings.location);
+    setMethod(settings.method);
+    setSchool(settings.school);
+    const res  = await refreshPrayerData(settings, { force });
+    const day  = await getToday(settings);
+    const next = await getNextPrayer(settings);
+    if (id !== loadId.current) return;
+    if (day) {
+      setTimes(day.timings);
+      setCityDate(day.dateStr);
+      setNextInfo(next);
+      setOffline(res.offline);
+    } else {
+      setTimes(null);
+      setNextInfo(null);
+      setOffline(false);
+      setError("Prayer times need an internet connection the first time. After that they are saved on your phone.");
+    }
+    setLoading(false);
   }, []);
 
-    const fetchTimes = useCallback(async (loc) => {
-    setLoading(true); setError(null);
-    try {
-      const d = new Date();
-      const url = `https://api.aladhan.com/v1/timings/${d.getDate()}-${d.getMonth()+1}-${d.getFullYear()}?latitude=${loc.lat}&longitude=${loc.lng}&method=${method}&school=${school}`;
-      const res = await fetch(url);
-      const data = await res.json();
-      if (data.code === 200) {
-        setTimes(data.data.timings);
-        setToday(d);
-      } else {
-        setError("Could not load prayer times.");
-      }
-    } catch {
-      setError("No internet connection. Prayer times unavailable.");
-    } finally {
-      setLoading(false);
-    }
-  }, [method, school]);
-
-  useEffect(() => { fetchTimes(location); }, [location, fetchTimes]);
+  useFocusEffect(useCallback(() => { load(); }, [load]));
 
   const selectCity = (city) => {
     setLocation(city);
     setShowPicker(false);
     setSearchQuery("");
-    AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(city)).catch(() => {});
+    AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(city)).catch(() => {}).then(() => load());
   };
 
-  const nextPrayer = getNextPrayer(times);
-  const nextTime   = times?.[nextPrayer];
-  const minsLeft   = nextTime ? minutesUntil(nextTime) : null;
+  const nextPrayer = nextInfo ? nextInfo.next : null;
+  const nextTime   = nextInfo ? nextInfo.nextTime : null;
+  const minsLeft   = nextInfo ? nextInfo.minutesUntil : null;
   const hoursLeft  = minsLeft !== null ? Math.floor(minsLeft / 60) : null;
   const minsRem    = minsLeft !== null ? minsLeft % 60 : null;
 
-  const dayLabel = today.toLocaleDateString("en-GB", { weekday:"long", day:"numeric", month:"long" });
+  // Header date is the city's local date (falls back to the phone's before first load)
+  const [cy, cm, cd] = cityDate ? cityDate.split("-").map(Number) : [];
+  const labelDate = cityDate ? new Date(cy, cm - 1, cd) : new Date();
+  const dayLabel = labelDate.toLocaleDateString("en-GB", { weekday:"long", day:"numeric", month:"long" });
 
   const filteredCities = PRESET_CITIES.filter(c =>
     c.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -150,7 +130,7 @@ export default function PrayerTimesScreen({ navigation, route }) {
             <Text style={s.backArrow}>{"‹"}</Text>
           </TouchableOpacity>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-            <TouchableOpacity style={s.refreshBtn} onPress={() => fetchTimes(location)} activeOpacity={0.8}>
+            <TouchableOpacity style={s.refreshBtn} onPress={() => load({ force: true })} activeOpacity={0.8}>
               <Text style={s.refreshIcon}>↺</Text>
             </TouchableOpacity>
           </View>
@@ -215,7 +195,7 @@ export default function PrayerTimesScreen({ navigation, route }) {
         ) : error ? (
           <View style={s.errorWrap}>
             <Text style={s.errorText}>{error}</Text>
-            <TouchableOpacity style={s.retryBtn} onPress={() => fetchTimes(location)}>
+            <TouchableOpacity style={s.retryBtn} onPress={() => load({ force: true })}>
               <Text style={s.retryText}>Try again</Text>
             </TouchableOpacity>
           </View>
@@ -265,6 +245,9 @@ export default function PrayerTimesScreen({ navigation, route }) {
             <Text style={s.methodNote}>
               {`Calculation: ${PRAYER_METHODS.find(m => m.code === method)?.label ?? "Umm al-Qura University, Makkah"} · Asr: ${PRAYER_SCHOOLS.find(sc => sc.code === school)?.label ?? "Standard"} · Times are indicative — verify locally.`}
             </Text>
+            {offline ? (
+              <Text style={s.methodNote}>Offline. Using saved times.</Text>
+            ) : null}
           </>
         )}
 
