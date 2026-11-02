@@ -13,6 +13,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { CaretLeft, CaretRight, HandsPraying, MapPin, MapTrifold, X, ArrowsOut } from "phosphor-react-native";
 import { getDuaById } from "../dua-content";
+import { SOURCE_NOTE_SHORT } from "../content/sourceStatements";
 import { useAccessibility } from "../AccessibilityContext";
 import HeaderPatternBg from "../HeaderPatternBg";
 
@@ -95,6 +96,7 @@ export const MADINAH_SITES = [
   {
     id: "nabawi", name: "Al-Masjid an-Nabawi", arabic: "المسجد النبوي",
     sub: "The Prophet's Mosque", duas: 8, official: true,
+    photo: require("../assets/ziyarah/masjid_an-nabawi.jpg"),
     description: "Built by the Prophet ㏏ after the Hijrah in 622 CE. A prayer here equals 1,000 prayers elsewhere, except al-Masjid al-Haram.",
     // photo, locatorMap, markerPos, citation, relatedDuas
   },
@@ -102,38 +104,45 @@ export const MADINAH_SITES = [
     id: "rawdah", name: "Al-Rawdah al-Sharifah", arabic: "الرَّوضَة الشَّريفَة",
     sub: "The Noble Garden — between the minbar and the grave of the Prophet ﷺ",
     duas: 6, official: true,
+    photo: require("../assets/ziyarah/rawdah3.jpg"),
     description: "The area between the Prophet's ㏏ grave and his pulpit — a garden from the gardens of Paradise.",
     // photo, locatorMap, markerPos, citation, relatedDuas
   },
   {
     id: "greendome", name: "The Green Dome", arabic: "القُبَّة الخَضرَاء",
     sub: "Above the grave of the Prophet Muhammad ﷺ", duas: 4,
+    photo: require("../assets/ziyarah/green-dome2.jpg"),
     description: "This green-painted dome marks the burial place of the Prophet Muhammad ﷺ and his companions Abu Bakr and Umar. The first dome here was built of wood in 1279 CE; it was rebuilt in stone in 1481, then rebuilt again by Ottoman Sultan Mahmud II in 1818, and wasn't painted green until 1837. It remains one of the most recognized silhouettes in the Muslim world.",
   },
   {
     id: "baqi", name: "Jannat al-Baqi", arabic: "جَنَّة البَقيع",
     sub: "Historic cemetery — Companions and family of the Prophet ﷺ", duas: 3,
+    photo: require("../assets/ziyarah/jannat-al-baqi.jpeg"),
     description: "Jannat al-Baqi is the main cemetery of Madinah, resting place for many of the Prophet's ﷺ Companions and family members, including several of his wives and children. The Prophet ﷺ regularly visited to pray for those buried here. Its simplicity — unmarked graves, no headstones — reflects Islamic teaching on humility in death.",
   },
   {
     id: "quba", name: "Masjid Quba", arabic: "مسجد قُبَاء",
     sub: "First mosque built in Islam", duas: 3,
+    photo: require("../assets/ziyarah/masjid-quba.jpg"),
     description: "The first mosque built in Islam. Two rakahs here equals the reward of an Umrah.",
     // photo, locatorMap, markerPos, citation, relatedDuas
   },
   {
     id: "suffah", name: "As-Suffah", arabic: "الصُّفَّة",
     sub: "Platform of the Companions of the Bench", duas: 2,
+    photo: require("../assets/ziyarah/as-suffah.jpeg"),
     description: "This raised platform at the rear of the Prophet's ﷺ Mosque was home to Ahl al-Suffah — Companions, many poor or newly arrived in Madinah with no family there, who devoted themselves entirely to learning directly from the Prophet ﷺ. The Prophet ﷺ regularly ate with them and looked after their needs personally. Their example is often cited as a model of prioritizing knowledge over worldly comfort.",
   },
   {
     id: "qiblatayn", name: "Masjid al-Qiblatayn", arabic: "مسجد القبلتين",
     sub: "Mosque of the Two Qiblahs", duas: 0,
+    photo: require("../assets/ziyarah/masjid-al-qiblatayn.jpeg"),
     description: "This mosque marks where the direction of prayer changed from Jerusalem to the Kabah. According to Sahih al-Bukhari, the Prophet ﷺ was leading Zuhr prayer here when the revelation came (Quran 2:144), and the entire congregation turned mid-prayer to face Makkah instead. The name literally means \"Mosque of the Two Qiblahs.\"",
   },
   {
     id: "uhud", name: "Mount Uhud", arabic: "جبل أحد",
     sub: "Site of the Battle of Uhud", duas: 0,
+    photo: require("../assets/ziyarah/mount-uhud.jpeg"),
     description: "This mountain was the site of the Battle of Uhud in 3 AH, where the Prophet's ﷺ beloved uncle Hamzah ibn Abdul Muttalib was martyred along with many Companions. The Prophet ﷺ said, \"Uhud is a mountain that loves us, and we love it\" (Sahih al-Bukhari and Sahih Muslim). Pilgrims visit the graves of the martyrs at its base and reflect on the sacrifices made there.",
   },
 ];
@@ -216,26 +225,24 @@ function SiteCard({ site, onViewDuas, isVisited, onToggleVisited, navigation, st
 
         {/* ── 4. Locator map — full self-contained infographic, tap to enlarge ── */}
         {site.locatorMap ? (
-          <TouchableOpacity style={styles.locator} onPress={() => setShowFullMap(true)} activeOpacity={0.9}>
-            <Image source={site.locatorMap} style={styles.locatorImg} resizeMode="cover" />
-            <View style={styles.locatorExpandHint}>
-              <ArrowsOut size={14} color="#FFFFFF" weight="bold" />
-            </View>
-          </TouchableOpacity>
-        ) : (
-          <View style={styles.locatorFallback}>
-            <MapTrifold size={24} color={colors.primary} weight="duotone" />
-          </View>
-        )}
-
-        <Modal visible={showFullMap} transparent animationType="fade" onRequestClose={() => setShowFullMap(false)}>
-          <TouchableOpacity style={styles.mapModalBackdrop} activeOpacity={1} onPress={() => setShowFullMap(false)}>
-            <Image source={site.locatorMapPortrait || site.locatorMap} style={styles.mapModalImg} resizeMode="contain" />
-            <TouchableOpacity style={styles.mapModalCloseBtn} onPress={() => setShowFullMap(false)} activeOpacity={0.8}>
-              <X size={20} color="#FFFFFF" weight="bold" />
+          <>
+            <TouchableOpacity style={styles.locator} onPress={() => setShowFullMap(true)} activeOpacity={0.9}>
+              <Image source={site.locatorMap} style={styles.locatorImg} resizeMode="cover" />
+              <View style={styles.locatorExpandHint}>
+                <ArrowsOut size={14} color="#FFFFFF" weight="bold" />
+              </View>
             </TouchableOpacity>
-          </TouchableOpacity>
-        </Modal>
+
+            <Modal visible={showFullMap} transparent animationType="fade" onRequestClose={() => setShowFullMap(false)}>
+              <TouchableOpacity style={styles.mapModalBackdrop} activeOpacity={1} onPress={() => setShowFullMap(false)}>
+                <Image source={site.locatorMapPortrait || site.locatorMap} style={styles.mapModalImg} resizeMode="contain" />
+                <TouchableOpacity style={styles.mapModalCloseBtn} onPress={() => setShowFullMap(false)} activeOpacity={0.8}>
+                  <X size={20} color="#FFFFFF" weight="bold" />
+                </TouchableOpacity>
+              </TouchableOpacity>
+            </Modal>
+          </>
+        ) : null}
 
         {/* ── 5. Citation ── */}
         {site.citation ? (
@@ -309,7 +316,6 @@ const createScStyles = (C) => StyleSheet.create({
   locator:           { width: "100%", height: 180, borderRadius: 12, overflow: "hidden", marginBottom: 12, position: "relative" },
   locatorImg:        { width: "100%", height: 180 },
   locatorExpandHint: { position: "absolute", bottom: 8, right: 8, width: 28, height: 28, borderRadius: 14, backgroundColor: "rgba(0,0,0,0.45)", alignItems: "center", justifyContent: "center" },
-  locatorFallback:   { width: "100%", height: 80, borderRadius: 8, backgroundColor: C.primary + "18", alignItems: "center", justifyContent: "center", marginBottom: 12 },
   mapModalBackdrop:  { flex: 1, backgroundColor: "rgba(10,8,6,0.94)", alignItems: "center", justifyContent: "center" },
   mapModalImg:       { width: SW - 24, height: "75%" },
   mapModalCloseBtn:  { position: "absolute", top: 56, right: 20, width: 40, height: 40, borderRadius: 20, backgroundColor: "rgba(255,255,255,0.15)", alignItems: "center", justifyContent: "center" },
@@ -329,8 +335,7 @@ function ScholarlyFootnote({ styles }) {
   return (
     <View style={styles.wrap}>
       <Text style={styles.text}>
-        <Text style={styles.bold}>Sources</Text>{" — "}
-        {"Duas are drawn from Sahih al-Bukhari, Sahih Muslim, Sunan Abi Dawud, Sunan al-Tirmidi, and established scholarly works. Each dua is attributed to its primary source. Practice and wording may differ across the four madhabs (Hanafi, Maliki, Shafii, Hanbali). Consult a qualified scholar for rulings specific to your school of thought."}
+        <Text style={styles.bold}>Sources</Text>{" — "}{SOURCE_NOTE_SHORT}
       </Text>
     </View>
   );
