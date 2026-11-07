@@ -29,6 +29,11 @@ export const LESSON_UMRAH_08 = {
     { type: "narrativeText", title: "Before You Begin", icon: "ListChecks", paragraphs: [
       "Complete Tawaf, pray two rak'ahs if possible, drink Zamzam, proceed to Safa, and take a moment to remember the story of Hajar (AS) before beginning.",
     ]},
+    { type: "externalVideo",
+      title: "The Story of Hajar",
+      source: "Yaqeen Institute · Sh. Omar Suleiman",
+      ctaLabel: "Watch on YouTube",
+      url: "https://www.youtube.com/watch?v=0E-DGTDW_H0" },
     { type: "numberedSteps", title: "Step-by-Step", steps: [
       { heading: "Begin at Safa", tagline: "Start where the first journey begins.", body: "Climb or walk to the area of Safa. Face the direction of the Ka'bah, praise Allah, make du'a, and begin your first journey toward Marwah." },
       { heading: "Walk Toward Marwah", tagline: "Remember Allah as you move.", body: "Walk calmly while remembering Allah. There are no prescribed supplications for each journey. Personal du'a, dhikr, and Qur'an recitation are all encouraged." },
@@ -51,7 +56,7 @@ export const LESSON_UMRAH_08 = {
     ]},
     { type: "insight", title: "Insight", text: "Many pilgrims think Sa'i is simply walking between two hills. In reality, every journey tells the story of a mother whose faith never wavered, even when she could see no solution. Sa'i reminds us that Allah often opens doors only after we have done everything within our ability." },
     { type: "narrativeText", title: "Practice", icon: "ListChecks", paragraphs: [
-      "Before your journey, read or listen to the full story of Hajar (AS), Isma'il (AS), and Zamzam. Understanding her story will make every step of Sa'i more meaningful.",
+      "Before your journey, take a few minutes to reflect on Hajar's (AS) trust in Allah as she searched for water for her infant son. Carrying her story in your heart can make every step of Sa'i more meaningful.",
     ]},
     { type: "qaCardList", title: "Common Questions", cards: [
       { id: "q1", question: "Do I have to recite specific du'as during Sa'i?", answer: "No. There are no authentic prescribed supplications for each journey. You are encouraged to make personal du'a, remember Allah, and recite Qur'an." },

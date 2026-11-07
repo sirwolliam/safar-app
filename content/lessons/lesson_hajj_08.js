@@ -61,7 +61,7 @@ export const LESSON_HAJJ_08 = {
     { type: "insight", title: "Reflection", text: "What du'a would you make before drinking from Zamzam? What do you need from Allah—for this life, and for the next?" },
     { type: "cardList", title: "Practice", cards: [
       { id: "p1", icon: "Star", label: "Memorise the Qur'anic verse about Maqam Ibrahim: 'Wattakhidhu min maqami Ibrahima musalla' (2:125)." },
-      { id: "p2", icon: "Heart", label: "Read the story of Hajar, Isma'il, and the spring of Zamzam." },
+      { id: "p2", icon: "Heart", label: "Reflect on the story of Hajar, Isma'il, and the spring of Zamzam." },
       { id: "p3", icon: "BookOpen", label: "Learn which surahs to recite in the two rak'ahs after Tawaf." },
       { id: "p4", icon: "MoonStars", label: "Prepare a personal du'a you would want to make when drinking Zamzam." },
       { id: "p5", icon: "Question", label: "Reflect on what trust in Allah looked like for Hajar and what it looks like for you." },

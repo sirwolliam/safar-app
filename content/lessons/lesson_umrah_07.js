@@ -49,7 +49,7 @@ export const LESSON_UMRAH_07 = {
     ]},
     { type: "insight", title: "Insight", text: "Many pilgrims think they must pray directly behind Maqam Ibrahim. They don't. The Sunnah is to pray two rak'ahs after Tawaf. If the area behind Maqam Ibrahim is crowded, praying anywhere within Masjid al-Haram fulfills this practice while helping maintain the safety and comfort of other pilgrims." },
     { type: "narrativeText", title: "Practice", icon: "ListChecks", paragraphs: [
-      "Read the story of Hajar (AS), Isma'il (AS), and the origin of Zamzam before your journey. Understanding this story transforms Zamzam from \"holy water\" into a powerful reminder of trust, perseverance, and Allah's mercy.",
+      "Before your journey, take a few minutes to reflect on Hajar's (AS) trust in Allah and the mercy that answered her search. Carrying her story in your heart transforms Zamzam from simply water into a powerful reminder of trust, perseverance, and Allah's mercy.",
     ]},
     { type: "qaCardList", title: "Common Questions", cards: [
       { id: "q1", question: "Do I have to pray directly behind Maqam Ibrahim?", answer: "No. If the area is crowded, pray anywhere within Masjid al-Haram." },

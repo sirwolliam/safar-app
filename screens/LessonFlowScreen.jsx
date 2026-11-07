@@ -10,13 +10,13 @@
 import React, { useState, useRef } from "react";
 import {
   View, Text, StyleSheet, TouchableOpacity, FlatList,
-  Dimensions, Image, ImageBackground, ScrollView,
+  Dimensions, Image, ImageBackground, ScrollView, Linking,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path, Defs, LinearGradient, Stop, Mask, Rect, Polygon } from "react-native-svg";
 import { PATTERN_PATH } from "./headerPatternPath";
 import {
-  CaretRight, BookmarkSimple, Clock, Question, MoonStars, BookOpen, Heart, Star, ListChecks, Sparkle, HandsPraying, NotePencil,
+  CaretRight, BookmarkSimple, Clock, Question, MoonStars, BookOpen, Heart, Star, ListChecks, Sparkle, HandsPraying, NotePencil, PlayCircle,
 } from "phosphor-react-native";
 import { LESSONS } from "../content/lessons";
 import { updateLessonProgress } from "../lessonProgressStore";
@@ -353,6 +353,36 @@ function CompanionToolBlock({ block, navigation }) {
   );
 }
 
+function ExternalVideoBlock({ block }) {
+  return (
+    <ScrollView style={bs.blockWrap} contentContainerStyle={bs.scrollContent} showsVerticalScrollIndicator={false}>
+      <TouchableOpacity
+        style={bs.videoCard}
+        onPress={() => Linking.openURL(block.url)}
+        activeOpacity={0.88}
+      >
+        <View style={bs.videoHeader}>
+          <Text style={bs.videoEyebrow}>{"VIDEO · EXTERNAL"}</Text>
+          <View style={bs.videoHeaderRight}>
+            <Text style={bs.videoWatch}>{block.ctaLabel || "Watch on YouTube"}</Text>
+            <CaretRight size={13} color="#FFFFFF" weight="bold" />
+          </View>
+        </View>
+        <View style={bs.videoStage}>
+          <View style={bs.videoPlayRing}>
+            <PlayCircle size={96} color="#FFFFFF" weight="fill" />
+          </View>
+        </View>
+        <View style={bs.videoFooter}>
+          <Text style={bs.videoTitle}>{block.title}</Text>
+          {block.source ? <Text style={bs.videoSource}>{block.source}</Text> : null}
+          <Text style={bs.videoNote}>{"Opens in your browser"}</Text>
+        </View>
+      </TouchableOpacity>
+    </ScrollView>
+  );
+}
+
 function InsightBlock({ block }) {
   const Icon = block.icon && ICON_MAP[block.icon] ? ICON_MAP[block.icon] : Sparkle;
   return (
@@ -417,6 +447,7 @@ const BLOCK_COMPONENTS = {
   numberedSteps: NumberedStepsBlock,
   duaList: DuaListBlock,
   companionTool: CompanionToolBlock,
+  externalVideo: ExternalVideoBlock,
   insight: InsightBlock,
   closing: ClosingBlock,
   moment: MomentBlock,
@@ -632,6 +663,17 @@ const bs = StyleSheet.create({
   companionBody: { fontSize: 15, color: "rgba(255,255,255,0.85)", lineHeight: 21, marginBottom: 18 },
   companionCtaRow: { flexDirection: "row", alignItems: "center", alignSelf: "stretch", justifyContent: "space-between", borderTopWidth: 1, borderTopColor: "rgba(255,255,255,0.2)", paddingTop: 14 },
   companionCtaText: { fontSize: 15, fontWeight: "600", color: "#FFFFFF" },
+  videoCard:       { width: "100%", backgroundColor: "#1C2B1F", borderRadius: 18, overflow: "hidden", borderWidth: 1, borderColor: "rgba(200,169,106,0.25)" },
+  videoHeader:     { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 16, paddingVertical: 12, backgroundColor: "rgba(0,0,0,0.25)", borderBottomWidth: 1, borderBottomColor: "rgba(200,169,106,0.20)" },
+  videoHeaderRight:{ flexDirection: "row", alignItems: "center", gap: 4 },
+  videoEyebrow:    { fontSize: 11, fontWeight: "700", letterSpacing: 1.2, color: "#C8A96A" },
+  videoWatch:      { fontSize: 13, fontWeight: "600", color: "#FFFFFF" },
+  videoStage:      { paddingVertical: 48, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(0,0,0,0.15)" },
+  videoPlayRing:   { width: 112, height: 112, borderRadius: 56, backgroundColor: "rgba(255,255,255,0.08)", borderWidth: 1, borderColor: "rgba(255,255,255,0.25)", alignItems: "center", justifyContent: "center" },
+  videoFooter:     { paddingHorizontal: 20, paddingTop: 18, paddingBottom: 18 },
+  videoTitle:      { fontFamily: SERIF, fontSize: 22, color: "#FFFFFF", marginBottom: 4 },
+  videoSource:     { fontSize: 13, color: "rgba(255,255,255,0.75)", fontStyle: "italic", marginBottom: 10 },
+  videoNote:       { fontSize: 11, color: "rgba(255,255,255,0.50)", fontStyle: "italic" },
   insightCard: { width: "100%", backgroundColor: "#F3E9D2", borderRadius: 18, borderWidth: 1, borderColor: "#E4D3A8", padding: 22, alignItems: "center" },
   insightIconWrap: { width: 44, height: 44, borderRadius: 22, backgroundColor: "rgba(191,159,96,0.18)", alignItems: "center", justifyContent: "center", marginBottom: 14 },
   insightText: { fontSize: 18, fontStyle: "italic", color: DARK_TEXT, lineHeight: 26, textAlign: "center" },
