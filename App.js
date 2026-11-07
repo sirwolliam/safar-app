@@ -329,7 +329,7 @@ export default function App() {
           {/* ── Shared destinations reachable from multiple stacks ── */}
           <Stack.Screen name="PilgrimageDuas" component={PilgrimageDuasScreen} />
           <Stack.Screen name="SafarAssist"    component={SafarAssistScreen}    />
-          <Stack.Screen name="SacredPlaces"   component={SacredPlacesScreen}   />
+          <Stack.Screen name="SacredPlaces"   component={SacredPlacesScreen}   options={{ gestureEnabled: false }} />
           <Stack.Screen name="Search"         component={SearchScreen}         />
         </Stack.Navigator>
         <ToastHost />
