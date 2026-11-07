@@ -160,15 +160,49 @@ const MADINAH_INFO = {
 };
 
 // ── Location chips ────────────────────────────────────────────────────────────
-function LocationChips({ sites, selectedId, onSelect, styles }) {
+function LocationChips({ sites, selectedId, onSelect, styles, city }) {
+  // Plain refs, not state, so measuring never causes a re-render
+  const scrollRef  = useRef(null);
+  const layouts    = useRef({});   // site id → { x, width } of its chip
+  const viewWidth  = useRef(0);    // width of the ScrollView itself
+  const firstRunRef = useRef(true); // first scroll after mount / city change is not animated
+
+  // City toggle: jump back to the start without animation. Layouts are not cleared:
+  // site ids never repeat across cities, and clearing could erase the new chips'
+  // positions if their onLayout has already fired.
+  useEffect(() => {
+    firstRunRef.current = true;
+    scrollRef.current?.scrollTo({ x: 0, animated: false });
+  }, [city]);
+
+  // Keep the selected chip centred. If its layout is not recorded yet, try once more
+  // on the next frame, then give up quietly.
+  useEffect(() => {
+    let frame = null;
+    const tryScroll = (canRetry) => {
+      const chip = layouts.current[selectedId];
+      if (!chip || !viewWidth.current) {
+        if (canRetry) frame = requestAnimationFrame(() => tryScroll(false));
+        return;
+      }
+      const target = Math.max(0, chip.x + chip.width / 2 - viewWidth.current / 2);
+      scrollRef.current?.scrollTo({ x: target, animated: !firstRunRef.current });
+      firstRunRef.current = false;
+    };
+    tryScroll(true);
+    return () => { if (frame !== null) cancelAnimationFrame(frame); };
+  }, [selectedId]);
+
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.row}>
+    <ScrollView ref={scrollRef} horizontal showsHorizontalScrollIndicator={false}
+      contentContainerStyle={styles.row}
+      onLayout={(e) => { viewWidth.current = e.nativeEvent.layout.width; }}>
       {sites.map(s => {
         const on = s.id === selectedId;
         return (
           <TouchableOpacity key={s.id}
             style={on ? [styles.chip, styles.chipOn] : styles.chip}
+            onLayout={(e) => { const { x, width } = e.nativeEvent.layout; layouts.current[s.id] = { x, width }; }}
             onPress={() => onSelect(s)} activeOpacity={0.8}>
             <Text style={on ? [styles.label, styles.labelOn] : styles.label}>{s.name}</Text>
           </TouchableOpacity>
@@ -477,7 +511,7 @@ export default function SacredPlacesScreen({ navigation, route }) {
           {/* Location chips overlaid at hero bottom (full width) */}
           <View style={s.heroStepper}>
             <View style={{ flex: 1 }}>
-              <LocationChips sites={sites} selectedId={selected.id} onSelect={setSelected} styles={oLcS} />
+              <LocationChips sites={sites} selectedId={selected.id} onSelect={setSelected} styles={oLcS} city={city} />
             </View>
           </View>
 
