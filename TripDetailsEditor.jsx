@@ -39,7 +39,7 @@ export default function TripDetailsEditor({
 }) {
   const now         = new Date();
   const currentYear = now.getFullYear();
-  const YEARS       = [currentYear, currentYear + 1, currentYear + 2];
+  const YEARS       = [0, 1, 2, 3, 4].map((n) => currentYear + n);
 
   const [journeyType,   setJourneyType]   = useState("umrah");
   const [selectedYear,  setSelectedYear]  = useState(currentYear);
@@ -98,12 +98,12 @@ export default function TripDetailsEditor({
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <TouchableOpacity style={s.backdrop} activeOpacity={1} onPress={onClose}>
         <View style={s.sheet} onStartShouldSetResponder={() => true}>
+          <View style={s.handle} />
           <ScrollView
             showsVerticalScrollIndicator={false}
             contentContainerStyle={s.content}
             keyboardShouldPersistTaps="handled"
           >
-            <View style={s.handle} />
             <Text style={s.title}>Trip Details</Text>
             <Text style={s.subtitle}>Select the path that matches what you're preparing for. You can change this anytime.</Text>
 
@@ -127,9 +127,15 @@ export default function TripDetailsEditor({
               {explainer.rest}
             </Text>
 
-            {isLearn ? null : (
+            <View style={s.dateWrap}>
+            {isLearn ? (
+              <View style={s.learnEmpty}>
+                <Text style={s.learnEmptyText}>No departure date needed</Text>
+              </View>
+            ) : (
               <>
                 <Text style={s.sectionLabel}>DEPARTURE DATE</Text>
+                <Text style={s.subEyebrow}>YEAR</Text>
                 <View style={s.pillRow}>
                   {YEARS.map((y) => (
                     <TouchableOpacity
@@ -145,6 +151,7 @@ export default function TripDetailsEditor({
                   ))}
                 </View>
 
+                <Text style={s.subEyebrow}>MONTH</Text>
                 <View style={s.monthGrid}>
                   {MONTHS.map((name, idx) => {
                     const m = idx + 1;
@@ -163,6 +170,7 @@ export default function TripDetailsEditor({
                   })}
                 </View>
 
+                <Text style={s.subEyebrow}>DAY</Text>
                 <View style={s.dayGrid}>
                   {Array.from({ length: dayCount }, (_, i) => i + 1).map((d) => (
                     <TouchableOpacity
@@ -177,13 +185,16 @@ export default function TripDetailsEditor({
                     </TouchableOpacity>
                   ))}
                 </View>
+
+                <View style={s.selectedLabelWrap}>
+                  <Text style={s.selectedLabel}>{selectedLabel}</Text>
+                </View>
               </>
             )}
-
-            <View style={s.selectedLabelWrap}>
-              <Text style={s.selectedLabel}>{selectedLabel}</Text>
             </View>
-
+          </ScrollView>
+          {/* Save stays pinned below the scrolling content */}
+          <View style={s.saveWrap}>
             <TouchableOpacity
               style={canSave ? s.saveBtn : [s.saveBtn, s.saveBtnDisabled]}
               onPress={canSave ? handleSave : undefined}
@@ -191,7 +202,7 @@ export default function TripDetailsEditor({
             >
               <Text style={s.saveBtnText}>Save</Text>
             </TouchableOpacity>
-          </ScrollView>
+          </View>
           {/* Settings shortcut — only when the host passes navigation (Home does; Settings itself doesn't). */}
           {navigation ? (
             <TouchableOpacity
@@ -218,6 +229,10 @@ const s = StyleSheet.create({
   title:           { fontFamily: "SourceSerif4-Regular", fontSize: 22, color: "#1A1410", fontWeight: "600", marginBottom: 14 },
   subtitle:        { fontSize: 14, color: "#5C534A", lineHeight: 20, marginTop: -8, marginBottom: 20 },
   sectionLabel:    { fontSize: 10, fontWeight: "700", letterSpacing: 1.5, color: "#8A7D6A", textTransform: "uppercase", marginBottom: 8, marginTop: 2 },
+  subEyebrow:      { fontSize: 9, fontWeight: "700", letterSpacing: 1.2, color: "#B48A3C", textTransform: "uppercase", marginBottom: 6, marginTop: 2 },
+  dateWrap:        { minHeight: 470 },
+  learnEmpty:      { minHeight: 470, alignItems: "center", justifyContent: "center", paddingHorizontal: 20 },
+  learnEmptyText:  { fontFamily: "SourceSerif4-Regular", fontSize: 17, color: "#8A7D6A", textAlign: "center", fontStyle: "italic" },
 
   journeyRow:        { flexDirection: "row", gap: 10 },
   journeyPill:       { flex: 1, paddingVertical: 10, borderRadius: 12, alignItems: "center", backgroundColor: "#F0EBE1", borderWidth: 1, borderColor: "#DDD5C0" },
@@ -246,6 +261,7 @@ const s = StyleSheet.create({
 
   selectedLabelWrap: { marginTop: 12, marginBottom: 14, alignItems: "center" },
   selectedLabel:   { fontFamily: "SourceSerif4-Regular", fontSize: 16, fontWeight: "600", color: "#4A5C48", textAlign: "center", letterSpacing: 0.3 },
+  saveWrap:        { paddingHorizontal: 24, paddingTop: 10 },
   saveBtn:         { backgroundColor: "#1A1410", borderRadius: 14, paddingVertical: 14, alignItems: "center" },
   saveBtnDisabled: { opacity: 0.40 },
   saveBtnText:     { fontSize: 15, fontWeight: "600", color: "#C8A96A", letterSpacing: 0.3 },
