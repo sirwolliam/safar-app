@@ -78,6 +78,7 @@ export default function TripDetailsEditor({
     : selectedMonth !== null && Number.isFinite(selectedDay)
       ? `${MONTHS[selectedMonth - 1]} ${selectedDay}, ${selectedYear}`
       : "Select a departure date";
+  const hasDate = selectedMonth !== null && Number.isFinite(selectedDay);
 
   async function handleSave() {
     await AsyncStorage.setItem(JOURNEY_KEY, journeyType);
@@ -135,6 +136,9 @@ export default function TripDetailsEditor({
             ) : (
               <>
                 <Text style={s.sectionLabel}>DEPARTURE DATE</Text>
+                <Text style={hasDate ? s.selectedDateTop : s.selectedDateTopEmpty}>
+                  {selectedLabel}
+                </Text>
                 <Text style={s.subEyebrow}>YEAR</Text>
                 <View style={s.pillRow}>
                   {YEARS.map((y) => (
@@ -184,10 +188,6 @@ export default function TripDetailsEditor({
                       </Text>
                     </TouchableOpacity>
                   ))}
-                </View>
-
-                <View style={s.selectedLabelWrap}>
-                  <Text style={s.selectedLabel}>{selectedLabel}</Text>
                 </View>
               </>
             )}
@@ -259,8 +259,8 @@ const s = StyleSheet.create({
   cellActive:      { backgroundColor: "#4A5C48", borderColor: "#4A5C48" },
   cellTextActive:  { color: "#FFFFFF" },
 
-  selectedLabelWrap: { marginTop: 12, marginBottom: 14, alignItems: "center" },
-  selectedLabel:   { fontFamily: "SourceSerif4-Regular", fontSize: 16, fontWeight: "600", color: "#4A5C48", textAlign: "center", letterSpacing: 0.3 },
+  selectedDateTop:      { fontFamily: "SourceSerif4-Regular", fontSize: 20, fontWeight: "600", color: "#4A5C48", marginTop: 2, marginBottom: 16, letterSpacing: 0.3 },
+  selectedDateTopEmpty: { fontFamily: "SourceSerif4-Regular", fontSize: 18, fontStyle: "italic", color: "#8A7D6A", marginTop: 2, marginBottom: 16 },
   saveWrap:        { paddingHorizontal: 24, paddingTop: 10 },
   saveBtn:         { backgroundColor: "#1A1410", borderRadius: 14, paddingVertical: 14, alignItems: "center" },
   saveBtnDisabled: { opacity: 0.40 },
