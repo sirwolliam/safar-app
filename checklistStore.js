@@ -115,7 +115,11 @@ export async function toggleItemChecked(categoryId, itemId) {
 
 export async function getCategoryProgress(categoryId) {
   const category = CHECKLIST_ITEMS[categoryId];
-  const total = category ? category.items.length : 0;
+  let total = category ? category.items.length : 0;
+  if (!category) {
+    const custom = (await readCustom()).find((l) => l.id === categoryId);
+    total = custom ? custom.items.length : 0;
+  }
   const checked = await getChecklistProgress(categoryId);
   return { checked: checked.length, total };
 }
@@ -128,5 +132,111 @@ export async function getAllCategoryProgress() {
     const checked = Array.isArray(progress[categoryId]) ? progress[categoryId] : [];
     result[categoryId] = { checked: checked.length, total: category.items.length };
   }
+  for (const list of await readCustom()) {
+    const checked = Array.isArray(progress[list.id]) ? progress[list.id] : [];
+    result[list.id] = { checked: checked.length, total: list.items.length };
+  }
   return result;
+}
+
+// ── Custom (user-created) checklists ─────────────────────────────────────────
+// Schema: array in creation order, [{ id, title, items: [{ id, label }], createdAt }].
+// Ids are prefixed ("custom-", "citem-") so they never collide with built-in ids.
+// Items use `label` like the built-ins; they have no daysOutThreshold or section.
+// Checked state lives in the same progress object above, keyed by list id.
+
+const CUSTOM_CHECKLISTS_KEY = "safar_custom_checklists_v1";
+
+function makeId(prefix) {
+  return prefix + Date.now() + "-" + Math.random().toString(36).slice(2, 8);
+}
+
+async function readCustom() {
+  try {
+    const raw = await AsyncStorage.getItem(CUSTOM_CHECKLISTS_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((l) => l && typeof l.id === "string" && Array.isArray(l.items));
+  } catch {
+    return [];
+  }
+}
+
+async function writeCustom(lists) {
+  try { await AsyncStorage.setItem(CUSTOM_CHECKLISTS_KEY, JSON.stringify(lists)); } catch {}
+  return lists;
+}
+
+export async function getCustomChecklists() {
+  return await readCustom();
+}
+
+export async function createCustomChecklist(title) {
+  const trimmed = typeof title === "string" ? title.trim() : "";
+  if (!trimmed) return null;
+  const lists = await readCustom();
+  const list = { id: makeId("custom-"), title: trimmed, items: [], createdAt: new Date().toISOString() };
+  await writeCustom([...lists, list]);
+  return list;
+}
+
+export async function renameCustomChecklist(listId, title) {
+  const trimmed = typeof title === "string" ? title.trim() : "";
+  if (!trimmed) return null;
+  const lists = await readCustom();
+  const idx = lists.findIndex((l) => l.id === listId);
+  if (idx === -1) return null;
+  const updated = { ...lists[idx], title: trimmed };
+  await writeCustom(lists.map((l, i) => (i === idx ? updated : l)));
+  return updated;
+}
+
+export async function deleteCustomChecklist(listId) {
+  const lists = await readCustom();
+  const next = lists.filter((l) => l.id !== listId);
+  if (next.length === lists.length) return false;
+  await writeCustom(next);
+  const progress = await readProgress();
+  if (Object.prototype.hasOwnProperty.call(progress, listId)) {
+    const { [listId]: _removed, ...rest } = progress;
+    await writeProgress(rest);
+  }
+  return true;
+}
+
+export async function addCustomItem(listId, label) {
+  const trimmed = typeof label === "string" ? label.trim() : "";
+  if (!trimmed) return null;
+  const lists = await readCustom();
+  const idx = lists.findIndex((l) => l.id === listId);
+  if (idx === -1) return null;
+  const item = { id: makeId("citem-"), label: trimmed };
+  await writeCustom(lists.map((l, i) => (i === idx ? { ...l, items: [...l.items, item] } : l)));
+  return item;
+}
+
+export async function deleteCustomItem(listId, itemId) {
+  const lists = await readCustom();
+  const idx = lists.findIndex((l) => l.id === listId);
+  if (idx === -1) return false;
+  const items = lists[idx].items.filter((it) => it.id !== itemId);
+  if (items.length === lists[idx].items.length) return false;
+  await writeCustom(lists.map((l, i) => (i === idx ? { ...l, items } : l)));
+  const progress = await readProgress();
+  const checked = Array.isArray(progress[listId]) ? progress[listId] : null;
+  if (checked && checked.includes(itemId)) {
+    await writeProgress({ ...progress, [listId]: checked.filter((id) => id !== itemId) });
+  }
+  return true;
+}
+
+// Unified lookup for the detail screen: built-in or custom, or null.
+export async function getChecklistById(id) {
+  if (Object.prototype.hasOwnProperty.call(CHECKLIST_ITEMS, id)) {
+    const category = CHECKLIST_ITEMS[id];
+    return { id, title: category.title, items: category.items, isCustom: false };
+  }
+  const custom = (await readCustom()).find((l) => l.id === id);
+  return custom ? { id: custom.id, title: custom.title, items: custom.items, isCustom: true } : null;
 }
