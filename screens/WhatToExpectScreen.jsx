@@ -385,7 +385,7 @@ export default function WhatToExpectScreen({ navigation }) {
       <View style={styles.header}>
         <Image
           source={require("../assets/what_to_expect.jpg")}
-          style={StyleSheet.absoluteFillObject}
+          style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, width: "100%", height: "100%" }}
           resizeMode="cover"
           fadeDuration={0}
         />
