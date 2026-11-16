@@ -339,14 +339,23 @@ function CompanionToolBlock({ block, navigation }) {
         }}
         activeOpacity={0.88}
       >
-        <View style={bs.companionIconWrap}>
-          <Sparkle size={26} color="#FFFFFF" weight="fill" />
-        </View>
-        <Text style={bs.companionTitle}>{block.title}</Text>
-        <Text style={bs.companionBody}>{block.description}</Text>
-        <View style={bs.companionCtaRow}>
-          <Text style={bs.companionCtaText}>{block.ctaLabel}</Text>
-          <CaretRight size={16} color="#FFFFFF" weight="bold" />
+        {block.image ? (
+          <Image source={block.image} style={bs.companionImage} resizeMode="cover" />
+        ) : null}
+        <View style={bs.companionInner}>
+          {block.image ? null : (
+            <View style={bs.companionIconWrap}>
+              <Sparkle size={26} color="#FFFFFF" weight="fill" />
+            </View>
+          )}
+          {block.image ? null : (
+            <Text style={bs.companionTitle}>{block.title}</Text>
+          )}
+          <Text style={bs.companionBody}>{block.description}</Text>
+          <View style={bs.companionCtaRow}>
+            <Text style={bs.companionCtaText}>{block.ctaLabel}</Text>
+            <CaretRight size={16} color="#FFFFFF" weight="bold" />
+          </View>
         </View>
       </TouchableOpacity>
     </ScrollView>
@@ -657,7 +666,9 @@ const bs = StyleSheet.create({
   stepCardBulletText: { flex: 1, fontSize: 14, color: "#5C534A", lineHeight: 20 },
   duaCta: { flexDirection: "row", alignItems: "center", justifyContent: "center", marginTop: 20, paddingVertical: 10 },
   duaCtaText: { fontSize: 15, fontWeight: "600", color: GOLD, marginRight: 6 },
-  companionCard: { width: "100%", backgroundColor: "#4A5C48", borderRadius: 18, padding: 24, alignItems: "flex-start" },
+  companionCard: { width: "100%", backgroundColor: "#4A5C48", borderRadius: 18, overflow: "hidden" },
+  companionImage: { width: "100%", height: 140 },
+  companionInner: { padding: 24, alignItems: "flex-start" },
   companionIconWrap: { width: 48, height: 48, borderRadius: 24, backgroundColor: "rgba(255,255,255,0.15)", alignItems: "center", justifyContent: "center", marginBottom: 16 },
   companionTitle: { fontFamily: SERIF, fontSize: 20, color: "#FFFFFF", marginBottom: 8 },
   companionBody: { fontSize: 15, color: "rgba(255,255,255,0.85)", lineHeight: 21, marginBottom: 18 },
