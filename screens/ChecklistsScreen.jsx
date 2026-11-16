@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import {
-  View, Text, ScrollView, TouchableOpacity, StyleSheet, Dimensions,
+  View, Text, ScrollView, TouchableOpacity, StyleSheet, Image,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 import { FileText, Package, HandsPraying, House, CaretRight, CaretLeft, Plus } from "phosphor-react-native";
 import { CHECKLIST_ITEMS, getAllCategoryProgress } from "../checklistStore";
-import HeaderPatternBg from "../HeaderPatternBg";
 import SafarAssistCard from "../SafarAssistCard";
 
 const SERIF = "SourceSerif4-Regular";
@@ -28,7 +28,6 @@ const CATEGORY_COLORS = {
 };
 
 export default function ChecklistsScreen({ navigation, route }) {
-  const SW = Dimensions.get("window").width;
   const insets = useSafeAreaInsets();
   const [progress, setProgress] = useState({});
 
@@ -47,10 +46,19 @@ export default function ChecklistsScreen({ navigation, route }) {
   return (
     <View style={s.safe}>
       <View style={s.header}>
-        <HeaderPatternBg width={SW} />
-        <View style={[s.headerTopRow, { paddingTop: insets.top + 12 }]}>
-          <TouchableOpacity
-            style={s.backBtn}
+        <Image
+          source={require("../assets/checklists.png")}
+          style={s.headerImg}
+          resizeMode="cover"
+          fadeDuration={0}
+        />
+        <LinearGradient
+          colors={["transparent", "rgba(0,0,0,0.80)"]}
+          locations={[0, 1]}
+          style={StyleSheet.absoluteFillObject}
+        />
+        <TouchableOpacity
+          style={[s.backBtn, { top: insets.top + 14 }]}
             onPress={() => {
               const returnToTab = route?.params?.returnToTab;
               if (returnToTab) {
@@ -59,13 +67,17 @@ export default function ChecklistsScreen({ navigation, route }) {
                 navigation?.goBack?.();
               }
             }}
-            activeOpacity={0.8}
-          >
-            <CaretLeft size={20} color="#1A1712" weight="bold" />
-          </TouchableOpacity>
+          activeOpacity={0.8}
+        >
+          <CaretLeft size={18} color="#FFFFFF" weight="bold" />
+        </TouchableOpacity>
+        <View style={s.headerContent}>
+          <Text style={s.headerTitle}>Checklists</Text>
         </View>
-        <Text style={s.headerTitle}>Checklists</Text>
-        <Text style={s.headerSubhead}>Your checklists are organized into helpful categories, so you can plan and stay organized every step of the way.</Text>
+      </View>
+
+      <View style={s.intro}>
+        <Text style={s.introText}>Your checklists are organized into helpful categories, so you can plan and stay organized every step of the way.</Text>
       </View>
 
       <ScrollView
@@ -124,12 +136,13 @@ export default function ChecklistsScreen({ navigation, route }) {
 
 const s = StyleSheet.create({
   safe:         { flex: 1, backgroundColor: "#F5F0E8" },
-  header:       { backgroundColor: "#F5F0E8", minHeight: 190, position: "relative", overflow: "hidden", paddingHorizontal: 16, paddingBottom: 20 },
-  headerTopRow: { flexDirection: "row", alignItems: "center" },
-  backBtn:      { width: 36, height: 36, borderRadius: 18, backgroundColor: "#FDFAF4", borderWidth: 1, borderColor: "#D4D0CA", alignItems: "center", justifyContent: "center" },
-  headerTitle:  { fontFamily: SERIF, fontSize: 38, color: "#1A1410", textAlign: "center", marginTop: 16 },
-  headerSubhead:{ fontSize: 13, color: "#5C534A", textAlign: "center", marginTop: 6, paddingHorizontal: 24, lineHeight: 18 },
-  headerSpacer: { width: 36 },
+  header:       { height: 170, position: "relative", overflow: "hidden", backgroundColor: "#1A1410" },
+  headerImg:    { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, width: "100%", height: "100%" },
+  backBtn:      { position: "absolute", left: 18, width: 36, height: 36, borderRadius: 18, backgroundColor: "rgba(0,0,0,0.35)", alignItems: "center", justifyContent: "center" },
+  headerContent:{ position: "absolute", bottom: 18, left: 20, right: 20 },
+  headerTitle:  { fontFamily: SERIF, fontSize: 30, color: "#FFFFFF", fontWeight: "600" },
+  intro:        { paddingTop: 20, paddingHorizontal: 20, paddingBottom: 16 },
+  introText:    { fontSize: 17, color: "#5C534A", lineHeight: 24, textAlign: "left" },
   scroll:       { flex: 1 },
   scrollContent:{ paddingTop: 12, paddingBottom: 24 },
   card:         { flexDirection: "row", alignItems: "center", backgroundColor: "#FDFAF4", borderRadius: 16, borderWidth: 1, borderColor: "#DDD5C0", padding: 16, marginHorizontal: 16, marginBottom: 12, shadowColor: "#2A1F0E", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 8, elevation: 3 },
