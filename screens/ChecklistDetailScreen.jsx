@@ -44,6 +44,10 @@ export default function ChecklistDetailScreen({ navigation, route }) {
   const [busy, setBusy] = useState(false);
   const scrollRef = React.useRef(null);
   const itemPositions = React.useRef({});
+  const pillScrollRef = React.useRef(null);
+  const pillLayouts   = React.useRef({});
+  const pillStripW    = React.useRef(0);
+  const pillFirstRun  = React.useRef(true);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -84,6 +88,25 @@ export default function ChecklistDetailScreen({ navigation, route }) {
     const clearTimer = setTimeout(() => setHighlightedId(null), 2800);
     return () => { clearTimeout(scrollTimer); clearTimeout(clearTimer); };
   }, [route?.params?.itemId, activeCategoryId]);
+
+  // Centre the active pill. Waits for `loading` to clear: the pill strip is not
+  // rendered while loading, so it only exists (with fresh layouts) after each load.
+  React.useEffect(() => {
+    if (loading) return;
+    let frame = null;
+    const tryScroll = (canRetry) => {
+      const pill = pillLayouts.current[activeCategoryId];
+      if (!pill || !pillStripW.current) {
+        if (canRetry) frame = requestAnimationFrame(() => tryScroll(false));
+        return;
+      }
+      const target = Math.max(0, pill.x + pill.width / 2 - pillStripW.current / 2);
+      pillScrollRef.current?.scrollTo({ x: target, animated: !pillFirstRun.current });
+      pillFirstRun.current = false;
+    };
+    tryScroll(true);
+    return () => { if (frame !== null) cancelAnimationFrame(frame); };
+  }, [activeCategoryId, loading]);
 
   // Loading guard must come before the not-found guard, or "not found" flashes on every load.
   if (loading) {
@@ -155,6 +178,10 @@ export default function ChecklistDetailScreen({ navigation, route }) {
         key={id}
         style={activeCategoryId === id ? [s.pillActive, { backgroundColor: colorFor(id) }] : s.pill}
         onPress={() => setActiveCategoryId(id)}
+        onLayout={(e) => {
+          const { x, width } = e.nativeEvent.layout;
+          pillLayouts.current[id] = { x, width };
+        }}
         activeOpacity={0.75}
       >
         <Text style={activeCategoryId === id ? [s.pillTextActive, { color: onColorFor(id) }] : s.pillText}>
@@ -227,7 +254,13 @@ export default function ChecklistDetailScreen({ navigation, route }) {
       </View>
 
       <View style={s.pillsWrap}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.pillsRow}>
+        <ScrollView
+          ref={pillScrollRef}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={s.pillsRow}
+          onLayout={(e) => { pillStripW.current = e.nativeEvent.layout.width; }}
+        >
           {Object.keys(CHECKLIST_ITEMS).map((key) => renderPill(key, CHECKLIST_ITEMS[key].title))}
           {customLists.map((list) => renderPill(list.id, list.title))}
         </ScrollView>
