@@ -80,17 +80,19 @@ export default function MapStepListScreen({ navigation, route }) {
         {steps.map((step, i) => (
           <TouchableOpacity
             key={step.label}
-            style={s.row}
+            style={s.card}
             activeOpacity={0.85}
             onPress={() => navigation?.navigate?.("Map", { guide, stepIndex: i })}
           >
-            <Image source={step.photo} style={s.thumb} resizeMode="cover" />
-            <View style={s.rowInfo}>
-              <Text style={s.rowStep}>{"STEP " + (i + 1)}</Text>
-              <Text style={s.rowLabel}>{step.label}</Text>
-              <Text style={s.rowSub}>{step.sub}</Text>
+            <Image source={step.photo} style={s.cardImg} resizeMode="cover" />
+            <View style={s.cardBody}>
+              <View style={s.cardText}>
+                <Text style={s.rowStep}>{"STEP " + (i + 1)}</Text>
+                <Text style={s.rowLabel}>{step.label}</Text>
+                <Text style={s.rowSub}>{step.sub}</Text>
+              </View>
+              <CaretRight size={18} color={MUTED} weight="bold" />
             </View>
-            <CaretRight size={18} color={MUTED} weight="bold" />
           </TouchableOpacity>
         ))}
         <View style={{ height: spacing(4) }} />
@@ -119,9 +121,10 @@ const s = StyleSheet.create({
   explainerText:     { fontSize:16, lineHeight:23, color:"#3A3228" },
   explainerTextBold: { fontSize:16, lineHeight:23, color:"#3A3228", fontWeight:"700" },
 
-  row: { flexDirection: "row", alignItems: "center", backgroundColor: "#FDFAF4", borderRadius: radius.lg, borderWidth: 1, borderColor: BORDER, padding: 10, marginBottom: 10 },
-  thumb: { width: 56, height: 56, borderRadius: 12, marginRight: 12 },
-  rowInfo: { flex: 1 },
+  card:     { backgroundColor: "#FDFAF4", borderRadius: radius.lg, borderWidth: 1, borderColor: BORDER, overflow: "hidden", marginBottom: 14, shadowColor: "#1C1408", shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.08, shadowRadius: 10, elevation: 5 },
+  cardImg:  { width: "100%", height: 220 },
+  cardBody: { flexDirection: "row", alignItems: "center", padding: 14 },
+  cardText: { flex: 1 },
   rowStep: { fontSize: 10, fontWeight: "700", letterSpacing: 1, color: SAGE, marginBottom: 2 },
   rowLabel: { fontFamily: SERIF, fontSize: 18, color: TEXT, marginBottom: 2 },
   rowSub: { fontSize: 12, color: MUTED },
