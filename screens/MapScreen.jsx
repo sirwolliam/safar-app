@@ -90,7 +90,7 @@ const HAJJ_STEPS = [
     date:"8th Dhul Hijjah", duaMode:"hajj",
     desc:"At the Miqat make your intention, wear Ihram garments and recite the Talbiyah: Labbayk Allahumma labbayk.",
     photo: require("../assets/ihram.jpg"),
-    map: require("../assets/Umrah_map_test1.png"),
+    map: require("../assets/Hajj_Maps/01_Ihram_Makkah.png"),
   },
   {
     id:"mina", step:2, label:"Mina",
@@ -98,7 +98,7 @@ const HAJJ_STEPS = [
     date:"8th Dhul Hijjah", distance:"~8km from Makkah", duaMode:"hajj",
     desc:"Travel to Mina. Pray all five prayers here, shortening four-rakah prayers to two. Spend the night in worship before the Day of Arafat.",
     photo: require("../assets/arrival.jpg"),
-    map: require("../assets/Umrah_map_test1.png"),
+    map: require("../assets/Hajj_Maps/02_Mina.png"),
   },
   {
     id:"arafat", step:3, label:"Arafat",
@@ -106,23 +106,23 @@ const HAJJ_STEPS = [
     date:"9th Dhul Hijjah", distance:"~14km from Makkah", duaMode:"hajj",
     desc:"The most important day of Hajj. Stand at Arafah from midday to sunset in continuous du'a and dhikr. The Prophet ﷺ said: 'Hajj is Arafah.'",
     photo: require("../assets/arafah.jpg"),
-    map: require("../assets/Umrah_map_test1.png"),
+    map: require("../assets/Hajj_Maps/03_Arafat.png"),
   },
   {
     id:"muzdalifah", step:4, label:"Muzdalifah",
     title:"Night in Muzdalifah",
     date:"Night of the 9th", distance:"~9km from Arafat", duaMode:"hajj",
     desc:"After sunset, travel to Muzdalifah. Combine Maghrib and Isha. Sleep under the open sky. Collect pebbles for the Jamarat.",
-    photo: require("../assets/arrival.jpg"),
-    map: require("../assets/Umrah_map_test1.png"),
+    photo: require("../assets/lesson_images/hajj_lesson11.png"),
+    map: require("../assets/Hajj_Maps/04_Muzdalifah.png"),
   },
   {
     id:"jamarat", step:5, label:"Jamarat",
     title:"Rami — Stone the Jamarat",
     date:"10th–12th", distance:"In Mina", duaMode:"hajj",
     desc:"Return to Mina. On the 10th, throw seven pebbles at Jamarat al-Aqabah. On the 11th and 12th, stone all three pillars in order, saying 'Allahu Akbar' with each throw.",
-    photo: require("../assets/arrival.jpg"),
-    map: require("../assets/Umrah_map_test1.png"),
+    photo: require("../assets/lesson_images/hajj_lesson12.png"),
+    map: require("../assets/Hajj_Maps/05_Jamarat.png"),
   },
   {
     id:"ifadah", step:6, label:"Tawaf + Farewell",
@@ -130,7 +130,7 @@ const HAJJ_STEPS = [
     date:"10th Dhul Hijjah", distance:"Return to Makkah", duaMode:"hajj",
     desc:"Perform Tawaf al-Ifadah, then Sa'i. All Ihram restrictions are fully lifted. Perform Tawaf al-Wada before leaving Makkah.",
     photo: require("../assets/tawaf2.jpg"),
-    map: require("../assets/Umrah_map_test1.png"),
+    map: require("../assets/Hajj_Maps/06_Tawaf_al-Ifadah_Makkah.png"),
   },
 ];
 
@@ -176,8 +176,8 @@ export default function MapScreen({ navigation, route }) {
           <View style={{ width: 36 }} />
         </View>
         <View style={s.headerCenter}>
-          <Text style={s.pageTitle}>{guide === "hajj" ? "Hajj Map" : "Umrah Map"}</Text>
-          <Text style={s.pageSubtitle}>{current.title}</Text>
+          <Text style={s.pageEyebrow}>{(guide === "hajj" ? "HAJJ MAP" : "UMRAH MAP") + "  ·  STEP " + current.step + " OF " + total}</Text>
+          <Text style={s.pageTitle}>{current.label}</Text>
         </View>
       </View>
 
@@ -301,8 +301,8 @@ const s = StyleSheet.create({
   headerTopRow:{ flexDirection:"row", alignItems:"center", justifyContent:"space-between" },
   backBtn:     { width:36, height:36, borderRadius:18, backgroundColor:CARD_BG, borderWidth:1, borderColor:"#D4D0CA", alignItems:"center", justifyContent:"center" },
   headerCenter:{ alignItems:"center", marginTop:16 },
-  pageTitle:   { fontFamily:SERIF, fontSize:38, color:CARD_BG },
-  pageSubtitle:{ fontSize:14, color:"rgba(255,255,255,0.75)", marginTop:1 },
+  pageEyebrow: { fontSize: 12, fontWeight: "700", letterSpacing: 1, color: "rgba(255,255,255,0.75)", textTransform: "uppercase", marginBottom: 4 },
+  pageTitle:   { fontFamily: SERIF, fontSize: 34, color: CARD_BG, textAlign: "center", lineHeight: 40 },
 
   stepperRow: {
     flexDirection:"row", alignItems:"center", justifyContent:"space-between",

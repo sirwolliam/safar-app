@@ -37,8 +37,8 @@ const HAJJ_LIST = [
   { label:"Ihram",                      sub:"8th Dhul Hijjah",                     photo:require("../assets/ihram.jpg") },
   { label:"Mina",                       sub:"8th Dhul Hijjah",                     photo:require("../assets/arrival.jpg") },
   { label:"Arafat",                     sub:"9th Dhul Hijjah — the heart of Hajj", photo:require("../assets/arafah.jpg") },
-  { label:"Muzdalifah",                 sub:"Night under the open sky",            photo:require("../assets/arrival.jpg") },
-  { label:"Jamarat",                    sub:"10th–12th, in Mina",                  photo:require("../assets/arrival.jpg") },
+  { label:"Muzdalifah",                 sub:"Night under the open sky",            photo:require("../assets/lesson_images/hajj_lesson11.png") },
+  { label:"Jamarat",                    sub:"10th–12th, in Mina",                  photo:require("../assets/lesson_images/hajj_lesson12.png") },
   { label:"Tawaf al-Ifadah + Farewell", sub:"Return to Makkah",                    photo:require("../assets/tawaf2.jpg") },
 ];
 

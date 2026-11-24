@@ -226,7 +226,7 @@ function LearnNavigator() {
       <LearnStack.Screen name="WhatToExpect"           component={WhatToExpectScreen}    />
       <LearnStack.Screen name="Media"                  component={MediaScreen}           />
       <LearnStack.Screen name="SacredPlaces"           component={SacredPlacesScreen}    />
-      <LearnStack.Screen name="Map"                    component={MapScreen}             />
+      <LearnStack.Screen name="Map"                    component={MapScreen}             options={{ gestureEnabled: false }} />
       <LearnStack.Screen name="MapStepList"            component={MapStepListScreen}      />
       <LearnStack.Screen name="IslamicReferences"      component={IslamicReferencesScreen} />
       <LearnStack.Screen name="QuizHub"                component={QuizHubScreen}         />
