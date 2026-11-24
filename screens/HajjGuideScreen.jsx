@@ -138,7 +138,7 @@ export default function HajjGuideScreen({ navigation }) {
             <View style={s.cardRow}>
               {/* contain keeps the whole step graphic visible; tap opens the pinch-zoom viewer */}
               <ImageCard image={JOURNEY_IMG} fit="contain" title="Journey overview" sub="A quick visual guide to the steps of Hajj." onPress={() => setShowJourneyViewer(true)} />
-              <ImageCard image={MAP_CARD_IMG} title="Pilgrimage Map" sub="See where each rite takes place in Makkah and the holy sites." onPress={() => navigation?.navigate?.("MapStepList", { guide: "hajj" })} />
+              <ImageCard image={MAP_CARD_IMG} title="Hajj Map" sub="See where each rite takes place in Makkah and the holy sites." onPress={() => navigation?.navigate?.("MapStepList", { guide: "hajj" })} />
             </View>
           </View>
 

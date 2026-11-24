@@ -139,7 +139,7 @@ export default function UmrahGuideScreen({ navigation }) {
             <View style={s.cardRow}>
               {/* cover fills the thumbnail (sides are cropped); tap opens the pinch-zoom viewer for the full graphic */}
               <ImageCard image={JOURNEY_IMG} title="Journey overview" sub="A quick visual guide to the steps of Umrah." onPress={() => setShowJourneyViewer(true)} />
-              <ImageCard image={MAP_CARD_IMG} title="Pilgrimage Map" sub="See where each rite takes place in Makkah and the holy sites." onPress={() => navigation?.navigate?.("MapStepList", { guide: "umrah" })} />
+              <ImageCard image={MAP_CARD_IMG} title="Umrah Map" sub="See where each rite takes place in Makkah and the holy sites." onPress={() => navigation?.navigate?.("MapStepList", { guide: "umrah" })} />
             </View>
           </View>
 
