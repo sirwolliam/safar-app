@@ -38,7 +38,7 @@ const EXPLORE_TILES = [
     go: (navigation) => navigation?.getParent?.()?.navigate?.("Practice", { screen: "PracticeMain" }) },
   { label: "Ziyarah",  subtitle: "Historical places to visit", circleColor: "#2D4A34", image: require("../assets/explore_cards/ziyarah.png"),
     go: (navigation) => navigation.navigate("SacredPlaces") },
-  { label: "Duas",     subtitle: "Essential supplications", circleColor: "#2D4A34", image: require("../assets/explore_cards/duas.png"),
+  { label: "Pilgrimage Duas", subtitle: "Duas for each step", circleColor: "#2D4A34", image: require("../assets/explore_cards/duas.png"),
     go: (navigation) => navigation.navigate("PilgrimageDuas") },
   { label: "Media",    subtitle: "Watch and listen",        circleColor: "#2D4A34", image: require("../assets/explore_cards/media.png"),
     go: (navigation) => navigation.navigate("Media") },
