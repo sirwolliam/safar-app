@@ -28,7 +28,7 @@ function ScholarlyFootnote({ style }) {
     <View style={[fn.wrap, style]}>
       <Text style={fn.text}>
         <Text style={fn.bold}>Sources</Text>{" — "}
-        Duas are drawn from Sahih al-Bukhari, Sahih Muslim, Sunan Abi Dawud, Sunan al-Tirmidhi, and established scholarly works. Each dua is attributed to its primary source. Practice and wording may differ across the four madhabs (Hanafi, Maliki, Shafii, Hanbali). Consult a qualified scholar for rulings specific to your school of thought.
+        Official guidance is drawn from the Saudi Ministry of Hajj & Umrah, the Saudi Ministry of Health, and the Saudi Red Crescent Authority. Scholarly notes reflect established positions across the four madhabs (Hanafi, Maliki, Shafi'i, Hanbali); consult a qualified scholar for rulings specific to your school.
       </Text>
     </View>
   );
@@ -54,9 +54,11 @@ const GENERAL_SECTIONS = [
   {
     id: "before", title: "Before You Go", sub: "Visas, vaccines, documents and preparation.", Icon: SuitcaseRolling,
     items: [
-      { text: "Apply for a Hajj or Umrah visa via the official Nusuk portal.", type: "official", link: "https://www.nusuk.sa" },
+      { text: "Umrah now offers a one-year, multiple-entry visa with up to 90 days total stay, booked with a service package through Nusuk. Umrah is paused during the Hajj season (1 Dhul-Qa'dah to 14 Dhul-Hijjah).", type: "guidance", link: "https://www.nusuk.sa" },
+      { text: "Hajj requires an official permit, issued only through the Nusuk app or an approved Hajj operator. You cannot perform Hajj on a tourist, visit, or Umrah visa.", type: "official", link: "https://www.nusuk.sa" },
+      { text: "Download the Nusuk app before you travel — it holds your Hajj permit and the Nusuk Card required to enter Mina, Arafat and the Grand Mosque during Hajj.", type: "official", link: "https://apps.apple.com/app/id6469515422", linkLabel: "Download the Nusuk app ↗" },
       { text: "Book accommodation early — hotels near the Haram fill up months in advance.", type: "guidance" },
-      { text: "A meningitis ACWY vaccine is mandatory. Check requirements for your nationality.", type: "official", link: "https://www.haj.gov.sa" },
+      { text: "A quadrivalent meningitis (ACWY) vaccine is mandatory for all pilgrims aged 1 and over, given at least 10 days before arrival. Carry the certificate.", type: "official", link: "https://www.haj.gov.sa" },
       { text: "Make a list of duas, intentions, and names of people to pray for.", type: "guidance" },
       { text: "Carry printed copies of key documents — visa, passport, hotel booking.", type: "guidance" },
     ],
@@ -98,7 +100,8 @@ const GENERAL_SECTIONS = [
       { text: "Public display of affection is not permitted, even between married couples.", type: "official" },
       { text: "Respect prayer times — most shops and services pause during salah.", type: "official" },
       { text: "Photographing government buildings, military, or airport security is prohibited.", type: "official" },
-      { text: "Luggage limits: 25kg checked, 7kg cabin per IATA guidelines — verify with your airline.", type: "guidance", link: "https://www.iata.org" },
+      { text: "Baggage allowances are set by your airline (often around 25kg checked, 7kg cabin) — confirm with your carrier before you fly.", type: "guidance" },
+      { text: "Performing Hajj without a permit is illegal: fines up to SAR 20,000, deportation, and a 10-year re-entry ban. Transporting or sheltering unpermitted pilgrims carries fines up to SAR 100,000.", type: "official" },
     ],
   },
   {
@@ -109,6 +112,7 @@ const GENERAL_SECTIONS = [
       { text: "Overpriced transport — agree on fare before entering any unmetered taxi.", type: "guidance" },
       { text: "Pickpocketing in crowds — keep documents and valuables in a secure body pouch.", type: "guidance" },
       { text: "Report suspicious activity to the Saudi security services immediately.", type: "official" },
+      { text: "Card and contactless payments (including mada and Apple Pay) are widely accepted in Makkah and Madinah — you can carry less cash and reduce exchange risk.", type: "guidance" },
     ],
   },
   {
@@ -138,10 +142,12 @@ const HEALTH_SECTIONS = [
   {
     id: "emergency", title: "Emergency Numbers", sub: "Police, ambulance, fire and embassy contacts.", Icon: Siren, accentColor: "#C24A4A",
     items: [
-      { text: "Saudi Emergency (Police): 999", type: "official" },
-      { text: "Saudi Ambulance: 911", type: "official" },
-      { text: "Civil Defence (Fire): 998", type: "official" },
-      { text: "Haram Security (Makkah): +966 12 556 6888", type: "official" },
+      { text: "Unified emergency — police, ambulance and fire (Makkah, Madinah, Riyadh, Eastern Province): 911", type: "official" },
+      { text: "Saudi Red Crescent ambulance (nationwide): 997", type: "official" },
+      { text: "Police: 999", type: "official" },
+      { text: "Civil Defence — fire, building collapse, hazards: 998", type: "official" },
+      { text: "Ministry of Health hotline: 937", type: "official" },
+      { text: "Ministry of Hajj & Umrah pilgrim call centre (24/7, multilingual): 1966 — from outside Saudi Arabia, +966 92 000 2814", type: "official" },
       { text: "Save your country's embassy number in Saudi Arabia before you travel.", type: "guidance" },
     ],
   },
@@ -263,7 +269,7 @@ function AccordionSection({ section, colors }) {
                 <Text style={ac.itemText}>{item.text}</Text>
                 {item.link ? (
                   <TouchableOpacity onPress={() => Linking.openURL(item.link)}>
-                    <Text style={ac.link}>Official source ↗</Text>
+                    <Text style={ac.link}>{item.linkLabel ? item.linkLabel : "Official source ↗"}</Text>
                   </TouchableOpacity>
                 ) : null}
               </View>
@@ -473,7 +479,7 @@ export default function WhatToExpectScreen({ navigation }) {
             <Text style={styles.disclaimerText}>
               Guidance is general advice. Scholarly opinions may vary by
               madhab. Always verify requirements with official sources and
-              your local scholar before travel.
+              your local scholar before travel. Last verified November 2026 — requirements change, so always confirm with official sources before you travel.
             </Text>
             <TouchableOpacity onPress={() => Linking.openURL("https://www.haj.gov.sa")}>
               <Text style={styles.disclaimerLink}>
