@@ -3,15 +3,13 @@
  * Dashboard layout: hero → 1. start learning → 2. understand the journey →
  * 3. prepare → 4. learn and explore → how ready (quiz)
  */
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import {
   View, Text, ScrollView, TouchableOpacity,
   Image, StyleSheet, StatusBar,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useFocusEffect } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import ImageView from "react-native-image-viewing";
 import { ArrowRight, CaretLeft, CaretRight, BookOpen, GraduationCap, PlayCircle, MapPin, MagnifyingGlass } from "phosphor-react-native";
 import { colors, spacing, radius, shadows } from "../theme";
@@ -24,9 +22,6 @@ const MAP_CARD_IMG = require("../assets/map_card.png");
 const CHECKLIST_CARD_IMG = require("../assets/checklist_kaaba.jpg");
 const ESSENTIALS_CARD_IMG = require("../assets/shop/shop-bag.jpg");
 const DUA_CARD_IMG = require("../assets/dua-header.png");
-
-const STORAGE_KEY = "safar_hajj_checklist_v1";
-const CHECKLIST_TOTAL = 12;
 
 // ── Section building blocks (numbered header, image card, icon link tile) ──
 function SectionHeader({ num, title, sub }) {
@@ -71,16 +66,9 @@ function LinkTile({ Icon, title, sub, onPress }) {
 
 export default function HajjGuideScreen({ navigation }) {
   const insets = useSafeAreaInsets();
-  const [doneCount, setDoneCount] = useState(0);
   const [showJourneyViewer, setShowJourneyViewer] = useState(false);
 
-  useFocusEffect(useCallback(() => {
-    AsyncStorage.getItem(STORAGE_KEY).then(v => {
-      if (v) setDoneCount(Object.values(JSON.parse(v)).filter(Boolean).length);
-    }).catch(() => {});
-  }, []));
-
-  const goPlan = () => navigation?.getParent?.()?.navigate?.("Plan");
+  const goChecklists = () => navigation?.getParent?.()?.navigate?.("Plan", { screen: "Checklists", params: { returnToTab: "Learn" } });
 
   return (
     <View style={s.root}>
@@ -146,7 +134,7 @@ export default function HajjGuideScreen({ navigation }) {
           <View style={s.section}>
             <SectionHeader num={3} title="Prepare for your journey" sub="Get organized with checklists and essential items." />
             <View style={s.cardRow}>
-              <ImageCard image={CHECKLIST_CARD_IMG} title="Hajj Checklist" sub={doneCount + " of " + CHECKLIST_TOTAL + " tasks completed"} onPress={goPlan} />
+              <ImageCard image={CHECKLIST_CARD_IMG} title="Hajj Checklist" sub="Pack and prepare, nothing missed" onPress={goChecklists} />
               <ImageCard image={ESSENTIALS_CARD_IMG} title="Essentials" sub="Hand-picked items for your journey." onPress={() => navigation?.navigate?.("Shop", { category: "all" })} />
             </View>
           </View>
